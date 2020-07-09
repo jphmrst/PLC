@@ -353,3 +353,7 @@ roundTripTwice {x} onex | zero , eq | 0<fromx rewrite sym eq =
 roundTripTwice {x} onex | suc n , eq rewrite sym eq | toTwiceSuc {n} |
 cong x0_ (sym (roundTrip (one onex))) | sym eq = refl
 ```
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

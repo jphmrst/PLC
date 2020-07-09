@@ -484,3 +484,7 @@ This chapter uses the following unicode:
     †  U+2020  DAGGER (\dag)
     ⁻  U+207B  SUPERSCRIPT MINUS (\^-)
     ¹  U+00B9  SUPERSCRIPT ONE (\^1)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

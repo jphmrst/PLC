@@ -1269,3 +1269,7 @@ This chapter uses the following unicode:
     σ  U+03C3  GREEK SMALL LETTER SIGMA (\Gs or \sigma)
     †  U+2020  DAGGER (\dag)
     ‡  U+2021  DOUBLE DAGGER (\ddag)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

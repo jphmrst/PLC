@@ -995,3 +995,7 @@ This chapter uses the following unicode:
 Similar to `\r`, the command `\^r` gives access to a variety of
 superscript rightward arrows, and also a superscript letter `r`.
 The command `\'` gives access to a range of primes (`′ ″ ‴ ⁗`).
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

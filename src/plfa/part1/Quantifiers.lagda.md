@@ -499,3 +499,7 @@ This chapter uses the following unicode:
     Π  U+03A0  GREEK CAPITAL LETTER PI (\Pi)
     Σ  U+03A3  GREEK CAPITAL LETTER SIGMA (\Sigma)
     ∃  U+2203  THERE EXISTS (\ex, \exists)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

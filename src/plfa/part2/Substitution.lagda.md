@@ -1009,3 +1009,7 @@ This chapter uses the following unicode:
     ⨟  U+2A1F  Z NOTATION SCHEMA COMPOSITION (C-x 8 RET Z NOTATION SCHEMA COMPOSITION)
     〔  U+3014  LEFT TORTOISE SHELL BRACKET (\( option 9 on page 2)
     〕  U+3015  RIGHT TORTOISE SHELL BRACKET (\) option 9 on page 2)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

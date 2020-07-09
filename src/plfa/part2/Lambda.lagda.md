@@ -1401,3 +1401,7 @@ This chapter uses the following unicode:
 
 We compose reduction `—→` from an em dash `—` and an arrow `→`.
 Similarly for reflexive and transitive closure `—↠`.
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

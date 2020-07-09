@@ -1132,3 +1132,7 @@ This chapter uses the following unicode:
     ⊗  U+2297  CIRCLED TIMES  (\otimes, \ox)
     ∈  U+2208  ELEMENT OF  (\in)
     ∉  U+2209  NOT AN ELEMENT OF  (\inn, \notin)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

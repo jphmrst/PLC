@@ -447,3 +447,7 @@ This chapter uses the following unicode:
     ₑ  U+2091  LATIN SUBSCRIPT SMALL LETTER E (\_e)
     ⊢  U+22A2  RIGHT TACK (\|- or \vdash)
     ⇓  U+21DB  DOWNWARDS DOUBLE ARROW (\d= or \Downarrow)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

@@ -872,3 +872,7 @@ This chapter uses the following unicode:
 
 The `\st` command permits navigation among many different stars;
 the one we use is number 7.
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

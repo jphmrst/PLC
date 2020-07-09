@@ -118,3 +118,7 @@ Here are some characters that are often not monospaced.
 
 -}
 ```
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

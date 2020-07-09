@@ -253,3 +253,7 @@ Like it, this is very much a work-in-progress and is not exhaustive.
   ```
   Such elimination and introduction proofs are called the name of the
   function superscripted with either a `+` or `-` accordingly.
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

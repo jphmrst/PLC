@@ -1376,3 +1376,7 @@ This chapter uses the following unicode:
     ₇  U+2087  SUBSCRIPT SEVEN (\_7)
     ≠  U+2260  NOT EQUAL TO (\=n)
 
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

@@ -122,3 +122,7 @@ denot-equal-contex-equal{Γ}{M}{N} eq {C} =
 This chapter uses the following unicode:
 
     ≅  U+2245  APPROXIMATELY EQUAL TO (\~= or \cong)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

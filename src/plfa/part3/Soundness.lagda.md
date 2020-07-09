@@ -675,3 +675,7 @@ soundness {Γ} (L —→⟨ r ⟩ M—↠N) γ v =
 This chapter uses the following unicode:
 
     ≟  U+225F  QUESTIONED EQUAL TO (\?=)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

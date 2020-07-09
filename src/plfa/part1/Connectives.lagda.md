@@ -790,3 +790,7 @@ This chapter uses the following unicode:
     ₁  U+2081  SUBSCRIPT ONE (\_1)
     ₂  U+2082  SUBSCRIPT TWO (\_2)
     ⇔  U+21D4  LEFT RIGHT DOUBLE ARROW (\<=>)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

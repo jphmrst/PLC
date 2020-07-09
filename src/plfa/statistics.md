@@ -34,3 +34,7 @@ Total number of lines and number of lines of Agda code in each chapter
     Acknowledgements              55       0
     Fonts                         82      64
     Statistics                    36       0
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

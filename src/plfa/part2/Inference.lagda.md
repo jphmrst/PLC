@@ -1129,3 +1129,7 @@ This chapter uses the following unicode:
     ↓  U+2193:  DOWNWARDS ARROW (\d)
     ↑  U+2191:  UPWARDS ARROW (\u)
     ∥  U+2225:  PARALLEL TO (\||)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

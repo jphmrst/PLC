@@ -824,3 +824,7 @@ This chapter uses the following unicode:
 
 The commands `\^l` and `\^r` give access to a variety of superscript
 leftward and rightward arrows in addition to superscript letters `l` and `r`.
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

@@ -621,3 +621,7 @@ Homeier's (TPHOLs 2001).
 This chapter uses the following unicode:
 
     ⇛  U+3015  RIGHTWARDS TRIPLE ARROW (\r== or \Rrightarrow)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

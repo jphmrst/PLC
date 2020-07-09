@@ -510,3 +510,7 @@ This chapter uses the following unicode:
     ≃  U+2243  ASYMPTOTICALLY EQUAL TO (\~-)
     ≲  U+2272  LESS-THAN OR EQUIVALENT TO (\<~)
     ⇔  U+21D4  LEFT RIGHT DOUBLE ARROW (\<=>)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

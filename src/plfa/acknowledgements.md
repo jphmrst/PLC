@@ -58,3 +58,6 @@ For support:
 * NSF Grant No. 1814460
 * Foundation Sciences Mathematiques de Paris (FSMP)
   Distinguised Professor Fellowship
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

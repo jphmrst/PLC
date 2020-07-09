@@ -35,27 +35,45 @@ writing `0 : ℕ`, `1 : ℕ`, `2 : ℕ`, `3 : ℕ`, and so on.
 
 The set of natural numbers is infinite, yet we can write down
 its definition in just a few lines.  Here is the definition
-as a pair of inference rules:
+as a pair of *inference rules*:
 
-    --------
-    zero : ℕ
+                    m : ℕ
+    --------      ---------
+    zero : ℕ      suc m : ℕ
 
-    m : ℕ
-    ---------
-    suc m : ℕ
+Inference rules tell us how we can draw conclusions given certain
+forms of evidence.  Every inference rule has a horizontal line with
+one statement below it.  The statement below the line is called the
+*conclusion* of the rule.  Each inference rule may also have one or
+more statements above the horizontal line; these statements are called
+the *premises* of the rule.
 
-And here is the definition in Agda:
+The first rule above tells us that zero is a natural number.  We do
+not need any additional evidence to reach this conclusion, because the
+rule has no premises at all: an inference rule *may* have premises,
+but it is not required to have them.  Since the first rule does not
+use any other facts about natural numbers as a premise, we can see it
+as a *base case* of identifying natural numbers.
+
+The second rule above does have one premise.  It tells us that if we
+have evidence that some value is a natural number, then with the
+second rule we have evidence that the *successor* of the value is also
+a natural number (`suc` is short for successor).  Since the second
+rule does use evidence about another value being a natural number, we
+can see it as an *inductive case* of identifying natural numbers.
+
+Rules like these two correspond to a *datatype* definition in Agda:
 ```
 data ℕ : Set where
   zero : ℕ
   suc  : ℕ → ℕ
 ```
 
-Here `ℕ` is the name of the *datatype* we are defining,
-and `zero` and `suc` (short for *successor*) are the
-*constructors* of the datatype.
+Here `ℕ` is the name of the datatype we are defining,
+and `zero` and `suc` are the *constructors* of the datatype.  
 
-Both definitions above tell us the same two things:
+Both the informal inference rules and the datatype definition
+tell us the same two things:
 
 * _Base case_: `zero` is a natural number.
 * _Inductive case_: if `m` is a natural number, then `suc m` is also a
@@ -990,3 +1008,7 @@ move the cursor onto the character and use `quail-show-key` with:
 
 You'll see a key sequence of the character in mini buffer.
 If you run `M-x quail-show-key` on say `∸`, you will see `\.-` for the character.
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

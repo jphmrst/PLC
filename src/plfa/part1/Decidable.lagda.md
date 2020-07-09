@@ -583,3 +583,7 @@ import Relation.Binary using (Decidable)
     ᵇ  U+1D47  MODIFIER LETTER SMALL B  (\^b)
     ⌊  U+230A  LEFT FLOOR (\cll)
     ⌋  U+230B  RIGHT FLOOR (\clr)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

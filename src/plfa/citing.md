@@ -20,3 +20,7 @@ permalink      : /Citing/
 	  note   = {Available at \url{http://plfa.inf.ed.ac.uk/}},
 	  year   = 2019,
 	}
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

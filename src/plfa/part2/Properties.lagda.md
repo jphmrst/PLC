@@ -1585,3 +1585,7 @@ This chapter uses the following unicode:
     ≟  U+225F  QUESTIONED EQUAL TO (\?=)
     ⊢  U+22A2  RIGHT TACK (\vdash or \|-)
     ⦂  U+2982  Z NOTATION TYPE COLON (\:)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

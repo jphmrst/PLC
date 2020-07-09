@@ -11,7 +11,7 @@ will require access to the UWL VPN or Canvas LMS.
 
   - Syllabus.
   - Announcements.
-  - [Getting started]({{ site.baseurl }}/GettingStarted/): Setting up Agda
+  - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack

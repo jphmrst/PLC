@@ -112,3 +112,7 @@ practice.
 
 You may need to import library functions required for the solution.
 
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

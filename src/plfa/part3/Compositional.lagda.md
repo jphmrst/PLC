@@ -536,3 +536,7 @@ This chapter uses the following unicode:
 
     ℱ  U+2131  SCRIPT CAPITAL F (\McF)
     ●  U+2131  BLACK CIRCLE (\cib)
+
+---
+
+*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
