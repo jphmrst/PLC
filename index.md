@@ -7,11 +7,11 @@ This document contains material for the Fall 2020 offering of UWL
 CS421, Concepts of Programming Languages.  Some links on this page
 will require access to the UWL VPN or Canvas LMS.
 
-## Course administration
+## About this class
 
-  - Syllabus.
-  - Announcements.
-  - Introduction.
+  - Introduction: To be posted
+  - Syllabus: Will be released before the first week of class
+  - Announcements: The LMS page where I will post class announcements
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
@@ -20,10 +20,16 @@ will require access to the UWL VPN or Canvas LMS.
 ## Functional programming
 
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
+  - Additional material to be posted
+
+{::comment}
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
+{:/comment}
 
-## Statements about programs, proofs of statements
 
+## Statements and their proofs
+
+{::comment}
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
@@ -32,19 +38,26 @@ will require access to the UWL VPN or Canvas LMS.
   - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
   - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
+{:/comment}
+  - Material to be posted
 
 ## Imperative programs and their semantics
+  - Material to be posted
 
 ## Lambda: A semantics for functional programming
 
+{::comment}
   - [Lambda]({{ site.baseurl }}/Lambda/): Introduction to Lambda Calculus
   - [Properties]({{ site.baseurl }}/Properties/): Progress and Preservation
+{:/comment}
+  - Material to be posted
 
 ## Objects and classes
+  - Material to be posted
 
-## Appendix
+{::comment}
 
-### More about the lambda calculus
+## More about the lambda calculus
 
   - [DeBruijn]({{ site.baseurl }}/DeBruijn/): Intrinsically-typed de Bruijn representation
   - [More]({{ site.baseurl }}/More/): Additional constructs of simply-typed lambda calculus
@@ -54,7 +67,7 @@ will require access to the UWL VPN or Canvas LMS.
   - [Confluence]({{ site.baseurl }}/Confluence/): Confluence of untyped lambda calculus 🚧
   - [BigStep]({{ site.baseurl }}/BigStep/): Big-step semantics of untyped lambda calculus 🚧
 
-### Denotational Semantics
+## Denotational Semantics
 
   - [Denotational]({{ site.baseurl }}/Denotational/): Denotational semantics of untyped lambda calculus 🚧
   - [Compositional]({{ site.baseurl }}/Compositional/): The denotational semantics is compositional 🚧
@@ -62,8 +75,9 @@ will require access to the UWL VPN or Canvas LMS.
   - [Adequacy]({{ site.baseurl }}/Adequacy/): Adequacy of denotational semantics with respect to operational semantics 🚧
   - [ContextualEquivalence]({{ site.baseurl }}/ContextualEquivalence/): Denotational equality implies contextual equivalence 🚧
 
-### Substitution
+## Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
 
+{:/comment}
 
