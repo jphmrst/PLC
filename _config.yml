@@ -1,52 +1,14 @@
 title: >
-  Programming Language Foundations in Agda
+  Concepts of Programming Languages (CS421, Fall 2020)
 
 description: >
-  Programming Language Foundations in Agda
+  Material for UWL CS421 (Concepts of Programming Languages), Fall 2020
 
 license: Creative Commons Attribution 4.0 International License
 license-file: https://creativecommons.org/licenses/by/4.0/
 
-# To include a new author, add them below in the order in which they are to be
-# displayed in the author list. If they have made contributions as an author via
-# GitHub, their username MUST be included in the list.
-authors:
-  - name: Philip Wadler
-    email: wadler@inf.ed.ac.uk
-    corresponding: true
-    github_username: wadler
-  - name: Wen Kokke
-    email: wen.kokke@ed.ac.uk
-    corresponding: true
-    github_username: wenkokke
-    twitter_username: wenkokke
-  - name: Jeremy G. Siek
-    email: jsiek@indiana.edu
-    corresponding: true
-    github_username: jsiek
-    twitter_username: jeremysiek
 
-extra_contributors:
-  - github_username: cyberglot
-  - name: Vikraman Choudhury
-  - name: Ben Darwin
-  - github_username: koo5
-  - name: Anish Tondwalkar
-  - name: Nils Anders Danielsson
-  - name: Miëtek Bak
-  - name: Gergő Érdi
-  - name: Adam Sandberg Eriksson
-  - name: David Janin
-  - name: András Kovács
-  - name: Ulf Norell
-  - name: Liam O'Connor
-  - name: N. Raghavendra
-  - name: Roman Kireev
-  - name: Amr Sabry
-
-google_analytics: "UA-125055580-1"
-
-repository: plfa/plfa.github.io
+repository: jphmrst/plfa.github.io
 branch: dev
 
 baseurl: ""

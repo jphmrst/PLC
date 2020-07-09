@@ -120,7 +120,7 @@ server-stop:
 
 # Build website using jekyll
 build: $(MARKDOWN_FILES)
-	$(JEKYLL) build
+	$(JEKYLL) build --verbose
 
 
 # Build website using jekyll incrementally
