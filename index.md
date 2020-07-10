@@ -19,6 +19,8 @@ will require access to the UWL VPN or Canvas LMS.
 
 ## Functional programming
 
+  - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
+    programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
   - Additional material to be posted
 

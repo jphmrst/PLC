@@ -1,7 +1,7 @@
 ---
 title     : "Naturals: Natural numbers"
 layout    : page
-prev      : /Preface/
+prev      : /Basics/
 permalink : /Naturals/
 next      : /Induction/
 ---
@@ -19,7 +19,7 @@ Count all the stars, and you will still have as many natural numbers
 left over as you started with.
 
 
-## The naturals are an inductive datatype
+## What is a natural number?
 
 Everyone is familiar with the natural numbers
 
@@ -29,13 +29,13 @@ Everyone is familiar with the natural numbers
     3
     ...
 
-and so on. We write `ℕ` for the *type* of natural numbers, and say that
-`0`, `1`, `2`, `3`, and so on are *values* of type `ℕ`, indicated by
+and so on. We write `ℕ` for the _type_ of natural numbers, and say that
+`0`, `1`, `2`, `3`, and so on are _values_ of type `ℕ`, indicated by
 writing `0 : ℕ`, `1 : ℕ`, `2 : ℕ`, `3 : ℕ`, and so on.
 
 The set of natural numbers is infinite, yet we can write down
 its definition in just a few lines.  Here is the definition
-as a pair of *inference rules*:
+as a pair of _inference rules_:
 
                     m : ℕ
     --------      ---------
@@ -43,26 +43,63 @@ as a pair of *inference rules*:
 
 Inference rules tell us how we can draw conclusions given certain
 forms of evidence.  Every inference rule has a horizontal line with
-one statement below it.  The statement below the line is called the
-*conclusion* of the rule.  Each inference rule may also have one or
-more statements above the horizontal line; these statements are called
-the *premises* of the rule.
+one statement or _judgment_ below it.  The judgment below the line is
+called the _conclusion_ of the rule.  Each inference rule may also
+have one or more judgments above the horizontal line, called the
+_premises_ of the rule.
 
 The first rule above tells us that zero is a natural number.  We do
 not need any additional evidence to reach this conclusion, because the
-rule has no premises at all: an inference rule *may* have premises,
+rule has no premises at all: an inference rule _may_ have premises,
 but it is not required to have them.  Since the first rule does not
 use any other facts about natural numbers as a premise, we can see it
-as a *base case* of identifying natural numbers.
+as a _base case_ of identifying natural numbers.
 
 The second rule above does have one premise.  It tells us that if we
 have evidence that some value is a natural number, then with the
-second rule we have evidence that the *successor* of the value is also
+second rule we have evidence that the _successor_ of the value is also
 a natural number (`suc` is short for successor).  Since the second
 rule does use evidence about another value being a natural number, we
-can see it as an *inductive case* of identifying natural numbers.
+can see it as an _inductive case_ of identifying natural numbers.
 
-Rules like these two correspond to a *datatype* definition in Agda:
+We can combine uses of inference rules to reach more complicated
+conclusions that what a single rule can give us.  For example, how do
+we know that `2 : ℕ`?  We write `2` just as shorthand for `suc (suc
+zero)` — the successor of the successor of zero.  We know from the
+first inference rule that zero is, in fact, a natural.
+
+    --------
+    zero : ℕ
+
+We can now apply the second rule to this first result: since zero is a
+natural, its successor must be as well.
+
+      --------
+      zero : ℕ
+    ------------
+    suc zero : ℕ
+
+When we line up inference rules this way, with the premise of one
+supplied by the conclusion of another, we call the resulting structure
+a _proof tree_.  We can use the conclusion of this proof tree to
+supply the premise of the second inference rule again:
+
+         --------
+         zero : ℕ
+       ------------
+       suc zero : ℕ
+    ------------------
+    suc (suc zero) : ℕ
+
+We have used our inference rules to show that `2` is a natural number,
+and could continue the process to address any of the values we
+normally consider to be naturals.
+
+## The naturals as an inductive datatype
+
+Rules like the two inference rules for the naturals correspond to a
+_datatype_ definition in Agda:
+
 ```
 data ℕ : Set where
   zero : ℕ
@@ -70,7 +107,7 @@ data ℕ : Set where
 ```
 
 Here `ℕ` is the name of the datatype we are defining,
-and `zero` and `suc` are the *constructors* of the datatype.  
+and `zero` and `suc` are the _constructors_ of the datatype.  
 
 Both the informal inference rules and the datatype definition
 tell us the same two things:
@@ -79,7 +116,7 @@ tell us the same two things:
 * _Inductive case_: if `m` is a natural number, then `suc m` is also a
   natural number.
 
-Further, these two rules give the *only* ways of creating natural numbers.
+Further, these two rules give the _only_ ways of creating natural numbers.
 Hence, the possible natural numbers are:
 
     zero
@@ -88,11 +125,11 @@ Hence, the possible natural numbers are:
     suc (suc (suc zero))
     ...
 
-We write `0` as shorthand for `zero`; and `1` is shorthand
-for `suc zero`, the successor of zero, that is, the natural that comes
-after zero; and `2` is shorthand for `suc (suc zero)`, which is the
-same as `suc 1`, the successor of one; and `3` is shorthand for the
-successor of two; and so on.
+Agda allows to write `0` as a shorthand for `zero`.  `1` is shorthand
+for the longhand `suc zero`, the successor of zero, that is, the
+natural that comes after zero.  And `2` is shorthand for `suc (suc
+zero)`, which is the same as `suc 1`, the successor of one; and `3` is
+shorthand for the successor of two; and so on.
 
 #### Exercise `seven` (practice) {#seven}
 
@@ -102,18 +139,28 @@ Write out `7` in longhand.
 -- Your code goes here
 ```
 
+#### Exercise `try-nat-defs` (practice) {#try-nat-defs}
 
-## Unpacking the inference rules
+This exercise will help you step through the use of `agda-mode` to
+examine and evaluate expressions.  When we load a source file into an
+Agda process, we can use the constructors, values, and other names
+which that file defines.
 
-Let's unpack the inference rules.  Each inference rule consists of
-zero or more _judgments_ written above a horizontal line, called the
-_hypotheses_, and a single judgment written below, called the
-_conclusion_.  The first rule is the base case. It has no hypotheses,
-and the conclusion asserts that `zero` is a natural.  The second rule
-is the inductive case. It has one hypothesis, which assumes that `m`
-is a natural, and the conclusion asserts that `suc m`
-is a also a natural.
+ - First, open this source file `Naturals.lagda.md` in Emacs, and load
+   it into an Agda process with `C-c C-l`.
 
+ - Next, type `C-c C-n`.  Emacs will ask for an expression; try
+   entering `suc (suc zero)`, and press the Enter key.
+
+ - Emacs will display the result of simplifying this expression in a
+   new-subwindow.  Agda understands the relationship between the
+   formal longhand of `suc` and `zero` constructors, and the nice
+   shorthand `2` which it shows in the sub-window.
+
+Expression evaluation with `C-c C-n` will be a regular tool for you as
+we encounter new definitions.  Take the time to experiment with
+evaluating different expressions to make sure that you understand all
+of the definitions we will encounter.
 
 ## Unpacking the Agda definition
 
@@ -974,10 +1021,6 @@ This chapter uses the following unicode:
     ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
     ∎  U+220E  END OF PROOF (\qed)
 
-Each line consists of the Unicode character (`ℕ`), the corresponding
-code point (`U+2115`), the name of the character (`DOUBLE-STRUCK CAPITAL N`),
-and the sequence to type into Emacs to generate the character (`\bN`).
-
 The command `\r` gives access to a wide variety of rightward arrows.
 After typing `\r`, one can access the many available arrows by using
 the left, right, up, and down keys to navigate.  The command remembers
@@ -993,21 +1036,6 @@ characters:
 
 We write `C-b` to stand for control-b, and similarly.  One can also navigate
 left and right by typing the digits that appear in the displayed list.
-
-For a full list of supported characters, use `agda-input-show-translations` with:
-
-    M-x agda-input-show-translations
-
-All the characters supported by `agda-mode` are shown. We write M-x to stand for
-typing `ESC` followed by `x`.
-
-If you want to know how you input a specific Unicode character in an agda file,
-move the cursor onto the character and use `quail-show-key` with:
-
-    M-x quail-show-key
-
-You'll see a key sequence of the character in mini buffer.
-If you run `M-x quail-show-key` on say `∸`, you will see `\.-` for the character.
 
 ---
 

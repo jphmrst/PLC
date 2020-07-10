@@ -2,7 +2,7 @@
 
     <div class="wrapper">
 
-        <a class="site-title" href="{{ "/" | relative_url}}">{{ site.title | escape }}</a>
+        <a class="site-title" href="{{ site.baseurl }}/">{{ site.title | escape }}</a>
 
         <nav class="site-nav">
             <span class="menu-icon">
@@ -14,9 +14,9 @@
             </span>
 
             <div class="trigger">
-                <a class="page-link" href="{{ "/" | relative_url }}">Course Pack</a>
-                <a class="page-link" href="{{ "/Announcements/" | relative_url }}">Announcements</a>
-                <a class="page-link" href="{{ "/GettingStarted/" | relative_url }}">Getting Started</a>
+                <a class="page-link" href="{{ site.baseurl }}/">Course Pack top</a>
+                <a class="page-link" href="{{ site.baseurl }}/Announcements/">Announcements</a>
+                <a class="page-link" href="{{ site.baseurl }}/Setup">Getting Started</a>
             </div>
         </nav>
 
