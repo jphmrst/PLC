@@ -127,9 +127,18 @@ Write a function `nextWeekday` which takes a day, and returns the next
 weekday after that day (so skipping past Saturday and Sunday to
 Monday).
 
-``nextWeekday : Day → Day
-nextWeekday d = ?
-``
+    nextWeekday : Day → Day
+    nextWeekday d = ?
+
+When working exercises by filling out the source code in the book, you
+will notice that the template code for the exercises is formatted
+differently than (for example) the definitions of `Day` and `nextDay`
+above.  In order make Agda pay attention to yur implementation of
+`nextWeekday`, you must add single lines directly above and below the
+template code, each consisting of three backticks, ```` ``` ````, with
+no spaces before, after, or in between them, just as you see around
+the definitions of `Day` and `nextDay`.  You should also remove the
+extra indentation at the start of the template code.
 
 ### Booleans
 
@@ -142,12 +151,12 @@ data Bool : Set where
   False : Bool
 ```
 
-Although we are rolling our own booleans here for the sake of building
-up everything from scratch, Agda does, of course, provide a default
-implementation of the booleans in its standard library, together with
-a multitude of useful functions.  Whenever possible, we'll name our
-own definitions so that they exactly coincide with the ones in the
-standard library.
+Although we are rolling our own booleans here for the sake of seeing
+how to build everything from scratch, Agda does, of course, provide a
+default implementation of the booleans in its standard library,
+together with a multitude of useful functions.  Whenever possible,
+we'll name our own definitions so that they exactly coincide with the
+ones in the standard library.
 
 Functions over booleans can be defined in the same way as above:
 
@@ -177,20 +186,19 @@ given by the following truth table:
   |True |False  |True| 
   |True |True  |False|
 
-``nand : Bool → Bool → Bool
-nand a b = ?
-``
+    nand : Bool → Bool → Bool
+    nand a b = ?
 
 #### Exercise `and3` (practice) {#and3}
 
 Implement the `and3` function that returns the conjunction of three
 boolean values.
 
-``and3 : Bool → Bool → Bool → Bool
-and3 a b c = ?
+    and3 : Bool → Bool → Bool → Bool
+    and3 a b c = ?
 
 ## Unicode
-``
+
 This chapter uses the following unicode:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
