@@ -398,7 +398,7 @@ module Problem3 where
 ### Imports
 
 ```
-  import plfa.part2.DeBruijn as DB
+  import cs421.lambda.DeBruijn as DB
 ```
 
 ### Syntax
