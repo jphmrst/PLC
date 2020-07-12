@@ -1,13 +1,13 @@
 ---
 title     : "Lists: Lists and higher-order functions"
 layout    : page
-prev      : /Decidable/
+prev      : /Naturals/
 permalink : /Lists/
 next      : /Lambda/
 ---
 
 ```
-module plfa.part1.Lists where
+module cs421.fp.Lists where
 ```
 
 This chapter discusses the list data type.  It gives further examples
@@ -28,7 +28,7 @@ open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
 open import Function using (_∘_)
 open import Level using (Level)
-open import plfa.part1.Isomorphism using (_≃_; _⇔_)
+open import cs421.fp.Isomorphism using (_≃_; _⇔_)
 ```
 
 

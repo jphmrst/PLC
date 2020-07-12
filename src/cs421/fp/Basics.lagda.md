@@ -7,7 +7,7 @@ next      : /Naturals/
 ---
 
 ```
-module plfa.part1.Basics where
+module cs421.fp.Basics where
 ```
 
 The functional programming style brings programming closer to
@@ -93,7 +93,7 @@ explicitly — i.e., they perform type inference.  Agda performs some
 inference, but we will always include these type _signatures_ for the
 functions we write.
 
-#### Exercise `try-days` (practice) {#try-days}
+#### Exercise `try-days` (starting) {#try-days}
 
 Having defined a function, we should check that it works on some
 examples.  This exercise will help you step through the use of

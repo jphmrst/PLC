@@ -7,7 +7,7 @@ next      : /Denotational/
 ---
 
 ```
-module plfa.part2.BigStep where
+module cs421.lambda.BigStep where
 ```
 
 ## Introduction
@@ -39,11 +39,11 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; proj₂)
   renaming (_,_ to ⟨_,_⟩)
 open import Function using (_∘_)
-open import plfa.part2.Untyped
+open import cs421.lambda.Untyped
   using (Context; _⊢_; _∋_; ★; ∅; _,_; Z; S_; `_; #_; ƛ_; _·_;
   subst; subst-zero; exts; rename; β; ξ₁; ξ₂; ζ; _—→_; _—↠_; _—→⟨_⟩_; _∎;
   —↠-trans; appL-cong)
-open import plfa.part2.Substitution using (Subst; ids)
+open import cs421.lambda.Substitution using (Subst; ids)
 ```
 
 ## Environments
@@ -211,7 +211,7 @@ the same term.
 
 ```
 sub-id : ∀{Γ} {A} {M : Γ ⊢ A} → subst ids M ≡ M
-sub-id = plfa.part2.Substitution.sub-id
+sub-id = cs421.lambda.Substitution.sub-id
 ```
 
 
@@ -238,7 +238,7 @@ Chapter [Substitution]({{ site.baseurl }}/Substitution/).
 subst-zero-exts : ∀{Γ Δ}{σ : Subst Γ Δ}{B}{M : Δ ⊢ B}{x : Γ ∋ ★}
   → (subst (subst-zero M) ∘ exts σ) (S x) ≡ σ x
 subst-zero-exts {Γ}{Δ}{σ}{B}{M}{x} =
-   cong-app (plfa.part2.Substitution.subst-zero-exts-cons{σ = σ}) (S x)
+   cong-app (cs421.lambda.Substitution.subst-zero-exts-cons{σ = σ}) (S x)
 ```
 
 So the proof of `≈ₑ-ext` is as follows.
@@ -270,7 +270,7 @@ composing the two substitutions and then applying them.
 ```
 sub-sub : ∀{Γ Δ Σ}{A}{M : Γ ⊢ A} {σ₁ : Subst Γ Δ}{σ₂ : Subst Δ Σ}
   → subst σ₂ (subst σ₁ M) ≡ subst (subst σ₂ ∘ σ₁) M
-sub-sub {M = M} = plfa.part2.Substitution.sub-sub {M = M}
+sub-sub {M = M} = cs421.lambda.Substitution.sub-sub {M = M}
 ```
 
 We arive at the main lemma: if `M` big steps to a

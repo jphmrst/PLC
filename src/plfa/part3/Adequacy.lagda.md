@@ -79,12 +79,12 @@ open import Data.Empty using (⊥-elim) renaming (⊥ to Bot)
 open import Data.Unit
 open import Relation.Nullary using (Dec; yes; no)
 open import Function using (_∘_)
-open import plfa.part2.Untyped
+open import cs421.lambda.Untyped
      using (Context; _⊢_; ★; _∋_; ∅; _,_; Z; S_; `_; ƛ_; _·_;
             rename; subst; ext; exts; _[_]; subst-zero;
             _—↠_; _—→⟨_⟩_; _∎; _—→_; ξ₁; ξ₂; β; ζ)
-open import plfa.part2.Substitution using (ids; sub-id)
-open import plfa.part2.BigStep
+open import cs421.lambda.Substitution using (ids; sub-id)
+open import cs421.lambda.BigStep
      using (Clos; clos; ClosEnv; ∅'; _,'_; _⊢_⇓_; ⇓-var; ⇓-lam; ⇓-app; ⇓-determ;
             cbn→reduce)
 open import plfa.part3.Denotational

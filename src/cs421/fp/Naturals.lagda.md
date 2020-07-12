@@ -3,11 +3,11 @@ title     : "Naturals: Natural numbers"
 layout    : page
 prev      : /Basics/
 permalink : /Naturals/
-next      : /Induction/
+next      : /NatData/
 ---
 
 ```
-module plfa.part1.Naturals where
+module cs421.fp.Naturals where
 ```
 
 The night sky holds more stars than I can count, though fewer than five

@@ -70,10 +70,10 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Nullary using (¬_)
 open import Relation.Nullary.Negation using (contradiction)
 open import Function using (_∘_)
-open import plfa.part2.Untyped
+open import cs421.lambda.Untyped
   using (Context; ★; _∋_; ∅; _,_; Z; S_; _⊢_; `_; _·_; ƛ_;
          #_; twoᶜ; ext; rename; exts; subst; subst-zero; _[_])
-open import plfa.part2.Substitution using (Rename; extensionality; rename-id)
+open import cs421.lambda.Substitution using (Rename; extensionality; rename-id)
 ```
 
 

@@ -31,7 +31,7 @@ open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; p
   renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Unit using (⊤; tt)
-open import plfa.part2.Untyped
+open import cs421.lambda.Untyped
   using (Context; _,_; ★; _∋_; _⊢_; `_; ƛ_; _·_)
 open import plfa.part3.Denotational
   using (Value; _↦_; _`,_; _⊔_; ⊥; _⊑_; _⊢_↓_;

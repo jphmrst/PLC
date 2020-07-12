@@ -8,7 +8,7 @@ next      : /Acknowledgements/
 
 
 ```
-module plfa.part2.Substitution where
+module cs421.lambda.Substitution where
 ```
 
 ## Introduction
@@ -50,7 +50,7 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; sym; cong; cong₂; cong-app)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Function using (_∘_)
-open import plfa.part2.Untyped
+open import cs421.lambda.Untyped
      using (Type; Context; _⊢_; ★; _∋_; ∅; _,_; Z; S_; `_; ƛ_; _·_;
             rename; subst; ext; exts; _[_]; subst-zero)
 ```
