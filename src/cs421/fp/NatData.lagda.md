@@ -8,6 +8,7 @@ next      : /Induction/
 
 ```
 module cs421.fp.NatData where
+open import cs421.fp.Naturals
 ```
 
 ## Pairs of Numbers
@@ -18,7 +19,7 @@ arguments — none (as with `true`, `false` and `zero`), one (as with
 
 ```
 data natprod : Set where
-  pair : ℕ → ℕ → ℕ
+  pair : ℕ → ℕ → natprod
 ```
 
 This declaration can be read: "The one and only way to construct a

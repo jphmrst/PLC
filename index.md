@@ -22,10 +22,10 @@ will require access to the UWL VPN or Canvas LMS.
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
+  - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
   - Additional material to be posted
 
 {::comment}
-  - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 {:/comment}
 
 
