@@ -54,13 +54,13 @@ open import Function using (_∘_)
 open import Algebra.Structures using (IsMonoid)
 open import Level using (Level)
 open import Relation.Unary using (Decidable)
-open import cs421.fp.Relations using (_<_; z<s; s<s)
-open import cs421.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
-open cs421.fp.Isomorphism.≃-Reasoning
-open import cs421.fp.Lists using (List; []; _∷_; [_]; [_,_]; [_,_,_]; [_,_,_,_];
+open import plfa.fp.Relations using (_<_; z<s; s<s)
+open import plfa.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
+open plfa.fp.Isomorphism.≃-Reasoning
+open import plfa.fp.Lists using (List; []; _∷_; [_]; [_,_]; [_,_,_]; [_,_,_,_];
   _++_; reverse; map; foldr; sum; All; Any; here; there; _∈_)
-open import cs421.lambda.Lambda hiding (ƛ′_⇒_; case′_[zero⇒_|suc_⇒_]; μ′_⇒_; plus′)
-open import cs421.lambda.Properties hiding (value?; unstuck; preserves; wttdgs)
+open import plfa.lambda.Lambda hiding (ƛ′_⇒_; case′_[zero⇒_|suc_⇒_]; μ′_⇒_; plus′)
+open import plfa.lambda.Properties hiding (value?; unstuck; preserves; wttdgs)
 ```
 
 
@@ -359,7 +359,7 @@ C-c C-n to normalise the term
 
 Agda will return an answer warning us that the impossible has occurred:
 
-  ⊥-elim (cs421.lambda.Lambda.impossible (`` `suc (`suc `zero)) (`suc (`suc `zero)) ``)
+  ⊥-elim (plfa.lambda.Lambda.impossible (`` `suc (`suc `zero)) (`suc (`suc `zero)) ``)
 
 While postulating the impossible is a useful technique, it must be
 used with care, since such postulation could allow us to provide

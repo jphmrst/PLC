@@ -7,7 +7,7 @@ next      : /Relations/
 ---
 
 ```
-module cs421.fp.Induction where
+module plfa.fp.Induction where
 ```
 
 > Induction makes you feel guilty for getting something out of nothing

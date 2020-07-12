@@ -7,7 +7,8 @@ next      : /NatData/
 ---
 
 ```
-module cs421.fp.Naturals where
+module plfa.fp.Naturals where
+open import Data.Bool
 ```
 
 The night sky holds more stars than I can count, though fewer than five
@@ -463,10 +464,12 @@ consists of a series of terms separated by `≡⟨⟩`.
 
 In fact, both proofs are longer than need be, and Agda is satisfied
 with the following:
+
 ```
 _ : 2 + 3 ≡ 5
 _ = refl
 ```
+
 Agda knows how to
 compute the value of `2 + 3`, and so can immediately
 check it is the same as `5`.  A binary relation is said to be _reflexive_
@@ -553,8 +556,9 @@ it can easily be inferred from the corresponding term.
 
 #### Exercise `*-example` (practice) {#times-example}
 
-Compute `3 * 4`, writing out your reasoning as a chain of equations, using the equations for `*`.
-(You do not need to step through the evaluation of `+`.)
+Compute `3 * 4`, writing out your reasoning as a chain of equations,
+using the equations for `*`.  (You do not need to step through the
+evaluation of `+`.)
 
 ```
 -- Your code goes here
@@ -639,6 +643,89 @@ Compute `5 ∸ 3` and `3 ∸ 5`, writing out your reasoning as a chain of equati
 -- Your code goes here
 ```
 
+## Parity testing
+
+Is 6 an even number?  Of course we know it is, but we can write a
+recursive function so that Agda can know it as well.
+
+```
+even : ℕ → Bool
+```
+
+As usual, we need a base case, and the base case of our function
+corresponds to the base case of the natural numbers.
+
+```
+even zero = true
+```
+
+But here we have not just one, but two base cases.  The second base
+case is the smallest number which is *not* even, the smallest number
+for which `even` should return `false`.
+
+```
+even (suc zero) = false
+```
+
+Our recursive case relies on the facts that:
+
+ - If `n` is even, then `2+n` will be even as well.
+ - If `n` is odd, then `2+n` will be odd as well.
+
+```
+even (suc (suc n)) = even n
+```
+
+We can verify that our function works correctly by testing several
+cases.
+
+```
+_ : even 0 ≡ true
+_ = refl
+
+_ : even 1 ≡ false
+_ = refl
+
+_ : even 8 ≡ true
+_ = refl
+
+_ : even 13 ≡ false
+_ = refl
+```
+
+We could define `odd` similarly,
+
+```
+odd : ℕ → Bool
+odd zero = false
+odd (suc zero) = true
+odd (suc (suc n)) = odd n
+```
+
+#### Exercise `oddNot` (recommended) {#oddNot}
+ 
+Replace the definition of `odd` above with one that simply negates the
+result of a call to `even`.
+
+#### Exercise `oddEven` (recommended) {#oddEven}
+
+Agda allows us to write *mutually recursive*, where each calls the
+other in their inductive cases.  Write mutually recursive versions of
+`odd` and `even` called `odd'` and `even'`.
+
+``
+odd' : ℕ → Bool
+even' : ℕ → Bool
+
+odd' zero = false
+odd' (suc n) = ?
+
+even' zero = false
+even' (suc n) = ?
+``
+
+Note that both type declarations come before both function
+definitions, so that Agda knows how to type check the function bodies.
 
 ## Precedence
 

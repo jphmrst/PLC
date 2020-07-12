@@ -7,7 +7,7 @@ next      : /DeBruijn/
 ---
 
 ```
-module cs421.lambda.Properties where
+module plfa.lambda.Properties where
 ```
 
 This chapter covers properties of the simply-typed lambda calculus, as
@@ -31,8 +31,8 @@ open import Data.Product
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Function using (_∘_)
-open import cs421.fp.Isomorphism
-open import cs421.lambda.Lambda
+open import plfa.fp.Isomorphism
+open import plfa.lambda.Lambda
 ```
 
 

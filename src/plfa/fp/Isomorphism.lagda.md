@@ -7,7 +7,7 @@ next      : /Connectives/
 ---
 
 ```
-module cs421.fp.Isomorphism where
+module plfa.fp.Isomorphism where
 ```
 
 This section introduces isomorphism as a way of asserting that two

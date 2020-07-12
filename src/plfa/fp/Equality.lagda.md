@@ -7,7 +7,7 @@ next      : /Isomorphism/
 ---
 
 ```
-module cs421.fp.Equality where
+module plfa.fp.Equality where
 ```
 
 Much of our reasoning has involved equality.  Given two terms `M`

@@ -2,189 +2,259 @@
 title     : "NatData: Data structures with natural numbers"
 layout    : page
 prev      : /Naturals/
-permalink : /NatData/
+permalink : /Logic-NatData/
 next      : /Induction/
 ---
 
 ```
-module plfa.fp.NatData where
+module plfa.logic.NatData where
 open import plfa.fp.Naturals
-
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl)
-open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
+open import plfa.fp.NatData
 ```
 
-## Pairs of numbers
 
-In a `data` definition, each constructor can take any number of
-arguments — none (as with `true`, `false` and `zero`), one (as with
-`suc`), or more than one:
+(** Now let's try to prove a few simple facts about pairs.
 
-```
-data NatProd : Set where
-  pair : ℕ → ℕ → NatProd
-```
+    If we state properties of pairs in a slightly peculiar way, we can
+    sometimes complete their proofs with just reflexivity (and its
+    built-in simplification): *)
 
-This declaration can be read: "The one and only way to construct a
-pair of numbers is by applying the constructor `pair` to two arguments
-of type ℕ."
+Theorem surjective_pairing' : forall (n m : nat),
+  (n,m) = (fst (n,m), snd (n,m)).
+Proof.
+  reflexivity.  Qed.
 
-#### Exercise `trynatpair` (starting) {#trynatpair}
+(** TERSE: *** *)
+(** But [reflexivity] is not enough if we state the lemma in a more
+    natural way: *)
 
-Write an expression for forming a `NatProd` from the natural numbers
-`3` and `5`.  Use the `C-c C-n` key sequence as in Exercise
-`try-nat-defs` to check your expression.
+Theorem surjective_pairing_stuck : forall (p : natprod),
+  p = (fst p, snd p).
+Proof.
+  simpl. (* Doesn't reduce anything! *)
+Abort.
 
-### Extractng the elements of a pair
+(** TERSE: *** *)
+(** FULL: Instead, we need to expose the structure of [p] so that
+    [simpl] can perform the pattern match in [fst] and [snd].  We can
+    do this with [destruct]. *)
+(** TERSE: Solution: use [destruct]. *)
 
-Here are simple functions for extracting the first and second
-components of a pair:
+Theorem surjective_pairing : forall (p : natprod),
+  p = (fst p, snd p).
+Proof.
+  intros p.  destruct p as [n m].  simpl.  reflexivity.  Qed.
 
-```
-fst : NatProd → ℕ
-fst (pair x y) = x
+(** FULL: Notice that, unlike its behavior with [nat]s, where it
+    generates two subgoals, [destruct] generates just one subgoal
+    here.  That's because [natprod]s can only be constructed in one
+    way. *)
 
-snd : NatProd → ℕ
-snd (pair x y) = y
-```
+(* /HIDEFROMADVANCED *)
+(* FULL *)
+(* EX1 (snd_fst_is_swap) *)
+Theorem snd_fst_is_swap : forall (p : natprod),
+  (snd p, fst p) = swap_pair p.
+Proof.
+  (* ADMITTED *)
+  intros p.  destruct p as [n m].  simpl.  reflexivity.  Qed.
+(* /ADMITTED *)
+(** [] *)
 
-And here is a function for swapping the two elements of a pair:
+(* EX1? (fst_swap_is_snd) *)
+Theorem fst_swap_is_snd : forall (p : natprod),
+  fst (swap_pair p) = snd p.
+Proof.
+  (* ADMITTED *)
+  intros p. destruct p as [n m].  simpl.  reflexivity.  Qed.
+(* /ADMITTED *)
+(** [] *)
+(* /FULL *)
 
-```
-swapPair : NatProd → NatProd
-swapPair (pair x y) = pair y x
-```
+(* ###################################################### *)
+(** * Lists of Numbers *)
 
-## Lists of numbers
+(** FULL: Generalizing the definition of pairs, we can describe the
+    type of _lists_ of numbers like this: "A list is either the empty
+    list or else a pair of a number and another list." *)
+(** TERSE: An inductive definition of _lists_ of numbers: *)
 
-Pairs have only one possible form.  But to represent singly-linked
-lists, we must account for two possible forms in the same way that
-natural numbers have two possible forms.  A list of natural numbers is
-either the empty list, or else a pair of a number and another list.
+Inductive natlist : Type :=
+  | nil
+  | cons (n : nat) (l : natlist).
 
-```
-infixr 5 _::_
+(** FULL: For example, here is a three-element list: *)
 
-data NatList : Set where
-  [] : NatList
-  _::_ : ℕ → NatList → NatList
-```
+Definition mylist := cons 1 (cons 2 (cons 3 nil)).
 
-We are using symbols here rather than a name written with letters as
-before — but Agda has very few "special" characters, so these are
-valid names just as `pair` is a valid name.  The name `[]`, often
-pronounced _nil_, represents the empty list.  It is a constructor, but
-needs no arguments to construct the value.  The constructor `::` is
-often pronounced _cons_.  The first argument to a `::` constructor is
-what we call the _head_ or a list, and the second argument is what we
-call the _tail_.
+(** TERSE: *** *)
+(** FULL: As with pairs, it is more convenient to write lists in
+    familiar programming notation.  The following declarations
+    allow us to use [::] as an infix [cons] operator and square
+    brackets as an "outfix" notation for constructing lists. *)
+(** TERSE: Some notation for lists to make our lives easier: *)
 
-The underscores `_` _are_ special characters, and are not part of the
-name.  As with operators like `≡` and `+` which we have seen before,
-the underscore shows how `::` shows be written with its first argument
-before it, and its second argument after it.
+Notation "x :: l" := (cons x l)
+                     (at level 60, right associativity).
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..).
 
-The `infixr` declaration tells Agda that we want `::` to be
-_right-associative_.  That is, if we write `x :: y :: z` for some
-expressions `x`, `y` and `z`, then we want Agda to understand that
-expressions to be the same as `x :: (y :: z)`, and **not** `(x :: y)
-:: z`.  The number `5` tells Agda that most other operations should be
-grouped before applying `::`.  So for example, `x :: y + 2 :: z` will
-mean `x :: (y + 2) :: z`, and not `(x :: y) + (2 :: z)`.  This value
-is called the _precedence_ of the `::` operator.
+(** FULL: It is not necessary to understand the details of these
+    declarations, but here is roughly what's going on in case you are
+    interested.  The "[right associativity]" annotation tells Coq how to
+    parenthesize expressions involving multiple uses of [::] so that,
+    for example, the next three declarations mean exactly the same
+    thing: *)
+(** TERSE: Now these all mean exactly the same thing: *)
 
-For example, here is a three-element list:
+Definition mylist1 := 1 :: (2 :: (3 :: nil)).
+Definition mylist2 := 1 :: 2 :: 3 :: nil.
+Definition mylist3 := [1;2;3].
 
-```
-mylist : NatList
-mylist = 10 :: 20 :: 30 :: []
-```
+(** FULL: The "[at level 60]" part tells Coq how to parenthesize
+    expressions that involve both [::] and some other infix operator.
+    For example, since we defined [+] as infix notation for the [plus]
+    function at level 50,
+[[
+  Notation "x + y" := (plus x y)
+                      (at level 50, left associativity).
+]]
+    the [+] operator will bind tighter than [::], so [1 + 2 :: [3]]
+    will be parsed, as we'd expect, as [(1 + 2) :: [3]] rather than
+    [1 + (2 :: [3])].
 
-#### Exercise `trynatlist` (starting) {#trynatlist}
+    (Expressions like "[1 + 2 :: [3]]" can be a little confusing when
+    you read them in a [.v] file.  The inner brackets, around 3, indicate
+    a list, but the outer brackets, which are invisible in the HTML
+    rendering, are there to instruct the "coqdoc" tool that the bracketed
+    part should be displayed as Coq code rather than running text.)
 
-Write an expression for the list containing the numbers 10, 9, 8, 7
-and 6 (in that order).
+    The second and third [Notation] declarations above introduce the
+    standard square-bracket notation for lists; the right-hand side of
+    the third one illustrates Coq's syntax for declaring n-ary
+    notations and translating them to nested sequences of binary
+    constructors. *)
 
-### Functions on lists
+(** *** Repeat *)
 
-Next let's look at several functions for constructing and manipulating
-lists.  First, the `repeat` function takes a number `n` and a `count`
-and returns a list of length `count` in which every element is `n`.
+(** FULL: Next let's look at several functions for constructing and
+    manipulating lists.  First, the [repeat] function takes a number
+    [n] and a [count] and returns a list of length [count] in which
+    every element is [n]. *)
+(** TERSE: Some useful list-manipulation functions: *)
 
-```
-repeat : ℕ -> ℕ -> NatList
-repeat n zero = []
-repeat n (suc count') = n :: repeat n count'
-```
+Fixpoint repeat (n count : nat) : natlist :=
+  match count with
+  | O => nil
+  | S count' => n :: (repeat n count')
+  end.
 
-The `length` function calculates the length of a list.
+(** *** Length *)
 
-```
-length : NatList -> ℕ
-length [] = 0
-length (x :: xs) = 1 + length xs
-```
+(** FULL: The [length] function calculates the length of a list. *)
 
-The `++` function (pronounced "append") concatenates two lists.
+Fixpoint length (l:natlist) : nat :=
+  match l with
+  | nil => O
+  | h :: t => S (length t)
+  end.
 
-```
-infixr 5 _++_
+(** *** Append *)
 
-_++_ : NatList → NatList → NatList
-[] ++ ys = ys
-(x :: xs) ++ ys = x :: xs ++ ys
-```
+(** FULL: The [app] function concatenates (appends) two lists. *)
 
-A list appended to a non-empty list yields a list with the head the
-same as the head of the non-empty list, and a tail the same as the
-other list appended to tail of the non-empty list.
+Fixpoint app (l1 l2 : natlist) : natlist :=
+  match l1 with
+  | nil    => l2
+  | h :: t => h :: (app t l2)
+  end.
 
-#### Exercise `tryrepeat` (starting) {#tryrepeat}
+(** FULL: Since [app] will be used extensively, it is again convenient
+    to have an infix operator for it. *)
 
-Does the expression `repeat 3 5` produce a list of length 3 containing
-the number 5, or a list of length 5 containing the number 3?  Work out
-your answer from the definition before using a call to Agda to check
-your idea.  What happens if either the first or last argument is an
-empty list?  Both?
+Notation "x ++ y" := (app x y)
+                     (right associativity, at level 60).
 
-#### Exercise `nonzeros` (practice) {#nonzeros}
+(* HIDEFROMADVANCED *)
+Example test_app1:             [1;2;3] ++ [4;5] = [1;2;3;4;5].
+Proof. reflexivity.  Qed.
+Example test_app2:             nil ++ [4;5] = [4;5].
+Proof. reflexivity.  Qed.
+Example test_app3:             [1;2;3] ++ nil = [1;2;3].
+Proof. reflexivity.  Qed.
 
-Complete the definition of `nonzeros`.  The assertion after the
-definition template shows (to both you and to Agda) what the function
-should do.  The exercises will often include these statements, which
-serve as tests for your code: if Agda cannot transform the expression
-`nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: [])` into the expression
-`1 :: 2 :: 3 :: []` using your definition of `nonzeros`, then loading
-the file will raise an error.
+(* /HIDEFROMADVANCED *)
 
-But as in earlier examples, you must add a third backtick to the code
-below so that Agda actually does load your code and the test.  Having
-this file load successfully because Agda ignores your code for this
-exercise is not a form of success on the exercise!
+(** *** Head and Tail *)
 
-``
-nonzeros : NatList → NatList
-nonzeros [] = []
--- Add your cases here
+(** FULL: Here are two smaller examples of programming with lists.
+    The [hd] function returns the first element (the "head") of the
+    list, while [tl] returns everything but the first element (the
+    "tail").  Since the empty list has no first element, we pass
+    a default value to be returned in that case.  *)
 
-_ : nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: []) ≡ (1 :: 2 :: 3 :: [])
-_ = refl
-``
+Definition hd (default:nat) (l:natlist) : nat :=
+  match l with
+  | nil => default
+  | h :: t => h
+  end.
 
-#### Exercise `oddmembers` (practice) {#oddmembers}
+Definition tl (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | h :: t => t
+  end.
 
-Complete the definition of `oddmembers`. Have a look at the test to
-understand what it should do, and use the function `odd` from Chapter
-Naturals.
+(* HIDEFROMADVANCED *)
+Example test_hd1:             hd 0 [1;2;3] = 1.
+Proof. reflexivity.  Qed.
+Example test_hd2:             hd 0 [] = 0.
+Proof. reflexivity.  Qed.
+Example test_tl:              tl [1;2;3] = [2;3].
+Proof. reflexivity.  Qed.
 
-``
-oddmembers : NatList -> NatList
--- Add your cases here
-oddmembers [] = []
-oddmembers (x :: xs) = if (odd x) then x :: oddmembers xs else oddmembers xs
-``
+(* QUIZ *)
+(** What does the following function do? *)
 
+Fixpoint foo (n:nat) : natlist :=
+  match n with
+  | 0 => nil
+  | S n' => n :: (foo n')
+  end.
+
+(** (Submit any response when you have the answer.) *)
+(* /QUIZ *)
+
+(* /HIDEFROMADVANCED *)
+
+(* FULL *)
+(** *** Exercises *)
+
+(* EX2! (list_funs) *)
+(** Complete the definitions of [nonzeros], [oddmembers], and
+    [countoddmembers] below. Have a look at the tests to understand
+    what these functions should do. *)
+
+Fixpoint nonzeros (l:natlist) : natlist
+  (* ADMITDEF *) :=
+  match l with
+  | nil => nil
+  | h :: t =>
+      match h with
+      | O => nonzeros t
+      | S h' => h :: (nonzeros t)
+      end
+  end.
+(* /ADMITDEF *)
+
+Example test_nonzeros:
+  nonzeros [0;1;0;2;3;0;0] = [1;2;3].
+  (* ADMITTED *)
+Proof. reflexivity.  Qed.
+(* /ADMITTED *)
+(* GRADE_THEOREM 0.5: NatList.test_nonzeros *)
+
+Fixpoint oddmembers (l:natlist) : natlist
   (* ADMITDEF *) :=
   match l with
   | nil => nil
@@ -203,18 +273,7 @@ Proof. reflexivity.  Qed.
 (* /ADMITTED *)
 (* GRADE_THEOREM 0.5: NatList.test_oddmembers *)
 
-Complete the definition of `countoddmembers`. Have a look at the tests
-to understand what these functions should do.
-
-(* FULL *)
-(** *** Exercises *)
-
-(* EX2! (list_funs) *)
-(** Complete the definitions of [nonzeros], [oddmembers], and
-    [countoddmembers] below. Have a look at the tests to understand
-    what these functions should do. *)
-
-Definition countoddmembers (l:NatList) : nat
+Definition countoddmembers (l:natlist) : nat
   (* ADMITDEF *) :=
   length (oddmembers l).
 (* /ADMITDEF *)
@@ -255,7 +314,7 @@ Proof. reflexivity.  Qed.
 (* HIDE *)
 (* This is the "natural" way that doesn't work (we introduce [Fail] in
    [Poly.v]): *)
-Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
+Fail Fixpoint alternate (l1 l2:natlist)  : natlist :=
   match l1 with
   | nil => l2
   | h1::t1 => h1::(alternate l2 t1)
@@ -264,7 +323,7 @@ Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
 (* /HIDE *)
 (* QUIETSOLUTION *)
 (* /QUIETSOLUTION *)
-Fixpoint alternate (l1 l2 : NatList) : NatList
+Fixpoint alternate (l1 l2 : natlist) : natlist
   (* ADMITDEF *) :=
   match l1, l2 with
   | nil, _ => l2
@@ -275,7 +334,7 @@ Fixpoint alternate (l1 l2 : NatList) : NatList
 (* QUIETSOLUTION *)
 
 (** Or: *)
-Fixpoint alternate' (l1 l2 : NatList) : NatList :=
+Fixpoint alternate' (l1 l2 : natlist) : natlist :=
   match l1 with
   | nil => l2
   | h1::t1 => match l2 with
@@ -320,7 +379,7 @@ Proof. reflexivity.  Qed.
     can appear multiple times rather than just once.  One possible
     representation for a bag of numbers is as a list. *)
 
-Definition bag := NatList.
+Definition bag := natlist.
 
 (* EX3! (bag_functions) *)
 (** Complete the following definitions for the functions
@@ -560,7 +619,7 @@ Qed.
 (** TERSE: As for numbers, some proofs about list functions need only
     simplification... *)
 
-Theorem nil_app : forall l:NatList,
+Theorem nil_app : forall l:natlist,
   [] ++ l = l.
 Proof. reflexivity. Qed.
 
@@ -575,7 +634,7 @@ Proof. reflexivity. Qed.
 (** TERSE: *** *)
 (** TERSE: ...and some need case analysis. *)
 
-Theorem tl_length_pred : forall l:NatList,
+Theorem tl_length_pred : forall l:natlist,
   pred (length l) = length (tl l).
 Proof.
   intros l. destruct l as [| n l'].
@@ -605,7 +664,7 @@ Proof.
 (* ###################################################### *)
 (** ** Induction on Lists *)
 
-(** FULL: Proofs by induction over datatypes like [NatList] are a
+(** FULL: Proofs by induction over datatypes like [natlist] are a
     little less familiar than standard natural number induction, but
     the idea is equally simple.  Each [Inductive] declaration defines
     a set of data values that can be built up using the declared
@@ -638,7 +697,7 @@ Proof.
     definition, including lists.  We can use the [induction] tactic on
     lists to prove things like the associativity of list-append... *)
 
-Theorem app_assoc : forall l1 l2 l3 : NatList,
+Theorem app_assoc : forall l1 l2 l3 : natlist,
   (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros l1 l2 l3. induction l1 as [| n l1' IHl1'].
@@ -700,7 +759,7 @@ Proof.
     function [rev]: *)
 (** TERSE: A bigger example of induction over lists. *)
 
-Fixpoint rev (l:NatList) : NatList :=
+Fixpoint rev (l:natlist) : natlist :=
   match l with
   | nil    => nil
   | h :: t => rev t ++ [h]
@@ -720,7 +779,7 @@ Proof. reflexivity.  Qed.
 (** TERSE: *** *)
 (** TERSE: Let's try to prove [length (rev l) = length l]. *)
 
-Theorem rev_length_firsttry : forall l : NatList,
+Theorem rev_length_firsttry : forall l : natlist,
   length (rev l) = length l.
 Proof.
   intros l. induction l as [| n l' IHl'].
@@ -756,7 +815,7 @@ Abort.
    this proof. The :: and ++ operators have the same precedence, but
    it may appear as though :: should bind tighter, which makes the
    proof state hard to understand! *)
-Theorem app_length : forall l1 l2 : NatList,
+Theorem app_length : forall l1 l2 : natlist,
   length (l1 ++ l2) = (length l1) + (length l2).
 Proof.
   (* WORKINCLASS *)
@@ -768,7 +827,7 @@ Proof.
 (* /WORKINCLASS *)
 
 (** FULL: Note that, to make the lemma as general as possible, we
-    quantify over _all_ [NatList]s, not just those that result from an
+    quantify over _all_ [natlist]s, not just those that result from an
     application of [rev].  This should seem natural, because the truth
     of the goal clearly doesn't depend on the list having been
     reversed.  Moreover, it is easier to prove the more general
@@ -779,7 +838,7 @@ Proof.
 (** Now we can complete the original proof. *)
 (* /HIDEFROMADVANCED *)
 
-Theorem rev_length : forall l : NatList,
+Theorem rev_length : forall l : natlist,
   length (rev l) = length l.
 Proof.
   intros l. induction l as [| n l' IHl'].
@@ -800,12 +859,12 @@ Qed.
     (3) [induction on n], (4) [induction on l], or (5) can't be
     done with the tactics we've seen.
 [[
-      Theorem foo1 : forall n :nat, forall l: NatList,
+      Theorem foo1 : forall n :nat, forall l: natlist,
         repeat n 0 = l -> length l = 0.
 ]]
 *)
 (* HIDE *)
-Theorem foo1 : forall n : nat, forall l : NatList,
+Theorem foo1 : forall n : nat, forall l : natlist,
   repeat n 0 = l -> length l = 0.
 Proof.
   simpl. intros n l H.
@@ -817,7 +876,7 @@ Qed.
 (* QUIZ *)
 (** What about the next one?
 [[
-      Theorem foo2 :  forall n m:nat, forall l: NatList,
+      Theorem foo2 :  forall n m:nat, forall l: natlist,
         repeat n m = l -> length l = m.
 ]]
     Which tactics do we need besides [intros], [simpl], [rewrite], and
@@ -826,7 +885,7 @@ Qed.
     done with the tactics we've seen.
 *)
 (* HIDE *)
-Theorem foo2 :  forall n m : nat, forall l : NatList,
+Theorem foo2 :  forall n m : nat, forall l : natlist,
   repeat n m = l -> length l = m.
 Proof.
 intros n m. induction m as [| m' IHm'].
@@ -856,7 +915,7 @@ Qed.
 
 (** What about this one?
 [[
-      Theorem foo3: forall n :nat, forall l1 l2: NatList,
+      Theorem foo3: forall n :nat, forall l1 l2: natlist,
         l1 ++ [n] = l2 -> (1 <=? (length l2)) = true.
 ]]
     Which tactics do we need besides [intros], [simpl], [rewrite], and
@@ -866,13 +925,13 @@ Qed.
 *)
 (* HIDE *)
 (*
-Theorem foo3 :  forall n :nat, forall l1 l2: NatList,
+Theorem foo3 :  forall n :nat, forall l1 l2: natlist,
 l1 ++ [n] = l2 -> (1 <=? (length l2)) = true.
 Proof.
   intros n l1 l2 H. rewrite <- H. rewrite app_length. simpl.
 Qed.
 
-Theorem foo3' :  forall n :nat, forall l1 l2: NatList,
+Theorem foo3' :  forall n :nat, forall l1 l2: natlist,
 l1 ++ [n] = l2 -> (1 <=? (length l2)) = true.
 Proof.
   intros n l1 l2 H. rewrite <- H. rewrite app_length. rewrite plus_comm. simpl. reflexivity.
@@ -999,7 +1058,7 @@ Qed.
 (* EX3 (list_exercises) *)
 (** More practice with lists: *)
 
-Theorem app_nil_r : forall l : NatList,
+Theorem app_nil_r : forall l : natlist,
   l ++ [] = l.
 Proof.
   (* ADMITTED *)
@@ -1011,7 +1070,7 @@ Proof.
 (* /ADMITTED *)
 (* GRADE_THEOREM 0.5: NatList.app_nil_r *)
 
-Theorem rev_app_distr: forall l1 l2 : NatList,
+Theorem rev_app_distr: forall l1 l2 : natlist,
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
   (* ADMITTED *)
@@ -1022,7 +1081,7 @@ Qed.
 (* /ADMITTED *)
 (* GRADE_THEOREM 0.5: NatList.rev_app_distr *)
 
-Theorem rev_involutive : forall l : NatList,
+Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
 Proof.
   (* ADMITTED *)
@@ -1038,7 +1097,7 @@ Proof.
     getting tangled up, step back and try to look for a simpler
     way. *)
 
-Theorem app_assoc4 : forall l1 l2 l3 l4 : NatList,
+Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
   l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
 Proof.
   (* ADMITTED *)
@@ -1050,7 +1109,7 @@ Proof.
 
 (** An exercise about your implementation of [nonzeros]: *)
 
-Lemma nonzeros_app : forall l1 l2 : NatList,
+Lemma nonzeros_app : forall l1 l2 : natlist,
   nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
 Proof.
   (* ADMITTED *)
@@ -1073,7 +1132,7 @@ Proof.
     lists of numbers for equality.  Prove that [eqblist l l]
     yields [true] for every list [l]. *)
 
-Fixpoint eqblist (l1 l2 : NatList) : bool
+Fixpoint eqblist (l1 l2 : natlist) : bool
   (* ADMITDEF *) :=
   match l1,l2 with
   | nil,nil => true
@@ -1100,7 +1159,7 @@ Example test_eqblist3 :
 Proof. reflexivity.  Qed.
  (* /ADMITTED *)
 
-Theorem eqblist_refl : forall l:NatList,
+Theorem eqblist_refl : forall l:natlist,
   true = eqblist l l.
 Proof.
   (* ADMITTED *)
@@ -1238,7 +1297,7 @@ Proof.
 (* EX4AM (rev_injective) *)
 (** Prove that the [rev] function is injective -- that is,
 [[
-    forall (l1 l2 : NatList), rev l1 = rev l2 -> l1 = l2.
+    forall (l1 l2 : natlist), rev l1 = rev l2 -> l1 = l2.
 ]]
     (There is a hard way and an easy way to do this.) *)
 
@@ -1272,13 +1331,13 @@ Qed.
 
 (* HIDEFROMADVANCED *)
 (** FULL: Suppose we want to write a function that returns the [n]th
-    element of some list.  If we give it type [nat -> NatList -> nat],
+    element of some list.  If we give it type [nat -> natlist -> nat],
     then we'll have to choose some number to return when the list is
     too short... *)
 (** TERSE: We'd like to write a function to retrieve the [n]th element
     of a list, but what if the list is too short? *)
 
-Fixpoint nth_bad (l:NatList) (n:nat) : nat :=
+Fixpoint nth_bad (l:natlist) (n:nat) : nat :=
   match l with
   | nil => 42
   | a :: l' => match n with
@@ -1319,7 +1378,7 @@ Inductive natoption : Type :=
     error. *)
 (* /HIDEFROMADVANCED *)
 
-Fixpoint nth_error (l:NatList) (n:nat) : natoption :=
+Fixpoint nth_error (l:natlist) (n:nat) : natoption :=
   match l with
   | nil => None
   | a :: l' => match n with
@@ -1356,7 +1415,7 @@ Proof. reflexivity. Qed.
 
 (** TERSE: We can also write this function using Coq's "if" expressions.  *)
 
-Fixpoint nth_error' (l:NatList) (n:nat) : natoption :=
+Fixpoint nth_error' (l:natlist) (n:nat) : natoption :=
   match l with
   | nil => None
   | a :: l' => if n =? O then Some a
@@ -1387,7 +1446,7 @@ Definition option_elim (d : nat) (o : natoption) : nat :=
 (** Using the same idea, fix the [hd] function from earlier so we don't
     have to pass a default element for the [nil] case.  *)
 
-Definition hd_error (l : NatList) : natoption
+Definition hd_error (l : natlist) : natoption
   (* ADMITDEF *) :=
   match l with
   | nil    => None
@@ -1415,7 +1474,7 @@ Proof. reflexivity.  Qed.
 (* GRADE_THEOREM 2: NatList.option_elim_hd *)
 (** This exercise relates your new [hd_error] to the old [hd]. *)
 
-Theorem option_elim_hd : forall (l:NatList) (default:nat),
+Theorem option_elim_hd : forall (l:natlist) (default:nat),
   hd default l = option_elim default (hd_error l).
 Proof.
   (* ADMITTED *)
@@ -1652,8 +1711,14 @@ Fixpoint count_trues (x : baz) : nat :=
 
 (* Lemma one_true_baz : count_trues (your baz here) = 1. *)
 
----
+(* /HIDE *)
 
-*This page is derived from Pierce et al., with some short exceprts
-from Wadler et al.; for more information see the [sources and
-authorship]({{ site.baseurl }}/Sources/) page.*
+(* GRADE_MANUAL 2: baz_num_elts *)
+(** [] *)
+
+(* /FULL *)
+(* HIDE *)
+(* Local Variables: *)
+(* fill-column: 70  *)
+(* End:             *)
+(* /HIDE *)

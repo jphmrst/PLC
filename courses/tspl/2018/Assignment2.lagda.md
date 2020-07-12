@@ -46,9 +46,9 @@ open import Relation.Nullary.Product using (_×-dec_)
 open import Relation.Nullary.Sum using (_⊎-dec_)
 open import Relation.Nullary.Negation using (contraposition)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
-open import cs421.fp.Relations using (_<_; z<s; s<s)
-open import cs421.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
-open cs421.fp.Isomorphism.≃-Reasoning
+open import plfa.fp.Relations using (_<_; z<s; s<s)
+open import plfa.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
+open plfa.fp.Isomorphism.≃-Reasoning
 ```
 
 ## Equality

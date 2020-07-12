@@ -7,7 +7,7 @@ next      : /Inference/
 ---
 
 ```
-module cs421.lambda.Bisimulation where
+module plfa.lambda.Bisimulation where
 ```
 
 Some constructs can be defined in terms of other constructs.  In the
@@ -128,7 +128,7 @@ are in bisimulation.
 We import our source language from
 Chapter [More]({{ site.baseurl }}/More/):
 ```
-open import cs421.lambda.More
+open import plfa.lambda.More
 ```
 
 

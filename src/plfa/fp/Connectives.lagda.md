@@ -7,7 +7,7 @@ next      : /Negation/
 ---
 
 ```
-module cs421.fp.Connectives where
+module plfa.fp.Connectives where
 ```
 
 <!-- The ⊥ ⊎ A ≅ A exercise requires a (inj₁ ()) pattern,
@@ -35,8 +35,8 @@ open Eq using (_≡_; refl)
 open Eq.≡-Reasoning
 open import Data.Nat using (ℕ)
 open import Function using (_∘_)
-open import cs421.fp.Isomorphism using (_≃_; _≲_; extensionality)
-open cs421.fp.Isomorphism.≃-Reasoning
+open import plfa.fp.Isomorphism using (_≃_; _≲_; extensionality)
+open plfa.fp.Isomorphism.≃-Reasoning
 ```
 
 

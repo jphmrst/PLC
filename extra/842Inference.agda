@@ -6,7 +6,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.String using (String; _≟_)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
 open import Relation.Nullary using (¬_; Dec; yes; no)
-import cs421.lambda.DeBruijn as DB
+import plfa.lambda.DeBruijn as DB
 
 -- Syntax.
 

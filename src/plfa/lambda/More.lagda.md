@@ -7,7 +7,7 @@ next      : /Bisimulation/
 ---
 
 ```
-module cs421.lambda.More where
+module plfa.lambda.More where
 ```
 
 So far, we have focussed on a relatively minimal language, based on

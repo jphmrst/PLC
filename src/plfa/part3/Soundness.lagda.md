@@ -43,11 +43,11 @@ open import Relation.Nullary.Negation using (contradiction)
 open import Data.Empty using (⊥-elim)
 open import Relation.Nullary using (Dec; yes; no)
 open import Function using (_∘_)
-open import cs421.lambda.Untyped
+open import plfa.lambda.Untyped
      using (Context; _,_; _∋_; _⊢_; ★; Z; S_; `_; ƛ_; _·_;
             subst; _[_]; subst-zero; ext; rename; exts;
             _—→_; ξ₁; ξ₂; β; ζ; _—↠_; _—→⟨_⟩_; _∎)
-open import cs421.lambda.Substitution using (Rename; Subst; ids)
+open import plfa.lambda.Substitution using (Rename; Subst; ids)
 open import plfa.part3.Denotational
      using (Value; ⊥; Env; _⊢_↓_; _`,_; _⊑_; _`⊑_; `⊥; _`⊔_; init; last; init-last;
             ⊑-refl; ⊑-trans; `⊑-refl; ⊑-env; ⊑-env-conj-R1; ⊑-env-conj-R2; up-env;

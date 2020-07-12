@@ -7,7 +7,7 @@ next      : /Naturals/
 ---
 
 ```
-module cs421.fp.Basics where
+module plfa.fp.Basics where
 ```
 
 The functional programming style brings programming closer to
@@ -127,18 +127,19 @@ Write a function `nextWeekday` which takes a day, and returns the next
 weekday after that day (so skipping past Saturday and Sunday to
 Monday).
 
-    nextWeekday : Day → Day
-    nextWeekday d = ?
+``
+nextWeekday : Day → Day
+nextWeekday d = ?
+``
 
 When working exercises by filling out the source code in the book, you
 will notice that the template code for the exercises is formatted
-differently than (for example) the definitions of `Day` and `nextDay`
-above.  In order make Agda pay attention to yur implementation of
-`nextWeekday`, you must add single lines directly above and below the
-template code, each consisting of three backticks, ```` ``` ````, with
-no spaces before, after, or in between them, just as you see around
-the definitions of `Day` and `nextDay`.  You should also remove the
-extra indentation at the start of the template code.
+slightly differently than (for example) the definitions of `Day` and
+`nextDay` above.  Up there, the code blocks are surrounded by lines
+containing **three** backticks `` ` ``, but here the code is
+surrounded by lines containing only two backticks.  In order make Agda
+pay attention to your implementation of `nextWeekday`, you must add
+the third backticks to those delimiters.
 
 ### Booleans
 
@@ -174,6 +175,14 @@ or True _  = True
 or False t = t 
 ```
 
+It is useful for us to see how we can define the boolean type and its
+basic operations.  But in later chapters, we will use the boolean type
+defined in Agda's standard library rather than defining them
+ourselves.  So at the start of these files, you will often see the
+declaration
+
+    open import Data.Bool
+
 #### Exercise `nand` (practice) {#nand}
 
 Define the following function to represent the `nand` logic operator,
@@ -186,16 +195,20 @@ given by the following truth table:
   |True |False  |True| 
   |True |True  |False|
 
-    nand : Bool → Bool → Bool
-    nand a b = ?
+``
+nand : Bool → Bool → Bool
+nand a b = ?
+``
 
 #### Exercise `and3` (practice) {#and3}
 
 Implement the `and3` function that returns the conjunction of three
 boolean values.
 
-    and3 : Bool → Bool → Bool → Bool
-    and3 a b c = ?
+``
+and3 : Bool → Bool → Bool → Bool
+and3 a b c = ?
+``
 
 ## Unicode
 

@@ -46,10 +46,10 @@ open import Relation.Nullary.Negation using (contraposition)
 open import Relation.Unary using (Decidable)
 open import Function using (_∘_)
 open import Level using (Level)
-open import cs421.fp.Relations using (_<_; z<s; s<s)
-open import cs421.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
-open cs421.fp.Isomorphism.≃-Reasoning
-open import cs421.fp.Lists using (List; []; _∷_; [_]; [_,_]; [_,_,_]; [_,_,_,_];
+open import plfa.fp.Relations using (_<_; z<s; s<s)
+open import plfa.fp.Isomorphism using (_≃_; ≃-sym; ≃-trans; _≲_; extensionality)
+open plfa.fp.Isomorphism.≃-Reasoning
+open import plfa.fp.Lists using (List; []; _∷_; [_]; [_,_]; [_,_,_]; [_,_,_,_];
   _++_; reverse; map; foldr; sum; All; Any; here; there; _∈_)
 ```
 

@@ -15,8 +15,8 @@ module plfa.part3.ContextualEquivalence where
 ```
 open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; proj₂)
      renaming (_,_ to ⟨_,_⟩)
-open import cs421.lambda.Untyped using (_⊢_; ★; ∅; _,_; ƛ_; _—↠_)
-open import cs421.lambda.BigStep using (_⊢_⇓_; cbn→reduce)
+open import plfa.lambda.Untyped using (_⊢_; ★; ∅; _,_; ƛ_; _—↠_)
+open import plfa.lambda.BigStep using (_⊢_⇓_; cbn→reduce)
 open import plfa.part3.Denotational using (ℰ; _≃_; ≃-sym; ≃-trans; _iff_)
 open import plfa.part3.Compositional using (Ctx; plug; compositionality)
 open import plfa.part3.Soundness using (soundness)

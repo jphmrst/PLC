@@ -7,7 +7,7 @@ next      : /Equality/
 ---
 
 ```
-module cs421.fp.Relations where
+module plfa.fp.Relations where
 ```
 
 After having defined operations such as addition and multiplication,

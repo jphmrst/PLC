@@ -57,7 +57,7 @@ module DeBruijn where
 Remember to indent all code by two spaces.
 
 ```
-  open import cs421.lambda.DeBruijn
+  open import plfa.lambda.DeBruijn
 ```
 
 
@@ -769,7 +769,7 @@ Remember to indent all code by two spaces.
 ### Imports
 
 ```
-  import cs421.lambda.More as DB
+  import plfa.lambda.More as DB
 ```
 
 ### Syntax

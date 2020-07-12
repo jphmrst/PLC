@@ -7,7 +7,7 @@ next      : /BigStep/
 ---
 
 ```
-module cs421.lambda.Confluence where
+module plfa.lambda.Confluence where
 ```
 
 ## Introduction
@@ -65,8 +65,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Function using (_∘_)
 open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; proj₂)
   renaming (_,_ to ⟨_,_⟩)
-open import cs421.lambda.Substitution using (Rename; Subst)
-open import cs421.lambda.Untyped
+open import plfa.lambda.Substitution using (Rename; Subst)
+open import plfa.lambda.Untyped
   using (_—→_; β; ξ₁; ξ₂; ζ; _—↠_; begin_; _—→⟨_⟩_; _—↠⟨_⟩_; _∎;
   abs-cong; appL-cong; appR-cong; —↠-trans;
   _⊢_; _∋_; `_; #_; _,_; ★; ƛ_; _·_; _[_];
@@ -270,7 +270,7 @@ and restate here.
 ```
 rename-subst-commute : ∀{Γ Δ}{N : Γ , ★ ⊢ ★}{M : Γ ⊢ ★}{ρ : Rename Γ Δ }
     → (rename (ext ρ) N) [ rename ρ M ] ≡ rename ρ (N [ M ])
-rename-subst-commute {N = N} = cs421.lambda.Substitution.rename-subst-commute {N = N}
+rename-subst-commute {N = N} = plfa.lambda.Substitution.rename-subst-commute {N = N}
 ```
 
 Now for the `par-rename` lemma.
@@ -325,7 +325,7 @@ and restate it below.
 ```
 subst-commute : ∀{Γ Δ}{N : Γ , ★ ⊢ ★}{M : Γ ⊢ ★}{σ : Subst Γ Δ }
   → subst (exts σ) N [ subst σ M ] ≡ subst σ (N [ M ])
-subst-commute {N = N} = cs421.lambda.Substitution.subst-commute {N = N}
+subst-commute {N = N} = plfa.lambda.Substitution.subst-commute {N = N}
 ```
 
 We are ready to prove that substitution respects parallel reduction.
