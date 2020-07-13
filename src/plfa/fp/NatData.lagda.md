@@ -3,12 +3,13 @@ title     : "NatData: Data structures with natural numbers"
 layout    : page
 prev      : /Naturals/
 permalink : /NatData/
-next      : /Induction/
+next      : /
 ---
 
 ```
 module plfa.fp.NatData where
 open import plfa.fp.Naturals
+open import Data.Bool
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
@@ -163,14 +164,12 @@ below so that Agda actually does load your code and the test.  Having
 this file load successfully because Agda ignores your code for this
 exercise is not a form of success on the exercise!
 
-``
-nonzeros : NatList → NatList
-nonzeros [] = []
--- Add your cases here
+    nonzeros : NatList → NatList
+    nonzeros [] = []
+    -- Add your cases here
 
-_ : nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: []) ≡ (1 :: 2 :: 3 :: [])
-_ = refl
-``
+    _ : nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: []) ≡ (1 :: 2 :: 3 :: [])
+    _ = refl
 
 #### Exercise `oddmembers` (practice) {#oddmembers}
 
@@ -178,81 +177,54 @@ Complete the definition of `oddmembers`. Have a look at the test to
 understand what it should do, and use the function `odd` from Chapter
 Naturals.
 
-``
-oddmembers : NatList -> NatList
--- Add your cases here
+    oddmembers : NatList -> NatList
+    -- Add your cases here
+
+    _ : oddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ (1 :: 3 :: 3 :: [])
+    _ = refl
+
+{::comment}
 oddmembers [] = []
 oddmembers (x :: xs) = if (odd x) then x :: oddmembers xs else oddmembers xs
-``
+{:/comment}
 
-  (* ADMITDEF *) :=
-  match l with
-  | nil => nil
-  | h :: t =>
-      match (oddb h) with
-      | true => h :: (oddmembers t)
-      | false => oddmembers t
-      end
-  end.
-(* /ADMITDEF *)
+#### Exercise `countoddmembers` (practice) {#countoddmembers}
 
-Example test_oddmembers:
-  oddmembers [0;1;0;2;3;0;0] = [1;3].
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 0.5: NatList.test_oddmembers *)
-
-Complete the definition of `countoddmembers`. Have a look at the tests
+Complete the definition of `countoddmembers`, using the tests
 to understand what these functions should do.
 
-(* FULL *)
-(** *** Exercises *)
+```
+countoddmembers : NatList -> ℕ
+countoddmembers [] = 0
+countoddmembers (x :: xs) with odd x
+...                          | true  = 1 + countoddmembers xs
+...                          | false = countoddmembers xs
 
-(* EX2! (list_funs) *)
-(** Complete the definitions of [nonzeros], [oddmembers], and
-    [countoddmembers] below. Have a look at the tests to understand
-    what these functions should do. *)
+_ : countoddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ 3
+_ = refl
 
-Definition countoddmembers (l:NatList) : nat
-  (* ADMITDEF *) :=
-  length (oddmembers l).
-(* /ADMITDEF *)
+_ : countoddmembers (0 :: 2 :: 0 :: []) ≡ 0
+_ = refl
 
-Example test_countoddmembers1:
-  countoddmembers [1;0;3;1;4;5] = 4.
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
+_ : countoddmembers [] ≡ 0
+_ = refl
+```
 
-Example test_countoddmembers2:
-  countoddmembers [0;2;4] = 0.
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
+#### Exercise `alternate` (practice) {#alternate}
 
-Example test_countoddmembers3:
-  countoddmembers nil = 0.
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* GRADE_THEOREM 0.5: NatList.test_countoddmembers2 *)
-(* GRADE_THEOREM 0.5: NatList.test_countoddmembers3 *)
-(* /ADMITTED *)
-(** [] *)
+Complete the following definition of `alternate`, which interleaves
+two lists into one, alternating between elements taken from the first
+list and elements from the second.  See the tests below for more
+specific examples.
 
-(* EX3A (alternate) *)
-(** Complete the following definition of [alternate], which
-    interleaves two lists into one, alternating between elements taken
-    from the first list and elements from the second.  See the tests
-    below for more specific examples.
+Hint: one natural and elegant way of writing `alternate` will fail to
+satisfy Coq's requirement that all function definitions be "obviously
+terminating."  If you find yourself in this rut, look for a slightly
+more verbose solution that considers elements of both lists at the
+same time.  One possible solution involves defining a new kind of
+pairs, but this is not the only way.
 
-    (Note: one natural and elegant way of writing [alternate] will
-    fail to satisfy Coq's requirement that all [Fixpoint] definitions
-    be "obviously terminating."  If you find yourself in this rut,
-    look for a slightly more verbose solution that considers elements
-    of both lists at the same time.  One possible solution involves
-    defining a new kind of pairs, but this is not the only way.)  *)
-(* HIDE *)
+{::comment}
 (* This is the "natural" way that doesn't work (we introduce [Fail] in
    [Poly.v]): *)
 Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
@@ -260,58 +232,23 @@ Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
   | nil => l2
   | h1::t1 => h1::(alternate l2 t1)
   end.
+{:/comment}
 
-(* /HIDE *)
-(* QUIETSOLUTION *)
-(* /QUIETSOLUTION *)
-Fixpoint alternate (l1 l2 : NatList) : NatList
-  (* ADMITDEF *) :=
-  match l1, l2 with
-  | nil, _ => l2
-  | _, nil => l1
-  | h1 :: t1, h2 :: t2 => h1 :: h2 :: (alternate t1 t2)
-  end.
-(* /ADMITDEF *)
-(* QUIETSOLUTION *)
+    alternate : NatList → NatList → NatList
+    -- Your solution goes here
 
-(** Or: *)
-Fixpoint alternate' (l1 l2 : NatList) : NatList :=
-  match l1 with
-  | nil => l2
-  | h1::t1 => match l2 with
-              | nil => l1
-              | h2::t2 => h1 :: h2 :: (alternate' t1 t2)
-              end
-  end.
+    _ : alternate (1 :: 2 :: 3 :: []) (4 :: 5 :: 6 :: [])
+                   ≡ (1 :: 4 :: 2 :: 5 :: 3 :: 6 :: [])
+    _ = refl
 
-(* /QUIETSOLUTION *)
-Example test_alternate1:
-  alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: NatList.test_alternate1 *)
+    _ : alternate (1 :: 2 :: 3 :: []) (4 :: []) ≡ (1 :: 4 :: 2 :: 3 :: [])
+    _ = refl
 
-Example test_alternate2:
-  alternate [1] [4;5;6] = [1;4;5;6].
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: NatList.test_alternate2 *)
-
-Example test_alternate3:
-  alternate [1;2;3] [4] = [1;4;2;3].
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
-
-Example test_alternate4:
-  alternate [] [20;30] = [20;30].
-  (* ADMITTED *)
-Proof. reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: NatList.test_alternate4 *)
-(** [] *)
+{::comment}
+alternate [] ys = ys
+alternate xs [] = xs
+alternate (x :: xs) (y :: ys) = x :: y :: (alternate xs ys)
+{:/comment}
 
 (* ###################################################### *)
 (** *** Bags via Lists *)

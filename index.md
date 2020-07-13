@@ -1,6 +1,7 @@
 ---
 title          : Course Pack
 layout         : page
+permalink: /
 ---
 
 This document contains material for the Fall 2020 offering of UWL
@@ -9,9 +10,9 @@ will require access to the UWL VPN or Canvas LMS.
 
 ## About this class
 
-  - Introduction: To be posted
   - Syllabus: Will be released before the first week of class
   - Announcements: The LMS page where I will post class announcements
+  - Introduction: To be posted
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
