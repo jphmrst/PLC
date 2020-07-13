@@ -7,7 +7,7 @@ next      : /Naturals/
 ---
 
 ```
-module plfa.fp.Basics where
+module plc.fp.Basics where
 ```
 
 The functional programming style brings programming closer to

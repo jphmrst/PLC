@@ -8,16 +8,16 @@ permalink      : /Citing/
 
 > Wadler, Philip and Wen Kokke.
 > _Programming Language Foundations in Agda_.
-> Available at `http://plfa.inf.ed.ac.uk`.
+> Available at `http://plc.inf.ed.ac.uk`.
 > 2019.
 
 
 ### Bibtex
 
-	@Book{plfa2019,
+	@Book{plc2019,
 	  author = {Philip Wadler and Wen Kokke},
 	  title  = {Programming Language Foundations in {A}gda},
-	  note   = {Available at \url{http://plfa.inf.ed.ac.uk/}},
+	  note   = {Available at \url{http://plc.inf.ed.ac.uk/}},
 	  year   = 2019,
 	}
 

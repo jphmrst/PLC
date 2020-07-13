@@ -24,7 +24,9 @@ will require access to the UWL VPN or Canvas LMS.
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
   - [NatData]({{ site.baseurl }}/NatData/): Data structures using natural numbers
-  - Additional material to be posted
+  - Poly: Generic data structures and functions
+  - Functional: Higher-order functions
+  - Depend: Dependent types
 
 {::comment}
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions

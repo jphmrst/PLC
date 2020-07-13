@@ -7,8 +7,8 @@ next      : /
 ---
 
 ```
-module plfa.fp.NatData where
-open import plfa.fp.Naturals
+module plc.fp.NatData where
+open import plc.fp.Naturals
 open import Data.Bool
 
 import Relation.Binary.PropositionalEquality as Eq

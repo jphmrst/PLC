@@ -7,7 +7,7 @@ next      : /Untyped/
 ---
 
 ```
-module plfa.lambda.Inference where
+module plc.lambda.Inference where
 ```
 
 So far in our development, type derivations for the corresponding
@@ -260,10 +260,10 @@ open import Relation.Nullary using (¬_; Dec; yes; no)
 Once we have a type derivation, it will be easy to construct
 from it the intrinsically-typed representation.  In order that we
 can compare with our previous development, we import
-module `plfa.lambda.More`:
+module `plc.lambda.More`:
 
 ```
-import plfa.lambda.More as DB
+import plc.lambda.More as DB
 ```
 
 The phrase `as DB` allows us to refer to definitions

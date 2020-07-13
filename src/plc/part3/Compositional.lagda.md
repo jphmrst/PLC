@@ -7,7 +7,7 @@ next      : /Soundness/
 ---
 
 ```
-module plfa.part3.Compositional where
+module plc.part3.Compositional where
 ```
 
 ## Introduction
@@ -31,15 +31,15 @@ open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; p
   renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Unit using (⊤; tt)
-open import plfa.lambda.Untyped
+open import plc.lambda.Untyped
   using (Context; _,_; ★; _∋_; _⊢_; `_; ƛ_; _·_)
-open import plfa.part3.Denotational
+open import plc.part3.Denotational
   using (Value; _↦_; _`,_; _⊔_; ⊥; _⊑_; _⊢_↓_;
          ⊑-bot; ⊑-fun; ⊑-conj-L; ⊑-conj-R1; ⊑-conj-R2;
          ⊑-dist; ⊑-refl; ⊑-trans; ⊔↦⊔-dist;
          var; ↦-intro; ↦-elim; ⊔-intro; ⊥-intro; sub;
          up-env; ℰ; _≃_; ≃-sym; Denotation; Env)
-open plfa.part3.Denotational.≃-Reasoning
+open plc.part3.Denotational.≃-Reasoning
 ```
 
 ## Equation for lambda abstraction

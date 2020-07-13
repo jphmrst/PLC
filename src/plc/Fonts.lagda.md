@@ -7,7 +7,7 @@ next      : /Statistics/
 ---
 
 ```
-module plfa.Fonts where
+module plc.Fonts where
 ```
 
 Test page for fonts. Preferably, all vertical bars should line up.

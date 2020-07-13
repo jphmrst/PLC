@@ -7,7 +7,7 @@ next      : /NatData/
 ---
 
 ```
-module plfa.fp.Naturals where
+module plc.fp.Naturals where
 open import Data.Bool
 ```
 

@@ -7,7 +7,7 @@ next      : /Adequacy/
 ---
 
 ```
-module plfa.part3.Soundness where
+module plc.part3.Soundness where
 ```
 
 
@@ -43,17 +43,17 @@ open import Relation.Nullary.Negation using (contradiction)
 open import Data.Empty using (⊥-elim)
 open import Relation.Nullary using (Dec; yes; no)
 open import Function using (_∘_)
-open import plfa.lambda.Untyped
+open import plc.lambda.Untyped
      using (Context; _,_; _∋_; _⊢_; ★; Z; S_; `_; ƛ_; _·_;
             subst; _[_]; subst-zero; ext; rename; exts;
             _—→_; ξ₁; ξ₂; β; ζ; _—↠_; _—→⟨_⟩_; _∎)
-open import plfa.lambda.Substitution using (Rename; Subst; ids)
-open import plfa.part3.Denotational
+open import plc.lambda.Substitution using (Rename; Subst; ids)
+open import plc.part3.Denotational
      using (Value; ⊥; Env; _⊢_↓_; _`,_; _⊑_; _`⊑_; `⊥; _`⊔_; init; last; init-last;
             ⊑-refl; ⊑-trans; `⊑-refl; ⊑-env; ⊑-env-conj-R1; ⊑-env-conj-R2; up-env;
             var; ↦-elim; ↦-intro; ⊥-intro; ⊔-intro; sub;
             rename-pres; ℰ; _≃_; ≃-trans)
-open import plfa.part3.Compositional using (lambda-inversion; var-inv)
+open import plc.part3.Compositional using (lambda-inversion; var-inv)
 ```
 
 ## Forward reduction preserves denotations

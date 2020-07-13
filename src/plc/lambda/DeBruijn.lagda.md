@@ -7,7 +7,7 @@ next      : /More/
 ---
 
 ```
-module plfa.lambda.DeBruijn where
+module plc.lambda.DeBruijn where
 ```
 
 The previous two chapters introduced lambda calculus, with a

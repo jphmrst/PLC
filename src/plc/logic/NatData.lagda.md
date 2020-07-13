@@ -7,9 +7,9 @@ next      : /Induction/
 ---
 
 ```
-module plfa.logic.NatData where
-open import plfa.fp.Naturals
-open import plfa.fp.NatData
+module plc.logic.NatData where
+open import plc.fp.Naturals
+open import plc.fp.NatData
 ```
 
 

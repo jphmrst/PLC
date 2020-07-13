@@ -7,7 +7,7 @@ next      : /ContextualEquivalence/
 ---
 
 ```
-module plfa.part3.Adequacy where
+module plc.part3.Adequacy where
 ```
 
 ## Introduction
@@ -79,20 +79,20 @@ open import Data.Empty using (⊥-elim) renaming (⊥ to Bot)
 open import Data.Unit
 open import Relation.Nullary using (Dec; yes; no)
 open import Function using (_∘_)
-open import plfa.lambda.Untyped
+open import plc.lambda.Untyped
      using (Context; _⊢_; ★; _∋_; ∅; _,_; Z; S_; `_; ƛ_; _·_;
             rename; subst; ext; exts; _[_]; subst-zero;
             _—↠_; _—→⟨_⟩_; _∎; _—→_; ξ₁; ξ₂; β; ζ)
-open import plfa.lambda.Substitution using (ids; sub-id)
-open import plfa.lambda.BigStep
+open import plc.lambda.Substitution using (ids; sub-id)
+open import plc.lambda.BigStep
      using (Clos; clos; ClosEnv; ∅'; _,'_; _⊢_⇓_; ⇓-var; ⇓-lam; ⇓-app; ⇓-determ;
             cbn→reduce)
-open import plfa.part3.Denotational
+open import plc.part3.Denotational
      using (Value; Env; `∅; _`,_; _↦_; _⊑_; _⊢_↓_; ⊥; all-funs∈; _⊔_; ∈→⊑;
             var; ↦-elim; ↦-intro; ⊔-intro; ⊥-intro; sub; ℰ; _≃_; _iff_;
             ⊑-trans; ⊑-conj-R1; ⊑-conj-R2; ⊑-conj-L; ⊑-refl; ⊑-fun; ⊑-bot; ⊑-dist;
             sub-inv-fun)
-open import plfa.part3.Soundness using (soundness)
+open import plc.part3.Soundness using (soundness)
 
 ```
 

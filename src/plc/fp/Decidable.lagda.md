@@ -7,7 +7,7 @@ next      : /Lists/
 ---
 
 ```
-module plfa.fp.Decidable where
+module plc.fp.Decidable where
 ```
 
 We have a choice as to how to represent relations:
@@ -33,8 +33,8 @@ open import Relation.Nullary.Negation using ()
   renaming (contradiction to ¬¬-intro)
 open import Data.Unit using (⊤; tt)
 open import Data.Empty using (⊥; ⊥-elim)
-open import plfa.fp.Relations using (_<_; z<s; s<s)
-open import plfa.fp.Isomorphism using (_⇔_)
+open import plc.fp.Relations using (_<_; z<s; s<s)
+open import plc.fp.Isomorphism using (_⇔_)
 ```
 
 ## Evidence vs Computation

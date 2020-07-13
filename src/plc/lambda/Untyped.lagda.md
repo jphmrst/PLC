@@ -7,7 +7,7 @@ next      : /Confluence/
 ---
 
 ```
-module plfa.lambda.Untyped where
+module plc.lambda.Untyped where
 ```
 
 In this chapter we play with variations on a theme:

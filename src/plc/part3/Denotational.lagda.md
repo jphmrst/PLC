@@ -7,7 +7,7 @@ next      : /Compositional/
 ---
 
 ```
-module plfa.part3.Denotational where
+module plc.part3.Denotational where
 ```
 
 The lambda calculus is a language about _functions_, that is, mappings
@@ -70,10 +70,10 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Nullary using (¬_)
 open import Relation.Nullary.Negation using (contradiction)
 open import Function using (_∘_)
-open import plfa.lambda.Untyped
+open import plc.lambda.Untyped
   using (Context; ★; _∋_; ∅; _,_; Z; S_; _⊢_; `_; _·_; ƛ_;
          #_; twoᶜ; ext; rename; exts; subst; subst-zero; _[_])
-open import plfa.lambda.Substitution using (Rename; extensionality; rename-id)
+open import plc.lambda.Substitution using (Rename; extensionality; rename-id)
 ```
 
 

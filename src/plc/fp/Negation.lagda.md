@@ -7,7 +7,7 @@ next      : /Quantifiers/
 ---
 
 ```
-module plfa.fp.Negation where
+module plc.fp.Negation where
 ```
 
 This chapter introduces negation, and discusses intuitionistic
@@ -21,7 +21,7 @@ open import Data.Nat using (ℕ; zero; suc)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Product using (_×_)
-open import plfa.fp.Isomorphism using (_≃_; extensionality)
+open import plc.fp.Isomorphism using (_≃_; extensionality)
 ```
 
 

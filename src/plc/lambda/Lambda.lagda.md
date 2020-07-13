@@ -7,7 +7,7 @@ next      : /Properties/
 ---
 
 ```
-module plfa.lambda.Lambda where
+module plc.lambda.Lambda where
 ```
 
 The _lambda-calculus_, first published by the logician Alonzo Church in
@@ -238,7 +238,7 @@ C-c C-n to normalise the term
 
 Agda will return an answer warning us that the impossible has occurred:
 
-    ⊥-elim (plfa.lambda.Lambda.impossible (`` `suc (`suc `zero)) (`suc (`suc `zero)) ``)
+    ⊥-elim (plc.lambda.Lambda.impossible (`` `suc (`suc `zero)) (`suc (`suc `zero)) ``)
 
 While postulating the impossible is a useful technique, it must be
 used with care, since such postulation could allow us to provide
