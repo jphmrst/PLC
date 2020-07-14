@@ -4,15 +4,15 @@ layout         : page
 permalink: /
 ---
 
-**Important note**: This is a temporary location for the CS421 Course
-Pack.  I suggest that you *not* bookmark this URL, as I expect the
-location of this site to change.  At least for the time being, find
-this page via the [Class
+**Important note**: This is a temporary location for the CS421/521
+Course Pack.  I suggest that you *not* bookmark this URL, as I expect
+the location of this site to change.  At least for the time being,
+find this page via the [Class
 resources](https://uwlac.instructure.com/courses/334351/pages/class-resources)
 page of the course Canvas area.
 
 This document contains material for the Fall 2020 offering of UWL
-CS421, Concepts of Programming Languages.  Some links on this page
+CS421/521, Concepts of Programming Languages.  Some links on this page
 will require access to the UWL VPN or Canvas LMS.
 
 ## About this class
