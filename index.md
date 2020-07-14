@@ -11,8 +11,10 @@ will require access to the UWL VPN or Canvas LMS.
 ## About this class
 
   - Syllabus: Will be released before the first week of class
-  - Announcements: The LMS page where I will post class announcements
-  - Introduction: To be posted
+  - [Announcements](https://uwlac.instructure.com/courses/334351/pages/announcements?module_item_id=6031626):
+    The LMS page where I will post class announcements
+  - [Introduction]({{ site.baseurl }}/Intro/): What we will study, and
+    why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
@@ -23,8 +25,10 @@ will require access to the UWL VPN or Canvas LMS.
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
-  - [NatData]({{ site.baseurl }}/NatData/): Data structures using natural numbers
+  - [NatData]({{ site.baseurl }}/NatData/): Data structures using
+    natural numbers
   - Poly: Generic data structures and functions
+    - Maps: Partial and total maps
   - Functional: Higher-order functions
   - Depend: Dependent types
 
@@ -33,24 +37,29 @@ will require access to the UWL VPN or Canvas LMS.
 {:/comment}
 
 
-## Statements and their proofs
+## Programming with logic and proofs
 
-{::comment}
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
-  - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
+    - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
+{::comment}
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-  - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
-  - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
-  - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
-  - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 {:/comment}
-  - Material to be posted
+  - Elements of logic in Agda
+    - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
+    - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
+    - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
+  - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
+  - DataProp: Proving properties about pairs, lists, and maps
 
-## Imperative programs and their semantics
-  - Material to be posted
+## Imperative programming
+  - Imp: A small imperative language, and its operational semantics
+  - Equiv: What does it mean for imperative programs to be equivalent
+  - Hoare: A compositional semantics for imperative programs
+  - Step: An alternative operational semantics
+  - Additional topics to be posted
 
-## Lambda: A semantics for functional programming
+## Lambda calculus
 
 {::comment}
   - [Lambda]({{ site.baseurl }}/Lambda/): Introduction to Lambda Calculus

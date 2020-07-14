@@ -3,7 +3,7 @@ title          : Sources and authorship of the material in this collection
 layout         : page
 prev      : /Setup/
 permalink : /Sources/
-next      : /Naturals/
+next      : /Basics/
 ---
 
 The material for this course is drawn from a number of online sources:

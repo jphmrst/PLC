@@ -1,7 +1,7 @@
 ---
 title     : "Basics: Functional Programming in Agda"
 layout    : page
-prev      : /Preface/
+prev      : /Sources/
 permalink : /Basics/
 next      : /Naturals/
 ---
