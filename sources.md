@@ -8,8 +8,8 @@ next      : /Basics/
 
 The material for this course is drawn from a number of online sources:
 
- - [*Programming Language Foundations in Agda*][PLFA] by Philip Wadler *et
-    al*.
+ - [*Programming Language Foundations in Agda*][PLFA] by Philip
+   Wadler, Wen Kokke, and Jeremy Siek.
 
    - Their [authors, contributors and acknowledgements][PLFAack] page.
 

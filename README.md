@@ -8,14 +8,8 @@ next :     /Sources/
 
 <!-- Links -->
 
-[coursepackURL]: http://plfa.inf.ed.ac.uk
+[coursepackURL]: https://cs.uwlax.edu/~jmaraist/u/421/pack/
 [coursepack-dev]: https://github.com/jphmrst/plfa.github.io/archive/dev.zip
-
-[plfa]: http://plfa.inf.ed.ac.uk
-[plfa-dev]: https://github.com/plfa/plfa.github.io/archive/dev.zip
-[plfa-status]: https://travis-ci.org/plfa/plfa.github.io.svg?branch=dev
-[plfa-travis]: https://travis-ci.org/plfa/plfa.github.io
-[plfa-master]: https://github.com/plfa/plfa.github.io/archive/master.zip
 
 [agda]: https://github.com/agda/agda/releases/tag/v2.6.0.1
 [agda-version]: https://img.shields.io/badge/agda-v2.6.0.1-blue.svg
@@ -50,7 +44,7 @@ next :     /Sources/
 [![Agda][agda-version]][agda]
 [![agda-stdlib][agda-stdlib-version]][agda-stdlib]
 
-You can read [the online version of the course pack][coursepackURL]
+You can read the online version of the course pack
 without installing anything.  However, to interact with the code and
 complete the exercises, you need several things:
 

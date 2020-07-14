@@ -4,6 +4,13 @@ layout         : page
 permalink: /
 ---
 
+**Important note**: This is a temporary location for the CS421 Course
+Pack.  I suggest that you *not* bookmark this URL, as I expect the
+location of this site to change.  At least for the time being, find
+this page via the [Class
+resources](https://uwlac.instructure.com/courses/334351/pages/class-resources)
+page of the course Canvas area.
+
 This document contains material for the Fall 2020 offering of UWL
 CS421, Concepts of Programming Languages.  Some links on this page
 will require access to the UWL VPN or Canvas LMS.
@@ -13,12 +20,16 @@ will require access to the UWL VPN or Canvas LMS.
   - Syllabus: Will be released before the first week of class
   - [Announcements](https://uwlac.instructure.com/courses/334351/pages/announcements?module_item_id=6031626):
     The LMS page where I will post class announcements
-  - [Introduction]({{ site.baseurl }}/Intro/): What we will study, and
+  - Intro: What we will study, and
     why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
+
+## Additional sections with course topics to be posted
+
+{::comment}
 
 ## Functional programming
 
@@ -32,9 +43,7 @@ will require access to the UWL VPN or Canvas LMS.
   - Functional: Higher-order functions
   - Depend: Dependent types
 
-{::comment}
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
-{:/comment}
 
 
 ## Programming with logic and proofs
@@ -42,9 +51,9 @@ will require access to the UWL VPN or Canvas LMS.
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
     - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
-{::comment}
+
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-{:/comment}
+
   - Elements of logic in Agda
     - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
@@ -61,18 +70,16 @@ will require access to the UWL VPN or Canvas LMS.
 
 ## Lambda calculus
 
-{::comment}
   - [Lambda]({{ site.baseurl }}/Lambda/): Introduction to Lambda Calculus
   - [Properties]({{ site.baseurl }}/Properties/): Progress and Preservation
-{:/comment}
-  - Material to be posted
+
+- Material to be posted
 
 ## Objects and classes
   - Material to be posted
 
-{::comment}
 
-## More about the lambda calculus
+## Advanced lambda calculus
 
   - [DeBruijn]({{ site.baseurl }}/DeBruijn/): Intrinsically-typed de Bruijn representation
   - [More]({{ site.baseurl }}/More/): Additional constructs of simply-typed lambda calculus
