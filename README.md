@@ -40,7 +40,11 @@ next :     /Sources/
 
 <!-- Status & Version Badges -->
 
+
+{::comment}
 [![Build Status][plfa-status]][plfa-travis]
+{:/comment}
+
 [![Agda][agda-version]][agda]
 [![agda-stdlib][agda-stdlib-version]][agda-stdlib]
 
@@ -48,7 +52,8 @@ You can read the online version of the course pack
 without installing anything.  However, to interact with the code and
 complete the exercises, you need several things:
 
-  - [Agda][agda], which needs several other software systems
+  - A specific version of [Agda][agda], which needs several other
+    software systems
   - The [Agda standard library][agda-stdlib]
   - [The source code version of the course pack][coursepack-dev]
 
@@ -215,6 +220,13 @@ well.  If you want to complete the exercises found in the `courses`
 folder, or to import modules from the book, you need to do this.  To
 do so, add the path to `plfa.agda-lib` to `~/.agda/libraries` and add
 `plfa` to `~/.agda/defaults`, both on lines of their own.
+
+I will be adding to the Course Pack over the semester, so you should
+probably keep *two* local versions --- one which you keep "clean," and
+updated from the repository without changes; one which you use as a
+sandbox and for exercises, periodically refreshing individual files
+from the clean copy.  Use the copy you keep clean as the one you set
+up as your Agda library as the paragraph above describes.
 
 # Install Emacs, and familiarize yourself with it
 
