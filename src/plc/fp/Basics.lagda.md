@@ -127,19 +127,19 @@ Write a function `nextWeekday` which takes a day, and returns the next
 weekday after that day (so skipping past Saturday and Sunday to
 Monday).
 
-``
-nextWeekday : Day → Day
-nextWeekday d = ?
-``
+    nextWeekday : Day → Day
+    nextWeekday d = ?
 
 When working exercises by filling out the source code in the book, you
 will notice that the template code for the exercises is formatted
 slightly differently than (for example) the definitions of `Day` and
 `nextDay` above.  Up there, the code blocks are surrounded by lines
-containing **three** backticks `` ` ``, but here the code is
-surrounded by lines containing only two backticks.  In order make Agda
-pay attention to your implementation of `nextWeekday`, you must add
-the third backticks to those delimiters.
+containing **three** backticks `` ` ``, but here the code is indented
+instead.  In order make Agda pay attention to your implementation of
+`nextWeekday`, you must both remove the indentation, and add the three
+backtickss before and after the code.  The indented code is simply
+taken as another comment like the rest of this text.  The backticks
+surround actual Agda code.
 
 ### Booleans
 
@@ -158,6 +158,8 @@ default implementation of the booleans in its standard library,
 together with a multitude of useful functions.  Whenever possible,
 we'll name our own definitions so that they exactly coincide with the
 ones in the standard library.
+
+TODO use the same symbols as in std lib
 
 Functions over booleans can be defined in the same way as above:
 
@@ -195,20 +197,45 @@ given by the following truth table:
   |True |False  |True| 
   |True |True  |False|
 
-``
-nand : Bool → Bool → Bool
-nand a b = ?
-``
+    nand : Bool → Bool → Bool
+    nand a b = ?
 
 #### Exercise `and3` (practice) {#and3}
 
 Implement the `and3` function that returns the conjunction of three
 boolean values.
 
-``
-and3 : Bool → Bool → Bool → Bool
-and3 a b c = ?
-``
+    and3 : Bool → Bool → Bool → Bool
+    and3 a b c = ?
+
+#### Exercise `ifthenelse` (recommended) {#ifthenelse}
+
+The Agda standard library `Data.Bool` defines a *conditional
+expression* `if_then_else_` which lets us write expressions like
+
+    if (x ≡ᵇ y) then (x + 2) else (3 * y)
+
+TODO Not a statement, just an expression which takes on the value
+either of...
+
+TODO Note the relationship between writing a name with underbars as a
+function name, and how we can use it as an *operator*, replacing the
+underscores with the actual arguments.
+
+## Standard library
+
+At the end of each chapter, we will show where to find relevant
+definitions in the standard library.  The booleans, their
+constructors, and basic operators upon them are defined in the
+standard library module `Data.Bool`:
+
+```
+-- import Data.Bool using (Bool, true, false, if_then_else_)
+```
+
+Normally, we will show an import as running code, so Agda will
+complain if we attempt to import a definition that is not available.
+This time, however, we have only shown the import as a comment.
 
 ## Unicode
 

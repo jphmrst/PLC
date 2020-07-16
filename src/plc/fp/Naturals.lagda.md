@@ -1073,6 +1073,47 @@ Confirm that these both give the correct answer for zero through four.
 ```
 
 
+## TODO Tests on natural numbers
+
+```
+_≡ᵇ_ : ℕ → ℕ → Bool
+zero ≡ᵇ zero = true
+suc x ≡ᵇ suc y = x ≡ᵇ y
+_ ≡ᵇ _ = false
+```
+
+TODO use of wildcard
+
+TODO some tests of testing equality
+
+```
+_ : zero ≡ᵇ zero ≡ true
+_ = refl
+
+_ : zero ≡ᵇ 1 ≡ false
+_ = refl
+
+_ : 1 ≡ᵇ zero ≡ false
+_ = refl
+
+_ : 1 ≡ᵇ 1 ≡ true
+_ = refl
+
+_ : 7 ≡ᵇ 9 ≡ false
+_ = refl
+
+_ : 11 ≡ᵇ 11 ≡ true
+_ = refl
+```
+
+#### TODO Exercise `natneq` (recommended) {#natneq}
+
+#### TODO Exercise `natcompare` (recommended) {#natcompare}
+
+## TODO Using boolean results
+
+TODO add exercises
+
 ## Standard library
 
 At the end of each chapter, we will show where to find relevant
@@ -1095,7 +1136,6 @@ raise confusion as to whether `2` is a value of type `ℕ` or type
 twice. For this reason, we will usually avoid pragmas in future chapters.
 Information on pragmas can be found in the Agda documentation.
 
-
 ## Unicode
 
 This chapter uses the following unicode:
@@ -1107,6 +1147,8 @@ This chapter uses the following unicode:
     ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)
     ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
     ∎  U+220E  END OF PROOF (\qed)
+
+    TODO add ᵇ
 
 The command `\r` gives access to a wide variety of rightward arrows.
 After typing `\r`, one can access the many available arrows by using

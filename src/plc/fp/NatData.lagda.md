@@ -183,32 +183,22 @@ Naturals.
     _ : oddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ (1 :: 3 :: 3 :: [])
     _ = refl
 
-{::comment}
-oddmembers [] = []
-oddmembers (x :: xs) = if (odd x) then x :: oddmembers xs else oddmembers xs
-{:/comment}
-
 #### Exercise `countoddmembers` (practice) {#countoddmembers}
 
 Complete the definition of `countoddmembers`, using the tests
 to understand what these functions should do.
 
-```
-countoddmembers : NatList -> ℕ
-countoddmembers [] = 0
-countoddmembers (x :: xs) with odd x
-...                          | true  = 1 + countoddmembers xs
-...                          | false = countoddmembers xs
-
-_ : countoddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ 3
-_ = refl
-
-_ : countoddmembers (0 :: 2 :: 0 :: []) ≡ 0
-_ = refl
-
-_ : countoddmembers [] ≡ 0
-_ = refl
-```
+    countoddmembers : NatList -> ℕ
+    -- Your definition goes here
+    
+    _ : countoddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ 3
+    _ = refl
+    
+    _ : countoddmembers (0 :: 2 :: 0 :: []) ≡ 0
+    _ = refl
+    
+    _ : countoddmembers [] ≡ 0
+    _ = refl
 
 #### Exercise `alternate` (practice) {#alternate}
 
@@ -224,16 +214,6 @@ more verbose solution that considers elements of both lists at the
 same time.  One possible solution involves defining a new kind of
 pairs, but this is not the only way.
 
-{::comment}
-(* This is the "natural" way that doesn't work (we introduce [Fail] in
-   [Poly.v]): *)
-Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
-  match l1 with
-  | nil => l2
-  | h1::t1 => h1::(alternate l2 t1)
-  end.
-{:/comment}
-
     alternate : NatList → NatList → NatList
     -- Your solution goes here
 
@@ -244,48 +224,32 @@ Fail Fixpoint alternate (l1 l2:NatList)  : NatList :=
     _ : alternate (1 :: 2 :: 3 :: []) (4 :: []) ≡ (1 :: 4 :: 2 :: 3 :: [])
     _ = refl
 
-{::comment}
-alternate [] ys = ys
-alternate xs [] = xs
-alternate (x :: xs) (y :: ys) = x :: y :: (alternate xs ys)
-{:/comment}
+## Bags via lists
 
-(* ###################################################### *)
-(** *** Bags via Lists *)
+A _bag_ (or _multiset_) is like a set, except that each element can
+appear multiple times rather than just once.  One possible
+representation for a bag of numbers is as a list.
 
-(** A [bag] (or [multiset]) is like a set, except that each element
-    can appear multiple times rather than just once.  One possible
-    representation for a bag of numbers is as a list. *)
+```
+Bag : Set
+Bag = NatList
+``
 
-Definition bag := NatList.
+#### Exercise `bagcount` (practice) {#bagcount}
 
-(* EX3! (bag_functions) *)
-(** Complete the following definitions for the functions
-    [count], [sum], [add], and [member] for bags. *)
+Complete the following definition of `count` which returns the number
+of times a particular value occurs in a bag.
 
-Fixpoint count (v:nat) (s:bag) : nat
-  (* ADMITDEF *) :=
-  match s with
-  | nil => 0
-  | h :: t =>
-      match h =? v with
-      | false => count v t
-      | true => S (count v t)
-      end
-  end.
-(* /ADMITDEF *)
+    count : ℕ → bag → ℕ
+    -- Your definition goes here
 
-(** All these proofs can be done just by [reflexivity]. *)
+    _ : count 1 [1;2;3;1;4;1] = 3
+    _ = refl
 
-Example test_count1:              count 1 [1;2;3;1;4;1] = 3.
- (* ADMITTED *)
-Proof. reflexivity.  Qed.
- (* /ADMITTED *)
-Example test_count2:              count 6 [1;2;3;1;4;1] = 0.
- (* ADMITTED *)
-Proof. reflexivity.  Qed.
- (* /ADMITTED *)
-(* GRADE_THEOREM 0.5: NatList.test_count2 *)
+    _ : count 6 [1;2;3;1;4;1] = 0
+    _ = refl
+
+#### Exercise `bagsum` (practice) {#bagsum}
 
 (** Multiset [sum] is similar to set [union]: [sum a b] contains all
     the elements of [a] and of [b].  (Mathematicians usually define
