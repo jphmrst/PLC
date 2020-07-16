@@ -29,10 +29,13 @@ will require access to the UWL VPN or Canvas LMS.
 
 ## Additional sections with course topics to be posted
 
-{::comment}
-
 ## Functional programming
 
+  - TODO
+    - Add `with`
+      - First used in `countoddmembers`, `NatData`
+    - Add pattern matching discussion
+    - Add totality discussion
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
@@ -100,6 +103,4 @@ will require access to the UWL VPN or Canvas LMS.
 ## Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
-
-{:/comment}
 

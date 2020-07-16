@@ -1,6 +1,8 @@
 SHELL := /usr/bin/env bash
-AGDA_FILES := $(shell find . -type f -and \( -path '*/src/*' -or -path '*/courses/*' \) -and -name '*.lagda.md')
-AGDAI_FILES := $(shell find . -type f -and \( -path '*/src/*' -or -path '*/courses/*' \) -and -name '*.agdai')
+AGDA_FILES := $(shell find . -type f -and \( -path '*/src/*' \) -and -name '*.lagda.md')
+# AGDA_FILES := $(shell find . -type f -and \( -path '*/src/*' -or -path '*/courses/*' \) -and -name '*.lagda.md')
+AGDAI_FILES := $(shell find . -type f -and \( -path '*/src/*' \) -and -name '*.agdai')
+# AGDAI_FILES := $(shell find . -type f -and \( -path '*/src/*' -or -path '*/courses/*' \) -and -name '*.agdai')
 MARKDOWN_FILES := $(subst courses/,out/,$(subst src/,out/,$(subst .lagda.md,.md,$(AGDA_FILES))))
 PLFA_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PANDOC := pandoc
