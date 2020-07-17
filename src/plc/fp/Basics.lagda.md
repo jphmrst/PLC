@@ -159,8 +159,6 @@ together with a multitude of useful functions.  Whenever possible,
 we'll name our own definitions so that they exactly coincide with the
 ones in the standard library.
 
-TODO use the same symbols as in std lib
-
 Functions over booleans can be defined in the same way as above:
 
 ```
@@ -168,14 +166,40 @@ not : Bool → Bool
 not True  = False
 not False = True
 
-and : Bool → Bool → Bool
-and True t  = t
-and False _ = False
+_∧_ : Bool → Bool → Bool
+True ∧ t  = t
+False ∧ _ = False
 
-or : Bool → Bool → Bool
-or True _  = True
-or False t = t 
+_∨_ : Bool → Bool → Bool
+True ∨ _  = True
+False ∨ t = t 
 ```
+
+There are a few uses of the underscore character `_` in these
+definitions.  The underscore is a special character in Agda, and we
+use it in two different ways here.  In the line
+
+    _∧_ : Bool → Bool → Bool
+
+the underscores help us to define `∧` as an _infix_ operator, that is,
+a function which we write in between its arguments instead of before
+its arguments.  When we use the underscore in a declaration line, it
+tells Agda where to find the arguments to the operator function we are
+defining.
+
+The second way that we use the underscore is in a line like
+
+    True ∨ _  = True
+
+Here the underscore represents an argument which we choose not to
+name.  We choose not to give a name to the second argument in this
+clause because we do not use it: if the first argument to `∨` is
+`True`, then the result is `True` *no matter what* the second argument
+is — we do not refer to the second argument at all in calculating the
+result in this case.  Since we do not use the argument, we prefer not
+to bother giving it a name.  This anonymity simplifies the definition,
+and it makes it more immediately clear to the reader that the argument
+is unused in this case.
 
 It is useful for us to see how we can define the boolean type and its
 basic operations.  But in later chapters, we will use the boolean type
@@ -193,9 +217,9 @@ given by the following truth table:
   | `A`   | `B`   | `nand A B` |
   | ---   | ---   | ---------- |
   | False | False | True       |
-  |False | True | True| 
-  |True |False  |True| 
-  |True |True  |False|
+  | False | True  | True       | 
+  | True  | False | True       |
+  | True  | True  | False      |
 
     nand : Bool → Bool → Bool
     nand a b = ?
@@ -207,20 +231,6 @@ boolean values.
 
     and3 : Bool → Bool → Bool → Bool
     and3 a b c = ?
-
-#### Exercise `ifthenelse` (recommended) {#ifthenelse}
-
-The Agda standard library `Data.Bool` defines a *conditional
-expression* `if_then_else_` which lets us write expressions like
-
-    if (x ≡ᵇ y) then (x + 2) else (3 * y)
-
-TODO Not a statement, just an expression which takes on the value
-either of...
-
-TODO Note the relationship between writing a name with underbars as a
-function name, and how we can use it as an *operator*, replacing the
-underscores with the actual arguments.
 
 ## Standard library
 
@@ -242,9 +252,11 @@ This time, however, we have only shown the import as a comment.
 This chapter uses the following unicode:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∨  U+2228  LOGICAL OR (\or)
+    ∧  U_2227  LOCIGAL AND (\and)
 
 Each line consists of the Unicode character (`→`), the corresponding
-code point (`U+2192), the name of the character (`RIGHTWARDS ARROW`),
+code point (`U+2192`), the name of the character (`RIGHTWARDS ARROW`),
 and the sequence to type into Emacs to generate the character (`\->`).
 
 For a full list of supported characters, use

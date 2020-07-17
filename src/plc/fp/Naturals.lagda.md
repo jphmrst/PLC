@@ -964,43 +964,48 @@ filled, you can type `C-c C-space`, which will remove the hole:
     zero + n = n
     suc m + n = { }1
 
-Again, going into hole 1 and type `C-c C-,` will display information on the
-required type of the hole, and what free variables are available:
+Again, going into hole 1 and type `C-c C-,` will display information
+on the required type of the hole, and what free variables are
+available:
 
     Goal: ℕ
     ————————————————————————————————————————————————————————————
     n : ℕ
     m : ℕ
 
-Going into the hole and type `C-c C-r` will fill it in with a constructor
-(if there is a unique choice) or tell you what constructors you might use,
-if there is a choice.  In this case, it displays the following:
+Going into the hole and type `C-c C-r` will fill it in with a
+constructor (if there is a unique choice) or tell you what
+constructors you might use, if there is a choice.  In this case, it
+displays the following:
 
     Don't know which constructor to introduce of zero or suc
 
-Filling the hole with `suc ?` and typing `C-c C-space` results in the following:
+Filling the hole with `suc ?` and typing `C-c C-space` results in the
+following:
 
     _+_ : ℕ → ℕ → ℕ
     zero + n = n
     suc m + n = suc { }1
 
-Going into the new hole and typing `C-c C-,` gives similar information to before:
+Going into the new hole and typing `C-c C-,` gives similar information
+to before:
 
     Goal: ℕ
     ————————————————————————————————————————————————————————————
     n : ℕ
     m : ℕ
 
-We can fill the hole with `m + n` and type `C-c C-space` to complete the program:
+We can fill the hole with `m + n` and type `C-c C-space` to complete
+the program:
 
     _+_ : ℕ → ℕ → ℕ
     zero + n = n
     suc m + n = suc (m + n)
 
-Exploiting interaction to this degree is probably not helpful for a program this
-simple, but the same techniques can help with more complex programs.  Even for
-a program this simple, using `C-c C-c` to split cases can be helpful.
-
+Exploiting interaction to this degree is probably not helpful for a
+program this simple, but the same techniques can help with more
+complex programs.  Even for a program this simple, using `C-c C-c` to
+split cases can be helpful.
 
 ## More pragmas
 
@@ -1072,15 +1077,64 @@ Confirm that these both give the correct answer for zero through four.
 -- Your code goes here
 ```
 
+## Tests on natural numbers
 
-## TODO Tests on natural numbers
+We can define an equality testing function on two natural numbers.  As
+in many languages, we use a different symbol than `=` for this
+operation.  Since Agda already uses `=` for defining a function, it
+uses `≡ᵇ` for comparing two natural numbers.
 
 ```
 _≡ᵇ_ : ℕ → ℕ → Bool
+```
+
+There are three cases which we need to consider when comparing two
+natural numbers.  Our base case is when we compare zero to zero.  In
+this base case, the two numbers are obviously equal.
+
+```
 zero ≡ᵇ zero = true
+```
+
+The inductive case describes what happens when we compare two numbers
+which are successors of other numbers.  In this case, our result is
+the same reslt as when we compare those other numbers: if we want to
+know whether `1+n` and `1+m` are the same, then we must check whether
+`n` and `m` are the same.
+
+```
 suc x ≡ᵇ suc y = x ≡ᵇ y
+```
+
+Finally we have additional base cases when we can immediately decide
+that numbers are defiitely different.  These cases are when the
+numbers are built from different constructors.  In other words, two
+numbers are different if one is zero and the other is non-zero.  We
+could write these cases as two different clauses,
+
+    zero ≡ᵇ (suc _) = false
+    (suc _) ≡ᵇ zero = false
+
+But we can also use the fact that Agda checks a function's cases in
+the order we write them to capture these cases more succinctly:
+
+```
 _ ≡ᵇ _ = false
 ```
+
+## Using boolean tests
+
+The Agda standard library `Data.Bool` defines a *conditional
+expression* `if_then_else_` which lets us write expressions like
+
+    if (x ≡ᵇ y) then (x + 2) else (3 * y)
+
+TODO Not a statement, just an expression which takes on the value
+either of...
+
+TODO Note the relationship between writing a name with underbars as a
+function name, and how we can use it as an *operator*, replacing the
+underscores with the actual arguments.
 
 TODO use of wildcard
 
@@ -1116,25 +1170,21 @@ TODO add exercises
 
 ## Standard library
 
-At the end of each chapter, we will show where to find relevant
-definitions in the standard library.  The naturals, constructors for
-them, and basic operators upon them, are defined in the standard
-library module `Data.Nat`:
+The naturals, constructors for them, and basic operators upon them,
+are defined in the standard library module `Data.Nat`:
 
 ```
 -- import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
 ```
 
-Normally, we will show an import as running code, so Agda will
-complain if we attempt to import a definition that is not available.
-This time, however, we have only shown the import as a comment.  Both
-this chapter and the standard library invoke the `NATURAL` pragma, the
-former on `ℕ`, and the latter on the equivalent type `Data.Nat.ℕ`.
-Such a pragma can only be invoked once, as invoking it twice would
-raise confusion as to whether `2` is a value of type `ℕ` or type
-`Data.Nat.ℕ`.  Similar confusions arise if other pragmas are invoked
-twice. For this reason, we will usually avoid pragmas in future chapters.
-Information on pragmas can be found in the Agda documentation.
+Both this chapter and the standard library invoke the `NATURAL`
+pragma, the former on `ℕ`, and the latter on the equivalent type
+`Data.Nat.ℕ`.  Such a pragma can only be invoked once, as invoking it
+twice would raise confusion as to whether `2` is a value of type `ℕ`
+or type `Data.Nat.ℕ`.  Similar confusions arise if other pragmas are
+invoked twice. For this reason, we will usually avoid pragmas in
+future chapters.  Information on pragmas can be found in the Agda
+documentation.
 
 ## Unicode
 
