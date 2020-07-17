@@ -233,7 +233,7 @@ representation for a bag of numbers is as a list.
 ```
 Bag : Set
 Bag = NatList
-``
+```
 
 #### Exercise `bagcount` (practice) {#bagcount}
 
