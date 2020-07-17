@@ -1129,16 +1129,22 @@ expression* `if_then_else_` which lets us write expressions like
 
     if (x ≡ᵇ y) then (x + 2) else (3 * y)
 
-TODO Not a statement, just an expression which takes on the value
-either of...
+As we saw with the boolean operations `∧` and `∨`, the underscores `_`
+in the declared name `if_then_else_` show where the three arguments of
+this expression should appear.  Agda can use this technique of letting
+underscores show where arguments appear for operators with more than
+just two arguments.  But be careful when you use this feature of Agda!
+It can be confusing both for writers and readers of code.
 
-TODO Note the relationship between writing a name with underbars as a
-function name, and how we can use it as an *operator*, replacing the
-underscores with the actual arguments.
+You may be used to thinking of `if` as a statement — in languages like
+C or Java, the `if` block itself does not return a value.  But in a
+functional language there are no statements.  In fact, the `if`
+expression of Agda is like the `... ? ... : ...` operator in C-like
+languages: it checks a boolean expression, and returns the result of
+one of its two other arguments.
 
-TODO use of wildcard
-
-TODO some tests of testing equality
+Here are some tests which we expect an implementation of `≡ᵇ` to
+satisfy.
 
 ```
 _ : zero ≡ᵇ zero ≡ true
@@ -1160,9 +1166,36 @@ _ : 11 ≡ᵇ 11 ≡ true
 _ = refl
 ```
 
-#### TODO Exercise `natneq` (recommended) {#natneq}
+#### Exercise `natneq` (recommended) {#natneq}
 
-#### TODO Exercise `natcompare` (recommended) {#natcompare}
+Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
+
+    _≡ᵇ_ : ℕ → ℕ → Bool
+    -- Your implementation goes here
+    
+    _ : zero ≢ᵇ zero ≡ false
+    _ = refl
+    
+    _ : zero ≢ᵇ 1 ≡ true
+    _ = refl
+    
+    _ : 1 ≢ᵇ zero ≡ true
+    _ = refl
+    
+    _ : 1 ≢ᵇ 1 ≡ false
+    _ = refl
+    
+    _ : 7 ≢ᵇ 9 ≡ true
+    _ = refl
+    
+    _ : 11 ≢ᵇ 11 ≡ false
+    _ = refl
+
+
+#### Exercise `natcompare` (recommended) {#natcompare}
+
+Write a binary operator `_<ᵇ_` which returns `True` when its first
+argument is strictly less than its second argument
 
 ## TODO Using boolean results
 
@@ -1190,10 +1223,12 @@ documentation.
 
 This chapter uses the following unicode:
 
+    ᵇ (\^b)
     ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∸  U+2238  DOT MINUS (\.-)
     ≡  U+2261  IDENTICAL TO (\==)
+    ≢ U+2262  NOT IDENTICAL TO (\==n)
     ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)
     ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
     ∎  U+220E  END OF PROOF (\qed)
