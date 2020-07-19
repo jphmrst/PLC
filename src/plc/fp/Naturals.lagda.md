@@ -1256,8 +1256,6 @@ This chapter uses the following unicode:
     ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
     ∎  U+220E  END OF PROOF (\qed)
 
-    TODO add ᵇ
-
 The command `\r` gives access to a wide variety of rightward arrows.
 After typing `\r`, one can access the many available arrows by using
 the left, right, up, and down keys to navigate.  The command remembers
