@@ -21,7 +21,7 @@ formal proofs of correctness.
 
 The other sense in which functional programming is "functional" is
 that it emphasizes the use of functions (or methods) as
-\textit{first-class values} — i.e., values that can be passed as
+_first-class values_ — i.e., values that can be passed as
 arguments to other functions, returned as results, stored in data
 structures, etc. The recognition that functions can be treated as data
 in this way enables a host of useful idioms, as we will see.  Other
@@ -301,7 +301,8 @@ standard library module `Data.Bool`:
 
 Normally, we will show an import as running code, so Agda will
 complain if we attempt to import a definition that is not available.
-This time, however, we have only shown the import as a comment.
+This time, since we are defining the booleans manually, we have only
+shown the import as a comment.
 
 ## Unicode
 
