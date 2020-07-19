@@ -451,10 +451,10 @@ the second line matches the inductive case by taking `m = 0` and `n = 3`,
 and the third line matches the base case by taking `n = 3`.
 
 Both derivations consist of a signature (written with a colon, `:`),
-giving a type, and a binding (written with an equal sign, `=`),
-giving a term of the given type.  Here we use the dummy name `_`.  The
-dummy name can be reused, and is convenient for examples.  Names other
-than `_` must be used only once in a module.
+giving a type, and a binding (written with an equal sign, `=`), giving
+a term of the given type.  Here we use the underscore `_` as a dummy
+name.  The dummy name can be reused, and is convenient for examples.
+Names other than `_` must be used only once in a module.
 
 Here the type is `2 + 3 ≡ 5` and the term provides _evidence_ for the
 corresponding equation, here written in tabular form as a chain of
@@ -1166,6 +1166,19 @@ _ : 11 ≡ᵇ 11 ≡ true
 _ = refl
 ```
 
+Let's review how we use the different symbols in these tests:
+
+ - `≡ᵇ` is an operator (function) which we have defined ourselves, and
+   which takes arguments and returns a value.
+
+ - `≡` is the main connective in a statement we are making.  It is
+   *not* a boolean function, and we could *not* use its result in a
+   place where a value of type `Bool` is required!  Instead, it forms a
+   sentence, whose truth Agda can help us assess.
+
+ - `=` is the syntax Agda uses to make an association with a name
+   (here `_`, used as a dummy name).
+
 #### Exercise `natneq` (recommended) {#natneq}
 
 Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
@@ -1196,6 +1209,18 @@ Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
 
 Write a binary operator `_<ᵇ_` which returns `True` when its first
 argument is strictly less than its second argument
+
+##### TODO add tests
+
+#### Exercise `factorial` (recommended) {#factorial}
+
+Recall the standard mathematical `factorial` function:
+
+       factorial(0) = 1
+       factorial(n) = n * factorial(n-1)     (if n>0)
+       
+Translate this function into Agda, and write tests for applying
+`factorial` to 0, 1, 2, 5 and 10.
 
 #### TODO add exercises
 
@@ -1251,4 +1276,6 @@ left and right by typing the digits that appear in the displayed list.
 
 ---
 
-*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Wadler et al., with the factorial exercise
+ from Pierce et al.  For more information see the [sources and
+ authorship]({{ site.baseurl }}/Sources/) page.*
