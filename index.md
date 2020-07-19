@@ -27,15 +27,12 @@ will require access to the UWL VPN or Canvas LMS.
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
-## Additional sections with course topics to be posted
-
 ## Functional programming
 
   - TODO
     - Add `with`
-      - First used in `countoddmembers`, `NatData`
-    - Add pattern matching discussion
-    - Add totality discussion
+    - Develop pattern matching discussion: point out where we are
+      using patterns in new ways
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
@@ -51,6 +48,8 @@ will require access to the UWL VPN or Canvas LMS.
 
 ## Programming with logic and proofs
 
+  - TODO
+    - Explain need for totality for logic/proof
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
     - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning

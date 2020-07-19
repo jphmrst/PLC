@@ -1197,9 +1197,7 @@ Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
 Write a binary operator `_<ᵇ_` which returns `True` when its first
 argument is strictly less than its second argument
 
-## TODO Using boolean results
-
-TODO add exercises
+#### TODO add exercises
 
 ## Standard library
 

@@ -63,8 +63,8 @@ data Day : Set where
 ```
 
 The type is called Day, and its members are Monday, Tuesday, etc. The
-second through eighth lines of the definition can be read "Monday is a
-day", "Tuesday is a day," and so on.
+second line of the definition can be read "Monday is a day;" the third
+line can be read "Tuesday is a day;" and so on.
 
 Having defined the type `Day`, we can write functions that operate on
 that type.
@@ -81,7 +81,7 @@ nextDay Sunday    = Monday
 ```
 
 You may have noticed that `→` does not appear on your keyboard.  It is
-symbols in _unicode_.  At the end of each chapter is a list of all
+a _unicode_ symbol.  At the end of each chapter is a list of all
 unicode symbols introduced in the chapter, including instructions on
 how to type them in the Emacs text editor.  Here _type_ refers to
 typing with fingers as opposed to data types!
@@ -91,7 +91,43 @@ function are explicitly declared.  Some functional programming
 languages can work out these types even if they are not given
 explicitly — i.e., they perform type inference.  Agda performs some
 inference, but we will always include these type _signatures_ for the
-functions we write.
+functions we write.  The type signature for this function tells us
+that `nextDay` transforms a value of type `Day` into a (possibly
+different, possibly the same) value of type `Day`.
+
+This function definition may look strange at first.  It is as if we
+are defining the function seven times!  What we are actually doing is
+telling Agda the different _cases_ that it might find when `nextDay`
+is run.  This is a different style than in languages like Java or C,
+where we make a single function definition, within which we would use
+a statement like `switch`.  This style which we find in Agda is the
+_pattern matching_ style, where we give a different clause for each of
+the different combinations of patterns.  A `Day` value can take one of
+seven forms, so we give seven different clauses, one for each form.
+We will soon learn techniques which allow us to give fewer clauses
+when different cases have overlaping results.
+
+One very important thing to note is that Agda expects all of its
+functions to be _total_, that is, to have a well-defined result for
+all possible arguments.  The reason for this restriction has to do
+with the use of Agda as a tool for logical reasoning — we will discuss
+both the ideas behind why this restriction exists, and how we account
+for failing cases in programs, in later sections.  For now, we must
+simply be aware that Agda will refuse to compile a function which does
+not satisfy totality.
+
+Here is another function on `Day` values:
+
+```
+sameDay : Day → Day
+sameDay d = d
+```
+
+Instead of matching the first argument to different cases, we instead
+_name_ the argument, and refer to that name in the result.  Of course
+you are used to naming function (or method) arguments!  In Agda, we
+can also view naming the argument as one way in which we refer to many
+forms of a value all at once.
 
 #### Exercise `try-days` (starting) {#try-days}
 
@@ -121,6 +157,12 @@ here and for the definitions we encounter later, take the time to
 experiment with evaluating different expressions to make sure that you
 understand all of the definitions we will encounter.
 
+#### Exercise `explore-nontotal` (starting) {#explore-nontotal}
+
+What error does Agda give when we define a function which is not
+total?  Delete one of the clauses from `nextDay` to see how the system
+reacts when you reload the file.
+
 #### Exercise `next-weekday` (practice) {#next-weekday}
 
 Write a function `nextWeekday` which takes a day, and returns the next
@@ -137,7 +179,7 @@ slightly differently than (for example) the definitions of `Day` and
 containing **three** backticks `` ` ``, but here the code is indented
 instead.  In order make Agda pay attention to your implementation of
 `nextWeekday`, you must both remove the indentation, and add the three
-backtickss before and after the code.  The indented code is simply
+backticks before and after the code.  The indented code is simply
 taken as another comment like the rest of this text.  The backticks
 surround actual Agda code.
 
@@ -199,7 +241,12 @@ is — we do not refer to the second argument at all in calculating the
 result in this case.  Since we do not use the argument, we prefer not
 to bother giving it a name.  This anonymity simplifies the definition,
 and it makes it more immediately clear to the reader that the argument
-is unused in this case.
+is unused in this case.  This use of an underscore in the pattern of
+an argument is called a _wildcard pattern_.  Wildcards are one way in
+which we can avoid spelling out different cases when they make no
+difference to the result: we do not need to divide this clause into
+separate clauses for each value of the second argument, when there is
+no difference to the result.
 
 It is useful for us to see how we can define the boolean type and its
 basic operations.  But in later chapters, we will use the boolean type
@@ -223,6 +270,15 @@ given by the following truth table:
 
     nand : Bool → Bool → Bool
     nand a b = ?
+
+Try to give as few clauses as you can in your definition.  You could
+just directly translate the lines of the table into clauses with a
+specific pattern for each argument.  But instead, can you combine the
+first two lines into one clause using a wildcard?  Can you combine the
+last two lines into one clause by naming the argument, and using a
+call to a different function which we have already defined?  Try all
+of these variations to convince yourself that they are all possible
+ways to correctly define `nand`.
 
 #### Exercise `and3` (practice) {#and3}
 
