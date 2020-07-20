@@ -30,7 +30,6 @@ will require access to the UWL VPN or Canvas LMS.
 ## Functional programming
 
   - TODO
-    - Add `with`
     - Develop pattern matching discussion: point out where we are
       using patterns in new ways
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
@@ -38,15 +37,15 @@ will require access to the UWL VPN or Canvas LMS.
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
   - [NatData]({{ site.baseurl }}/NatData/): Data structures using
     natural numbers
-  - Poly: Generic data structures and functions
-    - Maps: Partial and total maps
-  - Functional: Higher-order functions
+  - [Poly]({{ site.baseurl }}/Poly/): Generic data structures and functions
+    - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
+  - [Functional]({{ site.baseurl }}/Functional/): Higher-order functions
   - Depend: Dependent types
 
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 
 
-## Programming with logic and proofs
+## Verified functional programming
 
   - TODO
     - Explain need for totality for logic/proof
