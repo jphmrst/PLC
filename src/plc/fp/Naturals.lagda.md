@@ -453,21 +453,21 @@ The first line matches the inductive case by taking `m = 1` and `n = 3`,
 the second line matches the inductive case by taking `m = 0` and `n = 3`,
 and the third line matches the base case by taking `n = 3`.
 
-Both derivations consist of a signature or declaration on the first line, and a binding on the remaining lines.
+Both derivations consist of a signature or declaration on the first
+line, and a binding on the remaining lines.  The signatures have three
+elements: a name, a colon to separate the name from what follows, and
+the example we want to make sure is true.  Here we use the underscore
+`_` as a dummy name.  The dummy name can be reused, and is convenient
+for examples.  Names other than `_` must be used only once in a
+module.
 
-TODO resume edits here
-
-(written with a colon, `:`),
-giving a type, and a binding (written with an equal sign, `=`), giving
-a term of the given type.  Here we use the underscore `_` as a dummy
-name.  The dummy name can be reused, and is convenient for examples.
-Names other than `_` must be used only once in a module.
-
-Here the type is `2 + 3 ≡ 5` and the term provides _evidence_ for the
-corresponding equation, here written in tabular form as a chain of
-equations.  The chain starts with `begin` and finishes with `∎`
-(pronounced "qed" or "tombstone", the latter from its appearance), and
-consists of a series of terms separated by `≡⟨⟩`.
+In the binding, to the right of the `=` we have _evidence_ for the
+equality which we assert in the signature.  Above we have written the
+evidence in tabular form as a chain of equations.  The chain starts
+with `begin` and finishes with `∎` (pronounced "Q.E.D." or
+"tombstone," the latter from its appearance), and consists of a series
+of terms separated by `≡⟨⟩`.  Agda's evaluation of expressions allows
+it to verify that each equality in the series really does hold.
 
 In fact, both proofs are longer than need be, and Agda is satisfied
 with the following:
@@ -477,23 +477,27 @@ _ : 2 + 3 ≡ 5
 _ = refl
 ```
 
-Agda knows how to
-compute the value of `2 + 3`, and so can immediately
-check it is the same as `5`.  A binary relation is said to be _reflexive_
-if every value relates to itself.  Evidence that a value is equal to
-itself is written `refl`.
+Agda knows how to compute the value of `2 + 3`, and so can immediately
+check it is the same as `5`.  A binary relation is said to be
+_reflexive_ if every value relates to itself.  Evidence that Agda can
+use evaluation to show that a value is equal to itself is written
+`refl`.
 
 In the chains of equations, all Agda checks is that each term
-simplifies to the same value. If we jumble the equations, omit lines, or
-add extraneous lines it will still be accepted.  It's up to us to write
-the equations in an order that makes sense to the reader.
+simplifies to the same value. If we jumble the equations, omit lines,
+or add extraneous lines it will still be accepted.  It's up to us to
+write the equations in an order that makes sense to a human reader.
 
-Here `2 + 3 ≡ 5` is a type, and the chains of equations (and also
-`refl`) are terms of the given type; alternatively, one can think of
-each term as _evidence_ for the assertion `2 + 3 ≡ 5`.  This duality
-of interpretation---of a type as a proposition, and of a term as
-evidence---is central to how we formalise concepts in Agda, and will
-be a running theme throughout this book.
+There is a striking resemblence between the way we wrote function
+definitions like `_+_`, `_∨_`, and `not`, and the way write these
+examples and the evidence to justify them.  Both have a signature
+declaring a name and its use.  Both then have a binding with more
+details about the name.  This resemblance is no coincidence!  There is
+a deep connection between the programming view of types and
+computation, and the logical view of claims and justfying evidence.
+This duality of interpretation — of a type as a proposition, and of a
+term as evidence — is central to how we formalise concepts in Agda,
+and will be a running theme throughout this book.
 
 Note that when we use the word _evidence_ it is nothing equivocal.  It
 is not like testimony in a court which must be weighed to determine
@@ -606,7 +610,7 @@ We can do a simple analysis to show that all the cases are covered.
 
   * Consider the second argument.
     + If it is `zero`, then the first equation applies.
-    + If it is `suc n`, then consider the first argument.
+    + If it is `suc n`, then we mus also consider the first argument.
       - If it is `zero`, then the second equation applies.
       - If it is `suc m`, then the third equation applies.
 
@@ -658,6 +662,9 @@ recursive function so that Agda can know it as well.
 ```
 even : ℕ → Bool
 ```
+
+Functions such as `even` which return a `Bool` are sometimes called
+*predicates*.
 
 As usual, we need a base case, and the base case of our function
 corresponds to the base case of the natural numbers.
@@ -720,16 +727,14 @@ Agda allows us to write *mutually recursive*, where each calls the
 other in their inductive cases.  Write mutually recursive versions of
 `odd` and `even` called `odd'` and `even'`.
 
-``
-odd' : ℕ → Bool
-even' : ℕ → Bool
+    odd' : ℕ → Bool
+    even' : ℕ → Bool
 
-odd' zero = false
-odd' (suc n) = ?
+    odd' zero = false
+    odd' (suc n) = ?
 
-even' zero = false
-even' (suc n) = ?
-``
+    even' zero = false
+    even' (suc n) = ?
 
 Note that both type declarations come before both function
 definitions, so that Agda knows how to type check the function bodies.
@@ -737,56 +742,31 @@ definitions, so that Agda knows how to type check the function bodies.
 ## Precedence
 
 We often use _precedence_ to avoid writing too many parentheses.
-Application _binds more tightly than_ (or _has precedence over_) any
-operator, and so we may write `suc m + n` to mean `(suc m) + n`.
-As another example, we say that multiplication binds more tightly than
-addition, and so write `n + m * n` to mean `n + (m * n)`.
-We also sometimes say that addition _associates to the left_, and
-so write `m + n + p` to mean `(m + n) + p`.
+Consider multiplication and addition.  You are used to the idea that
+when you see `1+2*3`, it means `1+(2*3)`, and not `(1+2)*3`.  We say
+that multiplication _binds more tightly_ than addition.  We also
+sometimes say that addition _associates to the left_, and so write `m
++ n + p` to mean `(m + n) + p`.  In Agda the precedence and
+associativity of infix operators needs to be declared:
 
-In Agda the precedence and associativity of infix operators
-needs to be declared:
 ```
 infixl 6  _+_  _∸_
 infixl 7  _*_
 ```
-This states operators `_+_` and `_∸_` have precedence level 6,
-and operator `_*_` has precedence level 7.
-Addition and monus bind less tightly than multiplication
-because they have lower precedence.
-Writing `infixl` indicates that all three
-operators associate to the left.  One can also write `infixr` to
-indicate that an operator associates to the right, or just `infix` to
-indicate that parentheses are always required to disambiguate.
 
+These declarations state that operators `_+_` and `_∸_` have
+precedence level 6, and operator `_*_` has precedence level 7.
+Addition and monus bind less tightly than multiplication because they
+are declared to have lower precedence.
 
-## Currying
+In the same way, application binds more tightly than any operator, and
+so we may write `suc m + n` to mean `(suc m) + n`.
 
-We have chosen to represent a function of two arguments in terms
-of a function of the first argument that returns a function of the
-second argument.  This trick goes by the name _currying_.
+Writing `infixl` indicates that all three operators associate to the
+left.  One can also write `infixr` to indicate that an operator
+associates to the right, or just `infix` to indicate that parentheses
+are always required to disambiguate.
 
-Agda, like other functional languages such as Haskell and ML,
-is designed to make currying easy to use.  Function
-arrows associate to the right and application associates to the left
-
-`ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`
-
-and
-
-`_+_ 2 3` stands for `(_+_ 2) 3`.
-
-The term `_+_ 2` by itself stands for the function that adds two to
-its argument, hence applying it to three yields five.
-
-Currying is named for Haskell Curry, after whom the programming
-language Haskell is also named.  Curry's work dates to the 1930's.
-When I first learned about currying, I was told it was misattributed,
-since the same idea was previously proposed by Moses Schönfinkel in
-the 1920's.  I was told a joke: "It should be called schönfinkeling,
-but currying is tastier". Only later did I learn that the explanation
-of the misattribution was itself a misattribution.  The idea actually
-appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
 
 ## The story of creation, revisited
 

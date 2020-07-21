@@ -16,6 +16,37 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 ```
 
+## Currying from Wadler --- work in?
+
+## Currying
+
+We have chosen to represent a function of two arguments in terms
+of a function of the first argument that returns a function of the
+second argument.  This trick goes by the name _currying_.
+
+Agda, like other functional languages such as Haskell and ML,
+is designed to make currying easy to use.  Function
+arrows associate to the right and application associates to the left
+
+`ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`
+
+and
+
+`_+_ 2 3` stands for `(_+_ 2) 3`.
+
+The term `_+_ 2` by itself stands for the function that adds two to
+its argument, hence applying it to three yields five.
+
+Currying is named for Haskell Curry, after whom the programming
+language Haskell is also named.  Curry's work dates to the 1930's.
+When I first learned about currying, I was told it was misattributed,
+since the same idea was previously proposed by Moses Schönfinkel in
+the 1920's.  I was told a joke: "It should be called schönfinkeling,
+but currying is tastier". Only later did I learn that the explanation
+of the misattribution was itself a misattribution.  The idea actually
+appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
+
+
 (* ###################################################### *)
 (** * Functions as Data *)
 
@@ -940,3 +971,6 @@ fill-column: 70
 End:
 *)
 (* /HIDE *)
+
+
+Credit: Pierce, and some from Wadler
