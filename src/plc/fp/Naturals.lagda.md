@@ -54,20 +54,20 @@ not need any additional evidence to reach this conclusion, because the
 rule has no premises at all: an inference rule _may_ have premises,
 but it is not required to have them.  Since the first rule does not
 use any other facts about natural numbers as a premise, we can see it
-as a _base case_ of identifying natural numbers.
+as a _base case_ for identifying natural numbers.
 
 The second rule above does have one premise.  It tells us that if we
 have evidence that some value is a natural number, then with the
 second rule we have evidence that the _successor_ of the value is also
 a natural number (`suc` is short for successor).  Since the second
 rule does use evidence about another value being a natural number, we
-can see it as an _inductive case_ of identifying natural numbers.
+can see it as an _inductive case_ for identifying natural numbers.
 
 We can combine uses of inference rules to reach more complicated
-conclusions that what a single rule can give us.  For example, how do
-we know that `2 : ℕ`?  We write `2` just as shorthand for `suc (suc
-zero)` — the successor of the successor of zero.  We know from the
-first inference rule that zero is, in fact, a natural.
+conclusions that what a single rule can give us.  For example, we
+write `2` just as shorthand for `suc (suc zero)` — the successor of
+the successor of zero.  How do we know that `2 : ℕ`?  To start, we
+know from the first inference rule that zero is, in fact, a natural.
 
     --------
     zero : ℕ
@@ -107,11 +107,11 @@ data ℕ : Set where
   suc  : ℕ → ℕ
 ```
 
-Here `ℕ` is the name of the datatype we are defining,
-and `zero` and `suc` are the _constructors_ of the datatype.  
-
-Both the informal inference rules and the datatype definition
-tell us the same two things:
+Here `ℕ` is the name of the datatype we are defining, and `zero` and
+`suc` are the _constructors_ of the datatype.  To the right of the
+colon `:` after each of these two names, we have a *type declaration*
+for that name.  Both the two informal inference rules and the two type
+declarations in the datatype definition tell us the same two things:
 
 * _Base case_: `zero` is a natural number.
 * _Inductive case_: if `m` is a natural number, then `suc m` is also a
@@ -163,7 +163,7 @@ we encounter new definitions.  Take the time to experiment with
 evaluating different expressions to make sure that you understand all
 of the definitions we will encounter.
 
-## Unpacking the Agda definition
+## Unpacking the datatype definition
 
 Let's unpack the Agda definition. The keyword `data` tells us this is an
 inductive definition, that is, that we are defining a new datatype
@@ -311,11 +311,14 @@ precisely two constructors, one with no arguments (in this case `zero`),
 and one with a single argument of the given type (in this case `suc`).
 
 As well as enabling the above shorthand, the pragma also enables a
-more efficient internal representation of naturals using the Haskell
-type for arbitrary-precision integers.  Representing the natural _n_
-with `zero` and `suc` requires space proportional to _n_, whereas
-representing it as an arbitrary-precision integer in Haskell only
-requires space proportional to the logarithm of _n_.
+more efficient internal representation of naturals.  Agda is built on
+the language Haskell, which has well-tuned libraries and a compiler
+which generates very efficient machine code.  This pragma allows `ℕ`
+to be translated directly to the Haskell type for arbitrary-precision
+integers.  Representing the natural _n_ with `zero` and `suc` requires
+space proportional to _n_, whereas Haskell's arbitrary-precision
+integer representation only requires space proportional to the
+logarithm of _n_.
 
 
 ## Imports
