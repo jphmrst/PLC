@@ -453,7 +453,11 @@ The first line matches the inductive case by taking `m = 1` and `n = 3`,
 the second line matches the inductive case by taking `m = 0` and `n = 3`,
 and the third line matches the base case by taking `n = 3`.
 
-Both derivations consist of a signature (written with a colon, `:`),
+Both derivations consist of a signature or declaration on the first line, and a binding on the remaining lines.
+
+TODO resume edits here
+
+(written with a colon, `:`),
 giving a type, and a binding (written with an equal sign, `=`), giving
 a term of the given type.  Here we use the underscore `_` as a dummy
 name.  The dummy name can be reused, and is convenient for examples.
