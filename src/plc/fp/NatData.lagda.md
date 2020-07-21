@@ -36,7 +36,7 @@ Write an expression for forming a `NatProd` from the natural numbers
 `3` and `5`.  Use the `C-c C-n` key sequence as in Exercise
 `try-nat-defs` to check your expression.
 
-### Extractng the elements of a pair
+### Extracting the elements of a pair
 
 Here are simple functions for extracting the first and second
 components of a pair:
@@ -72,7 +72,7 @@ data NatList : Set where
 ```
 
 We are using symbols here rather than a name written with letters as
-before — but Agda has very few "special" characters, so these are
+with pairs — but Agda has very few "special" characters, so these are
 valid names just as `pair` is a valid name.  The name `[]`, often
 pronounced _nil_, represents the empty list.  It is a constructor, but
 needs no arguments to construct the value.  The constructor `::` is
@@ -158,10 +158,11 @@ serve as tests for your code: if Agda cannot transform the expression
 `1 :: 2 :: 3 :: []` using your definition of `nonzeros`, then loading
 the file will raise an error.
 
-But as in earlier examples, you must add a third backtick to the code
-below so that Agda actually does load your code and the test.  Having
-this file load successfully because Agda ignores your code for this
-exercise is not a form of success on the exercise!
+But as in earlier examples, you must move this code to the left
+margin, and enclose it withing three backticks `` ` `` so that Agda
+actually does load your code and the test.  Having this file load
+successfully because Agda ignores your code for this exercise is not a
+form of success on the exercise!
 
     nonzeros : NatList → NatList
     nonzeros [] = []
