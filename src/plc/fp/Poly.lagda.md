@@ -206,7 +206,7 @@ type annotations (which can clutter and distract) and too few (which
 can sometimes require readers to perform complex type inference in
 their heads in order to understand your code).
 
-#### Exercise `mumbegrumble` (starting) {#mumbegrumble}
+#### Exercise `mumblegrumble` (starting) {#mumblegrumble}
 
 Consider the following two inductively defined types.
 
