@@ -35,8 +35,8 @@ we would also need to define new versions of all our list manipulating
 functions (`length`, `rev`, etc.) for each new datatype definition.
 
 To avoid all this repetition, Agda supports _polymorphic_ inductive
-type definitions.  The single-type lists `NatList` `BoolList` and so
-forth are *monomorphic*, literally meaning that they have one form.  A
+type definitions.  Single-type lists like `NatList` or `BoolList` are
+*monomorphic*, literally meaning that they have one form.  A
 polyporphic datatype can be applied to different elements types — it
 has *many* forms, not just one.  For example, here is a first version
 of a _polymorphic list_ datatype.
@@ -368,7 +368,7 @@ Fixpoint split {X Y : Type} (l : List (X*Y))
       end
   end.
 (* /ADMITDEF *)
-
+`<
 Example test_split:
   split `(1,false);(2,false)` = (`1;2`,`false;false`).
 Proof.
