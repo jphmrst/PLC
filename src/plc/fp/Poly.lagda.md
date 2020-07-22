@@ -199,7 +199,8 @@ As with `[]` we can make the type argument explicit if we wish:
     repeat {Bool} true 4
 
 but we must use the curly braces to make the implicit argument
-explicit.
+explicit, and we must make sure that the type and value arguments are
+all consistent together.
 
 You should try to find a balance in your own code between too many
 type annotations (which can clutter and distract) and too few (which
@@ -279,107 +280,69 @@ Following the same pattern, the definition for pairs of numbers that
 we gave in the last chapter can be generalized to _polymorphic pairs_,
 often called _products_.
 
-Inductive prod (X Y : Type) : Type :=
-| pair (x : X) (y : Y).
+```
+data Prod (A B : Set) : Set where
+  pair : A → B → Prod A B
+```
 
-Arguments pair {X} {Y} _ _.
+As with lists, we make the type arguments of the constructor implicit
+and define the familiar concrete notation.  Where our `List` type
+takes only a single type argument, `Prod` takes two type arguments
+which in the definition we name `A` and `B`.  Unlike with a list, the
+left- and right-hand elements of a pair do not need to be of the same
+type.  For example, we could have a pair of one natural number and one
+boolean value.
 
-(** FULL: As with lists, we make the type arguments implicit and define the
-    familiar concrete notation. *)
+```
+twentyTwoTrue : Prod ℕ Bool
+twentyTwoTrue = pair 22 true
+```
 
-Notation "( x , y )" := (pair x y).
+It is straightforward to adapt the functions for extracting the pair
+components:
 
-(* HIDEFROMADVANCED *)
-(** We can also use the `Notation` mechanism to define the standard
-    notation for product _types_: *)
+```
+fst : ∀ {A B : Set} → Prod A B → A
+fst (pair x y) = x
 
-(* /HIDEFROMADVANCED *)
-Notation "X * Y" := (prod X Y) : type_scope.
+snd : ∀ {A B : Set} → Prod A B → B
+snd (pair x y) = y
+```
 
-(** (The annotation `: type_scope` tells Coq that this abbreviation
-    should only be used when parsing types, not when parsing
-    expressions.  This avoids a clash with the multiplication
-    symbol.) *)
+We can also adapt our function for swapping the two elements of a
+pair, but note that the swap must now be reflected in the types of the
+argument and result.
 
-(** FULL: It is easy at first to get `(x,y)` and `X*Y` confused.
-    Remember that `(x,y)` is a _value_ built from two other values,
-    while `X*Y` is a _type_ built from two other types.  If `x` has
-    type `x` and `y` has type `Y`, then `(x,y)` has type `X*Y`. *)
-(** TERSE: Be careful not to get `(X,Y)` and `X*Y` confused! *)
-(** TERSE: *** *)
+```
+swapPair : ∀ {A B : Set} → Prod A B → Prod B A
+swapPair (pair x y) = pair y x
+```
 
-(** FULL: The first and second projection functions now look pretty
-    much as they would in any functional programming language. *)
+#### Exercise `explaincombine` (practice) {#explaincombine}
 
-Definition fst {X Y : Type} (p : X * Y) : X :=
-  match p with
-  | (x, y) => x
-  end.
+What does this function do?  Write tests for distinct key cases of its
+behavior.
 
-Definition snd {X Y : Type} (p : X * Y) : Y :=
-  match p with
-  | (x, y) => y
-  end.
+```
+combine :  ∀ {A B : Set} → List A → List B → List (Prod A B)
+combine [] _ = []
+combine _ [] = []
+combine (x :: xs) (y :: ys) = pair x y :: combine xs ys
+```
 
-(** FULL: The following function takes two lists and combines them
-    into a List of pairs.  In other functional languages, it is often
-    called `zip`; we call it `combine` for consistency with Coq's
-    standard library. *)
-(** TERSE: *** *)
-(** TERSE: What does this function do? *)
+#### Exercise `split` (practice) {#split}
 
-Fixpoint combine {X Y : Type} (lx : List X) (ly : List Y)
-           : List (X*Y) :=
-  match lx, ly with
-  | ``, _ => ``
-  | _, `` => ``
-  | x :: tx, y :: ty => (x, y) :: (combine tx ty)
-  end.
+The function `split` is the right inverse of `combine`: it takes a
+List of pairs and returns a pair of lists.  In many functional
+languages, it is called `unzip`.  Fill in the definition of `split`
+below.  Make sure it passes the given test.
 
-(* FULL *)
-(* EX1M? (combine_checks) *)
-(** Try answering the following questions on paper and
-    checking your answers in Coq:
-    - What is the type of `combine` (i.e., what does `Check
-      @combine` print?)
-    - What does
-``
-        Compute (combine `1;2` `false;false;true;true`).
-``
-      print? *)
-(** `` *)
+    split : ∀ {A B : Set} → List (Prod A B) → Prod (List A) (List B)
+    -- Your clauses go here
 
-(* EX2! (split) *)
-(** The function `split` is the right inverse of `combine`: it takes a
-    List of pairs and returns a pair of lists.  In many functional
-    languages, it is called `unzip`.
-
-    Fill in the definition of `split` below.  Make sure it passes the
-    given unit test. *)
-
-Fixpoint split {X Y : Type} (l : List (X*Y))
-               : (List X) * (List Y)
-  (* ADMITDEF *) :=
-  match l with
-  | `` => (``, ``)
-  | (x, y) :: t =>
-      match split t with
-      | (lx, ly) => (x :: lx, y :: ly)
-      end
-  end.
-(* /ADMITDEF *)
-`<
-Example test_split:
-  split `(1,false);(2,false)` = (`1;2`,`false;false`).
-Proof.
-(* ADMITTED *)
-  reflexivity.
-Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: split *)
-(* GRADE_THEOREM 1: test_split *)
-(** `` *)
-(* /FULL *)
+    _ : split ((pair 1 false) :: (pair 2 false) :: [])
+          ≡ pair (1 :: 2 :: []) (false :: false :: [])
+    _ = refl
 
 ## Polymorphic options
 
