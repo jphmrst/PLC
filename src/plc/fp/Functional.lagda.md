@@ -62,108 +62,94 @@ filter f (x :: xs) with f x
 ...                   | false = filter f xs
 ```
 
-For example, if we apply `filter` to the predicate `evenb` and a list
-of numbers `l`, it returns a list containing just the even members of
-`l`.
+For example, if we apply `filter` to the predicate `even` and a list
+of numbers, it returns a list containing just the even members of that
+list.
 
-(* HIDEFROMADVANCED *)
-Example test_filter1: filter evenb [1;2;3;4] = [2;4].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
+even : ℕ → Bool
+even 0 = true
+even 1 = false
+even (suc (suc n)) = even n
 
-(** TERSE: *** *)
-Definition length_is_1 {X : Type} (l : list X) : bool :=
-  (length l) =? 1.
+_ : filter even (1 :: 2 :: 3 :: 4 :: []) ≡ (2 :: 4 :: [])
+_ = refl
+```
 
-Example test_filter2:
-    filter length_is_1
-           [ [1; 2]; [3]; [4]; [5;6;7]; []; [8] ]
-  = [ [3]; [4]; [8] ].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+We use `filter` on lists of arbitrarily complex element types, such as
+selecting all of the elements of a list of lists whose length is 1.
 
-(** TERSE: *** *)
-(* LATER: This material would sink in better if it were made clearer
-   why map and filter and such were useful in the real world.  Talk
-   about map/reduce, collection-oriented programming, etc.  Esp in the
-   terse version. *)
-(** TERSE: The [filter] function -- together with some other functions
-    we'll see later -- enables a powerful _collection-oriented_
-    programming style. *)
-(** FULL: We can use [filter] to give a concise version of the
-    [countoddmembers] function from the \CHAP{Lists} chapter. *)
+```
+lengthIs1 : ∀ {X : Set} → List X → Bool
+lengthIs1 (_ :: []) = true
+lengthIs1 _ = false
 
-Definition countoddmembers' (l:list nat) : nat :=
-  length (filter oddb l).
+_ : filter lengthIs1 ((1 :: 2 :: []) :: (3 :: []) :: (4 :: [])
+                       :: (5 :: 6 :: 7 :: []) :: [] :: (8 :: []) :: [])
+      ≡ ((3 :: []) :: (4 :: []) :: (8 :: []) :: [])
+_ = refl
+```
 
-Example test_countoddmembers'1:   countoddmembers' [1;0;3;1;4;5] = 4.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_countoddmembers'2:   countoddmembers' [0;2;4] = 0.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_countoddmembers'3:   countoddmembers' nil = 0.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+TODO Where is this?
 
-(* /HIDEFROMADVANCED *)
+We can use `filter` to give a concise version of the `countoddmembers`
+function from the {Lists} section.
+
+```
+length : ∀ {X : Set} → List X → ℕ
+length [] = 0
+length (_ :: xs) = suc (length xs)
+
+odd : ℕ → Bool
+odd 0 = false
+odd 1 = true
+odd (suc (suc n)) = odd n
+
+countoddmembers : List ℕ -> ℕ
+countoddmembers l = length (filter odd l)
+
+_ : countoddmembers (1 :: 0 :: 3 :: 1 :: 4 :: 5 :: []) ≡ 4
+_ = refl
+
+_ : countoddmembers (0 :: 2 :: 4 :: []) ≡ 0
+_ = refl
+
+_ : countoddmembers [] ≡ 0
+_ = refl
+```
 
 ## Anonymous functions
 
-(* LATER: Why not show them [fix] here?  It's not that complicated and
-   it fills out the story.  At least as a little optional section.
+It is arguably a little sad, in the example just above, to be forced
+to define the function `lengthIs1` and give it a name just to be able
+to pass it as an argument to `filter`.  We will probably never use a
+function like `lengthIs1` again.  Moreover, this is not an isolated
+example: when using higher-order functions, we often want to pass as
+arguments "one-off" functions that we will never use again.  Having to
+give each of these functions a name would be tedious.
 
-   BAY: I'm not convinced it's "not that complicated" for people who
-   have never seen much functional programming before.  I think adding
-   a discussion of fix could easily take 20 minutes of class time.
+Fortunately, there is a better way.  We can construct a function "on
+the fly" without declaring it at the top level or giving it a name.
+These functions are called *anonymous* functions, and we use a *lambda
+abstraction* to write them down.
 
-   BCP: Yes, this doesn't belong in lecture, probably.  But it might
-   still be useful as an optional section for people to read.
+```
+_ : doIt3Times (λ { n → n * n }) 2 ≡ 256
+_ = refl
+```
 
-   (2013: Now that we've created the idea of "advanced" sections, this
-   seems like a nice candidate.) *)
+The expression `λ { n → n * n }` can be read as "the function that,
+given a number `n`, yields `n * n`.
 
-(** FULL: It is arguably a little sad, in the example just above, to
-    be forced to define the function [length_is_1] and give it a name
-    just to be able to pass it as an argument to [filter], since we
-    will probably never use it again.  Moreover, this is not an
-    isolated example: when using higher-order functions, we often want
-    to pass as arguments "one-off" functions that we will never use
-    again; having to give each of these functions a name would be
-    tedious.
+Here is the `filter` example, rewritten to use an anonymous function.
 
-    Fortunately, there is a better way.  We can construct a function
-    "on the fly" without declaring it at the top level or giving it a
-    name. *)
-(** TERSE: Functions can be constructed "on the fly" without giving
-    them names. *)
-(* HIDEFROMADVANCED *)
-
-Example test_anon_fun':
-  doit3times (fun n => n * n) 2 = 256.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-(** The expression [(fun n => n * n)] can be read as "the function
-    that, given a number [n], yields [n * n]." *)
-
-(* /HIDEFROMADVANCED *)
-(** FULL: Here is the [filter] example, rewritten to use an anonymous
-    function. *)
-
-Example test_filter2':
-    filter (fun l => (length l) =? 1)
-           [ [1; 2]; [3]; [4]; [5;6;7]; []; [8] ]
-  = [ [3]; [4]; [8] ].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
+_ : filter (λ l → (length l) ≡ᵇ 1)
+           ((1 :: 2 :: []) :: (3 :: []) :: (4 :: [])
+              :: (5 :: 6 :: 7 :: []) :: [] :: (8 :: []) :: [])
+      ≡ ((3 :: []) :: (4 :: []) :: (8 :: []) :: [])
+_ = refl
+```
 
 (* FULL *)
 (* EX2 (filter_even_gt7) *)
@@ -959,3 +945,4 @@ End:
 
 
 Credit: Pierce, and some from Wadler
+ 
