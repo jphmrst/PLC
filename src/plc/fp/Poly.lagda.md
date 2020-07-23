@@ -346,74 +346,48 @@ below.  Make sure it passes the given test.
 
 ## Polymorphic options
 
-Our last polymorphic type for now is _polymorphic options_, which
-generalize `natoption` from the previous chapter.  (We put the
-definition inside a module because the standard library already
-defines `option` and it's this one that we want to use below.)
+Our third polymorphic type generalizes the `NatMaybe` type into a
+wrapper for either zero or one values of an element type.
 
-Module OptionPlayground.
+```
+data Maybe (A : Set) : Set where
+  nothing : Maybe A
+  just : A → Maybe A
+```
 
-Inductive option (X:Type) : Type :=
-  | Some (x : X)
-  | None.
+We can now rewrite the `nthError` function so that it works with any
+type of lists.
 
-Arguments Some {X} _.
-Arguments None {X}.
+```
+nthError : ∀ {X : Set} → List X → ℕ → Maybe X
+nthError [] _ = nothing
+nthError (x :: _) 0 = just x
+nthError (x :: xs) (suc n) = nthError xs n
 
-End OptionPlayground.
+_ : nthError (4 :: 5 :: 6 :: 7 :: []) 0 ≡ just 4
+_ = refl
 
-(** TERSE: *** *)
-(** FULL: We can now rewrite the `nth_error` function so that it works
-    with any type of lists. *)
+_ : nthError (1 :: 2 :: []) 1 ≡ just 2
+_ = refl
 
-Fixpoint nth_error {X : Type} (l : List X) (n : ℕ)
-                   : option X :=
-  match l with
-  | `` => None
-  | a :: l' => if n =? O then Some a else nth_error l' (pred n)
-  end.
+_ : nthError (1 :: 2 :: []) 2 ≡ nothing
+_ = refl
 
-(* HIDEFROMADVANCED *)
-Example test_nth_error1 : nth_error `4;5;6;7` 0 = Some 4.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_nth_error2 : nth_error ``1`;`2`` 1 = Some `2`.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_nth_error3 : nth_error `true` 2 = None.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+_ : nthError ([] {ℕ}) 0 ≡ nothing
+_ = refl
+```
 
-(* /HIDEFROMADVANCED *)
-(* FULL *)
-(* EX1? (hd_error_poly) *)
-(** Complete the definition of a polymorphic version of the
-    `hd_error` function from the last chapter. Be sure that it
-    passes the unit tests below. *)
+#### Exercise `hdErrorPoly` (practice) {#hdErrorPoly}
 
-Definition hd_error {X : Type} (l : List X) : option X
-  (* ADMITDEF *) :=
-  match l with
-  | `` => None
-  | a :: l' => Some a
-  end.
-(* /ADMITDEF *)
+Complete the definition of a polymorphic version of the `hdError`
+function making sure as usual that it passes its tests.
 
-(** Once again, to force the implicit arguments to be explicit,
-    we can use `@` before the name of the function. *)
+    hdError : ∀ {X : Type} → List X → Maybe X
+    -- Your definition goes here
 
-Check @hd_error : forall X : Type, List X → option X.
+    _ : hd_error `1;2` = Some 1.
+    _ = refl
 
-Example test_hd_error1 : hd_error `1;2` = Some 1.
- (* ADMITTED *)
-Proof. reflexivity.  Qed.
- (* /ADMITTED *)
-Example test_hd_error2 : hd_error  ``1`;`2``  = Some `1`.
- (* ADMITTED *)
-Proof. reflexivity.  Qed.
- (* /ADMITTED *)
-(** `` *)
-(* /FULL *)
+    _ : hd_error  ``1`;`2``  = Some `1`.
+    _ = refl
+
