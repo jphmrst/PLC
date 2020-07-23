@@ -1,9 +1,9 @@
 ---
-title     : "Poly: Generic data structures and functions"
+title     : "Maps: Total and partial maps"
 layout    : page
-prev      : /Poly/
+prev      : /Functional/
 permalink : /Maps/
-next      : /Functional/
+next      : /Depend/
 ---
 
 ```
@@ -15,66 +15,20 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 ```
 
-(** * Maps: Total and Partial Maps *)
+_Maps_ (or _dictionaries_) are ubiquitous data structures, both in
+commercial programming projects, and in the studies we will make in
+the coming chapters.  They make a nice larger case study of building
+data structures out of higher-order functions, and we will be able to
+extend this case study when we move later to *verified* functional
+programming.
 
-(* SOONER: (BCP 12/18) I'm still not satisfied with the notations for
-   t_update and update -- the !-> hack is ugly, and both flavors of
-   update are the wrong way around to my eye.  But I'm having a hard
-   time improving them. :-(  Suggestions welcome!
-*)
-(* SOONER: put TERSE: HIDEFROMHTML around FOLDed proofs *)
-(** _Maps_ (or _dictionaries_) are ubiquitous data structures both
-    generally and in the theory of programming languages in
-    particular; we're going to need them in many places in the coming
-    chapters.  They also make a nice case study using ideas we've seen
-    in previous chapters, including building data structures out of
-    higher-order functions (from [Basics] and [Poly]) and the use of
-    reflection to streamline proofs (from [IndProp]).
+We'll define two flavors of maps: _total_ maps, which include a
+"default" element to be returned when a key being looked up does not
+exist, and _partial_ maps, which use `Maybe` types to indicate
+success or failure.  The latter is defined in terms of the former,
+using `nothing` as the default element. 
 
-    We'll define two flavors of maps: _total_ maps, which include a
-    "default" element to be returned when a key being looked up
-    doesn't exist, and _partial_ maps, which return an [option] to
-    indicate success or failure.  The latter is defined in terms of
-    the former, using [None] as the default element. *)
-(** HIDE: Recall the type [partial_map] from the \CHAP{Lists} chapter.  Its
-    basic operations were [empty], the constant empty map, [update],
-    which takes a map and returns a new map with one key bound to a
-    new value, and [find], which looks up a key in a map. *)
-
-(* ###################################################################### *)
-(** * The Coq Standard Library *)
-
-(** FULL: One small digression before we begin...
-
-    Unlike the chapters we have seen so far, this one does not
-    [Require Import] the chapter before it (and, transitively, all the
-    earlier chapters).  Instead, in this chapter and from now, on
-    we're going to import the definitions and theorems we need
-    directly from Coq's standard library stuff.  You should not notice
-    much difference, though, because we've been careful to name our
-    own definitions and theorems the same as their counterparts in the
-    standard library, wherever they overlap. *)
-
-(** TERSE: We'll import things from the standard library from now on... *)
-
-From Coq Require Import Arith.Arith.
-From Coq Require Import Bool.Bool.
-Require Export Coq.Strings.String.
-From Coq Require Import Logic.FunctionalExtensionality.
-From Coq Require Import Lists.List.
-Import ListNotations.
-
-(** FULL: Documentation for the standard library can be found at
-    #<a href="https://coq.inria.fr/library/">#https://coq.inria.fr/library/#</a>#.
-
-    The [Search] command is a good way to look for theorems involving
-    objects of specific types.  Take a minute now to experiment with it. *)
-(** SOONER: [Locate] is also useful to find where an identifier
-    or notation (!) comes from and detect ambiguity/shadowing. *)
-(* SOONER: Search vs SearchAbout? *)
-
-(* ###################################################################### *)
-(** * Identifiers *)
+## Identifiers
 
 (** First, we need a type for the keys that we use to index into our
     maps.  In [Lists.v] we introduced a fresh type [id] for a similar
@@ -166,8 +120,7 @@ Proof.
 (* /FOLD *)
 (* /HIDEFROMHTML *)
 
-(* ###################################################################### *)
-(** * Total Maps *)
+## Total maps
 
 (** Our main job in this chapter will be to build a definition of
     partial maps that is similar in behavior to the one we saw in the
@@ -477,8 +430,7 @@ Qed.
 (** [] *)
 (* TERSE: /HIDEFROMHTML *)
 
-(* ###################################################################### *)
-(** * Partial maps *)
+## Partial maps
 
 (** Finally, we define _partial maps_ on top of total maps.  A partial
     map with elements of type [A] is simply a total map with elements

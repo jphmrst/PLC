@@ -2,112 +2,70 @@
 ---
 title     : "Functional: Higher-order functions"
 layout    : page
-prev      : /Maps/
+prev      : /Poly/
 permalink : /Functional/
-next      : /Depend/
+next      : /Maps/
 ---
 
 ```
 module plc.fp.Functional where
 open import Data.Bool
 open import Data.Nat
+open import plc.fp.Poly
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 ```
 
-## Currying from Wadler --- work in?
+Like most modern programming languages — especially other "functional"
+languages, including OCaml, Haskell, Racket, Scala, Clojure, etc. —
+Agda treats functions as first-class citizens, allowing them to be
+passed as arguments to other functions, returned as results, stored in
+data structures, etc.
 
-## Currying
+## Higher-order functions
 
-We have chosen to represent a function of two arguments in terms
-of a function of the first argument that returns a function of the
-second argument.  This trick goes by the name _currying_.
+Functions that manipulate other functions are often called
+_higher-order_ functions.  Here's a simple one:
 
-Agda, like other functional languages such as Haskell and ML,
-is designed to make currying easy to use.  Function
-arrows associate to the right and application associates to the left
+```
+doIt3Times : ∀ {X : Set} → (X → X) → X → X
+doIt3Times f n = f (f (f n))
+```
 
-`ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`
+The argument `f` here is itself a function (from `X` to `X`); the body
+of `doit3times` applies `f` three times to some value `n`.
 
-and
+```
+minusTwo : ℕ → ℕ
+minusTwo x = x ∸ 2
 
-`_+_ 2 3` stands for `(_+_ 2) 3`.
+_ : doIt3Times minusTwo 9 ≡ 3
+_ = refl
 
-The term `_+_ 2` by itself stands for the function that adds two to
-its argument, hence applying it to three yields five.
+_ : doIt3Times not true ≡ false
+_ = refl
 
-Currying is named for Haskell Curry, after whom the programming
-language Haskell is also named.  Curry's work dates to the 1930's.
-When I first learned about currying, I was told it was misattributed,
-since the same idea was previously proposed by Moses Schönfinkel in
-the 1920's.  I was told a joke: "It should be called schönfinkeling,
-but currying is tastier". Only later did I learn that the explanation
-of the misattribution was itself a misattribution.  The idea actually
-appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
+```
 
+### Filter
 
-(* ###################################################### *)
-(** * Functions as Data *)
+Here is a more useful higher-order function, taking a list of `X`s and
+a _predicate_ on `X` (a function from `X` to `bool`) and "filtering"
+the list, returning a new list containing just those elements for
+which the predicate returns `true`.
 
-(* HIDEFROMADVANCED *)
-(** FULL: Like most modern programming languages -- especially other
-    "functional" languages, including OCaml, Haskell, Racket, Scala,
-    Clojure, etc. -- Coq treats functions as first-class citizens,
-    allowing them to be passed as arguments to other functions,
-    returned as results, stored in data structures, etc. *)
-(* /HIDEFROMADVANCED *)
+```
+filter : ∀ {X : Set} → (X → Bool) → List X → List X
+filter _ [] = []
+filter f (x :: xs) with f x
+...                   | true = x :: filter f xs
+...                   | false = filter f xs
+```
 
-(* ###################################################### *)
-(** ** Higher-Order Functions *)
-
-(* HIDEFROMADVANCED *)
-(** FULL: Functions that manipulate other functions are often called
-    _higher-order_ functions.  Here's a simple one: *)
-(** TERSE: Functions in Coq are _first class_. *)
-
-Definition doit3times {X:Type} (f:X->X) (n:X) : X :=
-  f (f (f n)).
-
-(** FULL: The argument [f] here is itself a function (from [X] to
-    [X]); the body of [doit3times] applies [f] three times to some
-    value [n]. *)
-
-Check @doit3times : forall X : Type, (X -> X) -> X -> X.
-
-Example test_doit3times: doit3times minustwo 9 = 3.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-Example test_doit3times': doit3times negb true = false.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-(* ###################################################### *)
-(** ** Filter *)
-
-(* /HIDEFROMADVANCED *)
-(* INSTRUCTORS: We've tried to be careful with terminology in the rest
-   of the notes: "(boolean) predicate" for boolean functions and
-   "property" for propositions indexed by one parameter. *)
-(** FULL: Here is a more useful higher-order function, taking a list
-    of [X]s and a _predicate_ on [X] (a function from [X] to [bool])
-    and "filtering" the list, returning a new list containing just
-    those elements for which the predicate returns [true]. *)
-
-Fixpoint filter {X:Type} (test: X->bool) (l:list X)
-                : (list X) :=
-  match l with
-  | []     => []
-  | h :: t => if test h then h :: (filter test t)
-                        else       filter test t
-  end.
-
-(** FULL: For example, if we apply [filter] to the predicate [evenb]
-    and a list of numbers [l], it returns a list containing just the
-    even members of [l]. *)
+For example, if we apply `filter` to the predicate `evenb` and a list
+of numbers `l`, it returns a list containing just the even members of
+`l`.
 
 (* HIDEFROMADVANCED *)
 Example test_filter1: filter evenb [1;2;3;4] = [2;4].
@@ -155,8 +113,8 @@ Proof. reflexivity. Qed.
 (* /FOLD *)
 
 (* /HIDEFROMADVANCED *)
-(* ###################################################### *)
-(** ** Anonymous Functions *)
+
+## Anonymous functions
 
 (* LATER: Why not show them [fix] here?  It's not that complicated and
    it fills out the story.  At least as a little optional section.
@@ -270,8 +228,7 @@ Proof. reflexivity. Qed.
 (** [] *)
 (* /FULL *)
 
-(* ###################################################### *)
-(** ** Map *)
+## Map
 
 (** FULL: Another handy higher-order function is called [map]. *)
 
@@ -444,8 +401,7 @@ Definition option_map {X Y : Type} (f : X -> Y) (xo : option X)
 (* /FULL *)
 (* /HIDEFROMADVANCED *)
 
-(* ###################################################### *)
-(** ** Fold *)
+## Fold
 
 (** FULL: An even more powerful higher-order function is called
     [fold].  This function is the inspiration for the "[reduce]"
@@ -576,8 +532,8 @@ Proof. reflexivity. Qed.
 (* /FULL *)
 
 (* HIDEFROMADVANCED *)
-(* ###################################################### *)
-(** ** Functions That Construct Functions *)
+
+## Functions that construct functions
 
 (** FULL: Most of the higher-order functions we have talked about so
     far take functions as arguments.  Let's look at some examples that
@@ -638,9 +594,7 @@ Example test_plus3'' :  doit3times (plus 3) 0 = 9.
 Proof. reflexivity. Qed.
 (* /FOLD *)
 
-(* FULL *)
-(* ##################################################### *)
-(** * Additional Exercises *)
+## Additional exercises
 
 Module Exercises.
 
@@ -706,6 +660,38 @@ Proof.
 
 (* GRADE_MANUAL 3: fold_map *)
 (** [] *)
+
+
+## Currying from Wadler --- work in?
+
+## Currying
+
+We have chosen to represent a function of two arguments in terms
+of a function of the first argument that returns a function of the
+second argument.  This trick goes by the name _currying_.
+
+Agda, like other functional languages such as Haskell and ML,
+is designed to make currying easy to use.  Function
+arrows associate to the right and application associates to the left
+
+`ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`
+
+and
+
+`_+_ 2 3` stands for `(_+_ 2) 3`.
+
+The term `_+_ 2` by itself stands for the function that adds two to
+its argument, hence applying it to three yields five.
+
+Currying is named for Haskell Curry, after whom the programming
+language Haskell is also named.  Curry's work dates to the 1930's.
+When I first learned about currying, I was told it was misattributed,
+since the same idea was previously proposed by Moses Schönfinkel in
+the 1920's.  I was told a joke: "It should be called schönfinkeling,
+but currying is tastier". Only later did I learn that the explanation
+of the misattribution was itself a misattribution.  The idea actually
+appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
+
 
 (* EX2A (currying) *)
 (** In Coq, a function [f : A -> B -> C] really has the type [A

@@ -3,7 +3,7 @@ title     : "Poly: Generic data structures and functions"
 layout    : page
 prev      : /NatData/
 permalink : /Poly/
-next      : /Maps/
+next      : /Functional/
 ---
 
 ```

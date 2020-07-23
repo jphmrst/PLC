@@ -1,4 +1,12 @@
 
+---
+title     : "Properties of Higher-order functions"
+layout    : page
+prev      : /Poly/
+permalink : /FunctionalProp/
+next      : /Maps/
+---
+
 ```
 module plc.logic.Functional where
 open import Data.Bool
