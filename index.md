@@ -40,7 +40,7 @@ will require access to the UWL VPN or Canvas LMS.
   - [Poly]({{ site.baseurl }}/Poly/): Generic data structures and functions
   - [Functional]({{ site.baseurl }}/Functional/): Higher-order functions
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
-  - Depend: Dependent types
+  - [Depend]({{ site.baseurl }}/Depend/): Dependent types
 
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 

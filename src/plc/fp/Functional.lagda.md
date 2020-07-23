@@ -1,4 +1,3 @@
-
 ---
 title     : "Functional: Higher-order functions"
 layout    : page
