@@ -265,6 +265,8 @@ this file that you can throw away afterwards.)
 
 ## Fold
 
+TODO Wait, what does Agda use?  foldr/foldl ?
+
 An even more powerful higher-order function is called `fold`.  This
 function is the inspiration for the `reduce` operation that lies at
 the heart of Google's map/reduce distributed programming framework.
@@ -299,37 +301,23 @@ _ : fold _++_ ((1 :: []) :: [] :: (2 :: 3 :: []) :: (4 :: []) :: []) []
 _ = refl
 {:/comment}
 
-(* FULL *)
-(* EX1AM (fold_types_different) *)
-(** Observe that the type of `fold` is parameterized by _two_ type
-    variables, [X] and [Y], and the parameter `f` is a binary operator
-    that takes an [X] and a [Y] and returns a [Y].  Can you think of a
-    situation where it would be useful for [X] and [Y] to be
-    different? *)
+#### Exercise `foldTypesDifferent` (starting) {#foldTypesDifferent}
 
-(* SOLUTION *)
-(** There are many.  For example, we could use `fold` to count the
-    number of [true] elements in a list of booleans.  Here [X] would
-    be [bool] and [Y] would be [nat]. *)
-(* /SOLUTION *)
-(* SOONER: make this easier for advanced grading? *)
-
-(* GRADE_MANUAL 1: fold_types_different *)
-(** [] *)
-(* /FULL *)
-
-(* HIDEFROMADVANCED *)
+Observe that the type of `fold` is parameterized by _two_ type
+variables, `X` and `Y`, and the parameter `f` is a binary operator
+that takes an `X` and a `Y` and returns a `Y`.  Can you think of a
+situation where it would be useful for `X` and `Y` to be different?
 
 ## Functions that construct functions
 
-(** FULL: Most of the higher-order functions we have talked about so
-    far take functions as arguments.  Let's look at some examples that
-    involve _returning_ functions as the results of other functions.
-    To begin, here is a function that takes a value [x] (drawn from
-    some type [X]) and returns a function from [nat] to [X] that
-    yields [x] whenever it is called, ignoring its [nat] argument. *)
-(** TERSE: Here are two more functions that _return_ functions
-    as results. *)
+Most of the higher-order functions we have talked about so far take
+functions as arguments.  Let's look at some examples that involve
+_returning_ functions as the results of other functions.  To begin,
+here is a function that takes a value `x` (drawn from some type `x`)
+and returns a function from `ℕ` to `x` that yields `x` whenever it is
+called, ignoring its `ℕ` argument.
+
+TODO edit from here
 
 Definition constfun {X: Type} (x: X) : nat→X :=
   fun (k:nat) => x.
@@ -359,8 +347,8 @@ Check plus : nat → nat → nat.
     on types.  This operator is _right-associative_, so the type of
     [plus] is really a shorthand for [nat → (nat → nat)] -- i.e., it
     can be read as saying that "[plus] is a one-argument function that
-    takes a [nat] and returns a one-argument function that takes
-    another [nat] and returns a [nat]."  In the examples above, we
+    takes a `ℕ` and returns a one-argument function that takes
+    another `ℕ` and returns a `ℕ`."  In the examples above, we
     have always applied [plus] to both of its arguments at once, but
     if we like we can supply just the first.  This is called _partial
     application_. *)
@@ -569,7 +557,7 @@ Proof.
 ]]
 *)
 (* SOLUTION *)
-(** Theorem: For all types [X], lists [l], and natural numbers [n],
+(** Theorem: For all types `x`, lists [l], and natural numbers [n],
     if [length l = n] then [nth_error X l n = None].
 
     Proof: By induction on [l]. There are two cases to consider:
@@ -577,7 +565,7 @@ Proof.
       - If [l = nil], we must show [nth_error [] n = None].  This follows
         immediately from the definition of [nth_error].
 
-      - Otherwise, [l = x :: l'] for some [x] and [l'], and the
+      - Otherwise, [l = x :: l'] for some `x` and [l'], and the
         induction hypothesis tells us that [length l' = n' => nth_error l'
         n' = None] for any [n'].
 
