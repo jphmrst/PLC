@@ -265,61 +265,43 @@ this file that you can throw away afterwards.)
 
 ## Fold
 
-(** FULL: An even more powerful higher-order function is called
-    [fold].  This function is the inspiration for the "[reduce]"
-    operation that lies at the heart of Google's map/reduce
-    distributed programming framework. *)
+An even more powerful higher-order function is called `fold`.  This
+function is the inspiration for the `reduce` operation that lies at
+the heart of Google's map/reduce distributed programming framework.
 
-Fixpoint fold {X Y: Type} (f: X→Y→Y) (l: list X) (b: Y)
-                         : Y :=
-  match l with
-  | nil => b
-  | h :: t => f h (fold f t b)
-  end.
+```
+fold : ∀ {X Y : Set} → (X → Y → Y) → List X → Y → Y
+fold _ [] b = b
+fold f (x :: xs) b = f x (fold f xs b)
+```
 
-(** TERSE: This is the "reduce" in map/reduce... *)
+Intuitively, the behavior of the `fold` operation is to insert a given
+binary operator `f` between every pair of elements in a given list.
+For example, `fold _+_ (1 :: 2 :: 3 ::4 :: [])` intuitively means
+`1+2+3+4`.  To make this precise, we also need a "starting element"
+that serves as the second input to `f` in the base case.  So, for
+example,
 
-(* HIDEFROMADVANCED *)
-(** TERSE: *** *)
+```
+_ : fold _+_ (1 :: 2 :: 3 :: 4 :: []) 0 ≡ 1 + (2 + (3 + (4 + 0)))
+_ = refl
 
-(** FULL: Intuitively, the behavior of the [fold] operation is to
-    insert a given binary operator `f` between every pair of elements
-    in a given list.  For example, [ fold plus [1;2;3;4] ] intuitively
-    means [1+2+3+4].  To make this precise, we also need a "starting
-    element" that serves as the initial second input to `f`.  So, for
-    example,
-[[
-       fold plus [1;2;3;4] 0
-]]
-    yields
-[[
-       1 + (2 + (3 + (4 + 0))).
-]]
-    Some more examples: *)
+_ : fold _*_ (1 :: 2 :: 3 :: 4 :: []) 1 ≡ 24
+_ = refl
 
-Check (fold andb) : list bool → bool → bool.
+_ : fold _∧_ (true :: true :: false :: true :: []) true ≡ false
+_ = refl
+```
 
-Example fold_example1 :
-  fold mult [1;2;3;4] 1 = 24.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-Example fold_example2 :
-  fold andb [true;true;false;true] true = false.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-Example fold_example3 :
-  fold app  [[1];[];[2;3];[4]] [] = [1;2;3;4].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+{::comment}
+_ : fold _++_ ((1 :: []) :: [] :: (2 :: 3 :: []) :: (4 :: []) :: []) []
+      ≡ (1 :: 2 :: 3 :: 4 :: [])
+_ = refl
+{:/comment}
 
 (* TERSE *)
 (* QUIZ *)
-(** Here is the definition of [fold] again:
+(** Here is the definition of `fold` again:
 [[
      Fixpoint fold {X Y: Type}
                    (f: X→Y→Y) (l: list X) (b: Y)
@@ -329,7 +311,7 @@ Proof. reflexivity. Qed.
        | h :: t => f h (fold f t b)
        end.
 ]]
-    What is the type of [fold]?
+    What is the type of `fold`?
 
     (1) [forall X Y : Type, (X → Y → Y) → list X → Y → Y]
 
@@ -376,14 +358,14 @@ Proof. reflexivity. Qed.
 
 (* FULL *)
 (* EX1AM (fold_types_different) *)
-(** Observe that the type of [fold] is parameterized by _two_ type
+(** Observe that the type of `fold` is parameterized by _two_ type
     variables, [X] and [Y], and the parameter `f` is a binary operator
     that takes an [X] and a [Y] and returns a [Y].  Can you think of a
     situation where it would be useful for [X] and [Y] to be
     different? *)
 
 (* SOLUTION *)
-(** There are many.  For example, we could use [fold] to count the
+(** There are many.  For example, we could use `fold` to count the
     number of [true] elements in a list of booleans.  Here [X] would
     be [bool] and [Y] would be [nat]. *)
 (* /SOLUTION *)
@@ -462,7 +444,7 @@ Module Exercises.
 
 (* EX2 (fold_length) *)
 (** Many common functions on lists can be implemented in terms of
-    [fold].  For example, here is an alternative definition of [length]: *)
+    `fold`.  For example, here is an alternative definition of [length]: *)
 
 Definition fold_length {X : Type} (l : list X) : nat :=
   fold (fun _ n => S n) l 0.
@@ -496,7 +478,7 @@ Proof.
    However there is a rather small number of variations so automation does not
    seem entirely out of reach. *)
 (* EX3M (fold_map) *)
-(** We can also define [map] in terms of [fold].  Finish [fold_map]
+(** We can also define [map] in terms of `fold`.  Finish [fold_map]
     below. *)
 
 Definition fold_map {X Y: Type} (f: X → Y) (l: list X) : list Y
