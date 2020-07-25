@@ -299,63 +299,6 @@ _ : fold _++_ ((1 :: []) :: [] :: (2 :: 3 :: []) :: (4 :: []) :: []) []
 _ = refl
 {:/comment}
 
-(* TERSE *)
-(* QUIZ *)
-(** Here is the definition of `fold` again:
-[[
-     Fixpoint fold {X Y: Type}
-                   (f: X→Y→Y) (l: list X) (b: Y)
-                 : Y :=
-       match l with
-       | nil => b
-       | h :: t => f h (fold f t b)
-       end.
-]]
-    What is the type of `fold`?
-
-    (1) [forall X Y : Type, (X → Y → Y) → list X → Y → Y]
-
-    (2) [X → Y → (X → Y → Y) → list X → Y → Y]
-
-    (3) [forall X Y : Type, X → Y → Y → list X → Y → Y]
-
-    (4) [X → Y→  X → Y → Y → list X → Y → Y]
-
-*)
-(* /QUIZ *)
-
-(* QUIZ *)
-(** What is the type of [fold plus]?
-
-    (1) [forall X Y : Type, list X → Y → Y]
-
-    (2) [nat → nat → list nat → nat → nat]
-
-    (3) [forall Y : Type, list nat → Y → nat]
-
-    (4) [list nat → nat → nat]
-
-    (5) [forall X Y : Type, list nat → nat → nat]
-
-*)
-(* /QUIZ *)
-
-(* QUIZ *)
-(** What does [fold plus [1;2;3;4] 0] simplify to?
-
-   (1) [[1;2;3;4]]
-
-   (2) [0]
-
-   (3) [10]
-
-   (4) [[3;7;0]]
-
-*)
-(* /QUIZ *)
-(* /TERSE *)
-(* /HIDEFROMADVANCED *)
-
 (* FULL *)
 (* EX1AM (fold_types_different) *)
 (** Observe that the type of `fold` is parameterized by _two_ type
