@@ -151,240 +151,117 @@ _ : filter (λ l → (length l) ≡ᵇ 1)
 _ = refl
 ```
 
-(* FULL *)
-(* EX2 (filter_even_gt7) *)
-(** Use [filter] (instead of [Fixpoint]) to write a Coq function
-    [filter_even_gt7] that takes a list of natural numbers as input
-    and returns a list of just those that are even and greater than
-    7. *)
+#### Exercise `filterEvenGt7` (starting) {#filterEvenGt7}
 
-Definition filter_even_gt7 (l : list nat) : list nat
-  (* ADMITDEF *) :=
-  filter (fun n => andb (evenb n) (ltb 7 n)) l.
-  (* /ADMITDEF *)
+Use `filter` to write a function `filterEvenGt7` that takes a list
+of natural numbers as input and returns a list of just those that are
+even and greater than 7.
 
-Example test_filter_even_gt7_1 :
-  filter_even_gt7 [1;2;6;9;10;3;12;8] = [10;12;8].
- (* ADMITTED *)
-Proof. reflexivity. Qed.
- (* /ADMITTED *)
+    filterEvenGt7a : List ℕ → List ℕ
+    -- FILL IN: filterEvenGt7a l = filter ? l
 
-Example test_filter_even_gt7_2 :
-  filter_even_gt7 [5;2;6;19;129] = [].
- (* ADMITTED *)
-Proof. reflexivity. Qed.
- (* /ADMITTED *)
-(* GRADE_THEOREM 1: test_filter_even_gt7_1 *)
-(* GRADE_THEOREM 1: test_filter_even_gt7_2 *)
-(** [] *)
+    _ : filterEvenGt7a (1 :: 2 :: 6 :: 9 :: 10 :: 3 :: 12 :: 8 :: [])
+          ≡ (10 :: 12 :: 8 :: [])
+    _ = refl
 
-(* EX3 (partition) *)
-(** Use [filter] to write a Coq function [partition]:
-[[
-      partition : forall X : Type,
-                  (X -> bool) -> list X -> list X * list X
-]]
-   Given a set [X], a predicate of type [X -> bool] and a [list X],
-   [partition] should return a pair of lists.  The first member of the
-   pair is the sublist of the original list containing the elements
-   that satisfy the test, and the second is the sublist containing
-   those that fail the test.  The order of elements in the two
-   sublists should be the same as their order in the original list. *)
+    _ : filterEvenGt7a (5 :: 2 :: 6 :: 19 :: 129 :: []) ≡ []
+    _ = refl
 
-Definition partition {X : Type}
-                     (test : X -> bool)
-                     (l : list X)
-                   : list X * list X
-  (* ADMITDEF *) :=
-  (filter test l, filter (fun x => negb (test x)) l).
-(* /ADMITDEF *)
+#### Exercise `filterPartition` (practice) {#filterPartition}
 
-Example test_partition1: partition oddb [1;2;3;4;5] = ([1;3;5], [2;4]).
-(* ADMITTED *)
-Proof. reflexivity. Qed.
-(* /ADMITTED *)
-Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
-(* ADMITTED *)
-Proof. reflexivity. Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: partition *)
-(* GRADE_THEOREM 1: test_partition1 *)
-(* GRADE_THEOREM 1: test_partition2 *)
-(** [] *)
-(* /FULL *)
+Use `filter` to write a function `partition`,
+
+    partition : ∀ (X : Set) → (X → Bool) → List X → Prod (List X) (List X)
+
+Given a set `X`, a predicate of type `X → Bool` and a `List` of values
+of type `X`, `partition` should return a pair of lists.  The first
+member of the pair is the sublist of the original list containing the
+elements that satisfy the test, and the second is the sublist
+containing those that fail the test.  The order of elements in the two
+sublists should be the same as their order in the original list.
+
+    _ : partition oddb (1 :: 2 :: 3 :: 4 :: 5 :: [])
+          ≡ pair (1 :: 3 :: 5 :: []) (2 :: 4 :: [])
+    _ = refl
+    
+    _ : partition (λ { x → false }) (5 :: 9 :: 0 :: [])
+          ≡ ([], (5 :: 9 :: 0 :: [])).
+    _ = refl
 
 ## Map
 
-(** FULL: Another handy higher-order function is called [map]. *)
+Another useful higher-order function is called `map`.
 
-Fixpoint map {X Y: Type} (f:X->Y) (l:list X) : (list Y) :=
-  match l with
-  | []     => []
-  | h :: t => (f h) :: (map f t)
-  end.
+```
+map : ∀ {X Y : Set} → (X → Y) → List X → List Y
+map _ [] = []
+map f (x :: xs) = f x :: map f xs
+```
 
-(** FULL: It takes a function [f] and a list [ l = [n1, n2, n3, ...] ]
-    and returns the list [ [f n1, f n2, f n3,...] ], where [f] has
-    been applied to each element of [l] in turn.  For example: *)
+It takes a function `f` and a list `l = (n1 :: n2 :: n3 :: ...)` and
+returns the list `(f n1 :: f n2 :: f n3 :: ...)`, where `f` has been
+applied to each element of `l` in turn.  For example:
 
-Example test_map1: map (fun x => plus 3 x) [2;0;2] = [5;3;5].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
+_ : map (λ { x → 3 + x}) (2 :: 0 :: 2 :: []) ≡ (5 :: 3 :: 5 :: [])
+_ = refl
+```
 
-(* HIDEFROMADVANCED *)
-(** FULL: The element types of the input and output lists need not be
-    the same, since [map] takes _two_ type arguments, [X] and [Y]; it
-    can thus be applied to a list of numbers and a function from
-    numbers to booleans to yield a list of booleans: *)
+The element types of the input and output lists need not be the same,
+since `map` takes _two_ type arguments `X` and `Y`.  If some function
+argument `f1` maps numbers to booleans, then `map` with first argument
+`f1` would require its second argument to be a list of numbers, and
+would return a list of boolean values:
 
-Example test_map2:
-  map oddb [2;1;2;5] = [false;true;false;true].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
+_ : map odd (2 :: 1 :: 2 :: 5 :: []) ≡ (false :: true :: false :: true :: [])
+_ = refl
+```
 
-(** FULL: It can even be applied to a list of numbers and
-    a function from numbers to _lists_ of booleans to
-    yield a _list of lists_ of booleans: *)
+It can even be applied to a list of numbers and a function from
+numbers to _lists_ of booleans to yield a _list of lists_ of booleans:
 
-Example test_map3:
-    map (fun n => [evenb n;oddb n]) [2;1;2;5]
-  = [[true;false];[false;true];[true;false];[false;true]].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
+_ : map (λ { n → (even n :: odd n :: []) }) (2 :: 1 :: 2 :: 5 :: [])
+      ≡ ( (true :: false :: []) :: (false :: true :: [])
+           :: (true :: false :: []) :: (false :: true :: []) :: [])
+_ = refl
+```
 
-(* TERSE *)
-(* QUIZ *)
-(** Recall the definition of [map]:
-[[
-      Fixpoint map {X Y: Type} (f:X->Y) (l:list X)
-                   : (list Y) :=
-        match l with
-        | []     => []
-        | h :: t => (f h) :: (map f t)
-        end.
-]]
-    What is the type of [map]?
+#### Exercise `flatMap` (practice) {#flatMap}
 
-    (1) [forall X Y : Type, X -> Y -> list X -> list Y]
+The function `map` maps a `List X` to a `List Y` using a function of
+type `X → Y`.  Write a similar function `flatMap`, which maps a
+`List X` to a `List Y` using a function `f` of type `X → List Y`.
+Your definition should work by "flattening" the results of `f`,
+concatenating the several list results into a single list.
 
-    (2) [X -> Y -> list X -> list Y]
+    flatMap : ∀ {X Y : Set} → (X → List Y) → List X → List Y
+    -- Your clauses go here
 
-    (3) [forall X Y : Type, (X -> Y) -> list X -> list Y]
+    _ : flatMap (λ { n → (n :: n :: n :: []) }) (1 :: 5 :: 4 :: [])
+          ≡ (1 :: 1 :: 1 :: 5 :: 5 :: 5 :: 4 :: 4 :: 4 :: [])
+    _ = refl
 
-    (4) [forall X : Type, (X -> X) -> list X -> list X]
-*)
-(* /QUIZ *)
+### `map` and `Maybe`
 
-(* HIDE *)
-  (* HIDE: This one relies on partial application, which hasn't
-     been explained. *)
-  (* QUIZ *)
-  (** Recall that [evenb] has type [nat -> bool].
+Lists are not the only inductive type for which `map` makes sense.
+Here is a `map` for the `Maybe` type:
 
-      What is the type of [map evenb]?
+```
+optionMap : ∀ {X Y : Set} → (X → Y) → Maybe X → Maybe Y
+optionMap _ nothing = nothing
+optionMap f (just x) = just (f x)
+```
 
-      (1) [forall X Y : Type, (X -> Y) -> list X -> list Y]
+#### Exercise `explicitFilterMap` (practice) {#explicitFilterMap}
 
-      (2) [list nat -> list bool]
-
-      (3) [list nat -> list Y]
-
-      (4) [forall Y : Type, list nat -> list Y] *)
-  (* /QUIZ *)
-(* /HIDE *)
-(* /TERSE *)
-
-(** TERSE: *** *)
-(** FULL: *** Exercises *)
-
-(* FULL *)
-(* EX3 (map_rev) *)
-(** Show that [map] and [rev] commute.  You may need to define an
-    auxiliary lemma. *)
-(* QUIETSOLUTION *)
-
-Theorem map_app : forall (A B : Type) (f : A -> B) (l l' : list A),
-  map f (l ++ l') = map f l ++ map f l'.
-Proof.
-  intros A B f l l'. induction l as [|x l1 IH].
-  - reflexivity.
-  - simpl. rewrite IH. reflexivity.
-Qed.
-
-(* /QUIETSOLUTION *)
-Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
-  map f (rev l) = rev (map f l).
-Proof.
-  (* ADMITTED *)
-  intros X Y f l. induction l as [| v l' IHl'].
-  - (* l = [] *)
-    reflexivity.
-  - (* l = v :: l' *)
-    simpl. rewrite -> map_app. rewrite -> IHl'. reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 3: map_rev *)
-(** [] *)
-
-(* EX2! (flat_map) *)
-(** The function [map] maps a [list X] to a [list Y] using a function
-    of type [X -> Y].  We can define a similar function, [flat_map],
-    which maps a [list X] to a [list Y] using a function [f] of type
-    [X -> list Y].  Your definition should work by 'flattening' the
-    results of [f], like so:
-[[
-        flat_map (fun n => [n;n+1;n+2]) [1;5;10]
-      = [1; 2; 3; 5; 6; 7; 10; 11; 12].
-]]
-*)
-
-Fixpoint flat_map {X Y: Type} (f: X -> list Y) (l: list X)
-                   : (list Y)
-  (* ADMITDEF *) :=
-  match l with
-  | []     => []
-  | h :: t => (f h) ++ (flat_map f t)
-  end.
-(* /ADMITDEF *)
-
-Example test_flat_map1:
-  flat_map (fun n => [n;n;n]) [1;5;4]
-  = [1; 1; 1; 5; 5; 5; 4; 4; 4].
- (* ADMITTED *)
-Proof. reflexivity.  Qed.
- (* /ADMITTED *)
-(* GRADE_THEOREM 1: flat_map *)
-(* GRADE_THEOREM 1: test_flat_map1 *)
-(** [] *)
-(* /FULL *)
-(* HIDEFROMADVANCED *)
-
-(** Lists are not the only inductive type for which [map] makes sense.
-    Here is a [map] for the [option] type: *)
-
-Definition option_map {X Y : Type} (f : X -> Y) (xo : option X)
-                      : option Y :=
-  match xo with
-    | None => None
-    | Some x => Some (f x)
-  end.
-
-(* /HIDEFROMADVANCED *)
-(* FULL *)
-(* EX2? (implicit_args) *)
-(** The definitions and uses of [filter] and [map] use implicit
-    arguments in many places.  Replace the curly braces around the
-    implicit arguments with parentheses, and then fill in explicit
-    type parameters where necessary and use Coq to check that you've
-    done so correctly.  (This exercise is not to be turned in; it is
-    probably easiest to do it on a _copy_ of this file that you can
-    throw away afterwards.)
-*)
-(** [] *)
-(* /FULL *)
-(* /HIDEFROMADVANCED *)
+The definitions and uses of `filter` and `map` use implicit arguments
+in many places.  Replace the curly braces around the implicit
+arguments with parentheses, fill in explicit type parameters where
+necessary, and use Agda to check that example calls to the revised
+functions still work.  (This exercise is easiest to do on a _copy_ of
+this file that you can throw away afterwards.)
 
 ## Fold
 
@@ -393,7 +270,7 @@ Definition option_map {X Y : Type} (f : X -> Y) (xo : option X)
     operation that lies at the heart of Google's map/reduce
     distributed programming framework. *)
 
-Fixpoint fold {X Y: Type} (f: X->Y->Y) (l: list X) (b: Y)
+Fixpoint fold {X Y: Type} (f: X→Y→Y) (l: list X) (b: Y)
                          : Y :=
   match l with
   | nil => b
@@ -406,10 +283,10 @@ Fixpoint fold {X Y: Type} (f: X->Y->Y) (l: list X) (b: Y)
 (** TERSE: *** *)
 
 (** FULL: Intuitively, the behavior of the [fold] operation is to
-    insert a given binary operator [f] between every pair of elements
+    insert a given binary operator `f` between every pair of elements
     in a given list.  For example, [ fold plus [1;2;3;4] ] intuitively
     means [1+2+3+4].  To make this precise, we also need a "starting
-    element" that serves as the initial second input to [f].  So, for
+    element" that serves as the initial second input to `f`.  So, for
     example,
 [[
        fold plus [1;2;3;4] 0
@@ -420,7 +297,7 @@ Fixpoint fold {X Y: Type} (f: X->Y->Y) (l: list X) (b: Y)
 ]]
     Some more examples: *)
 
-Check (fold andb) : list bool -> bool -> bool.
+Check (fold andb) : list bool → bool → bool.
 
 Example fold_example1 :
   fold mult [1;2;3;4] 1 = 24.
@@ -445,7 +322,7 @@ Proof. reflexivity. Qed.
 (** Here is the definition of [fold] again:
 [[
      Fixpoint fold {X Y: Type}
-                   (f: X->Y->Y) (l: list X) (b: Y)
+                   (f: X→Y→Y) (l: list X) (b: Y)
                  : Y :=
        match l with
        | nil => b
@@ -454,13 +331,13 @@ Proof. reflexivity. Qed.
 ]]
     What is the type of [fold]?
 
-    (1) [forall X Y : Type, (X -> Y -> Y) -> list X -> Y -> Y]
+    (1) [forall X Y : Type, (X → Y → Y) → list X → Y → Y]
 
-    (2) [X -> Y -> (X -> Y -> Y) -> list X -> Y -> Y]
+    (2) [X → Y → (X → Y → Y) → list X → Y → Y]
 
-    (3) [forall X Y : Type, X -> Y -> Y -> list X -> Y -> Y]
+    (3) [forall X Y : Type, X → Y → Y → list X → Y → Y]
 
-    (4) [X -> Y->  X -> Y -> Y -> list X -> Y -> Y]
+    (4) [X → Y→  X → Y → Y → list X → Y → Y]
 
 *)
 (* /QUIZ *)
@@ -468,15 +345,15 @@ Proof. reflexivity. Qed.
 (* QUIZ *)
 (** What is the type of [fold plus]?
 
-    (1) [forall X Y : Type, list X -> Y -> Y]
+    (1) [forall X Y : Type, list X → Y → Y]
 
-    (2) [nat -> nat -> list nat -> nat -> nat]
+    (2) [nat → nat → list nat → nat → nat]
 
-    (3) [forall Y : Type, list nat -> Y -> nat]
+    (3) [forall Y : Type, list nat → Y → nat]
 
-    (4) [list nat -> nat -> nat]
+    (4) [list nat → nat → nat]
 
-    (5) [forall X Y : Type, list nat -> nat -> nat]
+    (5) [forall X Y : Type, list nat → nat → nat]
 
 *)
 (* /QUIZ *)
@@ -500,7 +377,7 @@ Proof. reflexivity. Qed.
 (* FULL *)
 (* EX1AM (fold_types_different) *)
 (** Observe that the type of [fold] is parameterized by _two_ type
-    variables, [X] and [Y], and the parameter [f] is a binary operator
+    variables, [X] and [Y], and the parameter `f` is a binary operator
     that takes an [X] and a [Y] and returns a [Y].  Can you think of a
     situation where it would be useful for [X] and [Y] to be
     different? *)
@@ -529,7 +406,7 @@ Proof. reflexivity. Qed.
 (** TERSE: Here are two more functions that _return_ functions
     as results. *)
 
-Definition constfun {X: Type} (x: X) : nat->X :=
+Definition constfun {X: Type} (x: X) : nat→X :=
   fun (k:nat) => x.
 
 Definition ftrue := constfun true.
@@ -551,11 +428,11 @@ Proof. reflexivity. Qed.
 (** TERSE: A two-argument function in Coq is actually a function that
     returns a function! *)
 
-Check plus : nat -> nat -> nat.
+Check plus : nat → nat → nat.
 
-(** FULL: Each [->] in this expression is actually a _binary_ operator
+(** FULL: Each [→] in this expression is actually a _binary_ operator
     on types.  This operator is _right-associative_, so the type of
-    [plus] is really a shorthand for [nat -> (nat -> nat)] -- i.e., it
+    [plus] is really a shorthand for [nat → (nat → nat)] -- i.e., it
     can be read as saying that "[plus] is a one-argument function that
     takes a [nat] and returns a one-argument function that takes
     another [nat] and returns a [nat]."  In the examples above, we
@@ -564,7 +441,7 @@ Check plus : nat -> nat -> nat.
     application_. *)
 
 Definition plus3 := plus 3.
-Check plus3 : nat -> nat.
+Check plus3 : nat → nat.
 
 Example test_plus3 :    plus3 4 = 7.
 (* FOLD *)
@@ -622,7 +499,7 @@ Proof.
 (** We can also define [map] in terms of [fold].  Finish [fold_map]
     below. *)
 
-Definition fold_map {X Y: Type} (f: X -> Y) (l: list X) : list Y
+Definition fold_map {X Y: Type} (f: X → Y) (l: list X) : list Y
   (* ADMITDEF *) :=
   fold (fun x l' => f x :: l') l nil.
 (* /ADMITDEF *)
@@ -633,7 +510,7 @@ Definition fold_map {X Y: Type} (f: X -> Y) (l: list X) : list Y
    [simpl].) *)
 
 (* SOLUTION *)
-Theorem fold_map_correct : forall X Y (f : X -> Y) (l : list X),
+Theorem fold_map_correct : forall X Y (f : X → Y) (l : list X),
   fold_map f l = map f l.
 Proof.
   induction l as [| x l' IHl'].
@@ -679,29 +556,29 @@ appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
 
 
 (* EX2A (currying) *)
-(** In Coq, a function [f : A -> B -> C] really has the type [A
-    -> (B -> C)].  That is, if you give [f] a value of type [A], it
-    will give you function [f' : B -> C].  If you then give [f'] a
+(** In Coq, a function [f : A → B → C] really has the type [A
+    → (B → C)].  That is, if you give `f` a value of type [A], it
+    will give you function [f' : B → C].  If you then give [f'] a
     value of type [B], it will return a value of type [C].  This
     allows for partial application, as in [plus3].  Processing a list
     of arguments with functions that return functions is called
     _currying_, in honor of the logician Haskell Curry.
 
-    Conversely, we can reinterpret the type [A -> B -> C] as [(A *
-    B) -> C].  This is called _uncurrying_.  With an uncurried binary
+    Conversely, we can reinterpret the type [A → B → C] as [(A *
+    B) → C].  This is called _uncurrying_.  With an uncurried binary
     function, both arguments must be given at once as a pair; there is
     no partial application. *)
 
 (** We can define currying as follows: *)
 
 Definition prod_curry {X Y Z : Type}
-  (f : X * Y -> Z) (x : X) (y : Y) : Z := f (x, y).
+  (f : X * Y → Z) (x : X) (y : Y) : Z := f (x, y).
 
 (** As an exercise, define its inverse, [prod_uncurry].  Then prove
     the theorems below to show that the two are inverses. *)
 
 Definition prod_uncurry {X Y Z : Type}
-  (f : X -> Y -> Z) (p : X * Y) : Z
+  (f : X → Y → Z) (p : X * Y) : Z
   (* ADMITDEF *) :=
     match p with
       | (x,y) => f x y
@@ -730,7 +607,7 @@ Check @prod_uncurry.
    advanced exercise, so not everybody will see it, and we do come
    back to it in detail in a couple chapters. *)
 Theorem uncurry_curry : forall (X Y Z : Type)
-                        (f : X -> Y -> Z)
+                        (f : X → Y → Z)
                         x y,
   prod_curry (prod_uncurry f) x y = f x y.
 Proof.
@@ -740,7 +617,7 @@ Proof.
 (* /ADMITTED *)
 
 Theorem curry_uncurry : forall (X Y Z : Type)
-                        (f : (X * Y) -> Z) (p : X * Y),
+                        (f : (X * Y) → Z) (p : X * Y),
   prod_uncurry (prod_curry f) p = f p.
 Proof.
   (* ADMITTED *)
@@ -763,7 +640,7 @@ Proof.
 ]]
    Write an informal proof of the following theorem:
 [[
-   forall X l n, length l = n -> @nth_error X l n = None
+   forall X l n, length l = n → @nth_error X l n = None
 ]]
 *)
 (* SOLUTION *)
@@ -794,32 +671,32 @@ Proof.
 (** The following exercises explore an alternative way of defining
     natural numbers, using the so-called _Church numerals_, named
     after mathematician Alonzo Church.  We can represent a natural
-    number [n] as a function that takes a function [f] as a parameter
-    and returns [f] iterated [n] times. *)
+    number [n] as a function that takes a function `f` as a parameter
+    and returns `f` iterated [n] times. *)
 
 Module Church.
-Definition cnat := forall X : Type, (X -> X) -> X -> X.
+Definition cnat := forall X : Type, (X → X) → X → X.
 
 (** Let's see how to write some numbers with this notation. Iterating
     a function once should be the same as just applying it.  Thus: *)
 
 Definition one : cnat :=
-  fun (X : Type) (f : X -> X) (x : X) => f x.
+  fun (X : Type) (f : X → X) (x : X) => f x.
 
-(** Similarly, [two] should apply [f] twice to its argument: *)
+(** Similarly, [two] should apply `f` twice to its argument: *)
 
 Definition two : cnat :=
-  fun (X : Type) (f : X -> X) (x : X) => f (f x).
+  fun (X : Type) (f : X → X) (x : X) => f (f x).
 
 (** Defining [zero] is somewhat trickier: how can we "apply a function
     zero times"?  The answer is actually simple: just return the
     argument untouched. *)
 
 Definition zero : cnat :=
-  fun (X : Type) (f : X -> X) (x : X) => x.
+  fun (X : Type) (f : X → X) (x : X) => x.
 
 (** More generally, a number [n] can be written as [fun X f x => f (f
-    ... (f x) ...)], with [n] occurrences of [f].  Notice in
+    ... (f x) ...)], with [n] occurrences of `f`.  Notice in
     particular how the [doit3times] function we've defined previously
     is actually just the Church representation of [3]. *)
 
@@ -910,7 +787,7 @@ Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
 
 Definition exp (n m : cnat) : cnat
   (* ADMITDEF *) :=
-  fun X f x => m (X -> X) (n X) f x.
+  fun X f x => m (X → X) (n X) f x.
   (* /ADMITDEF *)
 
 Example exp_1 : exp two two = plus two two.
