@@ -32,6 +32,8 @@ will require access to the UWL VPN or Canvas LMS.
   - TODO
     - Develop pattern matching discussion: point out where we are
       using patterns in new ways
+    - Exercises from last 421 course pack
+    - Exercises for maps
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers

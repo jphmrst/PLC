@@ -306,7 +306,7 @@ _ : foldr _∧_ true (true ∷ true ∷ false ∷ true ∷ []) ≡ false
 _ = refl
 ```
 
-{∷comment}
+{::comment}
 _ : foldr _++_ [] ((1 ∷ []) ∷ [] ∷ (2 ∷ 3 ∷ []) ∷ (4 ∷ []) ∷ [])
       ≡ (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
 _ = refl
