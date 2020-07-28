@@ -152,6 +152,18 @@ _ : filter (λ l → (length l) ≡ᵇ 1)
 _ = refl
 ```
 
+We can give multiple before the arrow as a shorthand for multiple
+nested λs.  For example, instead of
+
+    λ { x → λ { y → (2 * x) + y }}
+
+we could write
+
+    λ { x y → (2 * x) + y }
+
+The two both have type `ℕ → ℕ → ℕ`, and return the same result for any
+two argments.
+
 #### Exercise `filterEvenGt7` (starting) {#filterEvenGt7}
 
 Use `filter` to write a function `filterEvenGt7` that takes a list
@@ -395,14 +407,27 @@ examples of passing functions as data.  To see why, recall the type of
 
     _+_ : ℕ → ℕ → ℕ
 
-Each `→` in this expression is actually a _binary_ operator on types.
+Each `→` in this expression is actually a binary operator on types.
 This operator is _right-associative_, so the type of `_+_` is really a
-shorthand for [nat → (nat → nat)] — i.e., it can be read as saying
-that "`_+_` is a one-argument function that takes a `ℕ` and returns a
-one-argument function that takes another `ℕ` and returns a `ℕ`."  In
-the examples above, we have always applied `_+_` to both of its
+shorthand for `ℕ → (ℕ → ℕ)` — that is, it can be read as saying that
+"`_+_` is a one-argument function that takes a `ℕ` and returns a
+one-argument function that takes another `ℕ` and returns a `ℕ`."  We
+represent a function of two arguments in terms of a function of the
+first argument that returns a function of the second argument.  This
+trick goes by the name _currying_.  Agda, like other functional
+languages such as Haskell and ML, is designed to make currying easy to
+use.  Just as function arrows associate to the right, application
+associates to the left:
+
+ - `ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`, and
+ - `_+_ 2 3` stands for `(_+_ 2) 3`.
+
+In our earlier uses of `_+_` we always applied `_+_` to both of its
 arguments at once, but if we like we can supply just the first.  This
-is called _partial application_.
+use of a curried function with some of its arguments is called
+_partial application_.  The term `_+_ 2` by itself stands for the
+function that adds two to its argument, hence applying it to three
+yields five.
 
 ```
 plus3 : ℕ → ℕ
@@ -418,95 +443,6 @@ _ : doIt3Times plus3 0 ≡ 9
 _ = refl
 ```
 
-## Additional exercises
-
-Module Exercises.
-
-(* EX2 (fold_length) *)
-(** Many common functions on lists can be implemented in terms of
-    `fold`.  For example, here is an alternative definition of [length]: *)
-
-Definition fold_length {X : Type} (l : list X) : nat :=
-  fold (fun _ n => S n) l 0.
-
-Example test_fold_length1 : fold_length [4;7;0] = 3.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-(** Prove the correctness of [fold_length].  (Hint: It may help to
-    know that [reflexivity] simplifies expressions a bit more
-    aggressively than [simpl] does -- i.e., you may find yourself in a
-    situation where [simpl] does nothing but [reflexivity] solves the
-    goal.) *)
-
-Theorem fold_length_correct : forall X (l : list X),
-  fold_length l = length l.
-Proof.
-(* ADMITTED *)
-  induction l as [| x l' IHl'].
-  - (* l = [] *) reflexivity.
-  - (* l = x ∷ l' *) simpl.
-    rewrite <- IHl'.
-    reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 2: Exercises.fold_length_correct *)
-(** [] *)
-
-(* LATER: Can we grade this automatically? One challenge is that
-   [fold_map_correct] may vary in the order of variables and arguments of (=).
-   However there is a rather small number of variations so automation does not
-   seem entirely out of reach. *)
-(* EX3M (fold_map) *)
-(** We can also define [map] in terms of `fold`.  Finish [fold_map]
-    below. *)
-
-Definition fold_map {X Y: Type} (f: X → Y) (l: list X) : list Y
-  (* ADMITDEF *) :=
-  fold (fun x l' => f x ∷ l') l nil.
-(* /ADMITDEF *)
-
-(** Write down a theorem [fold_map_correct] in Coq stating that
-   [fold_map] is correct, and prove it.  (Hint: again, remember that
-   [reflexivity] simplifies expressions a bit more aggressively than
-   [simpl].) *)
-
-(* SOLUTION *)
-Theorem fold_map_correct : forall X Y (f : X → Y) (l : list X),
-  fold_map f l = map f l.
-Proof.
-  induction l as [| x l' IHl'].
-  - (* l = [] *) reflexivity.
-  - (* l = x ∷ l' *) simpl.
-    rewrite <- IHl'.
-    reflexivity.  Qed.
-(* /SOLUTION *)
-
-(* GRADE_MANUAL 3: fold_map *)
-(** [] *)
-
-
-## Currying from Wadler --- work in?
-
-## Currying
-
-We have chosen to represent a function of two arguments in terms
-of a function of the first argument that returns a function of the
-second argument.  This trick goes by the name _currying_.
-
-Agda, like other functional languages such as Haskell and ML,
-is designed to make currying easy to use.  Function
-arrows associate to the right and application associates to the left
-
-`ℕ → ℕ → ℕ` stands for `ℕ → (ℕ → ℕ)`
-
-and
-
-`_+_ 2 3` stands for `(_+_ 2) 3`.
-
-The term `_+_ 2` by itself stands for the function that adds two to
-its argument, hence applying it to three yields five.
-
 Currying is named for Haskell Curry, after whom the programming
 language Haskell is also named.  Curry's work dates to the 1930's.
 When I first learned about currying, I was told it was misattributed,
@@ -516,272 +452,172 @@ but currying is tastier". Only later did I learn that the explanation
 of the misattribution was itself a misattribution.  The idea actually
 appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
 
+## Additional exercises
 
-(* EX2A (currying) *)
-(** In Coq, a function [f : A → B → C] really has the type [A
-    → (B → C)].  That is, if you give `f` a value of type [A], it
-    will give you function [f' : B → C].  If you then give [f'] a
-    value of type [B], it will return a value of type [C].  This
-    allows for partial application, as in [plus3].  Processing a list
-    of arguments with functions that return functions is called
-    _currying_, in honor of the logician Haskell Curry.
+#### Exercise `foldLength` (practice) {#foldLength}
 
-    Conversely, we can reinterpret the type [A → B → C] as [(A *
-    B) → C].  This is called _uncurrying_.  With an uncurried binary
-    function, both arguments must be given at once as a pair; there is
-    no partial application. *)
+Many common functions on lists can be implemented in terms of the fold
+functions.  Give an alternative definition of `length` with a single
+clause, and which makes a call to one of the fold functions.
 
-(** We can define currying as follows: *)
+    foldLength : ∀ {X : Set} → List X → ℕ
+    foldLength xs = -- Your expression here
 
-Definition prod_curry {X Y Z : Type}
-  (f : X * Y → Z) (x : X) (y : Y) : Z := f (x, y).
+    _ : foldLength (4 ∷ 7 ∷ 0 ∷ []) ≡ 3
+    _ = refl
 
-(** As an exercise, define its inverse, [prod_uncurry].  Then prove
-    the theorems below to show that the two are inverses. *)
+#### Exercise `foldMap` (practice) {#foldMap}
 
-Definition prod_uncurry {X Y Z : Type}
-  (f : X → Y → Z) (p : X * Y) : Z
-  (* ADMITDEF *) :=
-    match p with
-      | (x,y) => f x y
-    end.
-(* /ADMITDEF *)
+We can also define `map` in terms of `foldr`.
 
-(** As a (trivial) example of the usefulness of currying, we can use it
-    to shorten one of the examples that we saw above: *)
+    foldMap : ∀ {X Y : Set} → (X → Y) → List X → List Y
+    foldMap f xs = -- Your expression here
 
-Example test_map1': map (plus 3) [2;0;2] = [5;3;5].
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+    _ : foldMap (λ { x → 3 + x}) (2 ∷ 0 ∷ 2 ∷ []) ≡ (5 ∷ 3 ∷ 5 ∷ [])
+    _ = refl
 
-(** Thought exercise: before running the following commands, can you
-    calculate the types of [prod_curry] and [prod_uncurry]? *)
+    _ : foldMap odd (2 ∷ 1 ∷ 2 ∷ 5 ∷ [])
+          ≡ (false ∷ true ∷ false ∷ true ∷ [])
+    _ = refl
 
-Check @prod_curry.
-Check @prod_uncurry.
+#### Extended exercise: Church numerals
 
-(* HIDE: Maybe this is a good place to introduce the lack of
-   functional extensionality? Here, at the latest, the reader may have
-   started to wonder why the next two theorems, rather than claiming
-   the equality of functions, claim equalities for their values...
-   BCP 9/16: On reflection, I think this is not the place.  It's an
-   advanced exercise, so not everybody will see it, and we do come
-   back to it in detail in a couple chapters. *)
-Theorem uncurry_curry : forall (X Y Z : Type)
-                        (f : X → Y → Z)
-                        x y,
-  prod_curry (prod_uncurry f) x y = f x y.
-Proof.
-  (* ADMITTED *)
-  intros X Y Z f x y.
-  reflexivity.  Qed.
-(* /ADMITTED *)
+The following exercises explore an alternative way of defining natural
+numbers, using the so-called _Church numerals_, named after
+mathematician Alonzo Church.  We can represent a natural number `n` as
+a function that takes a function `f` as a parameter and returns `f`
+iterated `n` times.
 
-Theorem curry_uncurry : forall (X Y Z : Type)
-                        (f : (X * Y) → Z) (p : X * Y),
-  prod_uncurry (prod_curry f) p = f p.
-Proof.
-  (* ADMITTED *)
-  intros X Y Z f p.
-  destruct p as [x y].
-  reflexivity.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 1: Exercises.uncurry_curry *)
-(* GRADE_THEOREM 1: Exercises.curry_uncurry *)
-(** [] *)
+```
+module Church where
+  cnat : Set1
+  cnat = ∀ (X : Set) → (X → X) → (X → X)
+```
 
-(* EX2AM (nth_error_informal) *)
-(** Recall the definition of the [nth_error] function:
-[[
-   Fixpoint nth_error {X : Type} (l : list X) (n : nat) : option X :=
-     match l with
-     | [] => None
-     | a ∷ l' => if n =? O then Some a else nth_error l' (pred n)
-     end.
-]]
-   Write an informal proof of the following theorem:
-[[
-   forall X l n, length l = n → @nth_error X l n = None
-]]
-*)
-(* SOLUTION *)
-(** Theorem: For all types `x`, lists [l], and natural numbers [n],
-    if [length l = n] then [nth_error X l n = None].
+Let's see how to write some numbers with this notation.  Iterating a
+function once should be the same as just applying it.  Thus:
 
-    Proof: By induction on [l]. There are two cases to consider:
+```
+  one : cnat
+  one = λ { X f x → f x }
+```
 
-      - If [l = nil], we must show [nth_error [] n = None].  This follows
-        immediately from the definition of [nth_error].
+Similarly, `two` should apply `f` twice to its argument:
 
-      - Otherwise, [l = x ∷ l'] for some `x` and [l'], and the
-        induction hypothesis tells us that [length l' = n' => nth_error l'
-        n' = None] for any [n'].
+```
+  two : cnat
+  two = λ { X f x → f (f x) }
+```
 
-        Let [n] be a number such that [length l = n].  We must show
-        that [nth_error (x ∷ l') n = None].
+Defining `zero` is somewhat trickier: how can we "apply a function
+zero times"?  The answer is actually simple: just return the argument
+untouched.
 
-        But we know that [n = length l = length (x ∷ l') = S (length l')].
-        So it's enough to show [nth_error l' (length l') = None], which
-        follows directly from the induction hypothesis, picking [length l']
-        for [n']. *)
-(* /SOLUTION *)
+```
+  zeroC : cnat
+  zeroC = λ { X f x → x }
+```
 
-(* GRADE_MANUAL 2: informal_proof *)
-(** [] *)
+More generally, a number `n` can be written as
 
-(** The following exercises explore an alternative way of defining
-    natural numbers, using the so-called _Church numerals_, named
-    after mathematician Alonzo Church.  We can represent a natural
-    number [n] as a function that takes a function `f` as a parameter
-    and returns `f` iterated [n] times. *)
+    fun X f x => f (f ... (f x) ...)
 
-Module Church.
-Definition cnat := forall X : Type, (X → X) → X → X.
+with `n` occurrences of `f`.  Notice in particular how the
+`doIt3Times` function we've defined previously is actually just the
+Church representation of `3`.
 
-(** Let's see how to write some numbers with this notation. Iterating
-    a function once should be the same as just applying it.  Thus: *)
+```
+  three : cnat
+  three = λ { X f n → f (f (f n)) }
+```
 
-Definition one : cnat :=
-  fun (X : Type) (f : X → X) (x : X) => f x.
+Complete the definitions of the following functions. 
 
-(** Similarly, [two] should apply `f` twice to its argument: *)
+##### Exercise `churchSucc` (practice) {#churchSucc}
 
-Definition two : cnat :=
-  fun (X : Type) (f : X → X) (x : X) => f (f x).
+Successor of a natural number: given a Church numeral `n`, the
+successor [succ n] is a function that iterates its argument once more
+than `n`.
 
-(** Defining [zero] is somewhat trickier: how can we "apply a function
-    zero times"?  The answer is actually simple: just return the
-    argument untouched. *)
+    succ : cnat → cnat
+    -- succ n = λ { X f x →  -- Complete this lambda expression
+  
+    _ : succ zeroC ≡ one
+    _ = refl
+  
+    _ : succ one ≡ two
+    _ = refl
+  
+    _ : succ two ≡ three
+    _ = refl
 
-Definition zero : cnat :=
-  fun (X : Type) (f : X → X) (x : X) => x.
+##### Exercise `churchPlus` (practice) {#churchPlus}
 
-(** More generally, a number [n] can be written as [fun X f x => f (f
-    ... (f x) ...)], with [n] occurrences of `f`.  Notice in
-    particular how the [doIt3Times] function we've defined previously
-    is actually just the Church representation of [3]. *)
+Define the addition of two Church numbers:
 
-Definition three : cnat := @doIt3Times.
+    plus : cnat → cnat → cnat
+    plus n m = λ {X f x →  -- Complete this lambda expression
 
-(** Complete the definitions of the following functions. Make sure
-    that the corresponding unit tests pass by proving them with
-    [reflexivity]. *)
+    _ : plus zero one ≡ one
+    _ = refl
 
-(* EX1A (church_succ) *)
+    _ : plus one zero ≡ one
+    _ = refl
 
-(** Successor of a natural number: given a Church numeral [n],
-    the successor [succ n] is a function that iterates its
-    argument once more than [n]. *)
-Definition succ (n : cnat) : cnat
-  (* ADMITDEF *) :=
-  fun X f x => f (n X f x).
-  (* /ADMITDEF *)
+    _ : plus two one ≡ three
+    _ = refl
 
-Example succ_1 : succ zero = one.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : plus (plus two two) three ≡ plus one (plus three three)
+    _ = refl
 
-Example succ_2 : succ one = two.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+##### Exercise `churchMult` (practice) {#churchMult}
 
-Example succ_3 : succ two = three.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+Continue with a definition of multiplication:
 
-(* GRADE_THEOREM 0.5: Exercises.Church.succ_2 *)
-(* GRADE_THEOREM 0.5: Exercises.Church.succ_3 *)
-(** [] *)
+    mult : cnat → cnat → cnat
+    mult n m = λ {X f x →  -- Complete this lambda expression
 
-(* EX1A (church_plus) *)
+    _ : mult zero one ≡ zero
+    _ = refl
 
-(** Addition of two natural numbers: *)
-Definition plus (n m : cnat) : cnat
-  (* ADMITDEF *) :=
-  fun X f x => n X f (m X f x).
-  (* /ADMITDEF *)
+    _ : mult zero three ≡ zero
+    _ = refl
 
-Example plus_1 : plus zero one = one.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : mult one one ≡ one
+    _ = refl
 
-Example plus_2 : plus two three = plus three two.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : mult two one ≡ two
+    _ = refl
 
-Example plus_3 :
-  plus (plus two two) three = plus one (plus three three).
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : mult two two ≡ plus one three
+    _ = refl
 
-(* GRADE_THEOREM 0.5: Exercises.Church.plus_2 *)
-(* GRADE_THEOREM 0.5: Exercises.Church.plus_3 *)
-(** [] *)
+##### Exercise `churchExp` (practice) {#churchExp}
 
-(* EX2A (church_mult) *)
+    exp : cnat → cnat → cnat
+    exp n m = λ {X f x →  -- Complete this lambda expression
 
-(** Multiplication: *)
-Definition mult (n m : cnat) : cnat
-  (* ADMITDEF *) :=
-  fun X f x => n X (m X f) x.
-  (* /ADMITDEF *)
-(* SOONER: The more natural way to write this...
-   Definition mult (n m : cnat) : cnat := n cnat (plus m) one.
-*)
+    _ : exp zero one ≡ zero
+    _ = refl
 
-Example mult_1 : mult one one = one.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : exp zero three ≡ zero
+    _ = refl
 
-Example mult_2 : mult zero (plus three three) = zero.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : exp one zero ≡ one
+    _ = refl
 
-Example mult_3 : mult two three = plus three three.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
+    _ : exp three zero ≡ one
+    _ = refl
 
-(* GRADE_THEOREM 0.5: Exercises.Church.mult_1 *)
-(* GRADE_THEOREM 0.5: Exercises.Church.mult_2 *)
-(* GRADE_THEOREM 1: Exercises.Church.mult_3 *)
-(** [] *)
+    _ : exp one one ≡ one
+    _ = refl
 
-(* EX2A (church_exp) *)
+    _ : exp two two ≡ plus one three
+    _ = refl
 
-(** Exponentiation: *)
+---
 
-(** (_Hint_: Polymorphism plays a crucial role here.  However,
-    choosing the right type to iterate over can be tricky.  If you hit
-    a "Universe inconsistency" error, try iterating over a different
-    type.  Iterating over [cnat] itself is usually problematic.) *)
-
-Definition exp (n m : cnat) : cnat
-  (* ADMITDEF *) :=
-  fun X f x => m (X → X) (n X) f x.
-  (* /ADMITDEF *)
-
-Example exp_1 : exp two two = plus two two.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
-
-Example exp_2 : exp three zero = one.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
-
-Example exp_3 : exp three two = plus (mult two (mult two two)) one.
-Proof. (* ADMITTED *) reflexivity. Qed. (* /ADMITTED *)
-
-(* GRADE_THEOREM 0.5: Exercises.Church.exp_1 *)
-(* GRADE_THEOREM 0.5: Exercises.Church.exp_2 *)
-(* GRADE_THEOREM 1: Exercises.Church.exp_3 *)
-(** [] *)
-
-End Church.
-
-End Exercises.
-
-(* /HIDEFROMADVANCED *)
-(* /FULL *)
-
-
-(* HIDE *)
-(*
-Local Variables:
-fill-column: 70
-End:
-*)
-(* /HIDE *)
-
-
-Credit: Pierce, and some from Wadler
+*This page is derived from Pierce et al., except for the section on
+ currying which includes text from Wadler et al.  For more information
+ see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
  
