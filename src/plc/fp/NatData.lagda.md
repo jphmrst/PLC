@@ -64,41 +64,41 @@ natural numbers have two possible forms.  A list of natural numbers is
 either the empty list, or else a pair of a number and another list.
 
 ```
-infixr 5 _::_
+infixr 5 _∷_
 
 data NatList : Set where
   [] : NatList
-  _::_ : ℕ → NatList → NatList
+  _∷_ : ℕ → NatList → NatList
 ```
 
 We are using symbols here rather than a name written with letters as
 with pairs — but Agda has very few "special" characters, so these are
 valid names just as `pair` is a valid name.  The name `[]`, often
 pronounced _nil_, represents the empty list.  It is a constructor, but
-needs no arguments to construct the value.  The constructor `::` is
-often pronounced _cons_.  The first argument to a `::` constructor is
+needs no arguments to construct the value.  The constructor `∷` is
+often pronounced _cons_.  The first argument to a `∷` constructor is
 what we call the _head_ or a list, and the second argument is what we
 call the _tail_.
 
 The underscores `_` _are_ special characters, and are not part of the
 name.  As with operators like `≡` and `+` which we have seen before,
-the underscore shows how `::` shows be written with its first argument
+the underscore shows how `∷` shows be written with its first argument
 before it, and its second argument after it.
 
-The `infixr` declaration tells Agda that we want `::` to be
-_right-associative_.  That is, if we write `x :: y :: z` for some
+The `infixr` declaration tells Agda that we want `∷` to be
+_right-associative_.  That is, if we write `x ∷ y ∷ z` for some
 expressions `x`, `y` and `z`, then we want Agda to understand that
-expressions to be the same as `x :: (y :: z)`, and **not** `(x :: y)
-:: z`.  The number `5` tells Agda that most other operations should be
-grouped before applying `::`.  So for example, `x :: y + 2 :: z` will
-mean `x :: (y + 2) :: z`, and not `(x :: y) + (2 :: z)`.  This value
-is called the _precedence_ of the `::` operator.
+expressions to be the same as `x ∷ (y ∷ z)`, and **not** `(x ∷ y)
+∷ z`.  The number `5` tells Agda that most other operations should be
+grouped before applying `∷`.  So for example, `x ∷ y + 2 ∷ z` will
+mean `x ∷ (y + 2) ∷ z`, and not `(x ∷ y) + (2 ∷ z)`.  This value
+is called the _precedence_ of the `∷` operator.
 
 For example, here is a three-element list:
 
 ```
 mylist : NatList
-mylist = 10 :: 20 :: 30 :: []
+mylist = 10 ∷ 20 ∷ 30 ∷ []
 ```
 
 #### Exercise `trynatlist` (starting) {#trynatlist}
@@ -115,7 +115,7 @@ and returns a list of length `count` in which every element is `n`.
 ```
 repeat : ℕ -> ℕ -> NatList
 repeat n zero = []
-repeat n (suc count') = n :: repeat n count'
+repeat n (suc count') = n ∷ repeat n count'
 ```
 
 The `length` function calculates the length of a list.
@@ -123,7 +123,7 @@ The `length` function calculates the length of a list.
 ```
 length : NatList -> ℕ
 length [] = 0
-length (x :: xs) = 1 + length xs
+length (x ∷ xs) = 1 + length xs
 ```
 
 The `++` function (pronounced "append") concatenates two lists.
@@ -133,7 +133,7 @@ infixr 5 _++_
 
 _++_ : NatList → NatList → NatList
 [] ++ ys = ys
-(x :: xs) ++ ys = x :: xs ++ ys
+(x ∷ xs) ++ ys = x ∷ xs ++ ys
 ```
 
 A list appended to a non-empty list yields a list with the head the
@@ -154,8 +154,8 @@ Complete the definition of `nonzeros`.  The assertion after the
 definition template shows (to both you and to Agda) what the function
 should do.  The exercises will often include these statements, which
 serve as tests for your code: if Agda cannot transform the expression
-`nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: [])` into the expression
-`1 :: 2 :: 3 :: []` using your definition of `nonzeros`, then loading
+`nonzeros (0 ∷ 1 ∷ 0 ∷ 2 ∷ 3 ∷ 0 ∷ 0 ∷ [])` into the expression
+`1 ∷ 2 ∷ 3 ∷ []` using your definition of `nonzeros`, then loading
 the file will raise an error.
 
 But as in earlier examples, you must move this code to the left
@@ -168,7 +168,7 @@ form of success on the exercise!
     nonzeros [] = []
     -- Add your cases here
 
-    _ : nonzeros (0 :: 1 :: 0 :: 2 :: 3 :: 0 :: 0 :: []) ≡ (1 :: 2 :: 3 :: [])
+    _ : nonzeros (0 ∷ 1 ∷ 0 ∷ 2 ∷ 3 ∷ 0 ∷ 0 ∷ []) ≡ (1 ∷ 2 ∷ 3 ∷ [])
     _ = refl
 
 #### Exercise `oddmembers` (practice) {#oddmembers}
@@ -180,7 +180,7 @@ Naturals.
     oddmembers : NatList -> NatList
     -- Add your cases here
 
-    _ : oddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ (1 :: 3 :: 3 :: [])
+    _ : oddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ (1 ∷ 3 ∷ 3 ∷ [])
     _ = refl
 
 #### Exercise `countoddmembers` (practice) {#countoddmembers}
@@ -191,10 +191,10 @@ to understand what these functions should do.
     countoddmembers : NatList -> ℕ
     -- Your definition goes here
     
-    _ : countoddmembers (0 :: 1 :: 2 :: 3 :: 3 :: 0 :: []) ≡ 3
+    _ : countoddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 3
     _ = refl
     
-    _ : countoddmembers (0 :: 2 :: 0 :: []) ≡ 0
+    _ : countoddmembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0
     _ = refl
     
     _ : countoddmembers [] ≡ 0
@@ -217,11 +217,11 @@ pairs, but this is not the only way.
     alternate : NatList → NatList → NatList
     -- Your solution goes here
 
-    _ : alternate (1 :: 2 :: 3 :: []) (4 :: 5 :: 6 :: [])
-                   ≡ (1 :: 4 :: 2 :: 5 :: 3 :: 6 :: [])
+    _ : alternate (1 ∷ 2 ∷ 3 ∷ []) (4 ∷ 5 ∷ 6 ∷ [])
+                   ≡ (1 ∷ 4 ∷ 2 ∷ 5 ∷ 3 ∷ 6 ∷ [])
     _ = refl
 
-    _ : alternate (1 :: 2 :: 3 :: []) (4 :: []) ≡ (1 :: 4 :: 2 :: 3 :: [])
+    _ : alternate (1 ∷ 2 ∷ 3 ∷ []) (4 ∷ []) ≡ (1 ∷ 4 ∷ 2 ∷ 3 ∷ [])
     _ = refl
 
 ## Bags via lists
@@ -262,7 +262,7 @@ definition.
     sum : Bag -> Bag -> Bag
     sum b1 b2 = ?
 
-    _ : count 1 (sum (1 :: 2 :: 3 :: []) (1 :: 4 :: 1 :: [])) ≡ 3.
+    _ : count 1 (sum (1 ∷ 2 ∷ 3 ∷ []) (1 ∷ 4 ∷ 1 ∷ [])) ≡ 3.
     _ = refl
 
 #### Exercise `bagadd` (practice) {#bagadd}
@@ -274,7 +274,7 @@ given number.
     add : ℕ → Bag → Bag
     add n b = ?
     
-    _ : count 1 (add 1 (1 :: 4 :: 1 :: [])) ≡ 3
+    _ : count 1 (add 1 (1 ∷ 4 ∷ 1 ∷ [])) ≡ 3
     _ = refl
 
 #### Exercise `bagmember` (practice) {#bagmember}
@@ -282,11 +282,11 @@ given number.
 The `member` function returns true exactly when its bag argument
 contains its number argument at least once.
 
-    member :: ℕ → Bag → Bool
+    member ∷ ℕ → Bag → Bool
     member n b = ?
 
-    _ : member 1 (1 :: 4 :: 1 :: []) ≡ True
-    _ = member 2 (1 :: 4 :: 1 :: []) ≡ False
+    _ : member 1 (1 ∷ 4 ∷ 1 ∷ []) ≡ True
+    _ = member 2 (1 ∷ 4 ∷ 1 ∷ []) ≡ False
 
 #### Exercise `bagremoveone` (practice) {#bagremoveone}
 
@@ -296,16 +296,16 @@ should return the same bag unchanged.
     removeOne : ℕ → Bag → Bag
     removeOne n b = ?
 
-    _ : count 5 (remove_one 5 (2 :: 1 :: 5 :: 4 :: 1 :: [])) ≡ 0
+    _ : count 5 (remove_one 5 (2 ∷ 1 ∷ 5 ∷ 4 ∷ 1 ∷ [])) ≡ 0
     _ = refl
     
-    _ : count 5 (remove_one 5 (2 :: 1 :: 4 :: 1 :: [])) ≡ 0
+    _ : count 5 (remove_one 5 (2 ∷ 1 ∷ 4 ∷ 1 ∷ [])) ≡ 0
     _ = refl
     
-    _ : count 4 (remove_one 5 (2 :: 1 :: 4 :: 5 :: 1 :: 4 :: [])) ≡ 2
+    _ : count 4 (remove_one 5 (2 ∷ 1 ∷ 4 ∷ 5 ∷ 1 ∷ 4 ∷ [])) ≡ 2
     _ = refl
     
-    _ : count 5 (remove_one 5 (2 :: 1 :: 5 :: 4 :: 5 :: 1 :: 4 :: [])) ≡ 1
+    _ : count 5 (remove_one 5 (2 ∷ 1 ∷ 5 ∷ 4 ∷ 5 ∷ 1 ∷ 4 ∷ [])) ≡ 1
     _ = refl
 
 #### Exercise `bagremoveall` (practice) {#bagremoveall}
@@ -313,18 +313,18 @@ should return the same bag unchanged.
     removeAll : ℕ → Bag → Bag
     removeAll n b = ?
     
-    _ : count 5 (remove_all 5 (2 :: 1 :: 5 :: 4 :: 1 :: [])) ≡ 0
+    _ : count 5 (remove_all 5 (2 ∷ 1 ∷ 5 ∷ 4 ∷ 1 ∷ [])) ≡ 0
     _ = refl
     
-    _ : count 5 (remove_all 5 (2 :: 1 :: 4 :: 1 :: [])) ≡ 0
+    _ : count 5 (remove_all 5 (2 ∷ 1 ∷ 4 ∷ 1 ∷ [])) ≡ 0
     _ = refl
     
-    _ : count 4 (remove_all 5 (2 :: 1 :: 4 :: 5 :: 1 :: 4 :: [])) ≡ 2
+    _ : count 4 (remove_all 5 (2 ∷ 1 ∷ 4 ∷ 5 ∷ 1 ∷ 4 ∷ [])) ≡ 2
     _ = refl
     
     _ : count 5
           (remove_all 5
-            (2 :: 1 :: 5 :: 4 :: 5 :: 1 :: 4 :: 5 :: 1 :: 4 :: [])) ≡ 0
+            (2 ∷ 1 ∷ 5 ∷ 4 ∷ 5 ∷ 1 ∷ 4 ∷ 5 ∷ 1 ∷ 4 ∷ [])) ≡ 0
     _ = refl
 
 #### Exercise `bagsubset` (practice) {#bagsubset}
@@ -335,10 +335,10 @@ occurences of any element than the latter.
     subset : Bag → Bag → Bool
     subset b1 b2 = ?
     
-    _ : subset (1 :: 2 :: []) (2 :: 1 :: 4 :: 1 :: []) ≡ True
+    _ : subset (1 ∷ 2 ∷ []) (2 ∷ 1 ∷ 4 ∷ 1 ∷ []) ≡ True
     _ = refl
 
-    _ : subset (1 :: 2 :: 2 :: []) (2 :: 1 :: 4 :: 1 :: []) = False
+    _ : subset (1 ∷ 2 ∷ 2 ∷ []) (2 ∷ 1 ∷ 4 ∷ 1 ∷ []) = False
     _ = refl
     
 ## Options
@@ -350,8 +350,8 @@ choose some number to return when the list is too short.
 ```
 nthBad : NatList -> ℕ -> ℕ
 nthBad [] _ = 42
-nthBad (x :: _) 0 = x
-nthBad (_ :: xs) (suc n) = nthBad xs n
+nthBad (x ∷ _) 0 = x
+nthBad (_ ∷ xs) (suc n) = nthBad xs n
 ```
 
 This solution is not so good: If `nth_bad` returns `42`, we can't tell
@@ -374,16 +374,16 @@ members and `a` appears at position `n`. We call this new function
 ```
 nthError : NatList → ℕ → NatMaybe
 nthError [] _ = nothing
-nthError (x :: _) 0 = just x
-nthError (_ :: xs) (suc n) = nthError xs n
+nthError (x ∷ _) 0 = just x
+nthError (_ ∷ xs) (suc n) = nthError xs n
 
-_ : nthError (4 :: 5 :: 6 :: 7 :: []) 0 ≡ just 4
+_ : nthError (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 0 ≡ just 4
 _ = refl
 
-_ : nthError (4 :: 5 :: 6 :: 7 :: []) 3 ≡ just 7
+_ : nthError (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 3 ≡ just 7
 _ = refl
 
-_ : nthError (4 :: 5 :: 6 :: 7 :: []) 9 ≡ nothing
+_ : nthError (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 9 ≡ nothing
 _ = refl
 ```
 
@@ -393,15 +393,15 @@ and equality testing:
 ```
 nthError' : NatList → ℕ → NatMaybe
 nthError' [] _ = nothing
-nthError' (x :: xs) n = if (n ≡ᵇ 0) then (just x) else nthError' xs (n ∸ 1)
+nthError' (x ∷ xs) n = if (n ≡ᵇ 0) then (just x) else nthError' xs (n ∸ 1)
 
-_ : nthError' (4 :: 5 :: 6 :: 7 :: []) 0 ≡ just 4
+_ : nthError' (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 0 ≡ just 4
 _ = refl
 
-_ : nthError' (4 :: 5 :: 6 :: 7 :: []) 3 ≡ just 7
+_ : nthError' (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 3 ≡ just 7
 _ = refl
 
-_ : nthError' (4 :: 5 :: 6 :: 7 :: []) 9 ≡ nothing
+_ : nthError' (4 ∷ 5 ∷ 6 ∷ 7 ∷ []) 9 ≡ nothing
 _ = refl
 ```
 
@@ -418,15 +418,15 @@ optionElim d (just n) = n
 
     hdError : NatList → NatMaybe
     hdError [] = nothing
-    hderror (x :: _) = just x
+    hderror (x ∷ _) = just x
 
     _ : hdError [] ≡ nothing
     _ = refl
     
-    _ : hdError (1 :: []) ≡ just 1
+    _ : hdError (1 ∷ []) ≡ just 1
     _ = refl
     
-    _ : hdError (5 :: 6 :: []) ≡ just 5
+    _ : hdError (5 ∷ 6 ∷ []) ≡ just 5
     _ = refl
     
 ## Partial Maps
@@ -491,6 +491,12 @@ find key (entry k v pm) with key ≡idᵇ k
 ```
 
 TODO Discuss with guards
+
+## Unicode
+
+This chapter uses the following unicode:
+
+    ∷  U+2237  PROPORTION  (\::)
 
 ---
 

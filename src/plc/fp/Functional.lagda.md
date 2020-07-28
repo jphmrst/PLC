@@ -14,6 +14,7 @@ open import plc.fp.Poly
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
 ```
 
 Like most modern programming languages — especially other "functional"
@@ -57,8 +58,8 @@ which the predicate returns `true`.
 ```
 filter : ∀ {X : Set} → (X → Bool) → List X → List X
 filter _ [] = []
-filter f (x :: xs) with f x
-...                   | true = x :: filter f xs
+filter f (x ∷ xs) with f x
+...                   | true = x ∷ filter f xs
 ...                   | false = filter f xs
 ```
 
@@ -72,7 +73,7 @@ even 0 = true
 even 1 = false
 even (suc (suc n)) = even n
 
-_ : filter even (1 :: 2 :: 3 :: 4 :: []) ≡ (2 :: 4 :: [])
+_ : filter even (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ (2 ∷ 4 ∷ [])
 _ = refl
 ```
 
@@ -81,12 +82,12 @@ selecting all of the elements of a list of lists whose length is 1.
 
 ```
 lengthIs1 : ∀ {X : Set} → List X → Bool
-lengthIs1 (_ :: []) = true
+lengthIs1 (_ ∷ []) = true
 lengthIs1 _ = false
 
-_ : filter lengthIs1 ((1 :: 2 :: []) :: (3 :: []) :: (4 :: [])
-                       :: (5 :: 6 :: 7 :: []) :: [] :: (8 :: []) :: [])
-      ≡ ((3 :: []) :: (4 :: []) :: (8 :: []) :: [])
+_ : filter lengthIs1 ((1 ∷ 2 ∷ []) ∷ (3 ∷ []) ∷ (4 ∷ [])
+                       ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
+      ≡ ((3 ∷ []) ∷ (4 ∷ []) ∷ (8 ∷ []) ∷ [])
 _ = refl
 ```
 
@@ -98,7 +99,7 @@ function from the {Lists} section.
 ```
 length : ∀ {X : Set} → List X → ℕ
 length [] = 0
-length (_ :: xs) = suc (length xs)
+length (_ ∷ xs) = suc (length xs)
 
 odd : ℕ → Bool
 odd 0 = false
@@ -108,10 +109,10 @@ odd (suc (suc n)) = odd n
 countoddmembers : List ℕ -> ℕ
 countoddmembers l = length (filter odd l)
 
-_ : countoddmembers (1 :: 0 :: 3 :: 1 :: 4 :: 5 :: []) ≡ 4
+_ : countoddmembers (1 ∷ 0 ∷ 3 ∷ 1 ∷ 4 ∷ 5 ∷ []) ≡ 4
 _ = refl
 
-_ : countoddmembers (0 :: 2 :: 4 :: []) ≡ 0
+_ : countoddmembers (0 ∷ 2 ∷ 4 ∷ []) ≡ 0
 _ = refl
 
 _ : countoddmembers [] ≡ 0
@@ -145,9 +146,9 @@ Here is the `filter` example, rewritten to use an anonymous function.
 
 ```
 _ : filter (λ l → (length l) ≡ᵇ 1)
-           ((1 :: 2 :: []) :: (3 :: []) :: (4 :: [])
-              :: (5 :: 6 :: 7 :: []) :: [] :: (8 :: []) :: [])
-      ≡ ((3 :: []) :: (4 :: []) :: (8 :: []) :: [])
+           ((1 ∷ 2 ∷ []) ∷ (3 ∷ []) ∷ (4 ∷ [])
+              ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
+      ≡ ((3 ∷ []) ∷ (4 ∷ []) ∷ (8 ∷ []) ∷ [])
 _ = refl
 ```
 
@@ -160,11 +161,11 @@ even and greater than 7.
     filterEvenGt7a : List ℕ → List ℕ
     -- FILL IN: filterEvenGt7a l = filter ? l
 
-    _ : filterEvenGt7a (1 :: 2 :: 6 :: 9 :: 10 :: 3 :: 12 :: 8 :: [])
-          ≡ (10 :: 12 :: 8 :: [])
+    _ : filterEvenGt7a (1 ∷ 2 ∷ 6 ∷ 9 ∷ 10 ∷ 3 ∷ 12 ∷ 8 ∷ [])
+          ≡ (10 ∷ 12 ∷ 8 ∷ [])
     _ = refl
 
-    _ : filterEvenGt7a (5 :: 2 :: 6 :: 19 :: 129 :: []) ≡ []
+    _ : filterEvenGt7a (5 ∷ 2 ∷ 6 ∷ 19 ∷ 129 ∷ []) ≡ []
     _ = refl
 
 #### Exercise `filterPartition` (practice) {#filterPartition}
@@ -180,12 +181,12 @@ elements that satisfy the test, and the second is the sublist
 containing those that fail the test.  The order of elements in the two
 sublists should be the same as their order in the original list.
 
-    _ : partition oddb (1 :: 2 :: 3 :: 4 :: 5 :: [])
-          ≡ pair (1 :: 3 :: 5 :: []) (2 :: 4 :: [])
+    _ : partition oddb (1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ [])
+          ≡ pair (1 ∷ 3 ∷ 5 ∷ []) (2 ∷ 4 ∷ [])
     _ = refl
     
-    _ : partition (λ { x → false }) (5 :: 9 :: 0 :: [])
-          ≡ ([], (5 :: 9 :: 0 :: [])).
+    _ : partition (λ { x → false }) (5 ∷ 9 ∷ 0 ∷ [])
+          ≡ ([], (5 ∷ 9 ∷ 0 ∷ [])).
     _ = refl
 
 ## Map
@@ -195,15 +196,15 @@ Another useful higher-order function is called `map`.
 ```
 map : ∀ {X Y : Set} → (X → Y) → List X → List Y
 map _ [] = []
-map f (x :: xs) = f x :: map f xs
+map f (x ∷ xs) = f x ∷ map f xs
 ```
 
-It takes a function `f` and a list `l = (n1 :: n2 :: n3 :: ...)` and
-returns the list `(f n1 :: f n2 :: f n3 :: ...)`, where `f` has been
+It takes a function `f` and a list `l = (n1 ∷ n2 ∷ n3 ∷ ...)` and
+returns the list `(f n1 ∷ f n2 ∷ f n3 ∷ ...)`, where `f` has been
 applied to each element of `l` in turn.  For example:
 
 ```
-_ : map (λ { x → 3 + x}) (2 :: 0 :: 2 :: []) ≡ (5 :: 3 :: 5 :: [])
+_ : map (λ { x → 3 + x}) (2 ∷ 0 ∷ 2 ∷ []) ≡ (5 ∷ 3 ∷ 5 ∷ [])
 _ = refl
 ```
 
@@ -214,7 +215,7 @@ argument `f1` maps numbers to booleans, then `map` with first argument
 would return a list of boolean values:
 
 ```
-_ : map odd (2 :: 1 :: 2 :: 5 :: []) ≡ (false :: true :: false :: true :: [])
+_ : map odd (2 ∷ 1 ∷ 2 ∷ 5 ∷ []) ≡ (false ∷ true ∷ false ∷ true ∷ [])
 _ = refl
 ```
 
@@ -222,9 +223,9 @@ It can even be applied to a list of numbers and a function from
 numbers to _lists_ of booleans to yield a _list of lists_ of booleans:
 
 ```
-_ : map (λ { n → (even n :: odd n :: []) }) (2 :: 1 :: 2 :: 5 :: [])
-      ≡ ( (true :: false :: []) :: (false :: true :: [])
-           :: (true :: false :: []) :: (false :: true :: []) :: [])
+_ : map (λ { n → (even n ∷ odd n ∷ []) }) (2 ∷ 1 ∷ 2 ∷ 5 ∷ [])
+      ≡ ( (true ∷ false ∷ []) ∷ (false ∷ true ∷ [])
+           ∷ (true ∷ false ∷ []) ∷ (false ∷ true ∷ []) ∷ [])
 _ = refl
 ```
 
@@ -239,8 +240,8 @@ concatenating the several list results into a single list.
     flatMap : ∀ {X Y : Set} → (X → List Y) → List X → List Y
     -- Your clauses go here
 
-    _ : flatMap (λ { n → (n :: n :: n :: []) }) (1 :: 5 :: 4 :: [])
-          ≡ (1 :: 1 :: 1 :: 5 :: 5 :: 5 :: 4 :: 4 :: 4 :: [])
+    _ : flatMap (λ { n → (n ∷ n ∷ n ∷ []) }) (1 ∷ 5 ∷ 4 ∷ [])
+          ≡ (1 ∷ 1 ∷ 1 ∷ 5 ∷ 5 ∷ 5 ∷ 4 ∷ 4 ∷ 4 ∷ [])
     _ = refl
 
 ### `map` and `Maybe`
@@ -265,48 +266,107 @@ this file that you can throw away afterwards.)
 
 ## Fold
 
-TODO Wait, what does Agda use?  foldr/foldl ?
-
-An even more powerful higher-order function is called `fold`.  This
+An even more powerful higher-order function is called `foldr`.  This
 function is the inspiration for the `reduce` operation that lies at
 the heart of Google's map/reduce distributed programming framework.
 
 ```
-fold : ∀ {X Y : Set} → (X → Y → Y) → List X → Y → Y
-fold _ [] b = b
-fold f (x :: xs) b = f x (fold f xs b)
+foldr : ∀ {X Y : Set} → (X → Y → Y) → Y → List X → Y
+foldr _ z [] = z
+foldr f z (x ∷ xs) = f x (foldr f z xs)
 ```
 
-Intuitively, the behavior of the `fold` operation is to insert a given
-binary operator `f` between every pair of elements in a given list.
-For example, `fold _+_ (1 :: 2 :: 3 ::4 :: [])` intuitively means
-`1+2+3+4`.  To make this precise, we also need a "starting element"
-that serves as the second input to `f` in the base case.  So, for
-example,
+Intuitively, the behavior of the `foldr` operation is to insert a
+given binary operator `f` between every pair of elements in a given
+list.  For example, `fold _+_ (1 ∷ 2 ∷ 3 ∷4 ∷ [])` intuitively
+means `1+2+3+4`.  To make this precise, we also need a "starting
+element" that serves as the second input to `f` in the base case.  So,
+for example,
 
 ```
-_ : fold _+_ (1 :: 2 :: 3 :: 4 :: []) 0 ≡ 1 + (2 + (3 + (4 + 0)))
+_ : foldr _+_ 0 (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ 1 + (2 + (3 + (4 + 0)))
 _ = refl
 
-_ : fold _*_ (1 :: 2 :: 3 :: 4 :: []) 1 ≡ 24
+_ : foldr _*_ 1 (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ 24
 _ = refl
 
-_ : fold _∧_ (true :: true :: false :: true :: []) true ≡ false
+_ : foldr _∧_ true (true ∷ true ∷ false ∷ true ∷ []) ≡ false
 _ = refl
 ```
 
-{::comment}
-_ : fold _++_ ((1 :: []) :: [] :: (2 :: 3 :: []) :: (4 :: []) :: []) []
-      ≡ (1 :: 2 :: 3 :: 4 :: [])
+{∷comment}
+_ : foldr _++_ [] ((1 ∷ []) ∷ [] ∷ (2 ∷ 3 ∷ []) ∷ (4 ∷ []) ∷ [])
+      ≡ (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
 _ = refl
 {:/comment}
 
+The first of the examples above illustrates what the `r` in `foldr`
+represents: *right*, as in right-associative.  When we write out the
+elements of a list, we already know the `∷` operator is
+right-associative.  That is, we already know that
+
+```
+_ : (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ (1 ∷ (2 ∷ (3 ∷ (4 ∷ []))))
+_ = refl
+```
+
+and not
+
+    (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ ((((1 ∷ 2) ∷ 3) ∷ 4) ∷ [])
+
+(which is not even well-typed!).  The `r` in `foldr` means that we
+preserve this associativity when we replace `∷` with the operator
+argument.  There is also a function `foldl` which applies the operator
+*left-associatively* to the list elements:
+
+```
+foldl : ∀ {X Y : Set} → (X → Y → X) → X → List Y → X
+foldl f z []       = z
+foldl f z (x ∷ xs) = foldl f (f z x) xs
+```
+
+Note that the role of `z` is not exactly the same in `foldr` as
+in`foldl`.  Our intuition for `foldr` was to replace each `∷` with
+`f`, and the final `[]` with `z`.  But we use the `z` argument in
+`foldl` at the very *beginning* of the expression, with the first
+argument:
+
+    foldl _OP_ z (x1 ∷ x2 ∷ x3 ∷ ... ∷ xN)
+      ≡ (((((z _OP_ x1) _OP_ x2) _OP_ x3) _OP_ ...) _OP_ xN)
+
+For adding numbers with the default element 0, the choice of `foldl`
+or `foldr` makes no difference because addition is associative:
+
+```
+_ : foldr _+_ 0 (1 ∷ 2 ∷ 3 ∷ 4 ∷ []) ≡ foldl _+_ 0 (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
+_ = refl
+```
+
+However subtraction is not associative, and the choice of `foldl` or
+`foldr` does make a difference.
+
+```
+_ : foldr _∸_ 0 (8 ∷ 4 ∷ 2 ∷ 1 ∷ []) ≡ (8 ∸ (4 ∸ (2 ∸ (1 ∸ 0))))
+_ = refl
+
+_ : foldl _∸_ 8 (4 ∷ 2 ∷ 1 ∷ 0 ∷ []) ≡ ((((8 ∸ 4) ∸ 2) ∸ 1) ∸ 0)
+_ = begin
+       foldl _∸_ 8 (4 ∷ 2 ∷ 1 ∷ 0 ∷ [])
+    ≡⟨⟩ foldl _∸_ (8 ∸ 4) (2 ∷ 1 ∷ 0 ∷ [])
+    ≡⟨⟩ foldl _∸_ ((8 ∸ 4) ∸ 2) (1 ∷ 0 ∷ [])
+    ≡⟨⟩ foldl _∸_ (((8 ∸ 4) ∸ 2) ∸ 1) (0 ∷ [])
+    ≡⟨⟩ foldl _∸_ ((((8 ∸ 4) ∸ 2) ∸ 1) ∸ 0) []
+    ≡⟨⟩ (((8 ∸ 4) ∸ 2) ∸ 1) ∸ 0
+    ∎
+```
+
 #### Exercise `foldTypesDifferent` (starting) {#foldTypesDifferent}
 
-Observe that the type of `fold` is parameterized by _two_ type
-variables, `X` and `Y`, and the parameter `f` is a binary operator
-that takes an `X` and a `Y` and returns a `Y`.  Can you think of a
-situation where it would be useful for `X` and `Y` to be different?
+Observe that the type of the fold functions is parameterized by _two_
+type variables, `X` and `Y`, and the parameter `f` is a binary
+operator that takes an `X` and a `Y` and returns a `Y`.  Can you think
+of a situation where it would be useful for `X` and `Y` to be
+different?
 
 ## Functions that construct functions
 
@@ -317,57 +377,46 @@ here is a function that takes a value `x` (drawn from some type `x`)
 and returns a function from `ℕ` to `x` that yields `x` whenever it is
 called, ignoring its `ℕ` argument.
 
-TODO edit from here
+```
+constfun : ∀ {X : Set} → X → (ℕ → X)
+constfun x = λ { k → x }
 
-Definition constfun {X: Type} (x: X) : nat→X :=
-  fun (k:nat) => x.
+ftrue : ℕ → Bool
+ftrue = constfun true
 
-Definition ftrue := constfun true.
+_ : ftrue 0 ≡ true
+_ = refl
 
-Example constfun_example1 : ftrue 0 = true.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+```
 
-Example constfun_example2 : (constfun 5) 99 = 5.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+In fact, the multiple-argument functions we have already seen are also
+examples of passing functions as data.  To see why, recall the type of
+`_+_`.
 
-(** FULL: In fact, the multiple-argument functions we have already
-    seen are also examples of passing functions as data.  To see why,
-    recall the type of [plus]. *)
-(** TERSE: *** *)
-(** TERSE: A two-argument function in Coq is actually a function that
-    returns a function! *)
+    _+_ : ℕ → ℕ → ℕ
 
-Check plus : nat → nat → nat.
+Each `→` in this expression is actually a _binary_ operator on types.
+This operator is _right-associative_, so the type of `_+_` is really a
+shorthand for [nat → (nat → nat)] — i.e., it can be read as saying
+that "`_+_` is a one-argument function that takes a `ℕ` and returns a
+one-argument function that takes another `ℕ` and returns a `ℕ`."  In
+the examples above, we have always applied `_+_` to both of its
+arguments at once, but if we like we can supply just the first.  This
+is called _partial application_.
 
-(** FULL: Each [→] in this expression is actually a _binary_ operator
-    on types.  This operator is _right-associative_, so the type of
-    [plus] is really a shorthand for [nat → (nat → nat)] -- i.e., it
-    can be read as saying that "[plus] is a one-argument function that
-    takes a `ℕ` and returns a one-argument function that takes
-    another `ℕ` and returns a `ℕ`."  In the examples above, we
-    have always applied [plus] to both of its arguments at once, but
-    if we like we can supply just the first.  This is called _partial
-    application_. *)
+```
+plus3 : ℕ → ℕ
+plus3 = _+_ 3
 
-Definition plus3 := plus 3.
-Check plus3 : nat → nat.
+_ : plus3 4 ≡ 7
+_ = refl
 
-Example test_plus3 :    plus3 4 = 7.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_plus3' :   doit3times plus3 0 = 9.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-Example test_plus3'' :  doit3times (plus 3) 0 = 9.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
+_ : doIt3Times plus3 0 ≡ 9
+_ = refl
+
+_ : doIt3Times plus3 0 ≡ 9
+_ = refl
+```
 
 ## Additional exercises
 
@@ -397,7 +446,7 @@ Proof.
 (* ADMITTED *)
   induction l as [| x l' IHl'].
   - (* l = [] *) reflexivity.
-  - (* l = x :: l' *) simpl.
+  - (* l = x ∷ l' *) simpl.
     rewrite <- IHl'.
     reflexivity.  Qed.
 (* /ADMITTED *)
@@ -414,7 +463,7 @@ Proof.
 
 Definition fold_map {X Y: Type} (f: X → Y) (l: list X) : list Y
   (* ADMITDEF *) :=
-  fold (fun x l' => f x :: l') l nil.
+  fold (fun x l' => f x ∷ l') l nil.
 (* /ADMITDEF *)
 
 (** Write down a theorem [fold_map_correct] in Coq stating that
@@ -428,7 +477,7 @@ Theorem fold_map_correct : forall X Y (f : X → Y) (l : list X),
 Proof.
   induction l as [| x l' IHl'].
   - (* l = [] *) reflexivity.
-  - (* l = x :: l' *) simpl.
+  - (* l = x ∷ l' *) simpl.
     rewrite <- IHl'.
     reflexivity.  Qed.
 (* /SOLUTION *)
@@ -548,7 +597,7 @@ Proof.
    Fixpoint nth_error {X : Type} (l : list X) (n : nat) : option X :=
      match l with
      | [] => None
-     | a :: l' => if n =? O then Some a else nth_error l' (pred n)
+     | a ∷ l' => if n =? O then Some a else nth_error l' (pred n)
      end.
 ]]
    Write an informal proof of the following theorem:
@@ -565,14 +614,14 @@ Proof.
       - If [l = nil], we must show [nth_error [] n = None].  This follows
         immediately from the definition of [nth_error].
 
-      - Otherwise, [l = x :: l'] for some `x` and [l'], and the
+      - Otherwise, [l = x ∷ l'] for some `x` and [l'], and the
         induction hypothesis tells us that [length l' = n' => nth_error l'
         n' = None] for any [n'].
 
         Let [n] be a number such that [length l = n].  We must show
-        that [nth_error (x :: l') n = None].
+        that [nth_error (x ∷ l') n = None].
 
-        But we know that [n = length l = length (x :: l') = S (length l')].
+        But we know that [n = length l = length (x ∷ l') = S (length l')].
         So it's enough to show [nth_error l' (length l') = None], which
         follows directly from the induction hypothesis, picking [length l']
         for [n']. *)
@@ -610,10 +659,10 @@ Definition zero : cnat :=
 
 (** More generally, a number [n] can be written as [fun X f x => f (f
     ... (f x) ...)], with [n] occurrences of `f`.  Notice in
-    particular how the [doit3times] function we've defined previously
+    particular how the [doIt3Times] function we've defined previously
     is actually just the Church representation of [3]. *)
 
-Definition three : cnat := @doit3times.
+Definition three : cnat := @doIt3Times.
 
 (** Complete the definitions of the following functions. Make sure
     that the corresponding unit tests pass by proving them with
