@@ -150,5 +150,5 @@ This chapter uses the following unicode:
 
 ---
 
-*This page is derived from Pierce et al., for more information see the
+*This page is derived from Pierce et al.  For more information see the
 [sources and authorship]({{ site.baseurl }}/Sources/) page.*
