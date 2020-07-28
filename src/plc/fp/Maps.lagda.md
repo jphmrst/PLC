@@ -11,7 +11,7 @@ module plc.fp.Maps where
 open import Data.Bool
 open import Data.Maybe
 open import Data.Nat
-open import Data.String using (String; _==_)
+open import Data.String
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
