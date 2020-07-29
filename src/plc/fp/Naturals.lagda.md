@@ -1229,6 +1229,28 @@ invoked twice. For this reason, we will usually avoid pragmas in
 future chapters.  Information on pragmas can be found in the Agda
 documentation.
 
+### Naturals, strings and characters
+
+As in most languages, functions in Agda's standard libraries will
+relate different primitive types.  For example, in `Data.String`,
+
+ - The function `length` returns the number of characters in a string
+   as a `ℕ`.
+
+       length "hello"
+
+ - The function `replicate` forms a string by repeating a character a
+   given number of times.
+
+       replicate 10 'd'
+
+(Note that these expressions will have an odd behavior if you
+`C-c C-n` them from this file.  This file uses our demo version of ℕ,
+where `Data.String` and `Data.Char` use the standard library version
+of ℕ.  To try out the expressions in this section, load the next file
+`NatData.lagda.md`, which uses `Data.Nat` instead of this file's
+module.)
+
 ## Unicode
 
 This chapter uses the following unicode:

@@ -224,6 +224,23 @@ pairs, but this is not the only way.
     _ : alternate (1 ∷ 2 ∷ 3 ∷ []) (4 ∷ []) ≡ (1 ∷ 4 ∷ 2 ∷ 3 ∷ [])
     _ = refl
 
+#### Exercise `stringlists` (practice) {#stringlists}
+
+```
+open import Data.String
+```
+
+Define a data type `StringList`, which is a linked list like a
+`NatList` but which holds strings (use `[]ₛ` and `∷ₛ` as its
+constructors).  Write the functions `concList`, which takes a
+`StringList` and concatenates its elements down to a single `String`.
+
+    concList : StringList → String
+    -- Your definition goes here
+
+    _ : concList ("H" ∷ₛ "e" ∷ₛ "ll" ∷ₛ "o" ∷ₛ []ₛ) ≡ "Hello"
+    _ = refl
+
 ## Bags via lists
 
 A _bag_ (or _multiset_) is like a set, except that each element can
@@ -479,7 +496,7 @@ update pm key value = entry key value pm
 
 Last, the `find` function searches a `PartialMap` for a given key.  It
 returns `nothing` if the key was not found and `just val` if the key
-was associated with `val`. If the same key is mapped to multiple
+was associated with `val`.  If the same key is mapped to multiple
 values, `find` will return the first one it encounters.
 
 ```

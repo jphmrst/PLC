@@ -304,6 +304,58 @@ complain if we attempt to import a definition that is not available.
 This time, since we are defining the booleans manually, we have only
 shown the import as a comment.
 
+### Strings and characters
+
+In addition to boolean values, Agda also has string and character
+values built in (and numbers as well, which we study in the next
+section).  The type of stirngs is `String`, and we can use them in
+our programs with
+
+```
+open import Data.String
+```
+
+Aside from the functions which the module provides, we must import
+those libraries in order to use the usual quotation mechanisms for
+writing down string data.
+
+```
+myName : String
+myName = "John Jacob Jingleheimer Schmidt"
+```
+
+The library provides several of the usual string utilities, such as:
+
+ - `++`, written between two arguments, concatenating two strings.
+   Use `C-c C-n` to evaluate
+
+       "hello" ++ " there"
+
+ - `==`, written between two arguments, returning `true` (in the
+   standard library's implementation of `Bool`) if its arguments are
+   the same string.
+
+       "hello" == "hello"
+       "hello" == "hi"
+
+The type of characters is `Char`, and we import them with
+
+```
+open import Data.Char
+
+myInitial : Char
+myInitial = 'J'
+```
+
+This library also provides several functions on characters
+
+ - Testing for certain character classes with `isLower`, `isDigit`,
+   `isAlpha`, `isSpace`, `isAscii`, `isLatin1`, `isPrint`,
+   `isHexDigit`.
+
+ - Transforming one character to a related character with `toUpper`,
+   `toLower`.
+
 ## Unicode
 
 This chapter uses the following unicode:
