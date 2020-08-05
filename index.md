@@ -24,6 +24,7 @@ will require access to the UWL VPN or Canvas LMS.
     why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
+    - TODO: Add note (just before apendix) of whitespace relevance, sybmols
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
@@ -33,7 +34,6 @@ will require access to the UWL VPN or Canvas LMS.
     - Develop pattern matching discussion: point out where we are
       using patterns in new ways
     - Exercises from last 421 course pack
-    - Exercises for maps
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
@@ -42,6 +42,7 @@ will require access to the UWL VPN or Canvas LMS.
   - [Poly]({{ site.baseurl }}/Poly/): Generic data structures and functions
   - [Functional]({{ site.baseurl }}/Functional/): Higher-order functions
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
+    - TODO --- more exercises for maps?
   - [Depend]({{ site.baseurl }}/Depend/): Dependent types
 
   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions

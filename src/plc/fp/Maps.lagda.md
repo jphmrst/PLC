@@ -139,16 +139,35 @@ _ : churchTuring "Smith" ≡ nothing
 _ = refl
 ```
 
+#### Exercise `containsKey` (practice) {#containsKey}
+
+Write a function `containsKey` which returns `true` when a partial map
+`m` contains a key `k`, and `false` when it does not.
+
+    containsKey : ∀ {A : Set} → PartialMap A → String → Bool
+    -- Your definition goes here
+
+    _ : containsKey churchTuring "Church" ≡ true
+    _ = refl
+
+    _ : containsKey churchTuring "Turing" ≡ true
+    _ = refl
+
+    _ : containsKey churchTuring "Smith" ≡ false
+    _ = refl
+
 ## Unicode
 
 This chapter uses the following unicode:
 
-    ↦ (\mapsto)
-    ↪ (\hookrightarrow)
-    ∅ (\emptyset)
-    ∷  U+2237  PROPORTION  (\::)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ↦  U+21A6  RIGHTWARDS ARROW FROM BAR (\mapsto)
+    ↪  U+21AA  RIGHTWARDS ARROW WITH HOOK (\hookrightarrow)
+    ∅  U+2205  EMPTY SET (\emptyset)
+    ≡  U+2261  IDENTICAL TO (\==)
 
 ---
 
-*This page is derived from Pierce et al.  For more information see the
-[sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Pierce et al., with exercises by Maraist.
+For more information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*
