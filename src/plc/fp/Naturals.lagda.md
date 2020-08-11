@@ -449,9 +449,10 @@ _ =
     5
   ∎
 ```
-The first line matches the inductive case by taking `m = 1` and `n = 3`,
-the second line matches the inductive case by taking `m = 0` and `n = 3`,
-and the third line matches the base case by taking `n = 3`.
+
+The first line matches the inductive case by taking `m = 1` and `n =
+3`, the second line matches the inductive case by taking `m = 0` and
+`n = 3`, and the third line matches the base case by taking `n = 3`.
 
 Both derivations consist of a signature or declaration on the first
 line, and a binding on the remaining lines.  The signatures have three
@@ -506,7 +507,8 @@ other word for evidence, which we will use interchangeably, is _proof_.
 
 #### Exercise `+-example` (practice) {#plus-example}
 
-Compute `3 + 4`, writing out your reasoning as a chain of equations, using the equations for `+`.
+Compute `3 + 4`, writing out your reasoning as a chain of equations,
+using the equations for `+`.
 
 ```
 -- Your code goes here
@@ -588,8 +590,6 @@ Check that `3 ^ 4` is `81`.
 ```
 -- Your code goes here
 ```
-
-
 
 ## Monus
 

@@ -13,10 +13,14 @@ CS421/521, Concepts of Programming Languages.
   - [Announcements](https://uwlac.instructure.com/courses/334351/pages/announcements?module_item_id=6031626):
     The LMS page where I will post class announcements
   - Intro: What we will study, and why it is important 
-  - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
-    and other programs on your machine
+  - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
+    other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
+
+## Content modules will be posted as they are ready
+
+{::comment}
 
 ## Functional programming
 
@@ -27,6 +31,7 @@ CS421/521, Concepts of Programming Languages.
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
+    - TODO add infix decls
   - [NatData]({{ site.baseurl }}/NatData/): Data structures using
     natural numbers
   - [Poly]({{ site.baseurl }}/Poly/): Generic data structures and functions
@@ -95,3 +100,4 @@ CS421/521, Concepts of Programming Languages.
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
 
+{:/comment}
