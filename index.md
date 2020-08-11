@@ -4,27 +4,17 @@ layout         : page
 permalink: /
 ---
 
-**Important note**: This is a temporary location for the CS421/521
-Course Pack.  I suggest that you *not* bookmark this URL, as I expect
-the location of this site to change.  At least for the time being,
-find this page via the [Class
-resources](https://uwlac.instructure.com/courses/334351/pages/class-resources)
-page of the course Canvas area.
-
 This document contains material for the Fall 2020 offering of UWL
-CS421/521, Concepts of Programming Languages.  Some links on this page
-will require access to the UWL VPN or Canvas LMS.
+CS421/521, Concepts of Programming Languages.
 
 ## About this class
 
   - Syllabus: Will be released before the first week of class
   - [Announcements](https://uwlac.instructure.com/courses/334351/pages/announcements?module_item_id=6031626):
     The LMS page where I will post class announcements
-  - Intro: What we will study, and
-    why it is important 
+  - Intro: What we will study, and why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda
     and other programs on your machine
-    - TODO: Add note (just before apendix) of whitespace relevance, sybmols
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 

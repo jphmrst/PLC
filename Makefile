@@ -129,14 +129,14 @@ build: $(MARKDOWN_FILES)
 build-uwl: .build-uwl
 .build-uwl: $(MARKDOWN_FILES)
 	$(JEKYLL) build --verbose \
-		--baseurl https://cs.uwlax.edu/~jmaraist/u/421/pack \
+		--baseurl https://docker.cs.uwlax.edu:9443/jmaraist/plc/ \
 		--destination _uwl
 	touch .build-url
 deploy-uwl: .build-uwl $(MARKDOWN_FILES)
 	rsync --archive --verbose --compress --update --backup \
 		-e "ssh -l jmaraist" \
 		_uwl/ \
-		docker.cs.uwlax.edu:Wordpress-html/u/421/pack
+		docker.cs.uwlax.edu:internal-www/plc
 
 # Build website using jekyll incrementally
 build-incremental: $(MARKDOWN_FILES)

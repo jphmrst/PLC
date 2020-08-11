@@ -401,6 +401,16 @@ when you solve exercises:
 
    You'll see the key sequence of the character in mini buffer.
 
+## Some things to know about Agda
+
+### Whitespace-sensitive
+
+TODO
+
+### Symbols!
+
+TODO
+
 ## Appendix: about `agda-mode`
 
 Agda is edited “interactively, which means that one can type check code which is not yet complete: if a question mark (?) is used as a placeholder for an expression, and the buffer is then checked, Agda will replace the question mark with a “hole” which can be filled in later. One can also do various other things in the context of a hole: listing the context, inferring the type of an expression, and even evaluating an open term which mentions variables bound in the surrounding context.”
