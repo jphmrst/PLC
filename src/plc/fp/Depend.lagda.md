@@ -24,7 +24,7 @@ which types and value expressions (or _terms_) can be related.
    (or a method in Java, or a function in C, or a subroutine in
    assembler), we are describing a way in which one value can be
    derived from other values.  With this mechanism, we have set up a
-   way that the evaluation of one term depends on the evaluation of
+   way for the evaluation of one term to depend on the evaluation of
    other terms.
 
  - **Types can depend on types**.  FILL IN
@@ -50,12 +50,12 @@ the vector *is* distinguished by the type.
 
 ```
 module NatVactor where
-    data NatVec : ℕ → Set a where
+    data NatVec : ℕ → Set where
       []  : NatVec zero
       _∷_ : ∀ {n : ℕ} (x : ℕ) (xs : NatVec n) → NatVec (suc n)
 ```
 
 Instead of quantifying over another type, as we did with polymorphic
-`List`, here we are quantifying over a natural number.  So `NatVec 2`
+`List`, here we are quantifying over a natural number.  `NatVec 2`
 and `NatVec 5` are not the same type, since `2` and `5` are not the
 same number.
