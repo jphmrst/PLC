@@ -23,13 +23,18 @@ which types and value expressions (or _terms_) can be related.
  - **Terms can depend on terms**.  When we write a function in Agda
    (or a method in Java, or a function in C, or a subroutine in
    assembler), we are describing a way in which one value can be
-   derived from other values.  With this mechanism, we have set up a
-   way for the evaluation of one term to depend on the evaluation of
-   other terms.
+   derived from one or more other values.  With this mechanism, we
+   have set up a way for the evaluation of one term to depend on the
+   evaluation of other terms.
 
- - **Types can depend on types**.  FILL IN
+ - **Types can depend on types**.  When we define a polymorphic
+   datatype in Agda (or a generic class in Java, or a template class
+   in C++), we are describing a way in which one type can be derived
+   from one or more other types.
 
- - **Terms can depend on types**.  FILL IN
+ - **Terms can depend on types**.  When we define a polymorphic
+   function in Agda (or a generic method in Java), we are describing a
+   way in which a term can be derived from one or more types.
 
 These arrangements are very common in programming languages.  However
 there is a fourth posibility, which is less common found.  In Agda,
