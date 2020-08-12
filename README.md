@@ -88,7 +88,8 @@ need to install these systems.
 
     - *On Unix systems (including linux and Macs)*.  Your repository
        probably offers Stack as a pre-packaged software, and this
-       option is probably the easiest.  Alternatively, there are
+       option is probably the easiest.  For example, on Debian the
+       package is `haskell-stack`.  Alternatively, there are
        instructions for downloading and running a shell script on the
        [Stack site][haskell-stack].
 
@@ -143,6 +144,10 @@ download that version, and then ask Stack to install it for us.
     cd agda
     git checkout v2.6.0.1
     ```
+
+    The last step may give you notices about being in "'detached HEAD'
+    state" --- it's fine.  The success message you hope to see is
+    `Note: switching to 'v2.6.0.1'`.
 
     Alternatively, you can download a ZIP archive of that version from
     [the GitHub site][agda].
@@ -222,11 +227,19 @@ do so, add the path to `plfa.agda-lib` to `~/.agda/libraries` and add
 `plfa` to `~/.agda/defaults`, both on lines of their own.
 
 I will be adding to the Course Pack over the semester, so you should
-probably keep *two* local versions --- one which you keep "clean," and
-updated from the repository without changes; one which you use as a
-sandbox and for exercises, periodically refreshing individual files
-from the clean copy.  Use the copy you keep clean as the one you set
-up as your Agda library as the paragraph above describes.
+probably keep *two* local versions
+
+ - One which you keep "clean," and updated from the repository without
+   changes.  To receive updates on the clean copy from the repository,
+   open a command-line shell in the clean copy's directory, and type
+
+       git pull
+
+   It is this clean copy which you should set as your Agda library as
+   the paragraph above describes.
+
+ - One which you use as a sandbox and for exercises, periodically
+   refreshing individual files from the clean copy.  
 
 # Install Emacs, and familiarize yourself with it
 
@@ -263,9 +276,9 @@ agda-mode setup
 agda-mode compile
 ```
 
-If you are already an Emacs user, you may want to note the
-configuration which the `setup` appends to your `.emacs` file, and
-integrate it with your own preferred setup.
+If you are already an Emacs user and have customized your setup, you
+may want to note the configuration which the `setup` appends to your
+`.emacs` file, and integrate it with your own preferred setup.
 
 *Verifying agda-mode*.  Open the `hello-world.agda` file which you set
  up earlier.
@@ -326,7 +339,7 @@ symbols correctly.  So we recommend that you install the font
 
 # Entering Unicode characters in Emacs `agda-mode`
 
-When you write agda code, you will need to insert characters which are
+When you write Agda code, you will need to insert characters which are
 not found on standard keyboards.  Emacs `agda-mode` makes it easier to
 do this by defining character translations: when you enter certain
 sequences of ordinary characters (the kind you find on any keyboard),
@@ -401,15 +414,15 @@ when you solve exercises:
 
    You'll see the key sequence of the character in mini buffer.
 
-## Some things to know about Agda
+## Whitespace sensitivity
 
-### Whitespace-sensitive
-
-TODO
-
-### Symbols!
-
-TODO
+One important fact that you should know about Agda is that it is
+*whitespace-sensitive*.  The presence or absence of indentation on a
+line of code can impact the meaning of that line of code.  Python is
+another example of a whitespace-sensitive language which you may have
+seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
+the indentation that you see in sample code, and use those same
+indentation patterns in the code that you write.
 
 ## Appendix: about `agda-mode`
 
@@ -435,6 +448,17 @@ If you want to see messages beside rather than below your Agda code, you can do 
   - type `C-x b` and switch to the buffer called “Agda information”.
 
 Now, error messages from Agda will appear next to your file, rather than squished beneath it.
+
+## Appendix: additional installs for building a local copy of the course pack
+
+It is not necessary to build your own local copy of the course pack
+rom scratch, and this page does not detail the steps for building one.
+However, if you wish to do so you should install Ruby, Jekyll (with
+Ruby bindings) and the Ruby `html-proofer`.
+
+ - On Debian systems, use
+
+       sudo apt-get install jekyll ruby-html-proofer
 
 ---
 

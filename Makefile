@@ -63,7 +63,7 @@ epubcheck: out/epub/plfa.epub
 out/epub/:
 	mkdir -p out/epub/
 
-out/epub/plfa.epub: out/epub/ | $(AGDA_FILES) $(LUA_FILES) epub/main.css out/epub/acknowledgements.md
+out/epub/plfa.epub: out/epub/ | $(AGDA_FILES) $(LUA_FILES) epub/main.css # out/epub/acknowledgements.md
 	$(PANDOC) --strip-comments \
 		--css=epub/main.css \
 		--epub-embed-font='assets/fonts/mononoki.woff' \
