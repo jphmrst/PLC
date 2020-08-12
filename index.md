@@ -30,7 +30,9 @@ CS421/521, Concepts of Programming Languages.
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
   - [Depend]({{ site.baseurl }}/Depend/): Dependent types
 
-## Verified functional programming
+## Incomplete
+
+### Verified functional programming
 
   - TODO
     - Explain need for totality for logic/proof
@@ -47,24 +49,24 @@ CS421/521, Concepts of Programming Languages.
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
   - DataProp: Proving properties about pairs, lists, and maps
 
-## Imperative programming
+### Imperative programming
   - Imp: A small imperative language, and its operational semantics
   - Equiv: What does it mean for imperative programs to be equivalent
   - Hoare: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
   - Additional topics to be posted
 
-## Lambda calculus
+### Lambda calculus
 
   - [Lambda]({{ site.baseurl }}/Lambda/): Introduction to Lambda Calculus
   - [Properties]({{ site.baseurl }}/Properties/): Progress and Preservation
 
 - Material to be posted
 
-## Objects and classes
+### Objects and classes
   - Material to be posted
 
-## Advanced lambda calculus
+### Advanced lambda calculus
 
   - [DeBruijn]({{ site.baseurl }}/DeBruijn/): Intrinsically-typed de Bruijn representation
   - [More]({{ site.baseurl }}/More/): Additional constructs of simply-typed lambda calculus
@@ -74,7 +76,7 @@ CS421/521, Concepts of Programming Languages.
   - [Confluence]({{ site.baseurl }}/Confluence/): Confluence of untyped lambda calculus 🚧
   - [BigStep]({{ site.baseurl }}/BigStep/): Big-step semantics of untyped lambda calculus 🚧
 
-## Denotational Semantics
+### Denotational Semantics
 
   - [Denotational]({{ site.baseurl }}/Denotational/): Denotational semantics of untyped lambda calculus 🚧
   - [Compositional]({{ site.baseurl }}/Compositional/): The denotational semantics is compositional 🚧
@@ -82,12 +84,6 @@ CS421/521, Concepts of Programming Languages.
   - [Adequacy]({{ site.baseurl }}/Adequacy/): Adequacy of denotational semantics with respect to operational semantics 🚧
   - [ContextualEquivalence]({{ site.baseurl }}/ContextualEquivalence/): Denotational equality implies contextual equivalence 🚧
 
-## Substitution
+### Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
-
-{::comment}
-
-## Content modules will be posted as they are ready
-
-{:/comment}
