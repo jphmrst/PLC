@@ -20,6 +20,19 @@ else
 AGDA_STDLIB_URL := https://agda.github.io/agda-stdlib/v$(AGDA_STDLIB_VERSION)/
 endif
 
+# Build for UWL Fall 2020
+build-uwl: .build-uwl
+.build-uwl: $(MARKDOWN_FILES)
+	$(JEKYLL) build --verbose \
+		--baseurl https://docker.cs.uwlax.edu:9443/jmaraist/plc/ \
+		--destination _uwl
+	touch .build-url
+
+deploy-uwl: .build-uwl $(MARKDOWN_FILES)
+	rsync --archive --verbose --compress --update --backup \
+		-e "ssh -l jmaraist" \
+		_uwl/ \
+		docker.cs.uwlax.edu:internal-www/plc
 
 # Build PLFA and test hyperlinks
 test: build
