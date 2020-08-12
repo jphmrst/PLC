@@ -18,6 +18,10 @@ CS421/521, Concepts of Programming Languages.
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
+## Content modules will be posted as they are ready
+
+{::comment}
+
 ## Functional programming
 
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
@@ -87,3 +91,5 @@ CS421/521, Concepts of Programming Languages.
 ### Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
+
+{:/comment}
