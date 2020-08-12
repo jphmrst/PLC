@@ -18,30 +18,17 @@ CS421/521, Concepts of Programming Languages.
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
-## Content modules will be posted as they are ready
-
-{::comment}
-
 ## Functional programming
 
-  - TODO
-    - Develop pattern matching discussion: point out where we are
-      using patterns in new ways
-    - Exercises from last 421 course pack
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
     programming
   - [Naturals]({{ site.baseurl }}/Naturals/): Natural numbers
-    - TODO add infix decls
   - [NatData]({{ site.baseurl }}/NatData/): Data structures using
     natural numbers
   - [Poly]({{ site.baseurl }}/Poly/): Generic data structures and functions
   - [Functional]({{ site.baseurl }}/Functional/): Higher-order functions
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
-    - TODO --- more exercises for maps?
   - [Depend]({{ site.baseurl }}/Depend/): Dependent types
-
-  - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
-
 
 ## Verified functional programming
 
@@ -77,7 +64,6 @@ CS421/521, Concepts of Programming Languages.
 ## Objects and classes
   - Material to be posted
 
-
 ## Advanced lambda calculus
 
   - [DeBruijn]({{ site.baseurl }}/DeBruijn/): Intrinsically-typed de Bruijn representation
@@ -99,5 +85,9 @@ CS421/521, Concepts of Programming Languages.
 ## Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
+
+{::comment}
+
+## Content modules will be posted as they are ready
 
 {:/comment}
