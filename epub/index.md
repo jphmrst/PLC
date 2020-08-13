@@ -1,5 +1,6 @@
 ---
-title: A First Course in Programming Language Concepts
+title: A First Course in Programming Language Concepts (CS421/521 Course Pack)
+description: This document contains material for the Fall 2020 offering of UWL CS421/521, Concepts of Programming Languages.
 rights: Creative Commons Attribution 4.0 International License
 language: en-US
 ---
