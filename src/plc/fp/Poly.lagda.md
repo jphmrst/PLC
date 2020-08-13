@@ -358,7 +358,6 @@ data Maybe (A : Set) : Set where
 We can now rewrite the `nthError` function so that it works with any
 type of lists.
 
-
 ```
 nthError : ∀ {X : Set} → List X → ℕ → Maybe X
 nthError [] _ = nothing
