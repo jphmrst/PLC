@@ -1,5 +1,5 @@
 ---
-title          : Course Pack
+title          : Programming Language Concepts
 layout         : page
 permalink: /
 ---
