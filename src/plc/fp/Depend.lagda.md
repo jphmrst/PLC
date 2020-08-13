@@ -64,3 +64,23 @@ Instead of quantifying over another type, as we did with polymorphic
 `List`, here we are quantifying over a natural number.  `NatVec 2`
 and `NatVec 5` are not the same type, since `2` and `5` are not the
 same number.
+
+TODO starting exercises: use constructors, check types
+
+### Functions on NatVector
+
+TODO repeat as example
+
+TODO exercises --- same functions as NatList/List
+
+```
+-- End of module NatVector
+```
+
+### Abstracting over both terms and types
+
+TODO data only
+
+TODO exercises --- all functions
+
+TODO Longer exercise on names in maps?
