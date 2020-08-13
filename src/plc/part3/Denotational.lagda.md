@@ -1434,7 +1434,7 @@ mapped to and from the natural numbers using a kind of Godel encoding.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ⊥  U+22A5  UP TACK (\bot)
     ↦  U+21A6  RIGHTWARDS ARROW FROM BAR (\mapsto)

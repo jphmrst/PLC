@@ -503,7 +503,7 @@ parameterised with regard to an arbitrary notion of equivalence.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ∘  U+2218  RING OPERATOR (\o, \circ, \comp)
     λ  U+03BB  GREEK SMALL LETTER LAMBDA (\lambda, \Gl)

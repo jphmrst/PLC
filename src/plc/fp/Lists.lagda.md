@@ -1126,7 +1126,7 @@ ranges over a binary relation).
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ∷  U+2237  PROPORTION  (\::)
     ⊗  U+2297  CIRCLED TIMES  (\otimes, \ox)

@@ -158,7 +158,7 @@ Write a function `containsKey` which returns `true` when a partial map
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)

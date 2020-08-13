@@ -1565,7 +1565,7 @@ other alterations we would wish to make to the system?
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ƛ  U+019B  LATIN SMALL LETTER LAMBDA WITH STROKE (\Gl-)
     Δ  U+0394  GREEK CAPITAL LETTER DELTA (\GD or \Delta)

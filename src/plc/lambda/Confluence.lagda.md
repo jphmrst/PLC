@@ -618,7 +618,7 @@ Homeier's (TPHOLs 2001).
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ⇛  U+3015  RIGHTWARDS TRIPLE ARROW (\r== or \Rrightarrow)
 
