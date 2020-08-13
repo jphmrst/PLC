@@ -6,7 +6,6 @@ permalink: /
 
 ## About this class
 
-  - Intro: What we will study, and why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
     other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
