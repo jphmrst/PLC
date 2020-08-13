@@ -1253,7 +1253,7 @@ module.)
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ᵇ (\^b)
     ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)

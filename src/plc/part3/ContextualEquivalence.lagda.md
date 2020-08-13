@@ -119,7 +119,7 @@ denot-equal-contex-equal{Γ}{M}{N} eq {C} =
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ≅  U+2245  APPROXIMATELY EQUAL TO (\~= or \cong)
 

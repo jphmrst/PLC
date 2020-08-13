@@ -780,7 +780,7 @@ respect to an arbitrary notion of equivalence.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ×  U+00D7  MULTIPLICATION SIGN (\x)
     ⊎  U+228E  MULTISET UNION (\u+)

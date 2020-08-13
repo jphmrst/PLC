@@ -511,7 +511,7 @@ TODO Discuss with guards
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∷  U+2237  PROPORTION  (\::)

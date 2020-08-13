@@ -494,7 +494,7 @@ import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     Π  U+03A0  GREEK CAPITAL LETTER PI (\Pi)
     Σ  U+03A3  GREEK CAPITAL LETTER SIGMA (\Sigma)

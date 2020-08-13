@@ -409,7 +409,7 @@ import Relation.Nullary.Negation using (contraposition)
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ¬  U+00AC  NOT SIGN (\neg)
     ≢  U+2262  NOT IDENTICAL TO (\==n)

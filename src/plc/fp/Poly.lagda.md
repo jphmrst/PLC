@@ -393,7 +393,7 @@ function making sure as usual that it passes its tests.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∀  U+2200  FOR ALL  (\all)

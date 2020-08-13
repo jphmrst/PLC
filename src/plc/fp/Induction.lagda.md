@@ -983,7 +983,7 @@ import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ∀  U+2200  FOR ALL (\forall, \all)
     ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)

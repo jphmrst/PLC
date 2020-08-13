@@ -672,7 +672,7 @@ soundness {Γ} (L —→⟨ r ⟩ M—↠N) γ v =
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ≟  U+225F  QUESTIONED EQUAL TO (\?=)
 

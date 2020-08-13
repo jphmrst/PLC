@@ -1365,7 +1365,7 @@ require about 1.6 times as much code as intrinsicaly-typed.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     σ  U+03C3  GREEK SMALL LETTER SIGMA (\Gs or \sigma)
     ₀  U+2080  SUBSCRIPT ZERO (\_0)

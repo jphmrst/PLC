@@ -617,7 +617,7 @@ Continue with a definition of multiplication:
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)

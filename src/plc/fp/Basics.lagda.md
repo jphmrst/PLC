@@ -358,7 +358,7 @@ This library also provides several functions on characters
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∨  U+2228  LOGICAL OR (\or)
