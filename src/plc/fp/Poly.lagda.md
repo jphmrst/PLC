@@ -219,7 +219,7 @@ module MumbleGrumble where
     b : mumble → ℕ → mumble
     c : mumble
 
-  data grumble : Set -> Set where
+  data grumble : Set → Set where
     d : ∀ {x : Set} → mumble → grumble x
     e : ∀ {x : Set} → grumble x
 ```
@@ -240,7 +240,7 @@ checking your answer.
 
 Write a polymorphic version of `length`:
 
-    length : ∀ {x} -> List x -> ℕ
+    length : ∀ {x} → List x → ℕ
     -- Your clauses go here
 
     _ : length (true ∷ []) ≡ 1
@@ -254,7 +254,7 @@ Write a polymorphic version of `length`:
 Write a polymorphic function `_++_` for appending two lists:
 
     infixr 5 _++_
-    _++_ : ∀ {x : Set} -> List x -> List x -> List x
+    _++_ : ∀ {x : Set} → List x → List x → List x
     -- Your clauses go here
 
     _ : [] ++ (1 ∷ []) ≡ 1 ∷ []
@@ -398,6 +398,7 @@ This chapter uses the following unicode:
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∀  U+2200  FOR ALL  (\all)
     ∷  U+2237  PROPORTION  (\::)
+    ≡  U+2261  IDENTICAL TO (\==)
 
 ---
 
