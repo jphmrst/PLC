@@ -615,6 +615,15 @@ Continue with a definition of multiplication:
     _ : exp two two ≡ plus one three
     _ = refl
 
+## Unicode
+
+This chapter uses the following unicode:
+
+    λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL  (\all)
+    ∷  U+2237  PROPORTION  (\::)
+
 ---
 
 *This page is derived from Pierce et al., except for the section on

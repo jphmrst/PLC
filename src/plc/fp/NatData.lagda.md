@@ -513,6 +513,7 @@ TODO Discuss with guards
 
 This chapter uses the following unicode:
 
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∷  U+2237  PROPORTION  (\::)
 
 ---

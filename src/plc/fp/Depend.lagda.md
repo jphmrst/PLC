@@ -84,3 +84,19 @@ TODO data only
 TODO exercises --- all functions
 
 TODO Longer exercise on names in maps?
+
+## Unicode
+
+This section uses the following unicode:
+
+    ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL  (\all)
+    ∷  U+2237  PROPORTION  (\::)
+    ≡  U+2261  IDENTICAL TO (\==)
+
+---
+
+*This page is by Maraist.
+For more information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*

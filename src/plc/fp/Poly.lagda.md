@@ -395,6 +395,8 @@ function making sure as usual that it passes its tests.
 
 This chapter uses the following unicode:
 
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL  (\all)
     ∷  U+2237  PROPORTION  (\::)
 
 ---
