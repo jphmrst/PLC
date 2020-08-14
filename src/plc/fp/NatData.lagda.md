@@ -36,6 +36,24 @@ Write an expression for forming a `NatProd` from the natural numbers
 `3` and `5`.  Use the `C-c C-n` key sequence as in Exercise
 `try-nat-defs` to check your expression.
 
+#### Exercise `sort2` (starting) {#sort2}
+
+Write a function `sort2` which accepts two numbers, and then creates a
+pair with the smaller of the arguments as the first pair element, and
+the larger as the second pair element.
+
+    sort2 : ℕ → ℕ → NatProd
+    -- Your definition here
+
+    _ : sort2 3 5 ≡ pair 3 5
+    _ = refl
+
+    _ : sort2 5 3 ≡ pair 3 5
+    _ = refl
+
+    _ : sort2 4 4 ≡ pair 4 4
+    _ = refl
+
 ### Extracting the elements of a pair
 
 Here are simple functions for extracting the first and second
@@ -507,7 +525,11 @@ find key (entry k v pm) with key ≡idᵇ k
 ...                        | false = find key pm
 ```
 
-TODO Discuss with guards
+This function uses a new control structure introduced by `with`.
+After `with` is an expression, and the subsequent `...  |` lines
+should give patterns which cover every case of the values which may be
+the result of the expression.  In this example, there are only two
+possible values `true` and `false`, so we have two different cases.
 
 ## Unicode
 
@@ -519,5 +541,6 @@ This section uses the following Unicode symbols:
 ---
 
 *This page is derived from Pierce et al., with some short exceprts
-from Wadler et al.; for more information see the [sources and
+from Wadler et al., and by Maraist.  Exercise sort2 is derived from
+Keller and Chakravarty.  For more information see the [sources and
 authorship]({{ site.baseurl }}/Sources/) page.*

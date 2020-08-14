@@ -10,6 +10,8 @@ next      : /Functional/
 module plc.fp.Poly where
 open import Data.Bool
 open import Data.Nat
+open import Data.Char
+open import Data.String
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
@@ -236,6 +238,16 @@ checking your answer.
  - `e bool (b c 0)`
  - `c`
 
+#### Exercise `polyListTypes` (practice) {#polyListTypes}
+
+Which of these expressions are well-typed?  What type do those
+expressions have?  Why are the ill-typed expression not well-typed?
+
+    'a' ∷ 'b' ∷ 'c'
+    1 ∷ 'b' ∷ false ∷ []
+    'a' ∷ 'b' ∷ 'c' ∷ []
+    'a' ∷ 'b' ∷ 'c' ∷ 1
+
 #### Exercise `genericlength` (practice) {#genericlength}
 
 Write a polymorphic version of `length`:
@@ -343,6 +355,14 @@ below.  Make sure it passes the given test.
     _ : split ((pair 1 false) ∷ (pair 2 false) ∷ [])
           ≡ pair (1 ∷ 2 ∷ []) (false ∷ false ∷ [])
     _ = refl
+
+#### Exercise `typesFunctions` (practice) {#typesFunctions}
+
+Write Agda definitions which have the following types:
+
+ - `List (Pair ℕ)`
+ - `ℕ → ℕ → Bool → ℕ`
+ - `Char → Pair Char Char`
 
 ## Polymorphic options
 

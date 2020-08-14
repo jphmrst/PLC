@@ -48,6 +48,15 @@ _ = refl
 
 ```
 
+#### Exercise `typesFunctional` (practice) {typesFunctional}
+
+Write Agda definitions which have the following types:
+
+ - `ℕ → (ℕ → ℕ) → ℕ`
+ - `(ℕ → ℕ) → (ℕ → ℕ) → (ℕ → ℕ)`
+
+   Hint: which of the three pairs of parentheses are unnecessary?
+
 ### Filter
 
 Here is a more useful higher-order function, taking a list of `X`s and
@@ -453,6 +462,17 @@ of the misattribution was itself a misattribution.  The idea actually
 appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
 
 ## Additional exercises
+
+#### Exercise `functionToType` (practice) {#functionToType}
+
+What is the most general types you can give to these functions?  Try
+to work them out on your own before checking your answers.
+
+ - double x = x * 2
+
+ - twice f x = f (f x)
+
+ - seq3 f g h x = h (g (f x))
 
 #### Exercise `foldLength` (practice) {#foldLength}
 

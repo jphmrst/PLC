@@ -190,8 +190,8 @@ members `true` and `false`.
 
 ```
 data Bool : Set where
-  True  : Bool
-  False : Bool
+  true  : Bool
+  false : Bool
 ```
 
 Although we are rolling our own booleans here for the sake of seeing
@@ -205,16 +205,16 @@ Functions over booleans can be defined in the same way as above:
 
 ```
 not : Bool → Bool
-not True  = False
-not False = True
+not true  = false
+not false = true
 
 _∧_ : Bool → Bool → Bool
-True ∧ t  = t
-False ∧ _ = False
+true ∧ t  = t
+false ∧ _ = false
 
 _∨_ : Bool → Bool → Bool
-True ∨ _  = True
-False ∨ t = t 
+true ∨ _  = true
+false ∨ t = t 
 ```
 
 There are a few uses of the underscore character `_` in these
@@ -231,12 +231,12 @@ defining.
 
 The second way that we use the underscore is in a line like
 
-    True ∨ _  = True
+    true ∨ _  = true
 
 Here the underscore represents an argument which we choose not to
 name.  We choose not to give a name to the second argument in this
 clause because we do not use it: if the first argument to `∨` is
-`True`, then the result is `True` *no matter what* the second argument
+`true`, then the result is `true` *no matter what* the second argument
 is — we do not refer to the second argument at all in calculating the
 result in this case.  Since we do not use the argument, we prefer not
 to bother giving it a name.  This anonymity simplifies the definition,
@@ -263,10 +263,10 @@ given by the following truth table:
 
   | `A`   | `B`   | `nand A B` |
   | ---   | ---   | ---------- |
-  | False | False | True       |
-  | False | True  | True       | 
-  | True  | False | True       |
-  | True  | True  | False      |
+  | false | false | true       |
+  | false | true  | true       | 
+  | true  | false | true       |
+  | true  | true  | false      |
 
     nand : Bool → Bool → Bool
     nand a b = ?
@@ -355,6 +355,23 @@ This library also provides several functions on characters
 
  - Transforming one character to a related character with `toUpper`,
    `toLower`.
+
+#### Exercise `isLower` (practice) {#isLower}
+
+Implement the `isLower` function that returns the conjunction of three
+boolean values.
+
+    isLower : Char → Bool
+    isLower c = ?
+
+    _ : isLower 'c' ≡ true
+    _ = refl
+
+    _ : isLower 'C' ≡ false
+    _ = refl
+
+Write your own version of `isLower`, without using the one in the
+standard library.
 
 ## Unicode
 

@@ -1209,13 +1209,42 @@ Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
     _ : 11 ≢ᵇ 11 ≡ false
     _ = refl
 
+#### Exercise `lesser` (recommended) {#lesser}
+
+Write a function `lesser` which takes two `ℕ` arguments, and returns
+the lesser of the two.
+
+    lesser : ℕ → ℕ → ℕ
+    -- Your definition here
+
+    _ : lesser 0 0 ≡ 0
+    _ = refl
+
+    _ : lesser 2 0 ≡ 0
+    _ = refl
+
+    _ : lesser 0 3 ≡ 0
+    _ = refl
+
+    _ : lesser 2 10 ≡ 2
+    _ = refl
+
+    _ : lesser 10 3 ≡ 3
+    _ = refl
 
 #### Exercise `natcompare` (recommended) {#natcompare}
 
 Write a binary operator `_<ᵇ_` which returns `True` when its first
 argument is strictly less than its second argument
 
-##### TODO add tests
+    _<ᵇ_ : ℕ → ℕ → Bool
+    -- Your definition here
+    
+    _ : 0 <ᵇ 1
+    _ = refl
+    
+    _ : 1 <ᵇ 9
+    _ = refl
 
 #### Exercise `factorial` (recommended) {#factorial}
 
