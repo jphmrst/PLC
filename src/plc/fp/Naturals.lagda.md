@@ -1256,8 +1256,6 @@ Recall the standard mathematical `factorial` function:
 Translate this function into Agda, and write tests for applying
 `factorial` to 0, 1, 2, 5 and 10.
 
-#### TODO add exercises
-
 ## Standard library
 
 The naturals, constructors for them, and basic operators upon them,
