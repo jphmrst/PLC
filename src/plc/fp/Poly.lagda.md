@@ -95,7 +95,7 @@ constructors.  It is more common to structure generic types to use
 *quantification* for the type argument in the constructors:
 
 ```
-data List : (x : Set) → Set where
+data List : Set → Set where
   [] : ∀ {x : Set} → List x
   _∷_ : ∀ {x : Set} → x → List x → List x
 
@@ -286,6 +286,88 @@ Write a polymorphic function `_++_` for appending two lists:
     _ : rev (10 ∷ 20 ∷ 30 ∷ []) ≡ (30 ∷ 20 ∷ 10 ∷ [])
     _ = refl
 
+#### Strings as lists of characters
+
+The `Data.String` module in the standard library defines two functions
+`toList` and `fromList` which allow a string to be converted to or
+from a list of characters.  These exercises ask you to use these
+functions, together with operations on the resulting lists.  For some
+if these exercises, the character-manipulating functions of module
+`Data.Char` will be helpful.
+
+##### Exercise `capitalize` (practice) {#capitalize}
+
+Write a function `capitalize` which converts all lower-case letters in
+its argument to upper-case letters, and leaves other characters
+unchanged.
+
+    capitalize : String → String
+    capitalize s = ?
+
+    _ : capitalize "" ≡ ""
+    _ = refl
+
+    _ : capitalize "hello3" ≡ "HELLO3"
+    _ = refl
+ 
+##### Exercise `capitalizeOnly` (practice) {#capitalizeOnly}
+
+Write a function `capitalizeOnly` which converts all lower-case
+letters in its argument to upper-case letters, leaves upper-case
+letters alone, and removes other characters from the result.
+
+    capitalizeOnly : String → String
+    capitalizeOnly s = ?
+
+    _ : capitalizeOnly "" ≡ ""
+    _ = refl
+
+    _ : capitalizeOnly "hello3" ≡ "HELLO"
+    _ = refl
+
+##### Exercise `mangle` (practice) {#mangle}
+
+Write a function `mangle` whose result removes the first character of
+a word, and attaches it at the end.  If the argument is empty,
+`mangle` should simply return an empty string.
+
+    mangle : String → String
+    mangle s = ?
+
+    _ : mangle "" ≡ ""
+    _ = refl
+
+    _ : mangle "B" ≡ "B"
+    _ = refl
+
+    _ : mangle "ok" ≡ "ko"
+    _ = refl
+
+    _ : mangle "hello" ≡ "elloh"
+    _ = refl
+
+#### Exercise `matches` (practice) {#matches}
+
+Write a function `matches` which takes two arguments,
+
+ - A number, and
+ - A list of numbers
+
+and removes all occurrences of its first argument from its second
+argument.
+
+    matches : String → String
+    matches s = ?
+
+    _ : matches 10 (1 ∷ 10 ∷ 2 ∷ 10 ∷ 3 ∷ 10 ∷ 4 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
+    _ = refl
+
+    _ : matches 6 [] ≡ []
+    _ = refl
+
+    _ : matches 5 (20 ∷ 21 ∷ 22 ∷ []) ≡ 20 ∷ 21 ∷ 22 ∷ []
+    _ = refl
+
 ## Polymorphic pairs
 
 Following the same pattern, the definition for pairs of numbers that
@@ -405,10 +487,47 @@ function making sure as usual that it passes its tests.
     hdError : ∀ {X : Type} → List X → Maybe X
     -- Your definition goes here
 
-    _ : hd_error `1;2` = Some 1.
+    _ : hdError (1 ∷ 2 ∷ []) = just 1
     _ = refl
 
-    _ : hd_error  ``1`;`2``  = Some `1`.
+    _ : hdError [] = nothing
+    _ = refl
+
+#### Exercise `lastItem` (practice) {#lastItem}
+
+Write a function `lastItem` which returns the last element of a list,
+if one exists.
+
+    lastItem : ∀ {X : Type} → List X → Maybe X
+    -- Your definition goes here
+
+    _ : lastItem (10 ∷ 9 ∷ 8 ∷ []) = just 8
+    _ = refl
+
+    _ : lastItem (1 ∷ 2 ∷ []) = just 2
+    _ = refl
+
+    _ : lastItem [] = nothing
+    _ = refl
+
+#### Exercise `lastButOne` (practice) {#lastButOne}
+
+Write a function `lastButOne` which returns the last element of a list,
+if one exists.
+
+    lastButOne : ∀ {X : Type} → List X → Maybe X
+    -- Your definition goes here
+
+    _ : lastButOne (11 ∷ 10 ∷ 9 ∷ 8 ∷ []) = just 9
+    _ = refl
+
+    _ : lastButOne (1 ∷ 2 ∷ []) = just 1
+    _ = refl
+
+    _ : lastButOne (1 ∷ []) = nothing
+    _ = refl
+
+    _ : lastButOne [] = nothing
     _ = refl
 
 ## Unicode
@@ -422,5 +541,7 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Pierce et al., for more information see the
+*This page is derived from Pierce et al.  Exercises ##### Exercise
+`capitalize`, `capitalizeOnly`, and `matches` are adapted from
+Thompson.  For more information see the
 [sources and authorship]({{ site.baseurl }}/Sources/) page.*

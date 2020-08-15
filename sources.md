@@ -35,7 +35,8 @@ The material for this course is drawn from a number of online sources:
      original.
 
  - Some exercises are derived from [Keller and Chakravarty][KC]'s
-   tutorial
+   tutorial, or from Thompson's book **Haskell: The Craft of
+   Functional Programming**.
 
  - Other portions of this document were written by John Maraist, and
    are released under the [Creative Commons Attribution 4.0

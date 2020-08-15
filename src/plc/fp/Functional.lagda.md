@@ -57,6 +57,19 @@ Write Agda definitions which have the following types:
 
    Hint: which of the three pairs of parentheses are unnecessary?
 
+#### Exercise `isPalendromePoly` (practice) {#isPalendromePoly}
+
+Generalizing the `isPalendrome` function requires an extra parameter:
+in our monomorphic version we were comparing only natural numbers, but
+to make the function polymorhic we receive an additional parameter
+which tells us how to check the list elements for equality.
+
+    isPalendrome : ∀ {X : Set} → (X → X → Bool) → List X → Bool
+    -- Your definition goes here
+
+Adapt the tests of monomorphic `isPalendrome` to the new functions,
+finding appropriate comparison functions in the standard libraries.
+
 ### Filter
 
 Here is a more useful higher-order function, taking a list of `X`s and

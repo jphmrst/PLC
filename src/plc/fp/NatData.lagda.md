@@ -201,21 +201,55 @@ Naturals.
     _ : oddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ (1 ∷ 3 ∷ 3 ∷ [])
     _ = refl
 
-#### Exercise `countoddmembers` (practice) {#countoddmembers}
+#### Exercise `countOddMembers` (practice) {#countOddMembers}
 
-Complete the definition of `countoddmembers`, using the tests
+Complete the definition of `countOddMembers`, using the tests
 to understand what these functions should do.
 
-    countoddmembers : NatList -> ℕ
+    countOddMembers : NatList -> ℕ
     -- Your definition goes here
     
-    _ : countoddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 3
+    _ : countOddMembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 3
     _ = refl
     
-    _ : countoddmembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0
+    _ : countOddMembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0
     _ = refl
     
-    _ : countoddmembers [] ≡ 0
+    _ : countOddMembers [] ≡ 0
+    _ = refl
+
+#### Exercise `removeOddMembers` (practice) {#removeOddMembers}
+
+Complete the definition of `removeOddMembers`.
+
+    removeOddMembers : NatList -> NatList
+    -- Your definition goes here
+    
+    _ : removeOddMembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 1 ∷ 3 ∷ 3 ∷ []
+    _ = refl
+    
+    _ : removeOddMembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0 ∷ 2 ∷ 0 ∷ []
+    _ = refl
+    
+    _ : removeOddMembers [] ≡ []
+    _ = refl
+
+#### Exercise `doubleAll` (practice) {#doubleAll}
+
+Write a function `doubleAll` which takes a list of numbers, and
+returns a list of the same length with double the value of each
+respective element.
+
+    doubleAll : NatList → NatList
+    -- Your definition here
+
+    _ : doubleAll [] ≡ []
+    _ = refl
+
+    _ : doubleAll (2 ∷ []) ≡ (4 ∷ [])
+    _ = refl
+
+    _ : doubleAll (1 ∷ 3 ∷ 4 ∷ []) ≡ (2 ∷ 6 ∷ 8 ∷ [])
     _ = refl
 
 #### Exercise `alternate` (practice) {#alternate}
@@ -240,6 +274,26 @@ pairs, but this is not the only way.
     _ = refl
 
     _ : alternate (1 ∷ 2 ∷ 3 ∷ []) (4 ∷ []) ≡ (1 ∷ 4 ∷ 2 ∷ 3 ∷ [])
+    _ = refl
+
+#### Exercise `isPalendrome` (practice) {#isPalendrome}
+
+Write a function `isPalendrome` which checks if a `NatList` is the
+same backwards as forwards.
+
+    isPalendrome : NatList → Bool
+    -- Your definition goes here
+
+    _ : isPalendrome "asdsa" ≡ true
+    _ = refl
+
+    _ : isPalendrome "asddsa" ≡ true
+    _ = refl
+
+    _ : isPalendrome "asdsb" ≡ false
+    _ = refl
+
+    _ : isPalendrome "" ≡ true
     _ = refl
 
 #### Exercise `stringlists` (practice) {#stringlists}
