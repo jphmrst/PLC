@@ -1258,8 +1258,8 @@ Translate this function into Agda, and write tests for applying
 
 ## Standard library
 
-The naturals, constructors for them, and basic operators upon them,
-are defined in the standard library module `Data.Nat`:
+The naturals, their constructors and the basic operators on them are
+all defined in the standard library module `Data.Nat`:
 
 ```
 -- import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
