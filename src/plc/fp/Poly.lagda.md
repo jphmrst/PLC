@@ -446,6 +446,60 @@ Write Agda definitions which have the following types:
  - `ℕ → ℕ → Bool → ℕ`
  - `Char → Pair Char Char`
 
+#### Exercise `splitList` (practice) {#splitList}
+
+A different notion of splitting is to just cut a list into two parts.
+Write a function `splitList` which takes a number and a list, and
+returns a pair of lists.  Appending the two elements of the pair
+should return the original list, and the first list of the pair should
+have length equal to the number argument.  If the number argument is
+larger than the length of the list argument, then the first element of
+the pair should be the original list, and the second element should be
+empty.
+
+    splitList : ∀ {E : Set} → ℕ → List E → Prod (List E) (List E)
+    -- Your definition goes here
+
+    _ : splitList 1 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ []) (2 ∷ 3 ∷ 1 ∷ [])
+    _ = refl
+
+    _ : splitList 3 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ 2 ∷ 3 ∷ []) (1 ∷ [])
+    _ = refl
+
+    _ : splitList 0 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair [] (1 ∷ 2 ∷ 3 ∷ 1 ∷ [])
+    _ = refl
+
+    _ : splitList 9 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) []
+    _ = refl
+
+    _ : splitList 3 [] ≡ pair [] []
+    _ = refl
+
+#### Exercise `lengthEncode` (practice) {#lengthEncode}
+
+Write a function `lengthEncode` which converts a string into a list of
+pairs, each pair having a character and a number.  The series of
+characters should be the same as the characters of the string, but
+with consecutive duplicates removed.  The number should be the length
+of that substring of that character only.
+
+    lengthEncode : String → List (Prod Char ℕ)
+    -- Your definition goes here
+
+    _ : lengthEncode "hello" = (pair 'h' 1) ∷ (pair 'e' 1) :: (pair 'l' 2) ∷ (pair 'o' 1) ∷ []
+    _ = refl
+
+#### Exercise `lengthDecode` (practice) {#lengthDecode}
+
+Write a function `lengthDecode` which is the inverse of
+`lengthEncode`.
+
+    lengthDecode : List (Prod Char ℕ) → String
+    -- Your definition goes here
+
+    _ : lengthDecode (pair 'h' 1) ∷ (pair 'e' 1) :: (pair 'l' 2) ∷ (pair 'o' 1) ∷ [] = "hello"
+    _ = refl
+
 ## Polymorphic options
 
 Our third polymorphic type generalizes the `NatMaybe` type into a

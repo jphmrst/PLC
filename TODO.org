@@ -4,7 +4,7 @@
   - Point out where we are using patterns in new ways
   - Through =fp= in general
 
-* TODO Exercises from last 421 course pack
+* DONE Exercises from last 421 course pack
 
 * DONE Add infix declarations to fp/Naturals
   - Already explained earlier?

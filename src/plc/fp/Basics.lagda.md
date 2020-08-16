@@ -183,6 +183,19 @@ backticks before and after the code.  The indented code is simply
 taken as another comment like the rest of this text.  The backticks
 surround actual Agda code.
 
+#### Exercise `monthsAndSeasons` (practice) {#monthsAndSeasons}
+
+Write a data type `Month` with twelve constructors, one for each
+month.  Write a function `monthSeason` which maps a month to its
+season,
+
+    data Season : Set where
+      winter : Season
+      spring : Season
+      summer : Season
+      fall : Season
+
+
 ### Booleans
 
 In a similar way, we can define the type `Bool` of booleans, with
@@ -406,5 +419,6 @@ example) `∸`, you will see `\.-` for the character.
 ---
 
 *This page is derived from Geraldo Ribeiro's translation of Pierce et
-al., with some short exceprts from Wadler et al.; for more information
-see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+al., with some short exceprts from Wadler et al..  Exercise
+monthsAndSeasons is adapted from Thompson.  For more information see
+the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

@@ -786,6 +786,25 @@ of the operators.
     2 ^ 3 ∸ 4
     2 * 3 + 4 * 5
 
+#### Exercise `makeOperators` (starting) {#makeOperators}
+
+Consider these declarations:
+
+    infixl 5 _op1_
+    infixl 7 _op2_
+
+Complete the definitions of `_op1_` and `_op2` with two function
+declarations.  It doesn't matter what they do; just make them distinct
+enough for you to tell the difference between them as easily as you
+can tell the difference between `+` and `*`.
+
+How do `op1` and `op2` behave differently with respect to each other?
+In a series of several applications of each?
+
+Vary the declarations to use `infixr` instead of `infixl`, and to use
+various different precedence values.  How does this change how the
+expressions you tried above behave?
+
 ## The story of creation, revisited
 
 Just as our inductive definition defines the naturals in terms of the
@@ -1273,6 +1292,28 @@ or type `Data.Nat.ℕ`.  Similar confusions arise if other pragmas are
 invoked twice. For this reason, we will usually avoid pragmas in
 future chapters.  More information on pragmas can be found in the Agda
 documentation.
+
+#### Exercise `shapes` (recommended) {#shapes}
+
+Agda's standard library also includes a library of floating-point
+values.  Consider this type of geometric shapes:
+
+    open import Data.Float
+    data Shape : Set where
+      circle : Float → Shape
+      rectangle : Float → Float → Shape
+
+Create a separate file for this exercise, since `Data.Float` loads
+`Data.Nat`.
+
+ - Write the functions `area` and `perimeter` which take a `Shape` and
+   return the value of the respective property of the shape.
+
+ - Add a constructor `triangle` to `Shape`.  The new constructor
+   should take three values, the length of the sides of the triangle.
+
+ - Add cases to `area` and `perimeter` for `triangle`.
+
 
 ### Naturals, strings and characters
 

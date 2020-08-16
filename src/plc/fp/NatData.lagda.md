@@ -284,17 +284,46 @@ same backwards as forwards.
     isPalendrome : NatList → Bool
     -- Your definition goes here
 
-    _ : isPalendrome "asdsa" ≡ true
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 2 ∷ 1 ∷ []) ≡ true
     _ = refl
 
-    _ : isPalendrome "asddsa" ≡ true
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 3 ∷ 2 ∷ 1 ∷ []) ≡ true
     _ = refl
 
-    _ : isPalendrome "asdsb" ≡ false
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 2 ∷ 4 ∷ []) ≡ false
     _ = refl
 
-    _ : isPalendrome "" ≡ true
+    _ : isPalendrome [] ≡ true
     _ = refl
+
+#### Exercise `noNeighborDups` (practice) {#noNeighborDups}
+
+Write a function `noNeighborDups` which returns a `NatList` which is
+the same as its argument, except that consecutive instances of the
+same value are removed.
+
+    noNeighborDups : NatList → NatList
+    -- Your definition goes here
+
+    _ : noNeighborDups (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 1 ∷ []
+    _ = refl
+
+    _ : noNeighborDups (1 ∷ 2 ∷ 2 ∷ 2 ∷ 3 ∷ 3 ∷ 1 ∷ 1 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 1 ∷ []
+    _ = refl
+
+    _ : noNeighborDups [] ≡ []
+    _ = refl
+
+#### Exercise `value21` (practice) {#value21}
+
+How would you define a data type to represent the different cards of a
+deck of poker cards? How would you represent a hand of cards?
+
+Define a function `value21` which, given a hand of cards calculates
+its values according to the rules of 21 (Blackjack): that is, all the
+cards from 2 to 10 are worth their face value. Jack, Queen, King count
+as 10. The Ace card is worth 11, but if this would mean the overall
+value of the hand exceeds 21, then an ace is valued at 1.
 
 #### Exercise `stringlists` (practice) {#stringlists}
 

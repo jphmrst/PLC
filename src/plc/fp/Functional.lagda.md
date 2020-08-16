@@ -59,16 +59,32 @@ Write Agda definitions which have the following types:
 
 #### Exercise `isPalendromePoly` (practice) {#isPalendromePoly}
 
-Generalizing the `isPalendrome` function requires an extra parameter:
-in our monomorphic version we were comparing only natural numbers, but
-to make the function polymorhic we receive an additional parameter
-which tells us how to check the list elements for equality.
+Generalizing
+[the `isPalendrome` function]({{ site.baseurl }}/NatData/#isPalendrome)
+requires an extra parameter: in our monomorphic version we were
+comparing only natural numbers, but to make the function polymorhic we
+receive an additional parameter which tells us how to check the list
+elements for equality.
 
     isPalendrome : ∀ {X : Set} → (X → X → Bool) → List X → Bool
     -- Your definition goes here
 
 Adapt the tests of monomorphic `isPalendrome` to the new functions,
-finding appropriate comparison functions in the standard libraries.
+and extend them for lists of other types, finding appropriate
+comparison functions in the standard libraries.
+
+#### Exercise `noNeighborDupsPoly` (practice) {#noNeighborDupsPoly}
+
+Generalize
+[the `noNeighborDups` function]({{ site.baseurl }}/NatData/#noNeighborDups)
+by adding an extra parameter in the same way as for `isPalendrome`.
+
+    noNeighborDups : ∀ {X : Set} → (X → X → Bool) → List X → List X
+    -- Your definition goes here
+
+Adapt the tests of monomorphic `noNeighborDups` to the new functions,
+and extend them for lists of other types, finding appropriate
+comparison functions in the standard libraries.
 
 ### Filter
 
