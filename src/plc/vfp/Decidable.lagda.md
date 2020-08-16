@@ -7,7 +7,7 @@ next      : /Lists/
 ---
 
 ```
-module plc.fp.Decidable where
+module plc.vfp.Decidable where
 ```
 
 We have a choice as to how to represent relations:

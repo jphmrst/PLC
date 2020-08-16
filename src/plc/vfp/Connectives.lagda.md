@@ -7,7 +7,7 @@ next      : /Negation/
 ---
 
 ```
-module plc.fp.Connectives where
+module plc.vfp.Connectives where
 ```
 
 <!-- The ⊥ ⊎ A ≅ A exercise requires a (inj₁ ()) pattern,

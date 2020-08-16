@@ -7,7 +7,7 @@ next      : /Decidable/
 ---
 
 ```
-module plc.fp.Quantifiers where
+module plc.vfp.Quantifiers where
 ```
 
 This chapter introduces universal and existential quantification.

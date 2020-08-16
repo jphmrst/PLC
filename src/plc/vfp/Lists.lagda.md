@@ -7,7 +7,7 @@ next      : /Lambda/
 ---
 
 ```
-module plc.fp.Lists where
+module plc.vfp.Lists where
 ```
 
 This chapter discusses the list data type.  It gives further examples

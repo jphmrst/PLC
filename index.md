@@ -40,6 +40,7 @@ permalink: /
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
+  - [Lists]({{ site.baseurl }}/Lists/)
   - DataProp: Proving properties about pairs, lists, and maps
 
 ### Imperative programming

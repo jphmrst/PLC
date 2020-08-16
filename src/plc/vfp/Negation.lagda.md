@@ -7,7 +7,7 @@ next      : /Quantifiers/
 ---
 
 ```
-module plc.fp.Negation where
+module plc.vfp.Negation where
 ```
 
 This chapter introduces negation, and discusses intuitionistic
