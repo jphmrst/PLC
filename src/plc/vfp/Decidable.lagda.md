@@ -33,8 +33,8 @@ open import Relation.Nullary.Negation using ()
   renaming (contradiction to ¬¬-intro)
 open import Data.Unit using (⊤; tt)
 open import Data.Empty using (⊥; ⊥-elim)
-open import plc.fp.Relations using (_<_; z<s; s<s)
-open import plc.fp.Isomorphism using (_⇔_)
+open import plc.vfp.Relations using (_<_; z<s; s<s)
+open import plc.vfp.Isomorphism using (_⇔_)
 ```
 
 ## Evidence vs Computation
