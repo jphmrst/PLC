@@ -7,7 +7,7 @@ next      : /Equality/
 ---
 
 ```
-module plc.fp.Relations where
+module plc.vfp.Relations where
 ```
 
 After having defined operations such as addition and multiplication,

@@ -7,7 +7,7 @@ next      : /Lambda/
 ---
 
 ```
-module plc.fp.Lists where
+module plc.vfp.Lists where
 ```
 
 This chapter discusses the list data type.  It gives further examples
@@ -28,7 +28,7 @@ open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
 open import Function using (_∘_)
 open import Level using (Level)
-open import plc.fp.Isomorphism using (_≃_; _⇔_)
+open import plc.vfp.Isomorphism using (_≃_; _⇔_)
 ```
 
 

@@ -126,11 +126,8 @@ Hence, the possible natural numbers are:
     suc (suc (suc zero))
     ...
 
-Agda allows to write `0` as a shorthand for `zero`.  `1` is shorthand
-for the longhand `suc zero`, the successor of zero, that is, the
-natural that comes after zero.  And `2` is shorthand for `suc (suc
-zero)`, which is the same as `suc 1`, the successor of one; and `3` is
-shorthand for the successor of two; and so on.
+We will see in the Pragma section below how we can associate the usual
+base-10 notation with these expressions.
 
 #### Exercise `seven` (practice) {#seven}
 
@@ -292,23 +289,26 @@ principia, nova methodo exposita_" (The principles of arithmetic
 presented by a new method), published the following year.
 
 
-## A pragma
+## Pragmas
 
 In Agda, any text following `--` or enclosed between `{-`
 and `-}` is considered a _comment_.  Comments have no effect on the
 code, with the exception of one special kind of comment, called a
 _pragma_, which is enclosed between `{-#` and `#-}`.
 
-Including the line
+The pragma
+
 ```
 {-# BUILTIN NATURAL ℕ #-}
 ```
-tells Agda that `ℕ` corresponds to the natural numbers, and hence one
-is permitted to type `0` as shorthand for `zero`, `1` as shorthand for
-`suc zero`, `2` as shorthand for `suc (suc zero)`, and so on. The pragma
-must be given a previously declared type (in this case `ℕ`) with
-precisely two constructors, one with no arguments (in this case `zero`),
-and one with a single argument of the given type (in this case `suc`).
+
+after our definition of `ℕ` tells Agda that `ℕ` corresponds to the
+natural numbers, and hence one is permitted to type `0` as shorthand
+for `zero`, `1` as shorthand for `suc zero`, `2` as shorthand for `suc
+(suc zero)`, and so on. The pragma must be given a previously declared
+type (in this case `ℕ`) with precisely two constructors, one with no
+arguments (in this case `zero`), and one with a single argument of the
+given type (in this case `suc`).
 
 As well as enabling the above shorthand, the pragma also enables a
 more efficient internal representation of naturals.  Agda is built on
@@ -432,20 +432,23 @@ _ =
     5
   ∎
 ```
-We can write the same derivation more compactly by only
-expanding shorthand as needed:
+we can make our proof a bit clearer by waiting to expand some shorthand
 ```
 _ : 2 + 3 ≡ 5
 _ =
   begin
     2 + 3
-  ≡⟨⟩
+  ≡⟨⟩    -- is shorthand for
+    (suc 1) + 3
+  ≡⟨⟩    -- inductive case
     suc (1 + 3)
-  ≡⟨⟩
-    suc (suc (0 + 3))
-  ≡⟨⟩
+  ≡⟨⟩    -- 1 is shorthand for
+    suc (suc zero + 3)
+  ≡⟨⟩    -- inductive case
+    suc (suc (zero + 3))
+  ≡⟨⟩    -- base case
     suc (suc 3)
-  ≡⟨⟩
+  ≡⟨⟩    -- has shorthand
     5
   ∎
 ```
@@ -474,7 +477,7 @@ In fact, both proofs are longer than need be, and Agda is satisfied
 with the following:
 
 ```
-_ : 2 + 3 ≡ 5
+_ : suc (suc zero) + suc (suc (suc zero)) ≡ suc (suc (suc (suc (suc zero))))
 _ = refl
 ```
 
@@ -547,15 +550,16 @@ larger numbers is defined in terms of multiplication of smaller numbers.
 
 For example, let's multiply two and three:
 ```
+_ : 2 * 3 ≡ 6
 _ =
   begin
     2 * 3
   ≡⟨⟩    -- inductive case
     3 + (1 * 3)
   ≡⟨⟩    -- inductive case
-    3 + (3 + (0 * 3))
+    3 + (3 + (zero * 3))
   ≡⟨⟩    -- base case
-    3 + (3 + 0)
+    3 + (3 + zero)
   ≡⟨⟩    -- simplify
     6
   ∎
@@ -620,13 +624,18 @@ smaller numbers.
 
 For example, let's subtract two from three:
 ```
+_ : 3 ∸ 2 ≡ 1
 _ =
   begin
     3 ∸ 2
   ≡⟨⟩
-    2 ∸ 1
+    suc (suc (suc zero)) ∸ suc (suc zero)
   ≡⟨⟩
-    1 ∸ 0
+    suc (suc zero) ∸ suc zero
+  ≡⟨⟩
+    suc zero ∸ zero
+  ≡⟨⟩
+    suc zero
   ≡⟨⟩
     1
   ∎
@@ -634,13 +643,14 @@ _ =
 We did not use the second equation at all, but it will be required
 if we try to subtract a larger number from a smaller one:
 ```
+_ : 2 ∸ 3 ≡ 0
 _ =
   begin
-    2 ∸ 3
+    suc (suc zero) ∸ suc (suc (suc zero))
   ≡⟨⟩
-    1 ∸ 2
+    suc zero ∸ suc (suc zero)
   ≡⟨⟩
-    0 ∸ 1
+    zero ∸ suc zero
   ≡⟨⟩
     0
   ∎
@@ -753,6 +763,7 @@ associativity of infix operators needs to be declared:
 infixl 6  _+_  _∸_
 infixl 7  _*_
 ```
+    infixl 8  _^_
 
 These declarations state that operators `_+_` and `_∸_` have
 precedence level 6, and operator `_*_` has precedence level 7.
@@ -767,6 +778,32 @@ left.  One can also write `infixr` to indicate that an operator
 associates to the right, or just `infix` to indicate that parentheses
 are always required to disambiguate.
 
+#### Exercise `ParenNats` (starting) {#ParenNats}
+
+Add parenthesis to the following expressions to clarify the precedence
+of the operators.
+
+    2 ^ 3 ∸ 4
+    2 * 3 + 4 * 5
+
+#### Exercise `makeOperators` (starting) {#makeOperators}
+
+Consider these declarations:
+
+    infixl 5 _op1_
+    infixl 7 _op2_
+
+Complete the definitions of `_op1_` and `_op2` with two function
+declarations.  It doesn't matter what they do; just make them distinct
+enough for you to tell the difference between them as easily as you
+can tell the difference between `+` and `*`.
+
+How do `op1` and `op2` behave differently with respect to each other?
+In a series of several applications of each?
+
+Vary the declarations to use `infixr` instead of `infixl`, and to use
+various different precedence values.  How does this change how the
+expressions you tried above behave?
 
 ## The story of creation, revisited
 
@@ -991,8 +1028,8 @@ the program:
 
 Exploiting interaction to this degree is probably not helpful for a
 program this simple, but the same techniques can help with more
-complex programs.  Even for a program this simple, using `C-c C-c` to
-split cases can be helpful.
+complex programs.  But even for a program this simple, using `C-c C-c`
+to split cases can be helpful.
 
 ## More pragmas
 
@@ -1191,13 +1228,42 @@ Write a binary operator function `_≢ᵇ_` which is the negation of `_≡ᵇ_`.
     _ : 11 ≢ᵇ 11 ≡ false
     _ = refl
 
+#### Exercise `lesser` (recommended) {#lesser}
+
+Write a function `lesser` which takes two `ℕ` arguments, and returns
+the lesser of the two.
+
+    lesser : ℕ → ℕ → ℕ
+    -- Your definition here
+
+    _ : lesser 0 0 ≡ 0
+    _ = refl
+
+    _ : lesser 2 0 ≡ 0
+    _ = refl
+
+    _ : lesser 0 3 ≡ 0
+    _ = refl
+
+    _ : lesser 2 10 ≡ 2
+    _ = refl
+
+    _ : lesser 10 3 ≡ 3
+    _ = refl
 
 #### Exercise `natcompare` (recommended) {#natcompare}
 
 Write a binary operator `_<ᵇ_` which returns `True` when its first
 argument is strictly less than its second argument
 
-##### TODO add tests
+    _<ᵇ_ : ℕ → ℕ → Bool
+    -- Your definition here
+    
+    _ : 0 <ᵇ 1
+    _ = refl
+    
+    _ : 1 <ᵇ 9
+    _ = refl
 
 #### Exercise `factorial` (recommended) {#factorial}
 
@@ -1209,12 +1275,10 @@ Recall the standard mathematical `factorial` function:
 Translate this function into Agda, and write tests for applying
 `factorial` to 0, 1, 2, 5 and 10.
 
-#### TODO add exercises
-
 ## Standard library
 
-The naturals, constructors for them, and basic operators upon them,
-are defined in the standard library module `Data.Nat`:
+The naturals, their constructors and the basic operators on them are
+all defined in the standard library module `Data.Nat`:
 
 ```
 -- import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
@@ -1226,8 +1290,30 @@ pragma, the former on `ℕ`, and the latter on the equivalent type
 twice would raise confusion as to whether `2` is a value of type `ℕ`
 or type `Data.Nat.ℕ`.  Similar confusions arise if other pragmas are
 invoked twice. For this reason, we will usually avoid pragmas in
-future chapters.  Information on pragmas can be found in the Agda
+future chapters.  More information on pragmas can be found in the Agda
 documentation.
+
+#### Exercise `shapes` (recommended) {#shapes}
+
+Agda's standard library also includes a library of floating-point
+values.  Consider this type of geometric shapes:
+
+    open import Data.Float
+    data Shape : Set where
+      circle : Float → Shape
+      rectangle : Float → Float → Shape
+
+Create a separate file for this exercise, since `Data.Float` loads
+`Data.Nat`.
+
+ - Write the functions `area` and `perimeter` which take a `Shape` and
+   return the value of the respective property of the shape.
+
+ - Add a constructor `triangle` to `Shape`.  The new constructor
+   should take three values, the length of the sides of the triangle.
+
+ - Add cases to `area` and `perimeter` for `triangle`.
+
 
 ### Naturals, strings and characters
 

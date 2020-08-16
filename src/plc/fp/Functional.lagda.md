@@ -48,6 +48,44 @@ _ = refl
 
 ```
 
+#### Exercise `typesFunctional` (practice) {typesFunctional}
+
+Write Agda definitions which have the following types:
+
+ - `ℕ → (ℕ → ℕ) → ℕ`
+ - `(ℕ → ℕ) → (ℕ → ℕ) → (ℕ → ℕ)`
+
+   Hint: which of the three pairs of parentheses are unnecessary?
+
+#### Exercise `isPalendromePoly` (practice) {#isPalendromePoly}
+
+Generalizing
+[the `isPalendrome` function]({{ site.baseurl }}/NatData/#isPalendrome)
+requires an extra parameter: in our monomorphic version we were
+comparing only natural numbers, but to make the function polymorhic we
+receive an additional parameter which tells us how to check the list
+elements for equality.
+
+    isPalendrome : ∀ {X : Set} → (X → X → Bool) → List X → Bool
+    -- Your definition goes here
+
+Adapt the tests of monomorphic `isPalendrome` to the new functions,
+and extend them for lists of other types, finding appropriate
+comparison functions in the standard libraries.
+
+#### Exercise `noNeighborDupsPoly` (practice) {#noNeighborDupsPoly}
+
+Generalize
+[the `noNeighborDups` function]({{ site.baseurl }}/NatData/#noNeighborDups)
+by adding an extra parameter in the same way as for `isPalendrome`.
+
+    noNeighborDups : ∀ {X : Set} → (X → X → Bool) → List X → List X
+    -- Your definition goes here
+
+Adapt the tests of monomorphic `noNeighborDups` to the new functions,
+and extend them for lists of other types, finding appropriate
+comparison functions in the standard libraries.
+
 ### Filter
 
 Here is a more useful higher-order function, taking a list of `X`s and
@@ -453,6 +491,17 @@ of the misattribution was itself a misattribution.  The idea actually
 appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
 
 ## Additional exercises
+
+#### Exercise `functionToType` (practice) {#functionToType}
+
+What is the most general types you can give to these functions?  Try
+to work them out on your own before checking your answers.
+
+ - double x = x * 2
+
+ - twice f x = f (f x)
+
+ - seq3 f g h x = h (g (f x))
 
 #### Exercise `foldLength` (practice) {#foldLength}
 
