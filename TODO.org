@@ -1,20 +1,26 @@
 * Testing dev/branch
 
-* TODO Develop pattern matching discussion
-  - Point out where we are using patterns in new ways
-  - Through =fp= in general
+* General
+** TODO Set up view URL for dev output
 
-* DONE Exercises from last 421 course pack
+* Chapter FP
+** TODO Still a TODO in [[./src/plc/fp/Functional.lagda.md][Functional]]
+** TODO Patterns in lambda expressions
+   Move the discussion of patterns in lambda expressions from
+   [[./src/plc/vfp/Isomorphism.lagda.md][Isomorphism]] to [[./src/plc/fp/Functional.lagda.md][Functional]]
+** TODO Develop pattern matching discussion
+   - Point out where we are using patterns in new ways
+   - Through =fp= in general
 
-* DONE Add infix declarations to fp/Naturals
-  - Already explained earlier?
+** DONE Exercises from last 421 course pack
 
-* TODO More exercises for fp/Maps ?
+** DONE Add infix declarations to fp/Naturals
+   - Already explained earlier?
 
-* TODO Work in material from PLFA Lists ?
-  - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
+** TODO More exercises for fp/Maps ?
 
-* TODO Move/remove other files from =fp= directory
+** TODO Work in material from PLFA Lists ?
+   - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 
-* TODO Set up view URL for dev output
+** TODO Move/remove other files from =fp= directory
 
