@@ -14,9 +14,6 @@ JEKYLL := $(BUNDLE) exec jekyll
 HTMLPROOFER := $(BUNDLE) exec htmlproofer
 LUA_FILES := $(shell find . -type f -and -path '*/epub/*' -and -name '*.lua')
 
-DEST_MACHINE=138.49.30.38
-# DEST_MACHINE=docker.cs.uwlax.edu
-DEST_URL=${DEST_MACHINE}:9443
 
 ifeq ($(AGDA_STDLIB_VERSION),)
 AGDA_STDLIB_URL := https://agda.github.io/agda-stdlib/
@@ -25,6 +22,10 @@ AGDA_STDLIB_URL := https://agda.github.io/agda-stdlib/v$(AGDA_STDLIB_VERSION)/
 endif
 
 # Build for UWL Fall 2020
+# DEST_MACHINE=138.49.30.38
+
+DEST_MACHINE=docker.cs.uwlax.edu
+DEST_URL=${DEST_MACHINE}:9443
 build-uwl: .build-uwl
 .build-uwl: $(MARKDOWN_FILES)
 	$(JEKYLL) build --verbose \
