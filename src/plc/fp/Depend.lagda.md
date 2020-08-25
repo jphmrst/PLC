@@ -168,10 +168,16 @@ paper using the rules defined for `NatVec`, and interactively in Agda.
     (10 ∷ []) ++ []
     (1 ∷ 2 ∷ 10 ∷ []) ++ (1 ∷ 2 ∷ 10 ∷ 10 ∷ 20 ∷ 100 ∷ [])
 
-#### Exercise `moreNatVecFns` (practice) {#moreNatVecFns}
+#### Exercise `doubleAllVec` (practice) {#doubleAllVec}
 
-Adapt these functions from `NatList`s to `NatVec`s: `doubleAll`,
-`alternate`.
+Adapt the [`doubleAll`]({{ site.baseurl }}/NatData/#doubleAll)
+function and tests from `NatList`s to `NatVec`s.
+
+#### Exercise `alternateVecFails` (practice) {#alternateVecFails}
+
+Why is it difficult to adapt the
+[`alternate`]({{ site.baseurl }}/NatData/#alternate)
+function from `NatList`s to `NatVec`s?
 
 #### Exercise `stringVecs` (practice) {#stringVecs}
 
@@ -214,7 +220,7 @@ pattern as when we moved from monomorphic lists to polymorphic lists.
 The type of the values contained in the vector is given with the same
 name as in the first line.
 
-TODO add test cases to Exercise `moreNatVecFns`
+TODO add test cases to Exercise `doubleAllVec`
 
 TODO example functions
 
