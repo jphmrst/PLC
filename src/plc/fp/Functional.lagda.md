@@ -129,10 +129,8 @@ _ : filter lengthIs1 ((1 ∷ 2 ∷ []) ∷ (3 ∷ []) ∷ (4 ∷ [])
 _ = refl
 ```
 
-TODO Where is this?
-
-We can use `filter` to give a concise version of the `countoddmembers`
-function from the {Lists} section.
+We can use `filter` to give a concise version of
+[the `countOddMembers` function]({{ site.baseurl }}/NatData/#countOddMembers).
 
 ```
 length : ∀ {X : Set} → List X → ℕ
@@ -144,16 +142,16 @@ odd 0 = false
 odd 1 = true
 odd (suc (suc n)) = odd n
 
-countoddmembers : List ℕ -> ℕ
-countoddmembers l = length (filter odd l)
+countOddMembers : List ℕ -> ℕ
+countOddMembers l = length (filter odd l)
 
-_ : countoddmembers (1 ∷ 0 ∷ 3 ∷ 1 ∷ 4 ∷ 5 ∷ []) ≡ 4
+_ : countOddMembers (1 ∷ 0 ∷ 3 ∷ 1 ∷ 4 ∷ 5 ∷ []) ≡ 4
 _ = refl
 
-_ : countoddmembers (0 ∷ 2 ∷ 4 ∷ []) ≡ 0
+_ : countOddMembers (0 ∷ 2 ∷ 4 ∷ []) ≡ 0
 _ = refl
 
-_ : countoddmembers [] ≡ 0
+_ : countOddMembers [] ≡ 0
 _ = refl
 ```
 
@@ -202,6 +200,40 @@ we could write
 The two both have type `ℕ → ℕ → ℕ`, and return the same result for any
 two argments.
 
+We can also write multiple patterns inside a lambda expression, just
+as we can with multiple function clauses.  The general form of a
+lambda expressions is
+
+    λ{ P₁ → N₁; ⋯ ; Pₙ → Nₙ }
+
+This expression is equivalent to a function `f` defined by the equations
+
+    f P₁ = N₁
+    ⋯
+    f Pₙ = Nₙ
+
+where the `Pₙ` are patterns (left-hand sides of an equation) and the
+`Nₙ` are expressions (right-hand side of an equation).
+
+In the case that there is one equation and the pattern is a variable,
+we may also use the syntax
+
+    λ x → N
+
+or
+
+    λ (x : A) → N
+
+both of which are equivalent to `λ{x → N}`. The latter allows one to
+specify the domain of the function.
+
+Often using an anonymous lambda expression is more convenient than
+using a named function: it avoids a lengthy type declaration; and the
+definition appears exactly where the function is used, so there is no
+need for the writer to remember to declare it in advance, or for the
+reader to search for the definition in the code.
+
+
 #### Exercise `filterEvenGt7` (starting) {#filterEvenGt7}
 
 Use `filter` to write a function `filterEvenGt7` that takes a list
@@ -238,6 +270,26 @@ sublists should be the same as their order in the original list.
     _ : partition (λ { x → false }) (5 ∷ 9 ∷ 0 ∷ [])
           ≡ ([], (5 ∷ 9 ∷ 0 ∷ [])).
     _ = refl
+
+
+## Function composition
+
+A common operation on functions is _composition_:
+
+```
+_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+(g ∘ f) x  = g (f x)
+```
+
+So `g ∘ f` is the function that first applies `f` and
+then applies `g`.  An equivalent definition, exploiting lambda
+expressions, is as follows:
+
+```
+_∘′_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+g ∘′ f  =  λ x → g (f x)
+```
+
 
 ## Map
 
@@ -671,6 +723,7 @@ This section uses the following Unicode symbols:
     λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∀  U+2200  FOR ALL  (\all)
+    ∘  U+2218  RING OPERATOR (\o, \circ, \comp)
     ∷  U+2237  PROPORTION  (\::)
 
 ---
