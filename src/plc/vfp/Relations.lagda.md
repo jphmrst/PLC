@@ -737,6 +737,21 @@ evidence that the first number is odd. If it is because it is the
 successor of an even number, then the result is odd because it is the
 successor of the sum of two even numbers, which is even.
 
+#### Exercise `double-even` (practice) {#double-even}
+
+Recall the function `double`,
+
+```
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+```
+
+Prove that the `double` of any number is even:
+
+    even-double : ∀ n → even (double n)
+    -- Your clauses here
+
 #### Exercise `o+o≡e` (stretch) {#odd-plus-odd}
 
 Show that the sum of two odd numbers is even.
