@@ -35,12 +35,13 @@ permalink: /
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
   - [Lists]({{ site.baseurl }}/Lists/): Properties of data structures
+  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
 
 ## Incomplete
 
 ### Imperative programming
   - Imp: A small imperative language, and its operational semantics
-  - Equiv: What does it mean for imperative programs to be equivalent
+  - Equiv: What does it mean for two imperative programs to be equivalent?
   - Hoare: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
   - Additional topics to be posted
