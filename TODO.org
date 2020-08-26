@@ -20,8 +20,8 @@
 
 ** SKIP More exercises for fp/Maps ?
 
-** TODO Work in material from PLFA Lists ?
+** DONE Work in material from PLFA Lists ?
    - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 
-** TODO Move/remove other files from =fp= directory
+** DONE Move/remove other files from =fp= directory
 

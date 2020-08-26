@@ -27,6 +27,15 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.Nat.Properties using (+-comm)
 ```
 
+## Preliminaries
+
+We will use the definition of function composition which we saw in
+[the Functional section]({{ site.baseurl }}/Functional/#fnComposition).
+
+```
+_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+(g ∘ f) x  = g (f x)
+```
 
 ## Extensionality {#extensionality}
 

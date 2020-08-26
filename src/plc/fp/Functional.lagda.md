@@ -272,7 +272,7 @@ sublists should be the same as their order in the original list.
     _ = refl
 
 
-## Function composition
+## Function composition {#fnComposition}
 
 A common operation on functions is _composition_:
 

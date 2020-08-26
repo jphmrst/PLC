@@ -96,8 +96,8 @@ constructors.  It is more common to structure generic types to use
 
 ```
 data List : Set → Set where
-  [] : ∀ {x : Set} → List x
-  _∷_ : ∀ {x : Set} → x → List x → List x
+  [] : ∀ {A : Set} → List A
+  _∷_ : ∀ {A : Set} → A → List A → List A
 
 infixr 5 _∷_
 ```
@@ -105,11 +105,11 @@ infixr 5 _∷_
 The symbol ∀ is pronounced "for all."  There is a sense in which these
 constructors are equivalent to our earlier ones, but there are
 advantages to using quantification for constructors and functions.  In
-particular, we can ask Agda to infer the arguments of a type
+particular, we are asking Agda to infer the arguments of a type
 automatically by writing them in curly braces `{` and `}` instead of
-parentheses `(` and `)`:
+parentheses `(` and `)`.
 
-For both of these constructors, `x` becomes an *implicit* type
+For both of these constructors, `A` becomes an *implicit* type
 argument.  Now when we write a list of natural numbers, we do not need
 to write the type argument with every name use.  For example, you can
 use `C-c C-d` to check that
@@ -159,6 +159,14 @@ when Agda sees a list which begins
 since `1` has type `ℕ`, Agda expects that the expression which follows
 the `∷` should have type `List ℕ`.  But `true ∷ []` does not have
 this type, and the evaluator reports an error.
+
+Including the pragma:
+
+    {-# BUILTIN LIST List #-}
+
+tells Agda that the type `List` corresponds to the Haskell type
+list, and the constructors `[]` and `_∷_` correspond to nil and
+cons respectively, allowing a more efficient representation of lists.
 
 The following defiition of `List` is equivalent to the one above:
 
