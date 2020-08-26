@@ -220,9 +220,65 @@ pattern as when we moved from monomorphic lists to polymorphic lists.
 The type of the values contained in the vector is given with the same
 name as in the first line.
 
-TODO add test cases to Exercise `doubleAllVec`
+The `repeat`, `length` and append functions do not depend on the types
+of their elements, so we can adapt them
 
-TODO example functions
+    repeat : ℕ → ℕ → NatList
+    repeat n zero = []
+    repeat n (suc count') = n ∷ repeat n count'
+
+If we are building a `NatVec` instead of a `NatList`, the length of
+the resulting list will be the same as the value of the second
+argument.  So we need to include that value in the signature of our
+`repeat` for `NatVec`:
+
+    repeat : ℕ → ℕ → NatVec ?
+
+How do we fill in that blank with length of the vector?  The function
+signature must standalone, and define the function type without using
+the clauses which might follow.  For this reason Agda allows us to
+give names to the arguments in the signature, not just in the defining
+clauses,
+
+    repeat : ℕ → (len : ℕ) → NatVec ?
+
+We can then use that name as the argument to `NatVec`.
+
+```
+    repeat : ℕ → (len : ℕ) → NatVec len
+```
+
+Then the rest of the function definition is just the same as for
+`NatList`:
+
+```
+    repeat n zero = []
+    repeat n (suc count') = n ∷ repeat n count'
+```
+
+We can use the quantified arguments when we write the clauses of the
+function implementation.  As usual, if the argument in implicit, we
+must wrap it in curly braces to access it.  This makes the `length`
+function must easier to calculate:
+
+```
+    length : ∀ {len : ℕ} → NatVec len → ℕ
+    length {len} _ = len
+```
+
+The length of the vector is present in the type, and we can return it
+directly.
+
+When we use natural numbers in a type, we have access to functions
+over natural numbers as well.  Consider the append function `_++_`:
+the length of its result should be the sum of the lengths of its
+arguments.  We see this idea in the signature of `_++_` for `NatVec`,
+
+```
+    _++_ : ∀ {m n : ℕ} → NatVec m → NatVec n → NatVec (m + n)
+    [] ++ ys = ys
+    (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
+```
 
 TODO exercises --- all functions
 
