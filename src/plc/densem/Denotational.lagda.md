@@ -7,7 +7,7 @@ next      : /Compositional/
 ---
 
 ```
-module plc.part3.Denotational where
+module plc.densem.Denotational where
 ```
 
 The lambda calculus is a language about _functions_, that is, mappings

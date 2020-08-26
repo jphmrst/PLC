@@ -7,7 +7,7 @@ next      : /Soundness/
 ---
 
 ```
-module plc.part3.Compositional where
+module plc.densem.Compositional where
 ```
 
 ## Introduction
@@ -33,13 +33,13 @@ open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Unit using (⊤; tt)
 open import plc.lambda.Untyped
   using (Context; _,_; ★; _∋_; _⊢_; `_; ƛ_; _·_)
-open import plc.part3.Denotational
+open import plc.densem.Denotational
   using (Value; _↦_; _`,_; _⊔_; ⊥; _⊑_; _⊢_↓_;
          ⊑-bot; ⊑-fun; ⊑-conj-L; ⊑-conj-R1; ⊑-conj-R2;
          ⊑-dist; ⊑-refl; ⊑-trans; ⊔↦⊔-dist;
          var; ↦-intro; ↦-elim; ⊔-intro; ⊥-intro; sub;
          up-env; ℰ; _≃_; ≃-sym; Denotation; Env)
-open plc.part3.Denotational.≃-Reasoning
+open plc.densem.Denotational.≃-Reasoning
 ```
 
 ## Equation for lambda abstraction
