@@ -273,9 +273,10 @@ proposition:
 
 The upside down A is pronounced "for all", and the proposition
 asserts that for all natural numbers `m`, `n`, and `p`
-the equation `(m + n) + p ≡ m + (n + p)` holds.  Evidence for the proposition
-is a function that accepts three natural numbers, binds them to `m`, `n`, and `p`,
-and returns evidence for the corresponding instance of the equation.
+the equation `(m + n) + p ≡ m + (n + p)` holds.  Evidence for the
+proposition is a function that accepts three natural numbers, binds
+them to `m`, `n`, and `p`, and returns evidence for the corresponding
+instance of the equation.
 
 For the base case, we must show:
 
@@ -285,16 +286,18 @@ Simplifying both sides with the base case of addition yields the equation:
 
     n + p ≡ n + p
 
-This holds trivially.  Reading the chain of equations in the base case of the proof,
-the top and bottom of the chain match the two sides of the equation to
-be shown, and reading down from the top and up from the bottom takes us to
-`n + p` in the middle.  No justification other than simplification is required.
+This holds trivially.  Reading the chain of equations in the base case
+of the proof, the top and bottom of the chain match the two sides of
+the equation to be shown, and reading down from the top and up from
+the bottom takes us to `n + p` in the middle.  No justification other
+than simplification is required.
 
 For the inductive case, we must show:
 
     (suc m + n) + p ≡ suc m + (n + p)
 
-Simplifying both sides with the inductive case of addition yields the equation:
+Simplifying both sides with the inductive case of addition yields the
+equation:
 
     suc ((m + n) + p) ≡ suc (m + (n + p))
 
@@ -872,6 +875,15 @@ typing `C-c C-r` will fill it in, completing the proof:
     +-assoc′ zero n p = refl
     +-assoc′ (suc m) n p rewrite +-assoc′ m n p = refl
 
+Sometimes, we need to type in a more complicated expression than just
+`refl`.  We can type the expression inside the hole, and ask Agda to
+typecheck it for us with `C-c C-SPACE`.  If the expression inside the
+hole fits the type needed for the context of that hole, then Agda will
+replace the hole with the text we have placed inside it, and we can
+move on to the next hole.  There is a
+[Quick Guide](https://agda.readthedocs.io/en/v2.5.4/getting-started/quick-guide.html)
+to Agda mode with a summary of Emacs key bindings in the online
+Agda documentation.
 
 #### Exercise `+-swap` (recommended) {#plus-swap}
 
@@ -953,6 +965,39 @@ for all naturals `m`, `n`, and `p`.
 -- Your code goes here
 ```
 
+#### Exercise `double-+` (practice) {#double-plus}
+
+Consider the following function, which doubles its argument:
+
+```
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+```
+
+Show that `double` is the same as adding a number to itself,
+
+    double n ≡ n + n
+
+
+#### Exercise `even-suc` (practice) {#even-suc}
+
+Recall the `even` predicate from the
+[Naturals]({{ site.baseurl }}/Naturals/) section:
+
+```
+open import Data.Bool
+even : ℕ → Bool
+even zero = true
+even (suc zero) = false
+even (suc (suc n)) = even n
+```
+
+Show how the result of `even` on any number is related to the result
+of `even` on the successor of that number,
+
+    even (suc n) ≡ not (even n)
+    
 
 #### Exercise `+*^` (stretch)
 
@@ -1004,9 +1049,9 @@ This section uses the following Unicode symbols:
     ∀  U+2200  FOR ALL (\forall, \all)
     ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
     ′  U+2032  PRIME (\')
-    ″  U+2033  DOUBLE PRIME (\')
-    ‴  U+2034  TRIPLE PRIME (\')
-    ⁗  U+2057  QUADRUPLE PRIME (\')
+    ″  U+2033  DOUBLE PRIME (\'')
+    ‴  U+2034  TRIPLE PRIME (\'3)
+    ⁗  U+2057  QUADRUPLE PRIME (\'4)
 
 Similar to `\r`, the command `\^r` gives access to a variety of
 superscript rightward arrows, and also a superscript letter `r`.
@@ -1014,4 +1059,7 @@ The command `\'` gives access to a range of primes (`′ ″ ‴ ⁗`).
 
 ---
 
-*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Wadler et al., with some additional text by
+Maraist.  Exercises `double-+` and `even-suc` are adapted from Pierce
+et al.  For more information see the [sources and authorship]({{
+site.baseurl }}/Sources/) page.*
