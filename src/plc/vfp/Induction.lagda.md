@@ -1,7 +1,7 @@
 ---
 title     : "Induction: Proof by Induction"
 layout    : page
-prev      : /Naturals/
+prev      : /Depend/
 permalink : /Induction/
 next      : /Relations/
 ---

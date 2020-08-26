@@ -23,24 +23,21 @@ permalink: /
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
   - [Depend]({{ site.baseurl }}/Depend/): Dependent types
 
-## Incomplete
+## Verified functional programming
 
-### Verified functional programming
-
-  - TODO
-    - Explain need for totality for logic/proof
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
-    - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
-
+  - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-
   - Elements of logic in Agda
     - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
   - [Lists]({{ site.baseurl }}/Lists/)
+
+## Incomplete
+
   - DataProp: Proving properties about pairs, lists, and maps
 
 ### Imperative programming
