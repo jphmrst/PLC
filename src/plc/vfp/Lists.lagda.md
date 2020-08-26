@@ -31,6 +31,32 @@ open import Level using (Level)
 open import plc.vfp.Isomorphism using (_≃_; _⇔_)
 ```
 
+## Lists redux
+
+```
+data List (A : Set) : Set where
+  []  : List A
+  _∷_ : A → List A → List A
+
+infixr 5 _∷_
+
+pattern [_] z = z ∷ []
+pattern [_,_] y z = y ∷ z ∷ []
+pattern [_,_,_] x y z = x ∷ y ∷ z ∷ []
+pattern [_,_,_,_] w x y z = w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_] v w x y z = v ∷ w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_,_] u v w x y z = u ∷ v ∷ w ∷ x ∷ y ∷ z ∷ []
+
+infixr 5 _++_
+
+_++_ : ∀ {A : Set} → List A → List A → List A
+[]       ++ ys  =  ys
+(x ∷ xs) ++ ys  =  x ∷ (xs ++ ys)
+
+length : ∀ {A : Set} → List A → ℕ
+length []        =  zero
+length (x ∷ xs)  =  suc (length xs)
+```
 
 ## Reasoning about append
 
