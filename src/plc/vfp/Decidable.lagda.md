@@ -39,7 +39,7 @@ open import plc.vfp.Isomorphism using (_⇔_)
 
 ## Evidence vs Computation
 
-Recall that Chapter [Relations]({{ site.baseurl }}/Relations/)
+Recall that the [Relations]({{ site.baseurl }}/Relations/) section
 defined comparison as an inductive datatype,
 which provides _evidence_ that one number
 is less than or equal to another:
@@ -548,7 +548,7 @@ postulate
 #### Exercise `iff-erasure` (recommended)
 
 Give analogues of the `_⇔_` operation from
-Chapter [Isomorphism]({{ site.baseurl }}/Isomorphism/#iff),
+the [Isomorphism]({{ site.baseurl }}/Isomorphism/#iff) section,
 operation on booleans and decidables, and also show the corresponding erasure:
 ```
 postulate

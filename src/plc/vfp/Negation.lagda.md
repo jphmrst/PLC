@@ -10,7 +10,7 @@ next      : /Quantifiers/
 module plc.vfp.Negation where
 ```
 
-This chapter introduces negation, and discusses intuitionistic
+This section introduces negation, and discusses intuitionistic
 and classical logic.
 
 ## Imports
@@ -401,7 +401,7 @@ of two stable formulas is stable.
 
 ## Standard Prelude
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Relation.Nullary using (¬_)
 import Relation.Nullary.Negation using (contraposition)

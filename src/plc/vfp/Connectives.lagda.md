@@ -16,7 +16,7 @@ module plc.vfp.Connectives where
      exercises from the final sections on distributivity
      and exponentials? -->
 
-This chapter introduces the basic logical connectives, by observing a
+This section introduces the basic logical connectives, by observing a
 correspondence between connectives of logic and data types, a
 principle known as _Propositions as Types_:
 
@@ -758,7 +758,8 @@ Does the converse hold? If so, prove; if not, give a counterexample.
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard
+library: 
 ```
 import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Data.Unit using (⊤; tt)
@@ -770,9 +771,9 @@ The standard library constructs pairs with `_,_` whereas we use `⟨_,_⟩`.
 The former makes it convenient to build triples or larger tuples from pairs,
 permitting `a , b , c` to stand for `(a , (b , c))`.  But it conflicts with
 other useful notations, such as `[_,_]` to construct a list of two elements in
-Chapter [Lists]({{ site.baseurl }}/Lists/)
+the [Lists]({{ site.baseurl }}/Lists/) section
 and `Γ , A` to extend environments in
-Chapter [DeBruijn]({{ site.baseurl }}/DeBruijn/).
+the [DeBruijn]({{ site.baseurl }}/DeBruijn/) section.
 The standard library `_⇔_` is similar to ours, but the one in the
 standard library is less convenient, since it is parameterised with
 respect to an arbitrary notion of equivalence.

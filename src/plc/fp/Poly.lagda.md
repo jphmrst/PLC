@@ -51,15 +51,19 @@ module Poly1 where
 ```
 
 This is just like the definition of `NatList` from the previous
-chapter, except that the `ℕ` argument to the cons constructor has
-been replaced by an arbitrary type `x`, a binding for `x` has been
-added to the function header on the first line, and the occurrences of
-`NatList` in the types of the constructors have been replaced by `List x`.
+section, except that the `ℕ` argument to the cons constructor has been
+replaced by an arbitrary type `x`, a binding for `x` has been added to
+the function header on the first line, and the occurrences of
+`NatList` in the types of the constructors have been replaced by
+`List x`.
 
 We will improve this datatype shortly, so we have wrapped this first
 draft in its own local `module` declaration.  This way, we can reuse
 the same names in other modules, and avoid having to write
-`++version2` or similar silliness.
+`++version2` or similar silliness.  Notice that all of the datatype
+and function definitions are indented within this module — Agda uses
+the indentation to work out which definitions are part of this local
+module, and where the module ends.
 
 What sort of thing is `List` itself?  A good way to think about it is
 that the definition of `List` is a _function_ from one datatype to
@@ -379,7 +383,7 @@ argument.
 ## Polymorphic pairs
 
 Following the same pattern, the definition for pairs of numbers that
-we gave in the last chapter can be generalized to _polymorphic pairs_,
+we gave in the last section can be generalized to _polymorphic pairs_,
 often called _products_.
 
 ```

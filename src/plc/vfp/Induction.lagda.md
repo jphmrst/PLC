@@ -14,11 +14,27 @@ module plc.vfp.Induction where
 > ... but it is one of the greatest ideas of civilization.
 > -- Herbert Wilf
 
-Now that we've defined the naturals and operations upon them, our next
-step is to learn how to prove properties that they satisfy.  As hinted
-by their name, properties of _inductive datatypes_ are proved by
-_induction_.
+In the last chapter we studied the basics of programming in a language
+like Agda.  Now, our next step is to learn how to use Agda to discuss
+— that is, to prove — properties of Agda programs.  By the end of this
+chapter we will be stating and proving properties about data
+structures like lists and maps.  But for now, we will start with
+properties about a simpler system which we are all know well: natural
+numbers, and the properties that they satisfy.  In this section we
+will consider some of the basic familiar properties of the natural
+numbers.  We will see that Agda's representation of ℕ satisfies these
+properties; we will also see both how we prove these results, and how
+we apply these proofs to other results.
 
+The underlying technique we will use for (most of) our proofs will be
+_proof by induction_.  This approach was already suggested in the last
+chapter, where we defined several _inductive datatypes_.  Inductive
+proofs mirror the recursive structure of these datatypes: one or more
+base cases which are not recursive, and one or more recursive cases
+which rely on strictly smaller uses of an assertion.
+
+We first review some properties of the natual numbers, and then
+introduce general Agda statements and proofs.
 
 ## Imports
 
@@ -364,7 +380,7 @@ proof of associativity.
 
 The symbol `∀` appears in the statement of associativity to indicate that
 it holds for all numbers `m`, `n`, and `p`.  We refer to `∀` as the _universal
-quantifier_, and it is discussed further in Chapter [Quantifiers]({{ site.baseurl }}/Quantifiers/).
+quantifier_, and it is discussed further in the [Quantifiers]({{ site.baseurl }}/Quantifiers/) section.
 
 Evidence for a universal quantifier is a function.  The notations
 
@@ -976,7 +992,7 @@ For each law: if it holds, prove; if not, give a counterexample.
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
 ```

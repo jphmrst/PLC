@@ -183,8 +183,8 @@ They tell us that `zero` is a natural number and that `suc` takes a natural
 number as argument and returns a natural number.
 
 You may have noticed that `ℕ` and `→` don't appear on your keyboard.
-They are symbols in _unicode_.  At the end of each chapter is a list
-of all unicode symbols introduced in the chapter, including
+They are symbols in _unicode_.  At the end of each section is a list
+of all unicode symbols introduced in that section including
 instructions on how to type them in the Emacs text editor.  Here
 _type_ refers to typing with fingers as opposed to data types!
 
@@ -345,7 +345,7 @@ all the names specified in the `using` clause into the current scope.
 In this case, the names added are `begin_`, `_≡⟨⟩_`, and `_∎`.  We
 will see how these are used below.  We take these as givens for now,
 but will see how they are defined in
-Chapter [Equality]({{ site.baseurl }}/Equality/).
+the [Equality]({{ site.baseurl }}/Equality/) section.
 
 Agda uses underbars to indicate where terms appear in infix or mixfix
 operators. Thus, `_≡_` and `_≡⟨⟩_` are infix (each operator is written
@@ -1284,13 +1284,13 @@ all defined in the standard library module `Data.Nat`:
 -- import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
 ```
 
-Both this chapter and the standard library invoke the `NATURAL`
+Both this section and the standard library invoke the `NATURAL`
 pragma, the former on `ℕ`, and the latter on the equivalent type
 `Data.Nat.ℕ`.  Such a pragma can only be invoked once, as invoking it
 twice would raise confusion as to whether `2` is a value of type `ℕ`
 or type `Data.Nat.ℕ`.  Similar confusions arise if other pragmas are
 invoked twice. For this reason, we will usually avoid pragmas in
-future chapters.  More information on pragmas can be found in the Agda
+future sections.  More information on pragmas can be found in the Agda
 documentation.
 
 #### Exercise `shapes` (recommended) {#shapes}

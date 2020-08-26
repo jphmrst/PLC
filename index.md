@@ -34,11 +34,9 @@ permalink: /
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
-  - [Lists]({{ site.baseurl }}/Lists/)
+  - [Lists]({{ site.baseurl }}/Lists/): Properties of data structures
 
 ## Incomplete
-
-  - DataProp: Proving properties about pairs, lists, and maps
 
 ### Imperative programming
   - Imp: A small imperative language, and its operational semantics
