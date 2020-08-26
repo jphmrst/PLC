@@ -274,11 +274,8 @@ expressions have?  Why are the ill-typed expression not well-typed?
     1 ∷ 'b' ∷ false ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ 1
-<<<<<<< HEAD
-=======
     [ 'a' , 'b' , 'c' ]
     [ 'a' , 1 , true ]
->>>>>>> 8dd2a057e2d57b18a02e3cd030ae51fb84b86126
 
 #### Exercise `genericlength` (practice) {#genericlength}
 

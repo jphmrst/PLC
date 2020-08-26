@@ -22,5 +22,10 @@
 
 ** DONE Work in material from PLFA Lists ?
    - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
+<<<<<<< HEAD
+=======
+
+** DONE Move/remove other files from =fp= directory
+>>>>>>> 604e80b2c2221f2e2910264b433eea03f971a946
 
 ** DONE Move/remove other files from =fp= directory

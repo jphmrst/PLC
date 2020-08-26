@@ -3,7 +3,11 @@ title     : "Lists: Properties of data structures"
 layout    : page
 prev      : /Decidable/
 permalink : /Lists/
+<<<<<<< HEAD:src/plc/vfp/Lists.lagda.md
 next      : /
+=======
+next      : /MapProps/
+>>>>>>> 604e80b2c2221f2e2910264b433eea03f971a946:src/plc/fp/Lists.lagda.md
 ---
 
 ```

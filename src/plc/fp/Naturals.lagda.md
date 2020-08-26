@@ -1290,11 +1290,7 @@ pragma, the former on `ℕ`, and the latter on the equivalent type
 twice would raise confusion as to whether `2` is a value of type `ℕ`
 or type `Data.Nat.ℕ`.  Similar confusions arise if other pragmas are
 invoked twice. For this reason, we will usually avoid pragmas in
-<<<<<<< HEAD
-future chapters.  More information on pragmas can be found in the Agda
-=======
 future sections.  More information on pragmas can be found in the Agda
->>>>>>> 8dd2a057e2d57b18a02e3cd030ae51fb84b86126
 documentation.
 
 #### Exercise `shapes` (recommended) {#shapes}
