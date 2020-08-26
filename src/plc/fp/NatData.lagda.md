@@ -192,8 +192,8 @@ form of success on the exercise!
 #### Exercise `oddmembers` (practice) {#oddmembers}
 
 Complete the definition of `oddmembers`. Have a look at the test to
-understand what it should do, and use the function `odd` from Chapter
-Naturals.
+understand what it should do, and use the function `odd` from the
+[Naturals]({{ site.baseurl }}/Naturals/) section.
 
     oddmembers : NatList -> NatList
     -- Add your cases here

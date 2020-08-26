@@ -155,7 +155,7 @@ either `(1 ≤ 2) ≤ 3` or `1 ≤ (2 ≤ 3)`.
 Given two numbers, it is straightforward to compute whether or not the
 first is less than or equal to the second.  We don't give the code for
 doing so here, but will return to this point in
-Chapter [Decidable]({{ site.baseurl }}/Decidable/).
+the [Decidable]({{ site.baseurl }}/Decidable/) section.
 
 
 ## Inversion
@@ -224,9 +224,9 @@ preorder, partial order, or total order.
 Less frivolously, if you ever bump into a relation while reading a
 technical paper, this gives you a way to orient yourself, by checking
 whether or not it is a preorder, partial order, or total order.  A
-careful author will often call out these properties---or their
-lack---for instance by saying that a newly introduced relation is a
-partial order but not a total order.
+careful author will often call out these properties — or their lack —
+for instance by saying that a newly introduced relation is a partial
+order but not a total order.
 
 
 #### Exercise `orderings` (practice) {#orderings}
@@ -383,7 +383,7 @@ evidence of `m ≤ n` and `n ≤ m` respectively.
 
 (For those familiar with logic, the above definition
 could also be written as a disjunction. Disjunctions will
-be introduced in Chapter [Connectives]({{ site.baseurl }}/Connectives/).)
+be introduced in the [Connectives]({{ site.baseurl }}/Connectives/) section.)
 
 This is our first use of a datatype with _parameters_,
 in this case `m` and `n`.  It is equivalent to the following
@@ -578,7 +578,7 @@ It is also monotonic with regards to addition and multiplication.
 Most of the above are considered in exercises below.  Irreflexivity
 requires negation, as does the fact that the three cases in
 trichotomy are mutually exclusive, so those points are deferred to
-Chapter [Negation]({{ site.baseurl }}/Negation/).
+the [Negation]({{ site.baseurl }}/Negation/) section.
 
 It is straightforward to show that `suc m ≤ n` implies `m < n`,
 and conversely.  One can then give an alternative derivation of the
@@ -737,6 +737,21 @@ evidence that the first number is odd. If it is because it is the
 successor of an even number, then the result is odd because it is the
 successor of the sum of two even numbers, which is even.
 
+#### Exercise `double-even` (practice) {#double-even}
+
+Recall the function `double`,
+
+```
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+```
+
+Prove that the `double` of any number is even:
+
+    even-double : ∀ n → even (double n)
+    -- Your clauses here
+
 #### Exercise `o+o≡e` (stretch) {#odd-plus-odd}
 
 Show that the sum of two odd numbers is even.
@@ -800,7 +815,7 @@ if `One b` then `1` is less or equal to the result of `from b`.)
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Data.Nat using (_≤_; z≤n; s≤s)
 import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-antisym; ≤-total;
@@ -808,7 +823,7 @@ import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-antisym; ≤-total;
 ```
 In the standard library, `≤-total` is formalised in terms of
 disjunction (which we define in
-Chapter [Connectives]({{ site.baseurl }}/Connectives/)),
+the [Connectives]({{ site.baseurl }}/Connectives/) section),
 and `+-monoʳ-≤`, `+-monoˡ-≤`, `+-mono-≤` are proved differently than here,
 and more arguments are implicit.
 

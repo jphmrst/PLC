@@ -81,8 +81,8 @@ nextDay Sunday    = Monday
 ```
 
 You may have noticed that `→` does not appear on your keyboard.  It is
-a _unicode_ symbol.  At the end of each chapter is a list of all
-unicode symbols introduced in the chapter, including instructions on
+a _unicode_ symbol.  At the end of each section is a list of all
+unicode symbols introduced in that section including instructions on
 how to type them in the Emacs text editor.  Here _type_ refers to
 typing with fingers as opposed to data types!
 
@@ -262,7 +262,7 @@ separate clauses for each value of the second argument, when there is
 no difference to the result.
 
 It is useful for us to see how we can define the boolean type and its
-basic operations.  But in later chapters, we will use the boolean type
+basic operations.  But later we will use the boolean type
 defined in Agda's standard library rather than defining them
 ourselves.  So at the start of these files, you will often see the
 declaration
@@ -303,10 +303,10 @@ boolean values.
 
 ## Standard library
 
-At the end of each chapter, we will show where to find relevant
-definitions in the standard library.  The booleans, their
-constructors, and basic operators upon them are defined in the
-standard library module `Data.Bool`:
+At the end of each section, we will show where in the standard library
+to find definitions relevant to the program we write in that section.
+The booleans, their constructors, and basic operators upon them are
+defined in the standard library module `Data.Bool`:
 
 ```
 -- import Data.Bool using (Bool, true, false, if_then_else_)

@@ -39,7 +39,7 @@ type, along with its boolean equality operator `==`.
 
 ## Total maps
 
-Our maps in this chapter will be similar in behavior to the one we saw
+Our maps in this section will be similar in behavior to the one we saw
 earlier.  This time around, though, we're going to use higher-order
 functions, rather than lists of key-value pairs, to build the maps.
 The advantage of this representation is that it offers a more

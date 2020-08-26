@@ -1,7 +1,7 @@
 ---
 title     : "Induction: Proof by Induction"
 layout    : page
-prev      : /Naturals/
+prev      : /Depend/
 permalink : /Induction/
 next      : /Relations/
 ---
@@ -14,11 +14,27 @@ module plc.vfp.Induction where
 > ... but it is one of the greatest ideas of civilization.
 > -- Herbert Wilf
 
-Now that we've defined the naturals and operations upon them, our next
-step is to learn how to prove properties that they satisfy.  As hinted
-by their name, properties of _inductive datatypes_ are proved by
-_induction_.
+In the last chapter we studied the basics of programming in a language
+like Agda.  Now, our next step is to learn how to use Agda to discuss
+— that is, to prove — properties of Agda programs.  By the end of this
+chapter we will be stating and proving properties about data
+structures like lists and maps.  But for now, we will start with
+properties about a simpler system which we are all know well: natural
+numbers, and the properties that they satisfy.  In this section we
+will consider some of the basic familiar properties of the natural
+numbers.  We will see that Agda's representation of ℕ satisfies these
+properties; we will also see both how we prove these results, and how
+we apply these proofs to other results.
 
+The underlying technique we will use for (most of) our proofs will be
+_proof by induction_.  This approach was already suggested in the last
+chapter, where we defined several _inductive datatypes_.  Inductive
+proofs mirror the recursive structure of these datatypes: one or more
+base cases which are not recursive, and one or more recursive cases
+which rely on strictly smaller uses of an assertion.
+
+We first review some properties of the natual numbers, and then
+introduce general Agda statements and proofs.
 
 ## Imports
 
@@ -257,9 +273,10 @@ proposition:
 
 The upside down A is pronounced "for all", and the proposition
 asserts that for all natural numbers `m`, `n`, and `p`
-the equation `(m + n) + p ≡ m + (n + p)` holds.  Evidence for the proposition
-is a function that accepts three natural numbers, binds them to `m`, `n`, and `p`,
-and returns evidence for the corresponding instance of the equation.
+the equation `(m + n) + p ≡ m + (n + p)` holds.  Evidence for the
+proposition is a function that accepts three natural numbers, binds
+them to `m`, `n`, and `p`, and returns evidence for the corresponding
+instance of the equation.
 
 For the base case, we must show:
 
@@ -269,16 +286,18 @@ Simplifying both sides with the base case of addition yields the equation:
 
     n + p ≡ n + p
 
-This holds trivially.  Reading the chain of equations in the base case of the proof,
-the top and bottom of the chain match the two sides of the equation to
-be shown, and reading down from the top and up from the bottom takes us to
-`n + p` in the middle.  No justification other than simplification is required.
+This holds trivially.  Reading the chain of equations in the base case
+of the proof, the top and bottom of the chain match the two sides of
+the equation to be shown, and reading down from the top and up from
+the bottom takes us to `n + p` in the middle.  No justification other
+than simplification is required.
 
 For the inductive case, we must show:
 
     (suc m + n) + p ≡ suc m + (n + p)
 
-Simplifying both sides with the inductive case of addition yields the equation:
+Simplifying both sides with the inductive case of addition yields the
+equation:
 
     suc ((m + n) + p) ≡ suc (m + (n + p))
 
@@ -364,7 +383,7 @@ proof of associativity.
 
 The symbol `∀` appears in the statement of associativity to indicate that
 it holds for all numbers `m`, `n`, and `p`.  We refer to `∀` as the _universal
-quantifier_, and it is discussed further in Chapter [Quantifiers]({{ site.baseurl }}/Quantifiers/).
+quantifier_, and it is discussed further in the [Quantifiers]({{ site.baseurl }}/Quantifiers/) section.
 
 Evidence for a universal quantifier is a function.  The notations
 
@@ -856,6 +875,15 @@ typing `C-c C-r` will fill it in, completing the proof:
     +-assoc′ zero n p = refl
     +-assoc′ (suc m) n p rewrite +-assoc′ m n p = refl
 
+Sometimes, we need to type in a more complicated expression than just
+`refl`.  We can type the expression inside the hole, and ask Agda to
+typecheck it for us with `C-c C-SPACE`.  If the expression inside the
+hole fits the type needed for the context of that hole, then Agda will
+replace the hole with the text we have placed inside it, and we can
+move on to the next hole.  There is a
+[Quick Guide](https://agda.readthedocs.io/en/v2.5.4/getting-started/quick-guide.html)
+to Agda mode with a summary of Emacs key bindings in the online
+Agda documentation.
 
 #### Exercise `+-swap` (recommended) {#plus-swap}
 
@@ -937,6 +965,39 @@ for all naturals `m`, `n`, and `p`.
 -- Your code goes here
 ```
 
+#### Exercise `double-+` (practice) {#double-plus}
+
+Consider the following function, which doubles its argument:
+
+```
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+```
+
+Show that `double` is the same as adding a number to itself,
+
+    double n ≡ n + n
+
+
+#### Exercise `even-suc` (practice) {#even-suc}
+
+Recall the `even` predicate from the
+[Naturals]({{ site.baseurl }}/Naturals/) section:
+
+```
+open import Data.Bool
+even : ℕ → Bool
+even zero = true
+even (suc zero) = false
+even (suc (suc n)) = even n
+```
+
+Show how the result of `even` on any number is related to the result
+of `even` on the successor of that number,
+
+    even (suc n) ≡ not (even n)
+    
 
 #### Exercise `+*^` (stretch)
 
@@ -976,7 +1037,7 @@ For each law: if it holds, prove; if not, give a counterexample.
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
 ```
@@ -988,9 +1049,9 @@ This section uses the following Unicode symbols:
     ∀  U+2200  FOR ALL (\forall, \all)
     ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
     ′  U+2032  PRIME (\')
-    ″  U+2033  DOUBLE PRIME (\')
-    ‴  U+2034  TRIPLE PRIME (\')
-    ⁗  U+2057  QUADRUPLE PRIME (\')
+    ″  U+2033  DOUBLE PRIME (\'')
+    ‴  U+2034  TRIPLE PRIME (\'3)
+    ⁗  U+2057  QUADRUPLE PRIME (\'4)
 
 Similar to `\r`, the command `\^r` gives access to a variety of
 superscript rightward arrows, and also a superscript letter `r`.
@@ -998,4 +1059,7 @@ The command `\'` gives access to a range of primes (`′ ″ ‴ ⁗`).
 
 ---
 
-*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Wadler et al., with some additional text by
+Maraist.  Exercises `double-+` and `even-suc` are adapted from Pierce
+et al.  For more information see the [sources and authorship]({{
+site.baseurl }}/Sources/) page.*

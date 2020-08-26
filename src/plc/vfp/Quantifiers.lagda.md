@@ -10,7 +10,7 @@ next      : /Decidable/
 module plc.vfp.Quantifiers where
 ```
 
-This chapter introduces universal and existential quantification.
+This section introduces universal and existential quantification.
 
 ## Imports
 
@@ -28,8 +28,9 @@ open import plc.vfp.Isomorphism using (_≃_; extensionality)
 ## Universals
 
 We formalise universal quantification using the dependent function
-type, which has appeared throughout this book.  For instance, in
-Chapter Induction we showed addition is associative:
+type, which has appeared throughout this book.  For instance, in the
+[Induction]({{ site.baseurl }}/Induction/) section we showed that
+addition is associative:
 
     +-assoc : ∀ (m n p : ℕ) → (m + n) + p ≡ m + (n + p)
 
@@ -97,7 +98,7 @@ postulate
     (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
 ```
 Compare this with the result (`→-distrib-×`) in
-Chapter [Connectives]({{ site.baseurl }}/Connectives/).
+the [Connectives]({{ site.baseurl }}/Connectives/) section.
 
 #### Exercise `⊎∀-implies-∀⊎` (practice)
 
@@ -272,7 +273,7 @@ Show that `∃[ x ] B x` is isomorphic to `B aa ⊎ B bb ⊎ B cc`.
 ## An existential example
 
 Recall the definitions of `even` and `odd` from
-Chapter [Relations]({{ site.baseurl }}/Relations/):
+the [Relations]({{ site.baseurl }}/Relations/) section:
 ```
 data even : ℕ → Set
 data odd  : ℕ → Set
@@ -486,7 +487,7 @@ which is a corollary of `≡Can`.
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 ```

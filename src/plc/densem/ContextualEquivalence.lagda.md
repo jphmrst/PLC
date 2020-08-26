@@ -7,7 +7,7 @@ next      : /Substitution/
 ---
 
 ```
-module plc.part3.ContextualEquivalence where
+module plc.densem.ContextualEquivalence where
 ```
 
 ## Imports
@@ -17,10 +17,10 @@ open import Data.Product using (_×_; Σ; Σ-syntax; ∃; ∃-syntax; proj₁; p
      renaming (_,_ to ⟨_,_⟩)
 open import plc.lambda.Untyped using (_⊢_; ★; ∅; _,_; ƛ_; _—↠_)
 open import plc.lambda.BigStep using (_⊢_⇓_; cbn→reduce)
-open import plc.part3.Denotational using (ℰ; _≃_; ≃-sym; ≃-trans; _iff_)
-open import plc.part3.Compositional using (Ctx; plug; compositionality)
-open import plc.part3.Soundness using (soundness)
-open import plc.part3.Adequacy using (↓→⇓)
+open import plc.densem.Denotational using (ℰ; _≃_; ≃-sym; ≃-trans; _iff_)
+open import plc.densem.Compositional using (Ctx; plug; compositionality)
+open import plc.densem.Soundness using (soundness)
+open import plc.densem.Adequacy using (↓→⇓)
 ```
 
 ## Contextual Equivalence

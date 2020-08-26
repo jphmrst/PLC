@@ -12,7 +12,7 @@ module plc.vfp.Isomorphism where
 
 This section introduces isomorphism as a way of asserting that two
 types are equal, and embedding as a way of asserting that one type is
-smaller than another.  We apply isomorphisms in the next chapter
+smaller than another.  We apply isomorphisms in the next sections
 to demonstrate that operations on types such as product and sum
 satisfy properties akin to associativity, commutativity, and
 distributivity.
@@ -58,7 +58,7 @@ known to be consistent with the theory that underlies Agda.
 
 As an example, consider that we need results from two libraries,
 one where addition is defined, as in
-Chapter [Naturals]({{ site.baseurl }}/Naturals/),
+the [Naturals]({{ site.baseurl }}/Naturals/) section,
 and one where it is defined the other way around.
 ```
 _+′_ : ℕ → ℕ → ℕ
@@ -444,7 +444,7 @@ Why do `to` and `from` not form an isomorphism?
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Function using (_∘_)
 import Function.Inverse using (_↔_)

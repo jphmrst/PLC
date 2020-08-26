@@ -3,7 +3,7 @@ title     : "Depend: Dependent Types"
 layout    : page
 prev      : /Functional/
 permalink : /Depend/
-next      : /
+next      : /Induction/
 ---
 
 ```

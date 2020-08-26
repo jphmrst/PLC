@@ -1,16 +1,16 @@
 ---
-title     : "Lists: Lists and higher-order functions"
+title     : "Lists: Properties of data structures"
 layout    : page
-prev      : /Naturals/
+prev      : /Decidable/
 permalink : /Lists/
-next      : /Lambda/
+next      : /
 ---
 
 ```
 module plc.vfp.Lists where
 ```
 
-This chapter discusses the list data type.  It gives further examples
+This section discusses the list data type.  It gives further examples
 of many of the techniques we have developed so far, and provides
 examples of polymorphic types and higher-order functions.
 
@@ -29,11 +29,15 @@ open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_�
 open import Function using (_∘_)
 open import Level using (Level)
 open import plc.vfp.Isomorphism using (_≃_; _⇔_)
+<<<<<<< HEAD:src/plc/vfp/Lists.lagda.md
 ```
 
 ## Lists redux
 
 ```
+=======
+
+>>>>>>> 8dd2a057e2d57b18a02e3cd030ae51fb84b86126:src/plc/fp/Lists.lagda.md
 data List (A : Set) : Set where
   []  : List A
   _∷_ : A → List A → List A
@@ -223,7 +227,7 @@ the list. This is because reverse ends up appending lists of lengths
 `1`, `2`, up to `n - 1`, where `n` is the length of the list being
 reversed, append takes time linear in the length of the first
 list, and the sum of the numbers up to `n - 1` is `n * (n - 1) / 2`.
-(We will validate that last fact in an exercise later in this chapter.)
+(We will validate that last fact in an exercise later in this section.)
 
 #### Exercise `reverse-++-distrib` (recommended)
 
@@ -982,7 +986,7 @@ with their corresponding proofs.
 
 ## Standard Library
 
-Definitions similar to those in this chapter can be found in the standard library:
+Definitions similar to those in this section can be found in the standard library:
 ```
 import Data.List using (List; _++_; length; reverse; map; foldr; downFrom)
 import Data.List.All using (All; []; _∷_)
@@ -999,7 +1003,7 @@ The standard library version of `IsMonoid` differs from the
 one given here, in that it is also parameterised on an equivalence relation.
 
 Both `Relation.Unary` and `Relation.Binary` define a version of `Decidable`,
-one for unary relations (as used in this chapter where `P` ranges over
+one for unary relations (as used in this section where `P` ranges over
 unary predicates) and one for binary relations (as used earlier, where `_≤_`
 ranges over a binary relation).
 

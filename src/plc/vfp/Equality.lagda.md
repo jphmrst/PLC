@@ -3,7 +3,7 @@ title     : "Equality: Equality and equational reasoning"
 layout    : page
 prev      : /Relations/
 permalink : /Equality/
-next      : /Isomorphism/
+next      : /Connectives/
 ---
 
 ```
@@ -18,7 +18,7 @@ here we show how to define it as an inductive datatype.
 
 ## Imports
 
-This chapter has no imports.  Every chapter in this book, and nearly
+This section has no imports.  Every section in this book, and nearly
 every module in the Agda standard library, imports equality.
 Since we define equality here, any import would create a conflict.
 
@@ -220,7 +220,7 @@ This is our first use of a nested module. It consists of the keyword
 implicit, the keyword `where`, and the contents of the module indented.
 Modules may contain any sort of declaration, including other nested modules.
 Nested modules are similar to the top-level modules that constitute
-each chapter of this book, save that the body of a top-level module
+each section of this book, save that the body of a top-level module
 need not be indented.  Opening the module makes all of the definitions
 available in the current environment.
 
@@ -273,7 +273,7 @@ alone would do.
 
 As a second example of chains of equations, we repeat the proof that addition
 is commutative.  We first repeat the definitions of naturals and addition.
-We cannot import them because (as noted at the beginning of this chapter)
+We cannot import them because (as noted at the beginning of this section)
 it would cause a conflict:
 ```
 data ℕ : Set where
@@ -347,7 +347,7 @@ an order that will make sense to the reader.
 #### Exercise `≤-Reasoning` (stretch)
 
 The proof of monotonicity from
-Chapter [Relations]({{ site.baseurl }}/Relations/)
+the [Relations]({{ site.baseurl }}/Relations/) section
 can be written in a more readable form by using an analogue of our
 notation for `≡-Reasoning`.  Define `≤-Reasoning` analogously, and use
 it to write out an alternative proof that addition is monotonic with
@@ -703,7 +703,7 @@ Further information on levels can be found in the [Agda Wiki][wiki].
 
 ## Standard library
 
-Definitions similar to those in this chapter can be found in the
+Definitions similar to those in this section can be found in the
 standard library:
 ```
 -- import Relation.Binary.PropositionalEquality as Eq

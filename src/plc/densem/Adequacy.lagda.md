@@ -7,7 +7,7 @@ next      : /ContextualEquivalence/
 ---
 
 ```
-module plc.part3.Adequacy where
+module plc.densem.Adequacy where
 ```
 
 ## Introduction
@@ -87,12 +87,12 @@ open import plc.lambda.Substitution using (ids; sub-id)
 open import plc.lambda.BigStep
      using (Clos; clos; ClosEnv; ∅'; _,'_; _⊢_⇓_; ⇓-var; ⇓-lam; ⇓-app; ⇓-determ;
             cbn→reduce)
-open import plc.part3.Denotational
+open import plc.densem.Denotational
      using (Value; Env; `∅; _`,_; _↦_; _⊑_; _⊢_↓_; ⊥; all-funs∈; _⊔_; ∈→⊑;
             var; ↦-elim; ↦-intro; ⊔-intro; ⊥-intro; sub; ℰ; _≃_; _iff_;
             ⊑-trans; ⊑-conj-R1; ⊑-conj-R2; ⊑-conj-L; ⊑-refl; ⊑-fun; ⊑-bot; ⊑-dist;
             sub-inv-fun)
-open import plc.part3.Soundness using (soundness)
+open import plc.densem.Soundness using (soundness)
 
 ```
 

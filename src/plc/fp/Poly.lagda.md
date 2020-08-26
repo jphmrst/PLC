@@ -51,15 +51,19 @@ module Poly1 where
 ```
 
 This is just like the definition of `NatList` from the previous
-chapter, except that the `ℕ` argument to the cons constructor has
-been replaced by an arbitrary type `x`, a binding for `x` has been
-added to the function header on the first line, and the occurrences of
-`NatList` in the types of the constructors have been replaced by `List x`.
+section, except that the `ℕ` argument to the cons constructor has been
+replaced by an arbitrary type `x`, a binding for `x` has been added to
+the function header on the first line, and the occurrences of
+`NatList` in the types of the constructors have been replaced by
+`List x`.
 
 We will improve this datatype shortly, so we have wrapped this first
 draft in its own local `module` declaration.  This way, we can reuse
 the same names in other modules, and avoid having to write
-`++version2` or similar silliness.
+`++version2` or similar silliness.  Notice that all of the datatype
+and function definitions are indented within this module — Agda uses
+the indentation to work out which definitions are part of this local
+module, and where the module ends.
 
 What sort of thing is `List` itself?  A good way to think about it is
 that the definition of `List` is a _function_ from one datatype to
@@ -178,6 +182,21 @@ When we move the argument declaration `(x : Set)` to the left side of
 the colon `:`, Agda knows that it should be implicitly quantified for
 each of the constructors.
 
+We can use `pattern` declarations to introduce shorthand abbreviations
+for syntax.  The notation introduced in a `pattern` declaration can be
+used either on the right-hand side of an equation, for building
+values, or on the left-hand side of an equation, for pattern
+matching.
+
+```
+pattern [_] z = z ∷ []
+pattern [_,_] y z = y ∷ z ∷ []
+pattern [_,_,_] x y z = x ∷ y ∷ z ∷ []
+pattern [_,_,_,_] w x y z = w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_] v w x y z = v ∷ w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_,_] u v w x y z = u ∷ v ∷ w ∷ x ∷ y ∷ z ∷ []
+```
+
 ### Polymorphic list functions
 
 We can now define polymorphic versions of the functions we've already
@@ -196,10 +215,10 @@ repeat : ∀ {x : Set} → x → ℕ → List x
 repeat _ 0 = []
 repeat x (suc n) = x ∷ repeat x n
 
-_ : repeat 5 2 ≡ 5 ∷ 5 ∷ []
+_ : repeat 5 2 ≡ [ 5 , 5 ]
 _ = refl
 
-_ : repeat true 4 ≡ true ∷ true ∷ true ∷ true ∷ []
+_ : repeat true 4 ≡ [ true , true , true , true ]
 _ = refl
 ```
 
@@ -255,6 +274,11 @@ expressions have?  Why are the ill-typed expression not well-typed?
     1 ∷ 'b' ∷ false ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ 1
+<<<<<<< HEAD
+=======
+    [ 'a' , 'b' , 'c' ]
+    [ 'a' , 1 , true ]
+>>>>>>> 8dd2a057e2d57b18a02e3cd030ae51fb84b86126
 
 #### Exercise `genericlength` (practice) {#genericlength}
 
@@ -263,10 +287,10 @@ Write a polymorphic version of `length`:
     length : ∀ {x} → List x → ℕ
     -- Your clauses go here
 
-    _ : length (true ∷ []) ≡ 1
+    _ : length [ true ] ≡ 1
     _ = refl
 
-    _ : length (2 ∷ 4 ∷ 6 ∷ []) ≡ 3
+    _ : length [ 2 , 4 , 6 ] ≡ 3
     _ = refl
 
 #### Exercise `genericappend` (practice) {#genericappend}
@@ -277,10 +301,10 @@ Write a polymorphic function `_++_` for appending two lists:
     _++_ : ∀ {x : Set} → List x → List x → List x
     -- Your clauses go here
 
-    _ : [] ++ (1 ∷ []) ≡ 1 ∷ []
+    _ : [] ++ [ 1 ] ≡ [ 1 ]
     _ = refl
 
-    _ : (2 ∷ 4 ∷ 6 ∷ []) ++ (8 ∷ 10 ∷ []) ≡ (2 ∷ 4 ∷ 6 ∷ 8 ∷ 10 ∷ [])
+    _ : [ 2 , 4 , 6 ] ++ [ 8 , 10 ] ≡ [ 2 , 4 , 6 , 8 , 10 ]
     _ = refl
 
 #### Exercise `genericreverse` (practice) {#genericreverse}
@@ -288,10 +312,92 @@ Write a polymorphic function `_++_` for appending two lists:
     reverse : ∀ (x : Set) → List x → List x
     -- Your clauses go here
 
-    _ : rev (1 ∷ []) ≡ 1 ∷ []
+    _ : rev [ 1 ] ≡ [ 1 ]
     _ = refl
 
-    _ : rev (10 ∷ 20 ∷ 30 ∷ []) ≡ (30 ∷ 20 ∷ 10 ∷ [])
+    _ : rev [ 10 , 20 , 30 ] ≡ [ 30 , 20 , 10 ]
+    _ = refl
+
+#### Strings as lists of characters
+
+The `Data.String` module in the standard library defines two functions
+`toList` and `fromList` which allow a string to be converted to or
+from a list of characters.  These exercises ask you to use these
+functions, together with operations on the resulting lists.  For some
+if these exercises, the character-manipulating functions of module
+`Data.Char` will be helpful.
+
+##### Exercise `capitalize` (practice) {#capitalize}
+
+Write a function `capitalize` which converts all lower-case letters in
+its argument to upper-case letters, and leaves other characters
+unchanged.
+
+    capitalize : String → String
+    capitalize s = ?
+
+    _ : capitalize "" ≡ ""
+    _ = refl
+
+    _ : capitalize "hello3" ≡ "HELLO3"
+    _ = refl
+ 
+##### Exercise `capitalizeOnly` (practice) {#capitalizeOnly}
+
+Write a function `capitalizeOnly` which converts all lower-case
+letters in its argument to upper-case letters, leaves upper-case
+letters alone, and removes other characters from the result.
+
+    capitalizeOnly : String → String
+    capitalizeOnly s = ?
+
+    _ : capitalizeOnly "" ≡ ""
+    _ = refl
+
+    _ : capitalizeOnly "hello3" ≡ "HELLO"
+    _ = refl
+
+##### Exercise `mangle` (practice) {#mangle}
+
+Write a function `mangle` whose result removes the first character of
+a word, and attaches it at the end.  If the argument is empty,
+`mangle` should simply return an empty string.
+
+    mangle : String → String
+    mangle s = ?
+
+    _ : mangle "" ≡ ""
+    _ = refl
+
+    _ : mangle "B" ≡ "B"
+    _ = refl
+
+    _ : mangle "ok" ≡ "ko"
+    _ = refl
+
+    _ : mangle "hello" ≡ "elloh"
+    _ = refl
+
+#### Exercise `matches` (practice) {#matches}
+
+Write a function `matches` which takes two arguments,
+
+ - A number, and
+ - A list of numbers
+
+and removes all occurrences of its first argument from its second
+argument.
+
+    matches : String → String
+    matches s = ?
+
+    _ : matches 10 (1 ∷ 10 ∷ 2 ∷ 10 ∷ 3 ∷ 10 ∷ 4 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
+    _ = refl
+
+    _ : matches 6 [] ≡ []
+    _ = refl
+
+    _ : matches 5 (20 ∷ 21 ∷ 22 ∷ []) ≡ 20 ∷ 21 ∷ 22 ∷ []
     _ = refl
 
 #### Strings as lists of characters
@@ -379,7 +485,7 @@ argument.
 ## Polymorphic pairs
 
 Following the same pattern, the definition for pairs of numbers that
-we gave in the last chapter can be generalized to _polymorphic pairs_,
+we gave in the last section can be generalized to _polymorphic pairs_,
 often called _products_.
 
 ```
