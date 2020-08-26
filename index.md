@@ -18,10 +18,6 @@ CS421/521, Concepts of Programming Languages.
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
-## Content modules will be posted as they are ready
-
-{::comment}
-
 ## Functional programming
 
   - [Basics]({{ site.baseurl }}/Basics/): The basics of functional
@@ -33,6 +29,10 @@ CS421/521, Concepts of Programming Languages.
   - [Functional]({{ site.baseurl }}/Functional/): Higher-order functions
   - [Maps]({{ site.baseurl }}/Maps/): Partial and total maps
   - [Depend]({{ site.baseurl }}/Depend/): Dependent types
+
+## Additional content modules will be posted as they are ready
+
+{::comment}
 
 ## Incomplete
 
