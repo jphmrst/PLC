@@ -182,6 +182,21 @@ When we move the argument declaration `(x : Set)` to the left side of
 the colon `:`, Agda knows that it should be implicitly quantified for
 each of the constructors.
 
+We can use `pattern` declarations to introduce shorthand abbreviations
+for syntax.  The notation introduced in a `pattern` declaration can be
+used either on the right-hand side of an equation, for building
+values, or on the left-hand side of an equation, for pattern
+matching.
+
+```
+pattern [_] z = z ∷ []
+pattern [_,_] y z = y ∷ z ∷ []
+pattern [_,_,_] x y z = x ∷ y ∷ z ∷ []
+pattern [_,_,_,_] w x y z = w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_] v w x y z = v ∷ w ∷ x ∷ y ∷ z ∷ []
+pattern [_,_,_,_,_,_] u v w x y z = u ∷ v ∷ w ∷ x ∷ y ∷ z ∷ []
+```
+
 ### Polymorphic list functions
 
 We can now define polymorphic versions of the functions we've already
@@ -200,10 +215,10 @@ repeat : ∀ {x : Set} → x → ℕ → List x
 repeat _ 0 = []
 repeat x (suc n) = x ∷ repeat x n
 
-_ : repeat 5 2 ≡ 5 ∷ 5 ∷ []
+_ : repeat 5 2 ≡ [ 5 , 5 ]
 _ = refl
 
-_ : repeat true 4 ≡ true ∷ true ∷ true ∷ true ∷ []
+_ : repeat true 4 ≡ [ true , true , true , true ]
 _ = refl
 ```
 
@@ -259,6 +274,8 @@ expressions have?  Why are the ill-typed expression not well-typed?
     1 ∷ 'b' ∷ false ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ []
     'a' ∷ 'b' ∷ 'c' ∷ 1
+    [ 'a' , 'b' , 'c' ]
+    [ 'a' , 1 , true ]
 
 #### Exercise `genericlength` (practice) {#genericlength}
 
@@ -267,10 +284,10 @@ Write a polymorphic version of `length`:
     length : ∀ {x} → List x → ℕ
     -- Your clauses go here
 
-    _ : length (true ∷ []) ≡ 1
+    _ : length [ true ] ≡ 1
     _ = refl
 
-    _ : length (2 ∷ 4 ∷ 6 ∷ []) ≡ 3
+    _ : length [ 2 , 4 , 6 ] ≡ 3
     _ = refl
 
 #### Exercise `genericappend` (practice) {#genericappend}
@@ -281,10 +298,10 @@ Write a polymorphic function `_++_` for appending two lists:
     _++_ : ∀ {x : Set} → List x → List x → List x
     -- Your clauses go here
 
-    _ : [] ++ (1 ∷ []) ≡ 1 ∷ []
+    _ : [] ++ [ 1 ] ≡ [ 1 ]
     _ = refl
 
-    _ : (2 ∷ 4 ∷ 6 ∷ []) ++ (8 ∷ 10 ∷ []) ≡ (2 ∷ 4 ∷ 6 ∷ 8 ∷ 10 ∷ [])
+    _ : [ 2 , 4 , 6 ] ++ [ 8 , 10 ] ≡ [ 2 , 4 , 6 , 8 , 10 ]
     _ = refl
 
 #### Exercise `genericreverse` (practice) {#genericreverse}
@@ -292,10 +309,10 @@ Write a polymorphic function `_++_` for appending two lists:
     reverse : ∀ (x : Set) → List x → List x
     -- Your clauses go here
 
-    _ : rev (1 ∷ []) ≡ 1 ∷ []
+    _ : rev [ 1 ] ≡ [ 1 ]
     _ = refl
 
-    _ : rev (10 ∷ 20 ∷ 30 ∷ []) ≡ (30 ∷ 20 ∷ 10 ∷ [])
+    _ : rev [ 10 , 20 , 30 ] ≡ [ 30 , 20 , 10 ]
     _ = refl
 
 #### Strings as lists of characters

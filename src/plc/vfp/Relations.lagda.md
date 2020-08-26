@@ -224,9 +224,9 @@ preorder, partial order, or total order.
 Less frivolously, if you ever bump into a relation while reading a
 technical paper, this gives you a way to orient yourself, by checking
 whether or not it is a preorder, partial order, or total order.  A
-careful author will often call out these properties---or their
-lack---for instance by saying that a newly introduced relation is a
-partial order but not a total order.
+careful author will often call out these properties — or their lack —
+for instance by saying that a newly introduced relation is a partial
+order but not a total order.
 
 
 #### Exercise `orderings` (practice) {#orderings}
