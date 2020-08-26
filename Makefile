@@ -14,6 +14,7 @@ JEKYLL := $(BUNDLE) exec jekyll
 HTMLPROOFER := $(BUNDLE) exec htmlproofer
 LUA_FILES := $(shell find . -type f -and -path '*/epub/*' -and -name '*.lua')
 
+
 ifeq ($(AGDA_STDLIB_VERSION),)
 AGDA_STDLIB_URL := https://agda.github.io/agda-stdlib/
 else
@@ -21,10 +22,14 @@ AGDA_STDLIB_URL := https://agda.github.io/agda-stdlib/v$(AGDA_STDLIB_VERSION)/
 endif
 
 # Build for UWL Fall 2020
+# DEST_MACHINE=138.49.30.38
+
+DEST_MACHINE=docker.cs.uwlax.edu
+DEST_URL=${DEST_MACHINE}:9443
 build-uwl: .build-uwl
 .build-uwl: $(MARKDOWN_FILES)
 	$(JEKYLL) build --verbose \
-		--baseurl https://docker.cs.uwlax.edu:9443/jmaraist/plc/ \
+		--baseurl https://${DEST_URL}/jmaraist/plc/ \
 		--destination _uwl
 	touch .build-url
 
@@ -32,7 +37,7 @@ deploy-uwl: .build-uwl $(MARKDOWN_FILES)
 	rsync --archive --verbose --compress --update --backup \
 		-e "ssh -l jmaraist" \
 		_uwl/ \
-		docker.cs.uwlax.edu:internal-www/plc
+		${DEST_MACHINE}:internal-www/plc
 
 # Build PLFA and test hyperlinks
 test: build

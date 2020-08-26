@@ -10,18 +10,15 @@
    Move the discussion of patterns in lambda expressions from
    [[./src/plc/vfp/Isomorphism.lagda.md][Isomorphism]] to [[./src/plc/fp/Functional.lagda.md][Functional]]
 ** DONE Develop pattern matching discussion
-   - Point out where we are using patterns in new ways
-   - Through =fp= in general
-
+=======
 ** DONE Exercises from last 421 course pack
 
 ** DONE Add infix declarations to fp/Naturals
    - Already explained earlier?
-
 ** SKIP More exercises for fp/Maps ?
 
 ** DONE Work in material from PLFA Lists ?
    - [Lists]({{ site.baseurl }}/Lists/): Lists and higher-order functions
 
 ** DONE Move/remove other files from =fp= directory
-
+=======
