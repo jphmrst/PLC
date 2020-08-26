@@ -7,7 +7,7 @@ next      : /Lambda/
 ---
 
 ```
-module plc.fp.Lists where
+module plc.vfp.Lists where
 ```
 
 This chapter discusses the list data type.  It gives further examples
@@ -28,118 +28,8 @@ open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
 open import Function using (_∘_)
 open import Level using (Level)
-open import plc.fp.Isomorphism using (_≃_; _⇔_)
+open import plc.vfp.Isomorphism using (_≃_; _⇔_)
 ```
-
-
-## Lists
-
-Lists are defined in Agda as follows:
-```
-data List (A : Set) : Set where
-  []  : List A
-  _∷_ : A → List A → List A
-
-infixr 5 _∷_
-```
-Let's unpack this definition. If `A` is a set, then `List A` is a set.
-The next two lines tell us that `[]` (pronounced _nil_) is a list of
-type `A` (often called the _empty_ list), and that `_∷_` (pronounced
-_cons_, short for _constructor_) takes a value of type `A` and a value
-of type `List A` and returns a value of type `List A`.  Operator `_∷_`
-has precedence level 5 and associates to the right.
-
-For example,
-```
-_ : List ℕ
-_ = 0 ∷ 1 ∷ 2 ∷ []
-```
-denotes the list of the first three natural numbers.  Since `_∷_`
-associates to the right, the term parses as `0 ∷ (1 ∷ (2 ∷ []))`.
-Here `0` is the first element of the list, called the _head_,
-and `1 ∷ (2 ∷ [])` is a list of the remaining elements, called the
-_tail_. A list is a strange beast: it has a head and a tail,
-nothing in between, and the tail is itself another list!
-
-As we've seen, parameterised types can be translated to
-indexed types. The definition above is equivalent to the following:
-```
-data List′ : Set → Set where
-  []′  : ∀ {A : Set} → List′ A
-  _∷′_ : ∀ {A : Set} → A → List′ A → List′ A
-```
-Each constructor takes the parameter as an implicit argument.
-Thus, our example list could also be written:
-```
-_ : List ℕ
-_ = _∷_ {ℕ} 0 (_∷_ {ℕ} 1 (_∷_ {ℕ} 2 ([] {ℕ})))
-```
-where here we have provided the implicit parameters explicitly.
-
-Including the pragma:
-
-    {-# BUILTIN LIST List #-}
-
-tells Agda that the type `List` corresponds to the Haskell type
-list, and the constructors `[]` and `_∷_` correspond to nil and
-cons respectively, allowing a more efficient representation of lists.
-
-
-## List syntax
-
-We can write lists more conveniently by introducing the following definitions:
-```
-pattern [_] z = z ∷ []
-pattern [_,_] y z = y ∷ z ∷ []
-pattern [_,_,_] x y z = x ∷ y ∷ z ∷ []
-pattern [_,_,_,_] w x y z = w ∷ x ∷ y ∷ z ∷ []
-pattern [_,_,_,_,_] v w x y z = v ∷ w ∷ x ∷ y ∷ z ∷ []
-pattern [_,_,_,_,_,_] u v w x y z = u ∷ v ∷ w ∷ x ∷ y ∷ z ∷ []
-```
-This is our first use of pattern declarations.  For instance,
-the third line tells us that `[ x , y , z ]` is equivalent to
-`x ∷ y ∷ z ∷ []`, and permits the former to appear either in
-a pattern on the left-hand side of an equation, or a term
-on the right-hand side of an equation.
-
-
-## Append
-
-Our first function on lists is written `_++_` and pronounced
-_append_:
-
-```
-infixr 5 _++_
-
-_++_ : ∀ {A : Set} → List A → List A → List A
-[]       ++ ys  =  ys
-(x ∷ xs) ++ ys  =  x ∷ (xs ++ ys)
-```
-The type `A` is an implicit argument to append, making it a _polymorphic_
-function (one that can be used at many types). A list appended to the empty list
-yields the list itself. A list appended to a non-empty list yields a list with
-the head the same as the head of the non-empty list, and a tail the same as the
-other list appended to tail of the non-empty list.
-
-Here is an example, showing how to compute the result
-of appending two lists:
-```
-_ : [ 0 , 1 , 2 ] ++ [ 3 , 4 ] ≡ [ 0 , 1 , 2 , 3 , 4 ]
-_ =
-  begin
-    0 ∷ 1 ∷ 2 ∷ [] ++ 3 ∷ 4 ∷ []
-  ≡⟨⟩
-    0 ∷ (1 ∷ 2 ∷ [] ++ 3 ∷ 4 ∷ [])
-  ≡⟨⟩
-    0 ∷ 1 ∷ (2 ∷ [] ++ 3 ∷ 4 ∷ [])
-  ≡⟨⟩
-    0 ∷ 1 ∷ 2 ∷ ([] ++ 3 ∷ 4 ∷ [])
-  ≡⟨⟩
-    0 ∷ 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
-  ∎
-```
-Appending two lists requires time linear in the
-number of elements in the first list.
 
 
 ## Reasoning about append
@@ -220,43 +110,6 @@ That it is a right identity follows by simple induction:
 As we will see later,
 these three properties establish that `_++_` and `[]` form
 a _monoid_ over lists.
-
-## Length
-
-Our next function finds the length of a list:
-```
-length : ∀ {A : Set} → List A → ℕ
-length []        =  zero
-length (x ∷ xs)  =  suc (length xs)
-```
-Again, it takes an implicit parameter `A`.
-The length of the empty list is zero.
-The length of a non-empty list
-is one greater than the length of the tail of the list.
-
-Here is an example showing how to compute the length of a list:
-```
-_ : length [ 0 , 1 , 2 ] ≡ 3
-_ =
-  begin
-    length (0 ∷ 1 ∷ 2 ∷ [])
-  ≡⟨⟩
-    suc (length (1 ∷ 2 ∷ []))
-  ≡⟨⟩
-    suc (suc (length (2 ∷ [])))
-  ≡⟨⟩
-    suc (suc (suc (length {ℕ} [])))
-  ≡⟨⟩
-    suc (suc (suc zero))
-  ∎
-```
-Computing the length of a list requires time
-linear in the number of elements in the list.
-
-In the second-to-last line, we cannot write simply `length []` but
-must instead write `length {ℕ} []`.  Since `[]` has no elements, Agda
-has insufficient information to infer the implicit parameter.
-
 
 ## Reasoning about length
 
@@ -1126,7 +979,7 @@ ranges over a binary relation).
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ∷  U+2237  PROPORTION  (\::)
     ⊗  U+2297  CIRCLED TIMES  (\otimes, \ox)

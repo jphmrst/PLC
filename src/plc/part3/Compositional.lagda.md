@@ -532,7 +532,7 @@ with the congruence lemmas for `ℱ` and `●`.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ℱ  U+2131  SCRIPT CAPITAL F (\McF)
     ●  U+2131  BLACK CIRCLE (\cib)

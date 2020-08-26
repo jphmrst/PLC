@@ -36,6 +36,24 @@ Write an expression for forming a `NatProd` from the natural numbers
 `3` and `5`.  Use the `C-c C-n` key sequence as in Exercise
 `try-nat-defs` to check your expression.
 
+#### Exercise `sort2` (starting) {#sort2}
+
+Write a function `sort2` which accepts two numbers, and then creates a
+pair with the smaller of the arguments as the first pair element, and
+the larger as the second pair element.
+
+    sort2 : ℕ → ℕ → NatProd
+    -- Your definition here
+
+    _ : sort2 3 5 ≡ pair 3 5
+    _ = refl
+
+    _ : sort2 5 3 ≡ pair 3 5
+    _ = refl
+
+    _ : sort2 4 4 ≡ pair 4 4
+    _ = refl
+
 ### Extracting the elements of a pair
 
 Here are simple functions for extracting the first and second
@@ -183,21 +201,55 @@ Naturals.
     _ : oddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ (1 ∷ 3 ∷ 3 ∷ [])
     _ = refl
 
-#### Exercise `countoddmembers` (practice) {#countoddmembers}
+#### Exercise `countOddMembers` (practice) {#countOddMembers}
 
-Complete the definition of `countoddmembers`, using the tests
+Complete the definition of `countOddMembers`, using the tests
 to understand what these functions should do.
 
-    countoddmembers : NatList -> ℕ
+    countOddMembers : NatList -> ℕ
     -- Your definition goes here
     
-    _ : countoddmembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 3
+    _ : countOddMembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 3
     _ = refl
     
-    _ : countoddmembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0
+    _ : countOddMembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0
     _ = refl
     
-    _ : countoddmembers [] ≡ 0
+    _ : countOddMembers [] ≡ 0
+    _ = refl
+
+#### Exercise `removeOddMembers` (practice) {#removeOddMembers}
+
+Complete the definition of `removeOddMembers`.
+
+    removeOddMembers : NatList -> NatList
+    -- Your definition goes here
+    
+    _ : removeOddMembers (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ 1 ∷ 3 ∷ 3 ∷ []
+    _ = refl
+    
+    _ : removeOddMembers (0 ∷ 2 ∷ 0 ∷ []) ≡ 0 ∷ 2 ∷ 0 ∷ []
+    _ = refl
+    
+    _ : removeOddMembers [] ≡ []
+    _ = refl
+
+#### Exercise `doubleAll` (practice) {#doubleAll}
+
+Write a function `doubleAll` which takes a list of numbers, and
+returns a list of the same length with double the value of each
+respective element.
+
+    doubleAll : NatList → NatList
+    -- Your definition here
+
+    _ : doubleAll [] ≡ []
+    _ = refl
+
+    _ : doubleAll (2 ∷ []) ≡ (4 ∷ [])
+    _ = refl
+
+    _ : doubleAll (1 ∷ 3 ∷ 4 ∷ []) ≡ (2 ∷ 6 ∷ 8 ∷ [])
     _ = refl
 
 #### Exercise `alternate` (practice) {#alternate}
@@ -223,6 +275,55 @@ pairs, but this is not the only way.
 
     _ : alternate (1 ∷ 2 ∷ 3 ∷ []) (4 ∷ []) ≡ (1 ∷ 4 ∷ 2 ∷ 3 ∷ [])
     _ = refl
+
+#### Exercise `isPalendrome` (practice) {#isPalendrome}
+
+Write a function `isPalendrome` which checks if a `NatList` is the
+same backwards as forwards.
+
+    isPalendrome : NatList → Bool
+    -- Your definition goes here
+
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 2 ∷ 1 ∷ []) ≡ true
+    _ = refl
+
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 3 ∷ 2 ∷ 1 ∷ []) ≡ true
+    _ = refl
+
+    _ : isPalendrome (1 ∷ 2 ∷ 3 ∷ 2 ∷ 4 ∷ []) ≡ false
+    _ = refl
+
+    _ : isPalendrome [] ≡ true
+    _ = refl
+
+#### Exercise `noNeighborDups` (practice) {#noNeighborDups}
+
+Write a function `noNeighborDups` which returns a `NatList` which is
+the same as its argument, except that consecutive instances of the
+same value are removed.
+
+    noNeighborDups : NatList → NatList
+    -- Your definition goes here
+
+    _ : noNeighborDups (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 1 ∷ []
+    _ = refl
+
+    _ : noNeighborDups (1 ∷ 2 ∷ 2 ∷ 2 ∷ 3 ∷ 3 ∷ 1 ∷ 1 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 1 ∷ []
+    _ = refl
+
+    _ : noNeighborDups [] ≡ []
+    _ = refl
+
+#### Exercise `value21` (practice) {#value21}
+
+How would you define a data type to represent the different cards of a
+deck of poker cards? How would you represent a hand of cards?
+
+Define a function `value21` which, given a hand of cards calculates
+its values according to the rules of 21 (Blackjack): that is, all the
+cards from 2 to 10 are worth their face value. Jack, Queen, King count
+as 10. The Ace card is worth 11, but if this would mean the overall
+value of the hand exceeds 21, then an ace is valued at 1.
 
 #### Exercise `stringlists` (practice) {#stringlists}
 
@@ -507,16 +608,22 @@ find key (entry k v pm) with key ≡idᵇ k
 ...                        | false = find key pm
 ```
 
-TODO Discuss with guards
+This function uses a new control structure introduced by `with`.
+After `with` is an expression, and the subsequent `...  |` lines
+should give patterns which cover every case of the values which may be
+the result of the expression.  In this example, there are only two
+possible values `true` and `false`, so we have two different cases.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∷  U+2237  PROPORTION  (\::)
 
 ---
 
 *This page is derived from Pierce et al., with some short exceprts
-from Wadler et al.; for more information see the [sources and
+from Wadler et al., and by Maraist.  Exercise sort2 is derived from
+Keller and Chakravarty.  For more information see the [sources and
 authorship]({{ site.baseurl }}/Sources/) page.*

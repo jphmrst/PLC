@@ -1,5 +1,5 @@
 ---
-title          : Course Pack
+title          : Programming Language Concepts
 layout         : page
 permalink: /
 ---
@@ -51,6 +51,7 @@ CS421/521, Concepts of Programming Languages.
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
+  - [Lists]({{ site.baseurl }}/Lists/)
   - DataProp: Proving properties about pairs, lists, and maps
 
 ### Imperative programming

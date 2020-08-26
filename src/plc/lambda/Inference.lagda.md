@@ -1124,7 +1124,7 @@ answer = 6 * 7
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ↓  U+2193:  DOWNWARDS ARROW (\d)
     ↑  U+2191:  UPWARDS ARROW (\u)

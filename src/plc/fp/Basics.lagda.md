@@ -183,6 +183,19 @@ backticks before and after the code.  The indented code is simply
 taken as another comment like the rest of this text.  The backticks
 surround actual Agda code.
 
+#### Exercise `monthsAndSeasons` (practice) {#monthsAndSeasons}
+
+Write a data type `Month` with twelve constructors, one for each
+month.  Write a function `monthSeason` which maps a month to its
+season,
+
+    data Season : Set where
+      winter : Season
+      spring : Season
+      summer : Season
+      fall : Season
+
+
 ### Booleans
 
 In a similar way, we can define the type `Bool` of booleans, with
@@ -190,8 +203,8 @@ members `true` and `false`.
 
 ```
 data Bool : Set where
-  True  : Bool
-  False : Bool
+  true  : Bool
+  false : Bool
 ```
 
 Although we are rolling our own booleans here for the sake of seeing
@@ -205,16 +218,16 @@ Functions over booleans can be defined in the same way as above:
 
 ```
 not : Bool → Bool
-not True  = False
-not False = True
+not true  = false
+not false = true
 
 _∧_ : Bool → Bool → Bool
-True ∧ t  = t
-False ∧ _ = False
+true ∧ t  = t
+false ∧ _ = false
 
 _∨_ : Bool → Bool → Bool
-True ∨ _  = True
-False ∨ t = t 
+true ∨ _  = true
+false ∨ t = t 
 ```
 
 There are a few uses of the underscore character `_` in these
@@ -231,12 +244,12 @@ defining.
 
 The second way that we use the underscore is in a line like
 
-    True ∨ _  = True
+    true ∨ _  = true
 
 Here the underscore represents an argument which we choose not to
 name.  We choose not to give a name to the second argument in this
 clause because we do not use it: if the first argument to `∨` is
-`True`, then the result is `True` *no matter what* the second argument
+`true`, then the result is `true` *no matter what* the second argument
 is — we do not refer to the second argument at all in calculating the
 result in this case.  Since we do not use the argument, we prefer not
 to bother giving it a name.  This anonymity simplifies the definition,
@@ -263,10 +276,10 @@ given by the following truth table:
 
   | `A`   | `B`   | `nand A B` |
   | ---   | ---   | ---------- |
-  | False | False | True       |
-  | False | True  | True       | 
-  | True  | False | True       |
-  | True  | True  | False      |
+  | false | false | true       |
+  | false | true  | true       | 
+  | true  | false | true       |
+  | true  | true  | false      |
 
     nand : Bool → Bool → Bool
     nand a b = ?
@@ -356,9 +369,26 @@ This library also provides several functions on characters
  - Transforming one character to a related character with `toUpper`,
    `toLower`.
 
+#### Exercise `isLower` (practice) {#isLower}
+
+Implement the `isLower` function that returns the conjunction of three
+boolean values.
+
+    isLower : Char → Bool
+    isLower c = ?
+
+    _ : isLower 'c' ≡ true
+    _ = refl
+
+    _ : isLower 'C' ≡ false
+    _ = refl
+
+Write your own version of `isLower`, without using the one in the
+standard library.
+
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∨  U+2228  LOGICAL OR (\or)
@@ -389,5 +419,6 @@ example) `∸`, you will see `\.-` for the character.
 ---
 
 *This page is derived from Geraldo Ribeiro's translation of Pierce et
-al., with some short exceprts from Wadler et al.; for more information
-see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+al., with some short exceprts from Wadler et al..  Exercise
+monthsAndSeasons is adapted from Thompson.  For more information see
+the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

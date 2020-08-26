@@ -7,7 +7,7 @@ next      : /Equality/
 ---
 
 ```
-module plc.fp.Relations where
+module plc.vfp.Relations where
 ```
 
 After having defined operations such as addition and multiplication,
@@ -815,7 +815,7 @@ and more arguments are implicit.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ≤  U+2264  LESS-THAN OR EQUAL TO (\<=, \le)
     ≥  U+2265  GREATER-THAN OR EQUAL TO (\>=, \ge)

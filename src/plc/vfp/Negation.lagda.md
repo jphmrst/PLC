@@ -7,7 +7,7 @@ next      : /Quantifiers/
 ---
 
 ```
-module plc.fp.Negation where
+module plc.vfp.Negation where
 ```
 
 This chapter introduces negation, and discusses intuitionistic
@@ -21,7 +21,7 @@ open import Data.Nat using (ℕ; zero; suc)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Product using (_×_)
-open import plc.fp.Isomorphism using (_≃_; extensionality)
+open import plc.vfp.Isomorphism using (_≃_; extensionality)
 ```
 
 
@@ -409,7 +409,7 @@ import Relation.Nullary.Negation using (contraposition)
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ¬  U+00AC  NOT SIGN (\neg)
     ≢  U+2262  NOT IDENTICAL TO (\==n)

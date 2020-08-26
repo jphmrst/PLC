@@ -441,7 +441,7 @@ soundness and adequacy of the denotational semantics.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ≈  U+2248  ALMOST EQUAL TO (\~~ or \approx)
     ₑ  U+2091  LATIN SUBSCRIPT SMALL LETTER E (\_e)

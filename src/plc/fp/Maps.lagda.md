@@ -158,11 +158,13 @@ Write a function `containsKey` which returns `true` when a partial map
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
+    λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ↦  U+21A6  RIGHTWARDS ARROW FROM BAR (\mapsto)
     ↪  U+21AA  RIGHTWARDS ARROW WITH HOOK (\hookrightarrow)
+    ∀  U+2200  FOR ALL  (\all)
     ∅  U+2205  EMPTY SET (\emptyset)
     ≡  U+2261  IDENTICAL TO (\==)
 

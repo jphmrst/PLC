@@ -10,6 +10,8 @@ next      : /Functional/
 module plc.fp.Poly where
 open import Data.Bool
 open import Data.Nat
+open import Data.Char
+open import Data.String
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
@@ -93,9 +95,9 @@ constructors.  It is more common to structure generic types to use
 *quantification* for the type argument in the constructors:
 
 ```
-data List : (x : Set) → Set where
-  [] : ∀ {x : Set} → List x
-  _∷_ : ∀ {x : Set} → x → List x → List x
+data List : Set → Set where
+  [] : ∀ {A : Set} → List A
+  _∷_ : ∀ {A : Set} → A → List A → List A
 
 infixr 5 _∷_
 ```
@@ -103,11 +105,11 @@ infixr 5 _∷_
 The symbol ∀ is pronounced "for all."  There is a sense in which these
 constructors are equivalent to our earlier ones, but there are
 advantages to using quantification for constructors and functions.  In
-particular, we can ask Agda to infer the arguments of a type
+particular, we are asking Agda to infer the arguments of a type
 automatically by writing them in curly braces `{` and `}` instead of
-parentheses `(` and `)`:
+parentheses `(` and `)`.
 
-For both of these constructors, `x` becomes an *implicit* type
+For both of these constructors, `A` becomes an *implicit* type
 argument.  Now when we write a list of natural numbers, we do not need
 to write the type argument with every name use.  For example, you can
 use `C-c C-d` to check that
@@ -157,6 +159,14 @@ when Agda sees a list which begins
 since `1` has type `ℕ`, Agda expects that the expression which follows
 the `∷` should have type `List ℕ`.  But `true ∷ []` does not have
 this type, and the evaluator reports an error.
+
+Including the pragma:
+
+    {-# BUILTIN LIST List #-}
+
+tells Agda that the type `List` corresponds to the Haskell type
+list, and the constructors `[]` and `_∷_` correspond to nil and
+cons respectively, allowing a more efficient representation of lists.
 
 The following defiition of `List` is equivalent to the one above:
 
@@ -219,7 +229,7 @@ module MumbleGrumble where
     b : mumble → ℕ → mumble
     c : mumble
 
-  data grumble : Set -> Set where
+  data grumble : Set → Set where
     d : ∀ {x : Set} → mumble → grumble x
     e : ∀ {x : Set} → grumble x
 ```
@@ -236,11 +246,21 @@ checking your answer.
  - `e bool (b c 0)`
  - `c`
 
+#### Exercise `polyListTypes` (practice) {#polyListTypes}
+
+Which of these expressions are well-typed?  What type do those
+expressions have?  Why are the ill-typed expression not well-typed?
+
+    'a' ∷ 'b' ∷ 'c'
+    1 ∷ 'b' ∷ false ∷ []
+    'a' ∷ 'b' ∷ 'c' ∷ []
+    'a' ∷ 'b' ∷ 'c' ∷ 1
+
 #### Exercise `genericlength` (practice) {#genericlength}
 
 Write a polymorphic version of `length`:
 
-    length : ∀ {x} -> List x -> ℕ
+    length : ∀ {x} → List x → ℕ
     -- Your clauses go here
 
     _ : length (true ∷ []) ≡ 1
@@ -254,7 +274,7 @@ Write a polymorphic version of `length`:
 Write a polymorphic function `_++_` for appending two lists:
 
     infixr 5 _++_
-    _++_ : ∀ {x : Set} -> List x -> List x -> List x
+    _++_ : ∀ {x : Set} → List x → List x → List x
     -- Your clauses go here
 
     _ : [] ++ (1 ∷ []) ≡ 1 ∷ []
@@ -272,6 +292,88 @@ Write a polymorphic function `_++_` for appending two lists:
     _ = refl
 
     _ : rev (10 ∷ 20 ∷ 30 ∷ []) ≡ (30 ∷ 20 ∷ 10 ∷ [])
+    _ = refl
+
+#### Strings as lists of characters
+
+The `Data.String` module in the standard library defines two functions
+`toList` and `fromList` which allow a string to be converted to or
+from a list of characters.  These exercises ask you to use these
+functions, together with operations on the resulting lists.  For some
+if these exercises, the character-manipulating functions of module
+`Data.Char` will be helpful.
+
+##### Exercise `capitalize` (practice) {#capitalize}
+
+Write a function `capitalize` which converts all lower-case letters in
+its argument to upper-case letters, and leaves other characters
+unchanged.
+
+    capitalize : String → String
+    capitalize s = ?
+
+    _ : capitalize "" ≡ ""
+    _ = refl
+
+    _ : capitalize "hello3" ≡ "HELLO3"
+    _ = refl
+ 
+##### Exercise `capitalizeOnly` (practice) {#capitalizeOnly}
+
+Write a function `capitalizeOnly` which converts all lower-case
+letters in its argument to upper-case letters, leaves upper-case
+letters alone, and removes other characters from the result.
+
+    capitalizeOnly : String → String
+    capitalizeOnly s = ?
+
+    _ : capitalizeOnly "" ≡ ""
+    _ = refl
+
+    _ : capitalizeOnly "hello3" ≡ "HELLO"
+    _ = refl
+
+##### Exercise `mangle` (practice) {#mangle}
+
+Write a function `mangle` whose result removes the first character of
+a word, and attaches it at the end.  If the argument is empty,
+`mangle` should simply return an empty string.
+
+    mangle : String → String
+    mangle s = ?
+
+    _ : mangle "" ≡ ""
+    _ = refl
+
+    _ : mangle "B" ≡ "B"
+    _ = refl
+
+    _ : mangle "ok" ≡ "ko"
+    _ = refl
+
+    _ : mangle "hello" ≡ "elloh"
+    _ = refl
+
+#### Exercise `matches` (practice) {#matches}
+
+Write a function `matches` which takes two arguments,
+
+ - A number, and
+ - A list of numbers
+
+and removes all occurrences of its first argument from its second
+argument.
+
+    matches : String → String
+    matches s = ?
+
+    _ : matches 10 (1 ∷ 10 ∷ 2 ∷ 10 ∷ 3 ∷ 10 ∷ 4 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
+    _ = refl
+
+    _ : matches 6 [] ≡ []
+    _ = refl
+
+    _ : matches 5 (20 ∷ 21 ∷ 22 ∷ []) ≡ 20 ∷ 21 ∷ 22 ∷ []
     _ = refl
 
 ## Polymorphic pairs
@@ -344,6 +446,68 @@ below.  Make sure it passes the given test.
           ≡ pair (1 ∷ 2 ∷ []) (false ∷ false ∷ [])
     _ = refl
 
+#### Exercise `typesFunctions` (practice) {#typesFunctions}
+
+Write Agda definitions which have the following types:
+
+ - `List (Pair ℕ)`
+ - `ℕ → ℕ → Bool → ℕ`
+ - `Char → Pair Char Char`
+
+#### Exercise `splitList` (practice) {#splitList}
+
+A different notion of splitting is to just cut a list into two parts.
+Write a function `splitList` which takes a number and a list, and
+returns a pair of lists.  Appending the two elements of the pair
+should return the original list, and the first list of the pair should
+have length equal to the number argument.  If the number argument is
+larger than the length of the list argument, then the first element of
+the pair should be the original list, and the second element should be
+empty.
+
+    splitList : ∀ {E : Set} → ℕ → List E → Prod (List E) (List E)
+    -- Your definition goes here
+
+    _ : splitList 1 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ []) (2 ∷ 3 ∷ 1 ∷ [])
+    _ = refl
+
+    _ : splitList 3 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ 2 ∷ 3 ∷ []) (1 ∷ [])
+    _ = refl
+
+    _ : splitList 0 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair [] (1 ∷ 2 ∷ 3 ∷ 1 ∷ [])
+    _ = refl
+
+    _ : splitList 9 (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) ≡ pair (1 ∷ 2 ∷ 3 ∷ 1 ∷ []) []
+    _ = refl
+
+    _ : splitList 3 [] ≡ pair [] []
+    _ = refl
+
+#### Exercise `lengthEncode` (practice) {#lengthEncode}
+
+Write a function `lengthEncode` which converts a string into a list of
+pairs, each pair having a character and a number.  The series of
+characters should be the same as the characters of the string, but
+with consecutive duplicates removed.  The number should be the length
+of that substring of that character only.
+
+    lengthEncode : String → List (Prod Char ℕ)
+    -- Your definition goes here
+
+    _ : lengthEncode "hello" = (pair 'h' 1) ∷ (pair 'e' 1) :: (pair 'l' 2) ∷ (pair 'o' 1) ∷ []
+    _ = refl
+
+#### Exercise `lengthDecode` (practice) {#lengthDecode}
+
+Write a function `lengthDecode` which is the inverse of
+`lengthEncode`.
+
+    lengthDecode : List (Prod Char ℕ) → String
+    -- Your definition goes here
+
+    _ : lengthDecode (pair 'h' 1) ∷ (pair 'e' 1) :: (pair 'l' 2) ∷ (pair 'o' 1) ∷ [] = "hello"
+    _ = refl
+
 ## Polymorphic options
 
 Our third polymorphic type generalizes the `NatMaybe` type into a
@@ -385,19 +549,61 @@ function making sure as usual that it passes its tests.
     hdError : ∀ {X : Type} → List X → Maybe X
     -- Your definition goes here
 
-    _ : hd_error `1;2` = Some 1.
+    _ : hdError (1 ∷ 2 ∷ []) = just 1
     _ = refl
 
-    _ : hd_error  ``1`;`2``  = Some `1`.
+    _ : hdError [] = nothing
+    _ = refl
+
+#### Exercise `lastItem` (practice) {#lastItem}
+
+Write a function `lastItem` which returns the last element of a list,
+if one exists.
+
+    lastItem : ∀ {X : Type} → List X → Maybe X
+    -- Your definition goes here
+
+    _ : lastItem (10 ∷ 9 ∷ 8 ∷ []) = just 8
+    _ = refl
+
+    _ : lastItem (1 ∷ 2 ∷ []) = just 2
+    _ = refl
+
+    _ : lastItem [] = nothing
+    _ = refl
+
+#### Exercise `lastButOne` (practice) {#lastButOne}
+
+Write a function `lastButOne` which returns the last element of a list,
+if one exists.
+
+    lastButOne : ∀ {X : Type} → List X → Maybe X
+    -- Your definition goes here
+
+    _ : lastButOne (11 ∷ 10 ∷ 9 ∷ 8 ∷ []) = just 9
+    _ = refl
+
+    _ : lastButOne (1 ∷ 2 ∷ []) = just 1
+    _ = refl
+
+    _ : lastButOne (1 ∷ []) = nothing
+    _ = refl
+
+    _ : lastButOne [] = nothing
     _ = refl
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL  (\all)
     ∷  U+2237  PROPORTION  (\::)
+    ≡  U+2261  IDENTICAL TO (\==)
 
 ---
 
-*This page is derived from Pierce et al., for more information see the
+*This page is derived from Pierce et al.  Exercises ##### Exercise
+`capitalize`, `capitalizeOnly`, and `matches` are adapted from
+Thompson.  For more information see the
 [sources and authorship]({{ site.baseurl }}/Sources/) page.*

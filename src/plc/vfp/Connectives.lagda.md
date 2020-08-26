@@ -7,7 +7,7 @@ next      : /Negation/
 ---
 
 ```
-module plc.fp.Connectives where
+module plc.vfp.Connectives where
 ```
 
 <!-- The ⊥ ⊎ A ≅ A exercise requires a (inj₁ ()) pattern,
@@ -35,8 +35,8 @@ open Eq using (_≡_; refl)
 open Eq.≡-Reasoning
 open import Data.Nat using (ℕ)
 open import Function using (_∘_)
-open import plc.fp.Isomorphism using (_≃_; _≲_; extensionality)
-open plc.fp.Isomorphism.≃-Reasoning
+open import plc.vfp.Isomorphism using (_≃_; _≲_; extensionality)
+open plc.vfp.Isomorphism.≃-Reasoning
 ```
 
 
@@ -780,7 +780,7 @@ respect to an arbitrary notion of equivalence.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ×  U+00D7  MULTIPLICATION SIGN (\x)
     ⊎  U+228E  MULTISET UNION (\u+)

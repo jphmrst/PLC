@@ -31,7 +31,7 @@ open import Data.Product
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Function using (_∘_)
-open import plc.fp.Isomorphism
+open import plc.vfp.Isomorphism
 open import plc.lambda.Lambda
 ```
 
@@ -1565,7 +1565,7 @@ other alterations we would wish to make to the system?
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ƛ  U+019B  LATIN SMALL LETTER LAMBDA WITH STROKE (\Gl-)
     Δ  U+0394  GREEK CAPITAL LETTER DELTA (\GD or \Delta)

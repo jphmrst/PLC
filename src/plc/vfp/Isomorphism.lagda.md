@@ -7,7 +7,7 @@ next      : /Connectives/
 ---
 
 ```
-module plc.fp.Isomorphism where
+module plc.vfp.Isomorphism where
 ```
 
 This section introduces isomorphism as a way of asserting that two
@@ -27,61 +27,15 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.Nat.Properties using (+-comm)
 ```
 
+## Preliminaries
 
-## Lambda expressions
+We will use the definition of function composition which we saw in
+[the Functional section]({{ site.baseurl }}/Functional/#fnComposition).
 
-The chapter begins with a few preliminaries that will be useful
-here and elsewhere: lambda expressions, function composition, and
-extensionality.
-
-_Lambda expressions_ provide a compact way to define functions without
-naming them.  A term of the form
-
-    λ{ P₁ → N₁; ⋯ ; Pₙ → Nₙ }
-
-is equivalent to a function `f` defined by the equations
-
-    f P₁ = N₁
-    ⋯
-    f Pₙ = Nₙ
-
-where the `Pₙ` are patterns (left-hand sides of an equation) and the
-`Nₙ` are expressions (right-hand side of an equation).
-
-In the case that there is one equation and the pattern is a variable,
-we may also use the syntax
-
-    λ x → N
-
-or
-
-    λ (x : A) → N
-
-both of which are equivalent to `λ{x → N}`. The latter allows one to
-specify the domain of the function.
-
-Often using an anonymous lambda expression is more convenient than
-using a named function: it avoids a lengthy type declaration; and the
-definition appears exactly where the function is used, so there is no
-need for the writer to remember to declare it in advance, or for the
-reader to search for the definition in the code.
-
-
-## Function composition
-
-In what follows, we will make use of function composition:
 ```
 _∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
 (g ∘ f) x  = g (f x)
 ```
-Thus, `g ∘ f` is the function that first applies `f` and
-then applies `g`.  An equivalent definition, exploiting lambda
-expressions, is as follows:
-```
-_∘′_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
-g ∘′ f  =  λ x → g (f x)
-```
-
 
 ## Extensionality {#extensionality}
 
@@ -503,7 +457,7 @@ parameterised with regard to an arbitrary notion of equivalence.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ∘  U+2218  RING OPERATOR (\o, \circ, \comp)
     λ  U+03BB  GREEK SMALL LETTER LAMBDA (\lambda, \Gl)

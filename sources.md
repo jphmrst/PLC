@@ -34,6 +34,10 @@ The material for this course is drawn from a number of online sources:
    - We believe that this translation inherits the licensing of the
      original.
 
+ - Some exercises are derived from [Keller and Chakravarty][KC]'s
+   tutorial, or from Thompson's book **Haskell: The Craft of
+   Functional Programming**.
+
  - Other portions of this document were written by John Maraist, and
    are released under the [Creative Commons Attribution 4.0
    International license][CCA4].
@@ -45,3 +49,4 @@ The material for this course is drawn from a number of online sources:
 [SFPLF]: https://softwarefoundations.cis.upenn.edu/current/plf-current/index.html
 [SFLFtrans]: https://github.com/rodrigogribeiro/agda-software-foundations
 [CCA4]: https://github.com/plfa/plfa.github.io/blob/dev/LICENSE
+[KC]: http://learn.hfm.io/

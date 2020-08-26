@@ -7,7 +7,7 @@ next      : /Isomorphism/
 ---
 
 ```
-module plc.fp.Equality where
+module plc.vfp.Equality where
 ```
 
 Much of our reasoning has involved equality.  Given two terms `M`
@@ -716,7 +716,7 @@ collisions, as mentioned in the introduction.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ≡  U+2261  IDENTICAL TO (\==, \equiv)
     ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)

@@ -186,6 +186,8 @@ travis-setup:\
 
 .phony: travis-setup
 
+TODO:
+	ack --org --agda TODO --ignore-directory=out --ignore-directory=_site --ignore-directory=extra
 
 # Agda
 

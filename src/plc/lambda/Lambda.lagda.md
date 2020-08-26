@@ -1381,7 +1381,7 @@ showing that it is well typed.
 
 ## Unicode
 
-This chapter uses the following unicode:
+This section uses the following Unicode symbols:
 
     ⇒  U+21D2  RIGHTWARDS DOUBLE ARROW (\=>)
     ƛ  U+019B  LATIN SMALL LETTER LAMBDA WITH STROKE (\Gl-)
