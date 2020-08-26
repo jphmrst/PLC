@@ -3,16 +3,15 @@ title     : "Lists: Properties of data structures"
 layout    : page
 prev      : /Decidable/
 permalink : /Lists/
-next      : /
+next      : /MapProps/
 ---
 
 ```
 module plc.vfp.Lists where
 ```
 
-This section discusses the list data type.  It gives further examples
-of many of the techniques we have developed so far, and provides
-examples of polymorphic types and higher-order functions.
+In this section we revisit the `List` data type, and study its
+properties.
 
 ## Imports
 
