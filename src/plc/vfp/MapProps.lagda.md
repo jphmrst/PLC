@@ -10,8 +10,18 @@ next      : /
 module plc.vfp.MapProps where
 ```
 
-In this section we revisit the partial and total map types we defined
-earlier, and study their properties.
+This section is mostly exercises.  We revisit the partial and total
+map types we defined earlier, and use the techniques of the previous
+sections to establish their properties.
+
+Most of the exercises in this section are written a little differently
+than the exercises in earlier sections.  We use `postulate` keyword,
+which we saw earlier in the [Equality]({{ site.baseurl }}/Equality/)
+section.  Here, the `postulate` keyword allows us to use these lemmas
+in later sections, even if you are not able to complete all of the
+exercises, or complete them in a different file.  When you work the
+exercises, be sure to remove the `postulate` keyword when you add your
+proof.
 
 ## Imports
 
@@ -41,8 +51,10 @@ design simplifies some of the proofs we will construct.
 
 Show that the empty map returns its default element for all keys:
 
-    tApplyEmpty : ∀ (A : Set) (x : string) (v : A) → (↦ v) x = v
-    -- Fill in your proof here
+```
+postulate tApplyEmpty : ∀ (A : Set) (x : String) (v : A) → (↪ v) x ≡ v
+-- Remove the keyword postulate, and fill in your proof here
+```
     
 #### Exercise `tUpdateEq` (recommended)
 
@@ -50,8 +62,11 @@ Show that if we update a map `m` at a key `x` with a new value `v` and
 then look up `x` in the map resulting from the `update`, we get back
 `v`.
 
-    tUpdateEq : ∀ (A : Set) (m : TotalMap A) x (v : A) → (x ↦ v , m) x = v
-    -- Fill in your proof here
+```
+postulate tUpdateEq : ∀ (A : Set) (m : TotalMap A) x (v : A)
+                        → (x ↦ v , m) x ≡ v
+-- Remove the keyword postulate, and fill in your proof here
+```
     
 #### Exercise `tUpdateNeq` (recommended)
 
@@ -59,9 +74,12 @@ On the other hand, show that if we update a map `m` at a key `x1` and
 then look up a _different_ key `x2` in the resulting map, we get the
 same result that `m` would have given.
 
-    tUpdateNeq : ∀ (A : Set) (m : TotalMap A) x1 x2 v → 
-                   not (x1 == x2) → (x1 ↦ v , m) x2 = m x2
-    -- Fill in your proof here
+```
+postulate tUpdateNeq : ∀ (A : Set) (m : TotalMap A) x1 x2 v
+                         → T (not (x1 == x2))
+                           → (x1 ↦ v , m) x2 ≡ m x2
+-- Remove the keyword postulate, and fill in your proof here
+```
 
 #### Exercise `tUpdateShadow` (recommended)
 
@@ -71,212 +89,109 @@ resulting map behaves the same (gives the same result when applied to
 any key) as the simpler map obtained by performing just the *second*
 `update` on `m`:
 
-    tUpdateShadow : ∀ (A : Set) (m : TotalMap A) x v1 v2 → 
-                          (x ↦ v2 , x ↦ v1 , m) = (x ↦ v2 , m)
-    -- Fill in your proof here
+```
+postulate tUpdateShadow : ∀ (A : Set) (m : TotalMap A) x v1 v2
+                            → (x ↦ v2 , x ↦ v1 , m) ≡ (x ↦ v2 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-TODO Convert from here on
 
-(** TERSE: *** *)
-(** For the final two lemmas about total maps, it's convenient to use
-    the reflection idioms introduced in chapter \CHAP{IndProp}.  We begin
-    by proving a fundamental _reflection lemma_ relating the equality
-    proposition on strings with the boolean function `eqb_string`. *)
+{::comment}
+-- #### Exercise `tUpdateShadow` (recommended)
 
-(* TERSE: HIDEFROMHTML *)
-(* EX2? (eqb_stringP) *)
-(** Use the proof of `eqbP` in chapter \CHAP{IndProp} as a template to
-    prove the following: *)
-(* TERSE: /HIDEFROMHTML *)
+-- For this and the next lemma, it is convenient to use the reflection
+-- idioms introduced in chapter \CHAP{IndProp}.  We begin by proving a
+-- fundamental _reflection lemma_ relating the equality proposition on
+-- strings with the boolean function `eqb_string`.
 
-Lemma eqb_stringP : forall x y : string,
-    reflect (x = y) (eqb_string x y).
-(* TERSE: FOLD *)
-Proof.
-  (* ADMITTED *)
-  intros x y.
-  apply iff_reflect. rewrite eqb_string_true_iff.
-  reflexivity.
-Qed.
-(* /ADMITTED *)
-(* TERSE: /FOLD *)
-(* TERSE: HIDEFROMHTML *)
-(** `` *)
-(* TERSE: /HIDEFROMHTML *)
+-- postulate eqbStringP : ∀ (x y : String) → x ≡ y ⇔ x == y
+-- -- Remove the keyword postulate, and fill in your proof here
+-- 
+-- Now, given `string`s `x1` and `x2`, we can use the tactic
+--     `destruct (eqb_stringP x1 x2)` to simultaneously perform case
+--     analysis on the result of `eqb_string x1 x2` and generate
+--     hypotheses about the equality (in the sense of `=`) of `x1`
+--     and `x2`. *)
+{:/comment}
 
-(** TERSE: *** *)
-(** Now, given `string`s `x1` and `x2`, we can use the tactic
-    `destruct (eqb_stringP x1 x2)` to simultaneously perform case
-    analysis on the result of `eqb_string x1 x2` and generate
-    hypotheses about the equality (in the sense of `=`) of `x1`
-    and `x2`. *)
+#### Exercise `tUpdateSame` (recommended)
 
-(* TERSE: HIDEFROMHTML *)
-(* EX2 (t_update_same) *)
-(** With the example in chapter \CHAP{IndProp} as a template, use
-    `eqb_stringP` to prove the following theorem, which states that
-    if we update a map to assign key `x` the same value as it already
-    has in `m`, then the result is equal to `m`: *)
-(* TERSE: /HIDEFROMHTML *)
+Show that if we update a map to assign key `x` the same value as it
+already has in `m`, then the result is equal to `m`:
 
-Theorem t_update_same : forall (A : Set) (m : TotalMap A) x,
-    (x ↦ m x ; m) = m.
-(* TERSE: FOLD *)
-Proof.
-  (* ADMITTED *)
-  intros A m x1. apply functional_extensionality. intros x2.
-  unfold t_update.
-  destruct (eqb_stringP x1 x2) as `H | H`.
-  - (* x1 = x2 *)
-    rewrite H. reflexivity.
-  - (* false *)
-    reflexivity.  Qed.
-(* /ADMITTED *)
-(* TERSE: /FOLD *)
-(* TERSE: HIDEFROMHTML *)
-(** `` *)
+```
+postulate tUpdateSame : ∀ (A : Set) (m : TotalMap A) x → (x ↦ m x , m) ≡ m
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-(* EX3! (t_update_permute) *)
-(** Use `eqb_stringP` to prove one final property of the `update`
-    function: If we update a map `m` at two distinct keys, it doesn't
-    matter in which order we do the updates. *)
-(* TERSE: /HIDEFROMHTML *)
+#### Exercise `tUpdatePermute` (recommended)
 
-Theorem t_update_permute : forall (A : Set) (m : TotalMap A)
-                                  v1 v2 x1 x2,
-    x2 <> x1 ->
-    (x1 ↦ v1 ; x2 ↦ v2 ; m)
-    =
-    (x2 ↦ v2 ; x1 ↦ v1 ; m).
-(* TERSE: FOLD *)
-Proof.
-  (* ADMITTED *)
-  intros A m v1 v2 x1 x2 H.
-  apply functional_extensionality. intros x3.
-  rewrite <- eqb_string_false_iff in H.
-  unfold t_update.
-  destruct (eqb_stringP x1 x3) as `Heq | Hneq`.
-  - (* eqb_id x1 x3 = true *)
-    rewrite Heq in H. rewrite H. reflexivity.
-  - (* eqb_id x1 x3 = false *) reflexivity.
-Qed.
-(* /ADMITTED *)
-(* TERSE: /FOLD *)
-(* TERSE: HIDEFROMHTML *)
-(* GRADE_THEOREM 3: t_update_permute *)
-(** `` *)
-(* TERSE: /HIDEFROMHTML *)
+Show that if we update a map `m` at two distinct keys, it doesn't
+matter in which order we do the updates.
+
+```
+postulate tUpdatePermute : ∀ (A : Set) (m : TotalMap A) v1 v2 x1 x2
+                             → T (not (x2 == x1))
+                                → (x1 ↦ v1 , x2 ↦ v2 , m)
+                                    ≡ (x2 ↦ v2 , x1 ↦ v1 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
 
 ## Properties of partial maps
 
-(** Finally, we define _partial maps_ on top of total maps.  A partial
-    map with elements of type `A` is simply a total map with elements
-    of type `option A` and default element `None`. *)
+We can straightforwardly lift all of the basic lemmas about total maps
+to partial maps.
 
-Definition partial_map (A : Set) := TotalMap (option A).
+#### Exercise `applyEmpty` (recommended)
 
-Definition empty {A : Set} : partial_map A :=
-  t_empty None.
+```
+postulate applyEmpty : ∀ (A : Set) (x : String) → ∅ {A} x ≡ nothing
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-(* HIDE: Notation "'\empty'" := empty. *)
+#### Exercise `updateEq` (recommended)
 
-Definition update {A : Set} (m : partial_map A)
-           (x : string) (v : A) :=
-  (x ↦ Some v ; m).
+```
+postulate updateEq : ∀ (A : Set) (m : PartialMap A) x v
+                       → (x ↦ₚ v , m) x ≡ just v
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-(** TERSE: *** *)
-(** We introduce a similar notation for partial maps: *)
-Notation "x '|->' v ';' m" := (update m x v)
-  (at level 100, v at next level, right associativity).
+#### Exercise `updateNeq` (recommended)
 
-(** We can also hide the last case when it is empty. *)
-Notation "x '|->' v" := (update empty x v)
-  (at level 100).
+```
+postulate updateNeq : ∀ (A : Set) (m : PartialMap A) x1 x2 v
+                        → T (not (x2 == x1))
+                          → (x2 ↦ₚ v , m) x1 ≡ m x1
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-Example examplepmap :=
-  ("Church" |-> true ; "Turing" |-> false).
+#### Exercise `updateShadow` (recommended)
 
-(** TERSE: *** *)
-(** We now straightforwardly lift all of the basic lemmas about total
-    maps to partial maps.  *)
+```
+postulate updateShadow : ∀ (A : Set) (m : PartialMap A) x v1 v2
+                           → (x ↦ₚ v2 , x ↦ₚ v1 , m) ≡ (x ↦ₚ v2 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-Lemma apply_empty : forall (A : Set) (x : string),
-    @empty A x = None.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros. unfold empty. rewrite t_apply_empty.
-  reflexivity.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
+#### Exercise `updateSame` (recommended)
 
-Lemma update_eq : forall (A : Set) (m : partial_map A) x v,
-    (x |-> v ; m) x = Some v.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros. unfold update. rewrite t_update_eq.
-  reflexivity.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
+```
+postulate updateSame : ∀ (A : Set) (m : PartialMap A) x v
+                         → m x ≡ just v
+                           → (x ↦ₚ v , m) ≡ m
+-- Remove the keyword postulate, and fill in your proof here
+```
 
-Theorem update_neq : forall (A : Set) (m : partial_map A) x1 x2 v,
-    x2 <> x1 ->
-    (x2 |-> v ; m) x1 = m x1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros A m x1 x2 v H.
-  unfold update. rewrite t_update_neq. reflexivity.
-  apply H. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
+#### Exercise `updatePermute` (recommended)
 
-Lemma update_shadow : forall (A : Set) (m : partial_map A) x v1 v2,
-    (x |-> v2 ; x |-> v1 ; m) = (x |-> v2 ; m).
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros A m x v1 v2. unfold update. rewrite t_update_shadow.
-  reflexivity.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Theorem update_same : forall (A : Set) (m : partial_map A) x v,
-    m x = Some v ->
-    (x |-> v ; m) = m.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros A m x v H. unfold update. rewrite <- H.
-  apply t_update_same.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Theorem update_permute : forall (A : Set) (m : partial_map A)
-                                x1 x2 v1 v2,
-    x2 <> x1 ->
-    (x1 |-> v1 ; x2 |-> v2 ; m) = (x2 |-> v2 ; x1 |-> v1 ; m).
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros A m x1 x2 v1 v2. unfold update.
-  apply t_update_permute.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-(* HIDE *)
-(*
-Local Variables:
-fill-column: 70
-End:
-*)
-(* /HIDE *)
+```
+postulate updatePermute : ∀ (A : Set) (m : PartialMap A) x1 x2 v1 v2
+                            → T (not (x2 == x1))
+                              → (x1 ↦ₚ v1 , x2 ↦ₚ v2 , m)
+                                  ≡ (x2 ↦ₚ v2 , x1 ↦ₚ v1 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
 
 ---
 
