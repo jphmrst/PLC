@@ -13,7 +13,7 @@ CS421/521, Concepts of Programming Languages.
     before the first week of class
   - [Announcements](https://uwlac.instructure.com/courses/334351/announcements):
     The Canvas announcements area
-  - Intro: What we will study, and why it is important 
+  - [Intro](https://uwlac.instructure.com/courses/334351/pages/what-we-will-study?module_item_id=6031628): What we will study, and why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
     other programs on your machine
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
