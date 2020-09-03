@@ -10,14 +10,8 @@ next      : /MapProps/
 module plc.vfp.Lists where
 ```
 
-<<<<<<< HEAD:src/plc/vfp/Lists.lagda.md
-This section discusses the list data type.  It gives further examples
-of many of the techniques we have developed so far, and provides
-examples of polymorphic types and higher-order functions.
-=======
 In this section we revisit the `List` data type, and study its
 properties.
->>>>>>> 4bd13fb2710c984c41c9cc0ed4fa1ae0c35977dd:src/plc/fp/Lists.lagda.md
 
 ## Imports
 
@@ -34,15 +28,11 @@ open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_�
 open import Function using (_∘_)
 open import Level using (Level)
 open import plc.vfp.Isomorphism using (_≃_; _⇔_)
-<<<<<<< HEAD:src/plc/vfp/Lists.lagda.md
 ```
 
 ## Lists redux
 
 ```
-=======
-
->>>>>>> 4bd13fb2710c984c41c9cc0ed4fa1ae0c35977dd:src/plc/fp/Lists.lagda.md
 data List (A : Set) : Set where
   []  : List A
   _∷_ : A → List A → List A
