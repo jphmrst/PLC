@@ -349,6 +349,7 @@ letters alone, and removes other characters from the result.
     capitalizeOnly s = ?
 
     _ : capitalizeOnly "" ≡ ""
+<<<<<<< HEAD
     _ = refl
 
     _ : capitalizeOnly "hello3" ≡ "HELLO"
@@ -454,6 +455,31 @@ a word, and attaches it at the end.  If the argument is empty,
     _ : mangle "ok" ≡ "ko"
     _ = refl
 
+=======
+    _ = refl
+
+    _ : capitalizeOnly "hello3" ≡ "HELLO"
+    _ = refl
+
+##### Exercise `mangle` (practice) {#mangle}
+
+Write a function `mangle` whose result removes the first character of
+a word, and attaches it at the end.  If the argument is empty,
+`mangle` should simply return an empty string.
+
+    mangle : String → String
+    mangle s = ?
+
+    _ : mangle "" ≡ ""
+    _ = refl
+
+    _ : mangle "B" ≡ "B"
+    _ = refl
+
+    _ : mangle "ok" ≡ "ko"
+    _ = refl
+
+>>>>>>> 4bd13fb2710c984c41c9cc0ed4fa1ae0c35977dd
     _ : mangle "hello" ≡ "elloh"
     _ = refl
 
