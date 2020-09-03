@@ -132,7 +132,7 @@ You will need Git to access the specific version of Agda we use.  If
 you do not already have Git installed on your system, see the [git
 downloads page](https://git-scm.com/downloads).
 
-# Installing Agda and its standard libraries
+# Installing the core Agda system
 
 To install the specific version of Agda we need, we will first
 download that version, and then ask Stack to install it for us.
@@ -162,7 +162,37 @@ download that version, and then ask Stack to install it for us.
     system is old or fragile, then your best results may come from
     exiting other programs and leaving it alone to complete.
 
- 3. *Downloading the standard libraries* is similar to downloading
+*Verifying the base Agda system*.  After these two steps succeed, you
+ be able load Agda files which do not use any external libraries:
+
+ - Create a file `testdefs.agda` with these lines (keep the
+   indentation of the second and third lines as shown):
+
+       data Switch : Set where
+         on : Switch
+         off : Switch
+
+       oneSwitchSettings : Switch
+       oneSwitchSettings = on
+
+ - From a command line, change to the same directory where your
+   `testdefs.agda` file is located.  Then enter the command:
+
+       agda -v 2 testdefs.agda
+
+   You should see a short message like
+
+       Loading  testdefs (/path/to/your/directory/testdefs.agdai).
+
+   or
+
+       Checking  testdefs (/path/to/your/directory/testdefs.agdai).
+
+   but without any reported errors.
+   
+# Installing the Agda standard libraries
+
+ 1. *Downloading the standard libraries* is similar to downloading
     Agda itself:
     ```bash
     git clone https://github.com/agda/agda-stdlib.git
@@ -173,22 +203,57 @@ download that version, and then ask Stack to install it for us.
     Again, it is possible as an alternative to download a ZIP archive
     of that version from [the library GitHub site][agda-stdlib].
 
- 4. *Let Agda know where to find the standard libraries.* Follow the
+ 2. *Let Agda know where to find the standard libraries.* Follow the
     instructions [here][agda-docs-package-system] to set up your
     `.agda` drectory.
 
- 5. *Update Agda for output binaries.* 
+*Verifying the Agda standard libraries installation*.  After these two
+steps succeed, you be able load Agda files which use standard
+libraries:
+
+ - Create a file `testnats.agda` with these lines (keep the
+   indentation of the second and third lines as shown):
+
+       open import Data.Nat
+       x : ℕ
+       x = 10
+
+   Note that the ℕ is a Unicode character, not a plain capital N.  You
+   should be able to just copy-and-paste it from this page into your
+   file.
+
+ - From a command line, change to the same directory where your
+   `testnats.agda` file is located.  Then enter the command:
+
+       agda -v 2 testnats.agda
+
+   You should see several lines describing the external libraries
+   which Agda loads on behalf of your file, such as:
+
+       Loading  Agda.Builtin.Equality (/path/to/some/directory/Agda/Builtin/Equality.agdai).
+          Loading  Level (/path/to/some/directory/Level.agdai).
+         Loading  Data.Empty (/path/to/some/directory/Data/Empty.agdai).
+
+# Enable generating standalone binaries
+
+I believe that this section is **optional** if all you want to do is
+debug and load the exercises in this book and similar definitions, and
+evaluate expressions using them.  You should be able to skip to
+"Installing the Course Pack sources" from this point.
+
+Enter the following commands at the command line:
+
     ```bash
     cabal v2-repl --build-dep fail
     cabal v2-install --lib Agda ieee754 -v
     ```
 
-    **The second command will take a while to complete.** Moreover, if
-    your system is old or fragile, then your best results may come
-    from exiting other programs and leaving it alone to complete.
+**The second command will take a while to complete.** Moreover, if
+your system is old or fragile, then your best results may come from
+exiting other programs and leaving it alone to complete.
 
-*Verifying the Agda installation.* When you finish those five numbered
-steps, you should be able to compile and run a Hello World program:
+*Verifying standalone binary generation.* After these commands
+succeed, you should be able to compile and run a Hello World program:
 
  - Create a new directory, and save the following lines as the file
    `hello-world.agda`:
