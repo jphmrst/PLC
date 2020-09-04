@@ -16,7 +16,9 @@ CS421/521, Concepts of Programming Languages.
   - [Intro](https://uwlac.instructure.com/courses/334351/pages/what-we-will-study?module_item_id=6031628): What we will study, and why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
     other programs on your machine
-  - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
+    - [UWL]({{ site.baseurl }}/UWL/): Configuring and using
+      Agda on UWL machines
+- [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
 ## Functional programming
