@@ -34,7 +34,8 @@ Windows start menu (lower-left corner) of applications.
    for the standard library from the `.agda/libraries` file should be
    to `C:\Program Files\Agda\stdlib\standard-library.agda-lib`.
 
- - Your project files should go within the
+ - Your local Agda files --- such as your local copy (copies) of the
+   Course Pack --- should go within the
    `C:\Users\YOURACCOUNT\Documents` directories, replacing
    `YOURACCOUNT` with your Windows user ID.
 
