@@ -9,7 +9,7 @@ next :     /Sources/
 This page contains information about using Agda on UWL machines,
 instead of installing it on your own machine.
 
-## ITS general-access Windows PCs
+# ITS general-access Windows PCs
 
 **This installation is in progress, and may not work yet.  This
 section will be updated with additional details when everything is
@@ -78,7 +78,7 @@ You can verify your setup by creating and loading the `testnats.agda`
 file described in the _Installing the Agda standard libraries_ section
 of the [main setup sheet]({{ site.baseurl }}/Setup/).
 
-### Access to ITS Windows PCs via the Virtual Desktop
+## Access to ITS Windows PCs via the Virtual Desktop
 
 **I have not yet tried the remote desktop steps myself.  Please report
 successes/failures so that I can update these notes as needed.**
@@ -104,12 +104,12 @@ client) to your local personal computer.  ITS will **not** be able to
 restore files lost when exiting the Virtual Desktop; they do **not**
 back them up.
 
-## CS lab macs
+# CS lab macs
 
 This installation is in progress, and this section will be updated
 with instructions when it is ready.
 
-### Remote access to the CS lab Macs
+## Remote access to the CS lab Macs
 
 Information forthcoming.
 
