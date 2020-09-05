@@ -9,7 +9,7 @@ CS421/521, Concepts of Programming Languages.
 
 ## About this class
 
-  - [Syllabus]({{ site.baseurl }}/syllabus.pdf)
+  - [Syllabus]({{ site.baseurl }}/syllabus.pdf): Access from on-campus or via the VPN
   - [Announcements](https://uwlac.instructure.com/courses/334351/announcements):
     The Canvas announcements area
   - [Intro](https://uwlac.instructure.com/courses/334351/pages/what-we-will-study?module_item_id=6031628): What we will study, and why it is important 
