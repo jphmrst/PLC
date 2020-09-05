@@ -218,6 +218,23 @@ to understand what these functions should do.
     _ : countOddMembers [] ≡ 0
     _ = refl
 
+#### Exercise `reverse` (practice) {#reverse}
+
+Write a function `reverse`, which takes a `NatList`, and returns
+another list with the same elements in the reverse order.
+
+    reverse : NatList → NatList
+    -- Your definition goes here
+    
+    _ : reverse (0 ∷ 1 ∷ 2 ∷ 3 ∷ 3 ∷ 0 ∷ []) ≡ (0 ∷ 3 ∷ 3 ∷ 2 ∷ 1 ∷ 0 ∷ [])
+    _ = refl
+    
+    _ : reverse (0 ∷ 2 ∷ 0 ∷ []) ≡ (0 ∷ 2 ∷ 0 ∷ [])
+    _ = refl
+
+    _ : reverse [] = []
+    _ = refl
+
 #### Exercise `removeOddMembers` (practice) {#removeOddMembers}
 
 Complete the definition of `removeOddMembers`.
