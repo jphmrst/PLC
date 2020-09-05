@@ -1,5 +1,5 @@
 ---
-title          : Programming Language Concepts — Course Pack
+title          : Programming Language Concepts
 layout         : page
 permalink: /
 ---
@@ -9,10 +9,6 @@ CS421/521, Concepts of Programming Languages.
 
 ## About this class
 
-  - [Syllabus]({{ site.baseurl }}/syllabus.pdf): Access from on-campus or via the VPN
-  - [Announcements](https://uwlac.instructure.com/courses/334351/announcements):
-    The Canvas announcements area
-  - [Intro](https://uwlac.instructure.com/courses/334351/pages/what-we-will-study?module_item_id=6031628): What we will study, and why it is important 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
     other programs on your machine
     - [UWL]({{ site.baseurl }}/UWL/): Configuring and using
@@ -45,10 +41,6 @@ CS421/521, Concepts of Programming Languages.
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
   - [Lists]({{ site.baseurl }}/Lists/): Properties of data structures
   - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
-
-## Additional content modules will be posted as they are ready
-
-{::comment}
 
 ## Incomplete
 

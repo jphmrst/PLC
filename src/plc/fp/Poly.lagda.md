@@ -349,7 +349,6 @@ letters alone, and removes other characters from the result.
     capitalizeOnly s = ?
 
     _ : capitalizeOnly "" ≡ ""
-<<<<<<< HEAD
     _ = refl
 
     _ : capitalizeOnly "hello3" ≡ "HELLO"
@@ -373,113 +372,6 @@ a word, and attaches it at the end.  If the argument is empty,
     _ : mangle "ok" ≡ "ko"
     _ = refl
 
-    _ : mangle "hello" ≡ "elloh"
-    _ = refl
-
-#### Exercise `matches` (practice) {#matches}
-
-Write a function `matches` which takes two arguments,
-
- - A number, and
- - A list of numbers
-
-and removes all occurrences of its first argument from its second
-argument.
-
-    matches : String → String
-    matches s = ?
-
-    _ : matches 10 (1 ∷ 10 ∷ 2 ∷ 10 ∷ 3 ∷ 10 ∷ 4 ∷ []) ≡ 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
-    _ = refl
-
-    _ : matches 6 [] ≡ []
-    _ = refl
-
-    _ : matches 5 (20 ∷ 21 ∷ 22 ∷ []) ≡ 20 ∷ 21 ∷ 22 ∷ []
-    _ = refl
-
-#### Strings as lists of characters
-
-The `Data.String` module in the standard library defines two functions
-`toList` and `fromList` which allow a string to be converted to or
-from a list of characters.  These exercises ask you to use these
-functions, together with operations on the resulting lists.  For some
-if these exercises, the character-manipulating functions of module
-`Data.Char` will be helpful.
-
-##### Exercise `capitalize` (practice) {#capitalize}
-
-Write a function `capitalize` which converts all lower-case letters in
-its argument to upper-case letters, and leaves other characters
-unchanged.
-
-    capitalize : String → String
-    capitalize s = ?
-
-    _ : capitalize "" ≡ ""
-    _ = refl
-
-    _ : capitalize "hello3" ≡ "HELLO3"
-    _ = refl
- 
-##### Exercise `capitalizeOnly` (practice) {#capitalizeOnly}
-
-Write a function `capitalizeOnly` which converts all lower-case
-letters in its argument to upper-case letters, leaves upper-case
-letters alone, and removes other characters from the result.
-
-    capitalizeOnly : String → String
-    capitalizeOnly s = ?
-
-    _ : capitalizeOnly "" ≡ ""
-    _ = refl
-
-    _ : capitalizeOnly "hello3" ≡ "HELLO"
-    _ = refl
-
-##### Exercise `mangle` (practice) {#mangle}
-
-Write a function `mangle` whose result removes the first character of
-a word, and attaches it at the end.  If the argument is empty,
-`mangle` should simply return an empty string.
-
-    mangle : String → String
-    mangle s = ?
-
-    _ : mangle "" ≡ ""
-    _ = refl
-
-    _ : mangle "B" ≡ "B"
-    _ = refl
-
-    _ : mangle "ok" ≡ "ko"
-    _ = refl
-
-=======
-    _ = refl
-
-    _ : capitalizeOnly "hello3" ≡ "HELLO"
-    _ = refl
-
-##### Exercise `mangle` (practice) {#mangle}
-
-Write a function `mangle` whose result removes the first character of
-a word, and attaches it at the end.  If the argument is empty,
-`mangle` should simply return an empty string.
-
-    mangle : String → String
-    mangle s = ?
-
-    _ : mangle "" ≡ ""
-    _ = refl
-
-    _ : mangle "B" ≡ "B"
-    _ = refl
-
-    _ : mangle "ok" ≡ "ko"
-    _ = refl
-
->>>>>>> 4bd13fb2710c984c41c9cc0ed4fa1ae0c35977dd
     _ : mangle "hello" ≡ "elloh"
     _ = refl
 
