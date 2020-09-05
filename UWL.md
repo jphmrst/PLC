@@ -6,10 +6,14 @@ permalink: /UWL/
 next :     /Sources/
 ---
 
-This page contains information about using Agda on UWL machines,
-instead of installing it on your own machine.
+This page contains information about three ways of using Agda on UWL
+machines, instead of installing it on your own machine.
 
-## ITS general-access Windows PCs
+ 1. [ITS general-access Windows PCs](#ITSPC)
+ 2. [The ITS Windows Virtual Desktop](#ITSVIRT)
+ 3. [CS lab macs](#CSMAC)
+
+## ITS general-access Windows PCs {#ITSPC}
 
 Agda and Emacs are installed on general-access ITS Windows machines,
 such as the ones in the library.  It is installed on some classroom
@@ -122,7 +126,7 @@ Course Pack --- should go somewhere within the
 `C:\Users\YOURACCOUNT\Documents` directories, replacing `YOURACCOUNT`
 with your Windows user ID.
 
-## The ITS Windows Virtual Desktop
+## The ITS Windows Virtual Desktop {#ITSVIRT}
 
 **I have not yet tried the remote desktop steps myself.  Please report
 successes/failures so that I can update these notes as needed.**
@@ -149,7 +153,7 @@ client) to your local personal computer.  ITS will **not** be able to
 restore files lost when exiting the Virtual Desktop; they do **not**
 back them up.
 
-## CS lab macs
+## CS lab macs {#CSMAC}
 
 This installation is in progress, and this section will be updated
 with instructions when it is ready.
