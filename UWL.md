@@ -12,6 +12,7 @@ machines, instead of installing it on your own machine.
  1. [ITS general-access Windows PCs](#ITSPC)
  2. [The ITS Windows Virtual Desktop](#ITSVIRT)
  3. [CS lab macs](#CSMAC)
+     - [Remote access to the CS lab Macs](#CSREMOTE)
 
 ## ITS general-access Windows PCs {#ITSPC}
 
@@ -71,24 +72,18 @@ There are two ways you can get a copy of the Agda standard library.
       different folder name/location so long as you consistently use
       it instead.
 
-   2. Create these two files inside of your new folder:
- 
-       - `C:\Users\USERNAME\Documents\agda-config\libraries` should
-         contain the locator file of the Agda standard library copy
-         you chose to use in the above section --- so either
- 
-             C:\Program Files\Agda\stdlib\standard-library.agda-lib
+   2. Inside the new `agda-config` folder, create a file called
+      `C:\Users\USERNAME\Documents\agda-config\libraries`.  It should
+      contain one line, with just the locator file of the Agda
+      standard library copy you chose in the previous section.
 
- 	 or
+   3. Create another file inside of the `agda-config` folder, called
+      `C:\Users\USERNAME\Documents\agda-config\defaults`.  This file
+      should contain the line
  
-             C:\Users\USERNAME\Documents\agda-stdlib\standard-library.agda-lib
+          standard-library
 
-       - `C:\Users\USERNAME\Documents\agda-config\defaults` should
-         contain the line
- 
-             standard-library
-
-   3. Set the `AGDA_DIR` environment variable to
+   4. Set the `AGDA_DIR` environment variable to
       `C:\Users\USERNAME\Documents\agda-config`.  
 
        - Click on the "This PC" icon on the desktop.
@@ -158,7 +153,7 @@ back them up.
 This installation is in progress, and this section will be updated
 with instructions when it is ready.
 
-### Remote access to the CS lab Macs
+### Remote access to the CS lab Macs {#CSREMOTE}
 
 Information forthcoming.
 
