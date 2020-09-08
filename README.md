@@ -78,7 +78,7 @@ features, and with its Agda mode.
 Include at least the Developer Tools Essentials and UNIX Development
 Support modules.
 
-# Installing the Haskell Tool Stack
+# Installing the Haskell Tool Stack {#stack}
 
 Agda is built against the [Haskell Tool Stack][haskell-stack], and
 outputs code for the GHC compiler, so as a preliminary step you will
@@ -109,7 +109,7 @@ need to install these systems.
     stack upgrade
     ```
 
-# Installing GHC and Cabal
+# Installing GHC and Cabal {#cabal}
 
 These systems are used for installing Agda, and for its runtme
 environment.  
@@ -126,13 +126,13 @@ environment.
 
  - *On Windows*.  See the [Haskell Platform site][haskell-windows].
 
-# Install Git
+# Install Git {#git}
 
 You will need Git to access the specific version of Agda we use.  If
 you do not already have Git installed on your system, see the [git
 downloads page](https://git-scm.com/downloads).
 
-# Installing the core Agda system
+# Installing the core Agda system {#core}
 
 To install the specific version of Agda we need, we will first
 download that version, and then ask Stack to install it for us.
@@ -190,7 +190,7 @@ download that version, and then ask Stack to install it for us.
 
    but without any reported errors.
    
-# Installing the Agda standard libraries
+# Installing the Agda standard libraries {#stdlib}
 
  1. *Downloading the standard libraries* is similar to downloading
     Agda itself:
@@ -234,7 +234,7 @@ libraries:
           Loading  Level (/path/to/some/directory/Level.agdai).
          Loading  Data.Empty (/path/to/some/directory/Data/Empty.agdai).
 
-# Enable generating standalone binaries
+# Enable generating standalone binaries {#standalone}
 
 I believe that this section is **optional** if all you want to do is
 debug and load the exercises in this book and similar definitions, and
@@ -275,7 +275,7 @@ succeed, you should be able to compile and run a Hello World program:
  - You should then see an executable file `hello-world`, which you can
    run for a nice message.
 
-# Installing the Course Pack sources
+# Installing the Course Pack sources {#pack}
 
 You can get the latest version of the Course Pack sources from GitHub,
 either by cloning the repository, or by downloading [the zip
@@ -306,7 +306,7 @@ probably keep *two* local versions
  - One which you use as a sandbox and for exercises, periodically
    refreshing individual files from the clean copy.  
 
-# Install Emacs, and familiarize yourself with it
+# Install Emacs, and familiarize yourself with it {#emacs}
 
 Emacs is a text editor which offers a good IDE for Agda.
 
@@ -330,7 +330,7 @@ Emacs](https://www.gnu.org/software/emacs/tour/) page on the GNU Emacs
 site describes how to access the tutorial within your Emacs
 installation.
 
-# Install and configure agda-mode
+# Install and configure agda-mode {#agdamode}
 
 The recommended editor for Agda is Emacs with `agda-mode`. Agda ships
 with `agda-mode`, so if you’ve installed Agda, all you have to do to
@@ -378,7 +378,7 @@ but Aquamacs users might need to move their startup settings to the
 `Preferences.el` file in `~/Library/Preferences/Aquamacs
 Emacs/Preferences`.
 
-# Using mononoki in Emacs
+# Using mononoki in Emacs {#mononoki}
 
 Agda uses Unicode characters for many key symbols, and it is important
 that the font which you use to view and edit Agda programs shows these
@@ -402,7 +402,7 @@ symbols correctly.  So we recommend that you install the font
     		        :width  'normal)
     ```
 
-# Entering Unicode characters in Emacs `agda-mode`
+# Entering Unicode characters in Emacs `agda-mode` {#unicode}
 
 When you write Agda code, you will need to insert characters which are
 not found on standard keyboards.  Emacs `agda-mode` makes it easier to
@@ -479,7 +479,7 @@ when you solve exercises:
 
    You'll see the key sequence of the character in mini buffer.
 
-## Whitespace sensitivity
+## Whitespace sensitivity {#whitespace}
 
 One important fact that you should know about Agda is that it is
 *whitespace-sensitive*.  The presence or absence of indentation on a
@@ -489,7 +489,7 @@ seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
 
-## Appendix: about `agda-mode`
+## Appendix: about `agda-mode` {#agdamodeapp}
 
 Agda is edited “interactively, which means that one can type check code which is not yet complete: if a question mark (?) is used as a placeholder for an expression, and the buffer is then checked, Agda will replace the question mark with a “hole” which can be filled in later. One can also do various other things in the context of a hole: listing the context, inferring the type of an expression, and even evaluating an open term which mentions variables bound in the surrounding context.”
 
@@ -514,7 +514,7 @@ If you want to see messages beside rather than below your Agda code, you can do 
 
 Now, error messages from Agda will appear next to your file, rather than squished beneath it.
 
-## Appendix: additional installs for building a local copy of the course pack
+## Appendix: additional installs for building a local copy of the course pack {#localpack}
 
 It is not necessary to build your own local copy of the course pack
 rom scratch, and this page does not detail the steps for building one.
