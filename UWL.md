@@ -3,7 +3,7 @@ layout: page
 title: Accessing and configuring Agda on UWL machines
 prev :     /Setup/
 permalink: /UWL/
-next :     /Sources/
+next :     /Troubleshooting/
 ---
 
 This page contains information about three ways of using Agda on UWL

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Troubleshooting your Agda installation
-prev :     /Setup/
+prev :     /UWL/
 permalink: /Troubleshooting/
 next :     /Sources/
 ---

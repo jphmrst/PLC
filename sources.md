@@ -1,7 +1,7 @@
 ---
 title          : Sources and authorship of the material in this collection
 layout         : page
-prev      : /UWL/
+prev      : /Troubleshooting/
 permalink : /Sources/
 next      : /Basics/
 ---

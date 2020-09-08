@@ -1,9 +1,9 @@
 ---
 layout: page
 title: Installing and configuring your Agda environment
-prev :     /Intro/
+prev :     /
 permalink: /Setup/
-next :     /Troubleshooting/
+next :     /UWL/
 ---
 
 <!-- Links -->
