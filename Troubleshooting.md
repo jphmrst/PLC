@@ -8,9 +8,13 @@ next :     /Sources/
 
 ## Problems installing the standard libraries {#stdlib}
 
-This section **after** you have successfully installed Agda, and have
-compiled the `testdefs` example in the ["Installing the core Agda
-system" section]({{ site.baseurl }}/Setup/#core) without error.
+This section applies
+ - **After** you have successfully installed Agda, and have
+   compiled the `testdefs` example in the ["Installing the core Agda
+   system" section]({{ site.baseurl }}/Setup/#core) without error.
+ - **Before** you have compiled the `testnats` example in the
+   ["Installing the Agda standard libraries" section]({{ site.baseurl
+   }}/Setup/#stdlib) without error.
 
 ### The `libraries` file contains the wrong directory {#wrong-libraries-dir}
 
@@ -66,3 +70,4 @@ Then you have an incorrect directory in your `libraries` file.
 
 *This page is by Maraist; for more information see the [sources and
 authorship]({{ site.baseurl }}/Sources/) page.*
+
