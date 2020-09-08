@@ -8,6 +8,8 @@ permalink: /
 
   - [Getting started]({{ site.baseurl }}/Setup/): Setting up Agda and
     other programs on your machine
+    - [Troubleshooting]({{ site.baseurl }}/Troubleshooting/): Some
+      common problems in configuring your Agda installation
   - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
