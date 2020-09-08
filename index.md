@@ -17,7 +17,9 @@ CS421/521, Concepts of Programming Languages.
     other programs on your machine
     - [UWL]({{ site.baseurl }}/UWL/): Configuring and using
       Agda on UWL machines
-- [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
+    - [Troubleshooting]({{ site.baseurl }}/Troubleshooting/): Some
+      common problems in configuring your Agda installation
+  - [Sources]({{ site.baseurl }}/Sources/): Sources and authors of the
     material in this course pack
 
 ## Functional programming
