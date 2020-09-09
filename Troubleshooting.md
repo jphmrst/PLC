@@ -28,7 +28,10 @@ If you are seeing output like this:
       /home/jm/Lib/deb/agda-stdlib-mock/src/Data/Nat.lagda
       [Possibly other files here]
 
-Then you have an incorrect directory in your `libraries` file.
+Then you may have an incorrect directory in your `libraries` file, or
+your Agda environment may be unable to find your `libraries` file.
+
+#### incorrect directory in your `libraries` file
 
  1. If your `libraries` file contains the line
 
@@ -65,6 +68,20 @@ Then you have an incorrect directory in your `libraries` file.
     The contents of the `libraries` file should **not** be something
     within a `.stack` or similar generated directory.  It should be
     within the actual Git repository which you checked out.
+
+#### Agda unable to find your `libraries` file
+
+If Agda is not able to find the directory containing your `libraries`
+and `defaults` files, then it will be unable to read them.
+
+ - On a linux or Mac system, make sure that you have put those files
+   in `~/.agda`.  (`~` abbreviates the home directory in *nix
+   systems.)
+
+ - If you are on a Windows system, or if you have verified the correct
+   directory on a *nix system, then use the `AGDA_DIR` environment
+   variable to name this directory.  Make sure that the environment
+   variable is set before re-running Emacs or Agda.
 
 ---
 
