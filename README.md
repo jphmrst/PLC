@@ -285,48 +285,14 @@ standard libraries:
           Loading  Level (/path/to/some/directory/Level.agdai).
          Loading  Data.Empty (/path/to/some/directory/Data/Empty.agdai).
 
-## Enable generating standalone binaries {#standalone}
+And there is one other important thing to remember:
 
-I believe that this section is **optional** if all you want to do is
-debug and load the exercises in this book and similar definitions, and
-evaluate expressions using them.  You should be able to skip to
-"Installing the Course Pack sources" from this point.
+### Leave the configuration directories which you made alone!
 
-Enter the following commands at the command line:
-
-    ```bash
-    cabal v2-repl --build-dep fail
-    cabal v2-install --lib Agda ieee754 -v
-    ```
-
-**The second command will take a while to complete.** Moreover, if
-your system is old or fragile, then your best results may come from
-exiting other programs and leaving it alone to complete.
-
-*Verifying standalone binary generation.* After these commands
-succeed, you should be able to compile and run a Hello World program:
-
- - Create a new directory, and save the following lines as the file
-   `hello-world.agda`:
-   
-   ```
-   module hello-world where
-   open import IO
-   main = run (putStrLn "Hello, World!")
-   ```
-
- - From that directory, run the command
- 
-   ```bash
-   agda --compile hello-world.agda
-   ```
-
-   The first time you run this command, it will need to compile many
-   library files.  Note also that it will generate a directory
-   `MAlonzo`, which you can ignore.
-
- - You should then see an executable file `hello-world`, which you can
-   run for a nice message.
+Do not put your other projects and exercises code there!  Keep them
+separate, and put them in a different directory for classwork.  You
+not use these configurations for other projects in a way that might
+make it easy for you to tamper with the contents.
 
 ## Installing this book's sources {#pack}
 
@@ -541,6 +507,48 @@ another example of a whitespace-sensitive language which you may have
 seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
+
+## Optional: Enable generating standalone binaries {#standalone}
+
+This section is optional if all you want to do is debug and load the
+exercises in this book and similar definitions, and evaluate
+expressions using them.
+
+Enter the following commands at the command line:
+
+    ```bash
+    cabal v2-repl --build-dep fail
+    cabal v2-install --lib Agda ieee754 -v
+    ```
+
+**The second command will take a while to complete.** Moreover, if
+your system is old or fragile, then your best results may come from
+exiting other programs and leaving it alone to complete.
+
+*Verifying standalone binary generation.* After these commands
+succeed, you should be able to compile and run a Hello World program:
+
+ - Create a new directory, and save the following lines as the file
+   `hello-world.agda`:
+   
+   ```
+   module hello-world where
+   open import IO
+   main = run (putStrLn "Hello, World!")
+   ```
+
+ - From that directory, run the command
+ 
+   ```bash
+   agda --compile hello-world.agda
+   ```
+
+   The first time you run this command, it will need to compile many
+   library files.  Note also that it will generate a directory
+   `MAlonzo`, which you can ignore.
+
+ - You should then see an executable file `hello-world`, which you can
+   run for a nice message.
 
 ### Appendix: about `agda-mode` {#agdamodeapp}
 
