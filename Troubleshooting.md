@@ -6,6 +6,22 @@ permalink: /Troubleshooting/
 next :     /Sources/
 ---
 
+## When reporting bugs...
+
+When you send email asking for help with your Agda configuration:
+
+ - Remind me what kind of system you have (e.g. Windows 10, MacOS,
+   Debian linux, BSD running in a VM on a Windows box, etc.
+
+   Even if you've sent me that information ten times in ten emails
+   already, I'll appreciate it when you send it again.  There are many
+   of you, and I do not always remember who has what system.
+
+ - Please copy/paste text from session windows into the body of your
+   email, rather than making a screenshot.  It's easier when
+   everything is in one window, and I cannot copy your file names or
+   output into my reply when it's a screenshot.
+
 ## Recheck your configuration {#recheck}
 
  1. Make sure you have a local Agda config directory.
@@ -97,7 +113,7 @@ If you are seeing output like this:
 Then you may have an incorrect directory in your `libraries` file, or
 your Agda environment may be unable to find your `libraries` file.
 
-#### incorrect directory in your `libraries` file
+#### Incorrect directory in your `libraries` file
 
  1. If your `libraries` file contains the line
 
@@ -148,6 +164,18 @@ and `defaults` files, then it will be unable to read them.
    directory on a *nix system, then use the `AGDA_DIR` environment
    variable to name this directory.  Make sure that the environment
    variable is set before re-running Emacs or Agda.
+
+## Consider using a virtual machine on Windows
+
+The instructions for installing Agda on a Windows computer are
+minimal.  This is largely because (1) the main Agda developers do not
+use Windows, and (2) although there do seem to be serious Agda
+developers who use Windows, they have not documented their experience
+in particular detail.
+
+So you might have an easier time installing a linux system as a
+virtual machine within your Windows system.  I recommend Ubuntu as a
+distro mostly because of its simplicity.
 
 ---
 
