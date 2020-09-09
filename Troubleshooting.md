@@ -6,6 +6,65 @@ permalink: /Troubleshooting/
 next :     /Sources/
 ---
 
+## Recheck your configuration {#recheck}
+
+ 1. Make sure you have a local Agda config directory.
+
+     - On *nix systems (linux and Mac), it is `~/.agda`.
+
+     - On Windows, you should have the `AGDA_DIR` environment variable
+       set to the path of some directory which does exist.
+
+ 2. Make sure there is a file `defaults` in the local Agda config
+    directory, and that it contains the line:
+
+        standard-library
+
+ 3. Make sure there is a file `libraries` in the local Agda config
+    directory, and that it contains the line:
+
+        /PATH/TO/STANDARD/LIBRARY/standard-library.agda-lib
+
+    {::comment}
+
+    If you have installed the textbook sources as a standard library,
+    then there should also be a line
+    
+    {:/comment}
+
+ 4. Make sure that
+
+     - The directory `/PATH/TO/STANDARD/LIBRARY` from the previous
+       step exists
+
+     - The file `/PATH/TO/STANDARD/LIBRARY/standard-library.agda-lib`
+       exists
+
+     - That the latter file contains the lines
+
+           name: standard-library
+           include: src
+
+     - That the following files (among many others in that directory)
+       all exist:
+    
+           /PATH/TO/STANDARD/LIBRARY/src/Function.agda
+           /PATH/TO/STANDARD/LIBRARY/src/Data/Nat.agda
+           /PATH/TO/STANDARD/LIBRARY/src/Codata/Colist/Bisimilarity.agda
+
+If any of these files are missing or are misaligned, then Agda will
+either not be able to run, or will not be able to find standard
+libraries.
+
+## Google your error messages!
+
+When you get an error message, feed it to Google.  You are not likely
+to be the only person ever to have triggered this error!  Of course
+you must be thoughtful about grabbing solutions from online --- try to
+understand whether the situation (as opposed to just the error) you
+find is really the same as your situation, and make sure that they are
+applicable to the same platform/version as you are running.
+
 ## Problems installing the standard libraries {#stdlib}
 
 This section applies

@@ -8,8 +8,8 @@ next :     /Troubleshooting/
 
 <!-- Links -->
 
-[coursepackURL]: https://cs.uwlax.edu/~jmaraist/u/421/pack/
-[coursepack-dev]: https://github.com/jphmrst/plfa.github.io/archive/dev.zip
+[coursepackURL]: https://docker.cs.uwlax.edu:9443/jmaraist/plc/
+[coursepack-dev]: https://github.com/jphmrst/PLC/archive/dev.zip
 
 [agda]: https://github.com/agda/agda/releases/tag/v2.6.0.1
 [agda-version]: https://img.shields.io/badge/agda-v2.6.0.1-blue.svg
@@ -328,9 +328,9 @@ succeed, you should be able to compile and run a Hello World program:
  - You should then see an executable file `hello-world`, which you can
    run for a nice message.
 
-## Installing the Course Pack sources {#pack}
+## Installing this book's sources {#pack}
 
-You can get the latest version of the Course Pack sources from GitHub,
+You can get the latest version of this book from GitHub,
 either by cloning the repository, or by downloading [the zip
 archive][coursepack-dev]:
 
