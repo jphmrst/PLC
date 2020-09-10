@@ -301,6 +301,23 @@ boolean values.
     and3 : Bool → Bool → Bool → Bool
     and3 a b c = ?
 
+    _ : and3 true true true ≡ true
+    _ = refl
+
+    _ : and3 true true false ≡ false
+    _ = refl
+
+    _ : and3 true false false ≡ false
+    _ = refl
+
+    _ : and3 false false false ≡ false
+    _ = refl
+
+The two uses of `refl` above tell Agda can it can use evaluation to
+show that the two expressions on either side of the `≡` actually are
+equal.  We are using `refl` to write _unit tests_, tests for a
+function each using a specific given example.
+
 ## Standard library
 
 At the end of each section, we will show where in the standard library
