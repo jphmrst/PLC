@@ -38,6 +38,8 @@ deploy-uwl: .build-uwl $(MARKDOWN_FILES)
 		-e "ssh -l jmaraist" \
 		_uwl/ \
 		${DEST_MACHINE}:internal-www/plc
+	scp /home/jm/421/misc/checklist-reply.txt \
+		${DEST_MACHINE}:internal-www/plc
 
 # Build PLFA and test hyperlinks
 test: build
