@@ -481,11 +481,11 @@ _ : suc (suc zero) + suc (suc (suc zero)) ≡ suc (suc (suc (suc (suc zero))))
 _ = refl
 ```
 
-Agda knows how to compute the value of `2 + 3`, and so can immediately
-check it is the same as `5`.  A binary relation is said to be
-_reflexive_ if every value relates to itself.  Evidence that Agda can
-use evaluation to show that a value is equal to itself is written
-`refl`.
+We have taught Agda how to compute the value of `2 + 3`, so it can
+immediately check that the result is the same as `5`.  Recall that
+`refl` tells Agda that it can use evaluation to show that the two
+expressions on either side of the `≡` are equal.  These uses of `refl`
+form unit tests for the given examples.
 
 In the chains of equations, all Agda checks is that each term
 simplifies to the same value. If we jumble the equations, omit lines,
