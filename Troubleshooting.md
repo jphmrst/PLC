@@ -24,6 +24,14 @@ When you send email asking for help with your Agda configuration:
 
 ## Recheck your configuration {#recheck}
 
+When you work through this checklist, take notes on what you find so
+you can follow up on any oddities.  [This
+checklist](https://docker.cs.uwlax.edu:9443/jmaraist/plc/checklist-reply.txt)
+gives you a tempate for quickly recording what you see.  When you need
+help fixing your installation, I am more likely to have useful
+suggestions if you paste the completed template into the body of your
+email.
+
  1. Make sure you have a local Agda config directory.
 
      - On *nix systems (linux and Mac), it is `~/.agda`.
