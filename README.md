@@ -285,48 +285,14 @@ standard libraries:
           Loading  Level (/path/to/some/directory/Level.agdai).
          Loading  Data.Empty (/path/to/some/directory/Data/Empty.agdai).
 
-## Enable generating standalone binaries {#standalone}
+And there is one other important thing to remember:
 
-I believe that this section is **optional** if all you want to do is
-debug and load the exercises in this book and similar definitions, and
-evaluate expressions using them.  You should be able to skip to
-"Installing the Course Pack sources" from this point.
+### Leave the configuration directories which you made alone!
 
-Enter the following commands at the command line:
-
-    ```bash
-    cabal v2-repl --build-dep fail
-    cabal v2-install --lib Agda ieee754 -v
-    ```
-
-**The second command will take a while to complete.** Moreover, if
-your system is old or fragile, then your best results may come from
-exiting other programs and leaving it alone to complete.
-
-*Verifying standalone binary generation.* After these commands
-succeed, you should be able to compile and run a Hello World program:
-
- - Create a new directory, and save the following lines as the file
-   `hello-world.agda`:
-   
-   ```
-   module hello-world where
-   open import IO
-   main = run (putStrLn "Hello, World!")
-   ```
-
- - From that directory, run the command
- 
-   ```bash
-   agda --compile hello-world.agda
-   ```
-
-   The first time you run this command, it will need to compile many
-   library files.  Note also that it will generate a directory
-   `MAlonzo`, which you can ignore.
-
- - You should then see an executable file `hello-world`, which you can
-   run for a nice message.
+Do not put your other projects and exercises code there!  Keep them
+separate, and put them in a different directory for classwork.  You
+not use these configurations for other projects in a way that might
+make it easy for you to tamper with the contents.
 
 ## Installing this book's sources {#pack}
 
@@ -398,18 +364,12 @@ If you are already an Emacs user and have customized your setup, you
 may want to note the configuration which the `setup` appends to your
 `.emacs` file, and integrate it with your own preferred setup.
 
-*Verifying agda-mode*.  Open the `hello-world.agda` file which you set
-up earlier.
+*Verifying agda-mode*.  Open the `testnats.agda` file which you set up
+earlier.  Load and type-check the file by typing
+[`C-c C-l`][agda-docs-emacs-notation].
 
- - To load and type-check the file, use
-   [`C-c C-l`][agda-docs-emacs-notation].
-
- - To compile the file and generate the executable, use `C-c C-x C-c`.
-   This will not actually run the executable file, but you can run it
-   yourself from the command line.
-
-*Auto-loading `agda-mode` in Emacs.* Since version 2.6.0, Agda has had
-support for literate editing with Markdown, using the `.lagda.md`
+*Auto-loading `agda-mode` in Emacs*.  Since version 2.6.0, Agda has
+had support for literate editing with Markdown, using the `.lagda.md`
 extension.  One issue is that Emacs will default to Markdown editing
 mode for files with a `.md` suffix.  In order to have `agda-mode`
 automatically loaded whenever you open a file ending with `.agda` or
@@ -464,8 +424,8 @@ sequences of ordinary characters (the kind you find on any keyboard),
 Emacs will replace them in your Agda file with the corresponding
 special character.
 
-For example, we can add a comment line to our `hello-world.agda` file.
-Let's say we want to add a comment line that reads
+For example, we can add a comment line to one of the `.agda` test
+files.  Let's say we want to add a comment line that reads
 
 ```
 {- I am excited to type ∀ and → and ≤ and ≡ !! -}
@@ -542,11 +502,82 @@ seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
 
+## Optional: Enable generating standalone binaries {#standalone}
+
+This section is optional if all you want to do is debug and load the
+exercises in this book and similar definitions, and evaluate
+expressions using them.
+
+Enter the following commands at the command line:
+
+    ```bash
+    cabal v2-repl --build-dep fail
+    cabal v2-install --lib Agda ieee754 -v
+    ```
+
+**The second command will take a while to complete.** Moreover, if
+your system is old or fragile, then your best results may come from
+exiting other programs and leaving it alone to complete.
+
+*Verifying standalone binary generation.* After these commands
+succeed, you should be able to compile and run a Hello World program:
+
+ - Create a new directory, and save the following lines as the file
+   `hello-world.agda`:
+   
+   ```
+   module hello-world where
+   open import IO
+   main = run (putStrLn "Hello, World!")
+   ```
+
+ - From that directory, run the command
+ 
+   ```bash
+   agda --compile hello-world.agda
+   ```
+
+   The first time you run this command, it will need to compile many
+   library files.  Note also that it will generate a directory
+   `MAlonzo`, which you can ignore.
+
+ - You should then see an executable file `hello-world`, which you can
+   run for a nice message.
+
+*Verifying agda-mode for standalone binaries*.  Create a file
+`hello-world.agda`,
+
+```
+module hello-world where
+
+open import IO
+
+main = run (putStrLn "Hello, World!")
+```
+
+ - To load and type-check the file, use
+   [`C-c C-l`][agda-docs-emacs-notation].
+
+ - To compile the file and generate the executable, use `C-c C-x C-c`.
+   This will not actually run the executable file, but you can run it
+   yourself from the command line.
+
 ### Appendix: about `agda-mode` {#agdamodeapp}
 
-Agda is edited “interactively, which means that one can type check code which is not yet complete: if a question mark (?) is used as a placeholder for an expression, and the buffer is then checked, Agda will replace the question mark with a “hole” which can be filled in later. One can also do various other things in the context of a hole: listing the context, inferring the type of an expression, and even evaluating an open term which mentions variables bound in the surrounding context.”
+Agda is edited “interactively, which means that one can type check
+code which is not yet complete: if a question mark (?) is used as a
+placeholder for an expression, and the buffer is then checked, Agda
+will replace the question mark with a “hole” which can be filled in
+later. One can also do various other things in the context of a hole:
+listing the context, inferring the type of an expression, and even
+evaluating an open term which mentions variables bound in the
+surrounding context.”
 
-Agda is edited interactively, using “holes”, which are bits of the program that are not yet filled in. If you use a question mark as an expression, and load the buffer using `C-c C-l`, Agda replaces the question mark with a hole. There are several things you can to while the cursor is in a hole:
+Agda is edited interactively, using “holes”, which are bits of the
+program that are not yet filled in. If you use a question mark as an
+expression, and load the buffer using `C-c C-l`, Agda replaces the
+question mark with a hole. There are several things you can to while
+the cursor is in a hole:
 
     C-c C-c x    split on variable x
     C-c C-space  fill in hole
