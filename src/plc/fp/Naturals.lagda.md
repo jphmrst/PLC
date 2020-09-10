@@ -755,8 +755,9 @@ We often use _precedence_ to avoid writing too many parentheses.
 Consider multiplication and addition.  You are used to the idea that
 when you see `1+2*3`, it means `1+(2*3)`, and not `(1+2)*3`.  We say
 that multiplication _binds more tightly_ than addition.  We also
-sometimes say that addition _associates to the left_, and so write `m
-+ n + p` to mean `(m + n) + p`.  In Agda the precedence and
+sometimes say that addition _associates to the left_, and so write
+`m + n + p`
+to mean `(m + n) + p`.  In Agda the precedence and
 associativity of infix operators needs to be declared:
 
 ```
