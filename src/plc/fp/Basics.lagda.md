@@ -414,6 +414,8 @@ This section uses the following Unicode symbols:
 Each line consists of the Unicode character (`→`), the corresponding
 code point (`U+2192`), the name of the character (`RIGHTWARDS ARROW`),
 and the sequence to type into Emacs to generate the character (`\->`).
+If we forget a character which we use in a section, and leave it out
+of the table, please let us know!
 
 For a full list of supported characters, use
 `agda-input-show-translations` with:
