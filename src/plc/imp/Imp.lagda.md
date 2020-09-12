@@ -10,6 +10,7 @@ next      : /
 module plc.imp.Imp where
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_)
+open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
@@ -172,8 +173,8 @@ module ImpStage1 where
     _-_ : AExp → AExp → AExp 
     _*_ : AExp → AExp → AExp 
 
-  infixl 6  _+_  _-_
-  infixl 7  _*_
+  infixl 6  _*_
+  infixl 7  _+_  _-_
 
   data BExp : Set where
     T : BExp
@@ -375,36 +376,10 @@ original — we should prove it.
     ∎
   optimize0plusSound (x + z + y) = plusHelper (x + z) y (optimize0plusSound (x + z)) (optimize0plusSound y) refl
   optimize0plusSound (x - z + y) = plusHelper (x - z) y (optimize0plusSound (x - z)) (optimize0plusSound y) refl
-  optimize0plusSound (x * z + y) = plusHelper (x * z) y (optimize0plusSound (x * z)) (optimize0plusSound y) refl
+  optimize0plusSound ((x * z) + y) = plusHelper (x * z) y (optimize0plusSound (x * z)) (optimize0plusSound y) refl
   optimize0plusSound (x - y) = opHelper x y _-_ Data.Nat._∸_ refl refl (optimize0plusSound x) (optimize0plusSound y)
   optimize0plusSound (x * y) = opHelper x y _*_ Data.Nat._*_ refl refl (optimize0plusSound x) (optimize0plusSound y)
 ```
-
-### Evaluation as a relation
-
-We have presented `aeval` and `beval` as functions.  Another way to
-think about evaluation — one that we will see is often more flexible —
-is as a _relation_ between expressions and their values.  This leads
-naturally to inductive definitions like the following one for
-arithmetic expressions.
-
-```
-  data _⇓ᵃ_ : AExp → ℕ → Set where
-    EA_ℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
-    EA_+ : ∀ (e1 e2 : AExp) (n1 n2 : ℕ) 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 + e2) ⇓ᵃ (n1 Data.Nat.+ n2)
-    EA_- : ∀ (e1 e2 : AExp) (n1 n2 : ℕ) 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 - e2) ⇓ᵃ (n1 ∸ n2)
-    EA_* : ∀ (e1 e2 : AExp) (n1 n2 : ℕ) 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 * e2) ⇓ᵃ (n1 Data.Nat.* n2)
-```
-
-Just as evaluation functions are traditionally written as surrounding
-double-brackets, evaluation relations are traditionally written as a
-downward double-arrow.
 
 ### Inference Rule Notation
 
@@ -416,7 +391,7 @@ conclusion below the line (we have already seen them in the
 
 For example, the constructor `E_APlus`
 
-        EA_+ : ∀ (e1 e2 : AExp) (n1 n2 : ℕ) 
+        EA_+ : ∀ {e1 e2 : AExp} {n1 n2 : ℕ} 
                  → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
                  → (e1 + e2) ⇓ᵃ (n1 Data.Nat.+ n2)
 
@@ -514,65 +489,78 @@ For example, it is convenient for writing more more complicated theorems in a cl
 {:/comment}
 
 
+### Evaluation as a relation
+
+We have presented `aeval` and `beval` as functions.  Another way to
+think about evaluation — one that we will see is often more flexible —
+is as a _relation_ between expressions and their values.  This leads
+naturally to inductive definitions like the following one for
+arithmetic expressions.
+
+```
+  data _⇓ᵃ_ : AExp → ℕ → Set where
+    EA_ℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
+    EA_+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → (e1 + e2) ⇓ᵃ (n1 Data.Nat.+ n2)
+    EA_- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → (e1 - e2) ⇓ᵃ (n1 ∸ n2)
+    EA_* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → (e1 * e2) ⇓ᵃ (n1 Data.Nat.* n2)
+  infix 12 _⇓ᵃ_
+```
+
+Just as evaluation functions are traditionally written as surrounding
+double-brackets, evaluation relations are traditionally written as a
+downward double-arrow.
+
+We can use the evaluation relation in the same way that we use the `≡`
+relation: by stating a relationship, and proving it.  For example, as
+an informal proof tree we might have
+
+     -------- EA_ℕ     -------- EA_ℕ
+     # 5 ⇓ᵃ 5           # 6 ⇓ᵃ 6
+     ---------------------------- EA_+     -------- EA_ℕ
+           # 5 + # 6 ⇓ᵃ 11                 # 2 ⇓ᵃ 2
+          ------------------------------------------ EA_*
+                   (# 5 + # 6) * # 2 ⇓ᵃ 22
+
+and as formal proofs,
+
+```
+  _ : # 2 ⇓ᵃ 2
+  _ = EA_ℕ
+
+  _ : (# 5 + # 6) ⇓ᵃ 11
+  _ = EA_+ EA_ℕ EA_ℕ
+
+  _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
+  _ = EA_* (EA_+ EA_ℕ EA_ℕ) EA_ℕ
+```
+
 ============================================================
 
-(* FULL *)
-(* EX1? (beval_rules) *)
-(** Here, again, is the Coq definition of the `beval` function:
-``
-  Fixpoint beval (e : bexp) : bool :=
-    match e with
-    | BTrue       => true
-    | BFalse      => false
-    | BEq a1 a2   => (aeval a1) =? (aeval a2)
-    | BLe a1 a2   => (aeval a1) <=? (aeval a2)
-    | BNot b      => negb (beval b)
-    | BAnd b1 b2  => andb (beval b1) (beval b2)
-    end.
-``
-    Write out a corresponding definition of boolean evaluation as a
-    relation (in inference rule notation). *)
-(* SOLUTION *)
-(* Answer:
+#### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
 
-                            -------------                             (E_BTrue)
-                            BTrue ==> true
+In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
+instead of a function.
 
-                           ---------------                           (E_BFalse)
-                           BFalse ==> false
+### Equivalence of the evaluators
 
-                               e1 ==> n1
-                               e2 ==> n2
-                        -----------------------                         (E_BEq)
-                        BEq e1 e2 ==> (n1 =? n2)
+It is straightforward to prove that the relational and functional
+definitions of evaluation agree.
 
-                               e1 ==> n1
-                               e2 ==> n2
-                        ------------------------                        (E_BLe)
-                        BLe e1 e2 ==> (n1 <=? n2)
+```
+  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
+  aevalFnThenRel (# m) .m refl = EA_ℕ
+  aevalFnThenRel (a + a₁) n an = {!!}
+  aevalFnThenRel (a - a₁) n an = {!!}
+  aevalFnThenRel (a * a₁) n an = {!!}
 
-                               e ==> b
-                          -----------------                            (E_BNot)
-                          BNot e ==> negb b
-
-                               e1 ==> b1
-                               e2 ==> b2
-                       ------------------------                        (E_BAnd)
-                       BAnd e1 e2 ==> andb b1 b2
-
-*)
-(* /SOLUTION *)
-
-(* GRADE_MANUAL 1: beval_rules *)
-(** `` *)
-(* /FULL *)
-
-(* ####################################################### *)
-(** ** Equivalence of the Definitions *)
-
-(* HIDEFROMADVANCED *)
-(** It is straightforward to prove that the relational and functional
-    definitions of evaluation agree: *)
+  postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
+```
 
 (* /HIDEFROMADVANCED *)
 Theorem aeval_iff_aevalR : forall a n,
@@ -3083,6 +3071,7 @@ End ThrowImp.
 This section uses the following Unicode symbols:
 
 {::comment}
+×  U+00D7  MULTIPLICATION SIGN (\x)
 →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∀  U+2200  FOR ALL  (\all)
     ∷  U+2237  PROPORTION  (\::)
