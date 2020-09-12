@@ -624,7 +624,7 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Pierce et al.  Exercises ##### Exercise
-`capitalize`, `capitalizeOnly`, and `matches` are adapted from
-Thompson.  For more information see the
-[sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Pierce et al.  Exercises `capitalize`,
+`capitalizeOnly`, and `matches` are adapted from Thompson.  For more
+information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*

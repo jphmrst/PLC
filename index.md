@@ -42,7 +42,8 @@ permalink: /
 ## Incomplete
 
 ### Imperative programming
-  - Imp: A small imperative language, and its operational semantics
+  - [Imp]({{ site.baseurl }}/Imp/): A small imperative language, and
+    its operational semantics
   - Equiv: What does it mean for two imperative programs to be equivalent?
   - Hoare: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
