@@ -555,7 +555,8 @@ In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
 It is straightforward to prove that the relational and functional
 definitions of evaluation agree.
 
-```
+TODO
+
   aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
   aevalFnThenRel (# m) .m refl = Eᵃℕ
   aevalFnThenRel (a + a₁) n an = {!!}
@@ -563,7 +564,7 @@ definitions of evaluation agree.
   aevalFnThenRel (a * a₁) n an = {!!}
 
   postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
-```
+
 {::comment}
 
 (* /HIDEFROMADVANCED *)
@@ -1163,38 +1164,8 @@ theorem will be somewhat lengthy.
     pupToN = -- FILL IN YOUR PROGRAM HERE
 
     _ : X ↦ 2 , emptyState =[ pupToN ]=> X ↦ 0 , Y ↦ 3 , X ↦ 1 , Y ↦ 2 , Y ↦ 0 , X ↦ 2 , emptyState
-(* HIDE: Result is the same as (X ↦ 0 ; Y ↦ 3)
-   if one admits functional extensionality *)
-Proof.
-  (* ADMITTED *)
-  unfold pup_to_n.
-  apply ESeq with (Y ↦ 0 ; X ↦ 2).
-  - (* assignment command *)
-    apply EAsgn. reflexivity.
-  - (* while command *)
-    apply EWhileTrue with (X ↦ 1 ; Y ↦ 2 ; Y ↦ 0 ; X ↦ 2).
-      reflexivity.
-    + (* first round *)
-      apply ESeq with (Y ↦ 2 ; Y ↦ 0 ; X ↦ 2).
-      apply EAsgn. reflexivity.
-      apply EAsgn. reflexivity.
-    + (* the other rounds *)
-      eapply EWhileTrue. reflexivity.
-      * (* second round *)
-        eapply ESeq.
-        apply EAsgn. reflexivity.
-        apply EAsgn. reflexivity.
-      * (* no more rounds *)
-        simpl. rewrite t_update_eq.
-        apply EWhileFalse. reflexivity. Qed.
-(* /ADMITTED *)
-(** `` *)
-(* LATER: Comment from reader: Another good place to mention lack of
-   functional extensionality. The 6 `t_update`s in the above theorem are
-   not redundant, nor would `pup_to_2_ceval` be provable if the
-   algorithm would be defined differently (e.g., if it would use `Z`
-   as a "buffer" variable instead of decrementing `X`). *)
-(* /FULL *)
+    _ = -- FILL IN YOUR PROOF HERE
+
 
 (* HIDE: PR: I phrased these quizzes with the following alternatives:
    (1) Not true
