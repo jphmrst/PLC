@@ -718,8 +718,6 @@ at will.
   -- end of module ImpStage1
 ```
 
-#######################################################
-
 ## Expressions with variables
 
 Now we return to defining Imp. The next thing we need to do is to
