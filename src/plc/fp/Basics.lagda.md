@@ -410,6 +410,7 @@ This section uses the following Unicode symbols:
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∨  U+2228  LOGICAL OR (\or)
     ∧  U_2227  LOCIGAL AND (\and)
+    ≡  U+2261  IDENTICAL TO (\==)
 
 Each line consists of the Unicode character (`→`), the corresponding
 code point (`U+2192`), the name of the character (`RIGHTWARDS ARROW`),

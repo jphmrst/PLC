@@ -16,7 +16,7 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 
-open import plc.fp.Maps
+open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 ```
 
 {::comment}
@@ -502,14 +502,14 @@ arithmetic expressions.
 
 ```
   data _⇓ᵃ_ : AExp → ℕ → Set where
-    EA_ℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
-    EA_+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
+    Eᵃ+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
-    EA_- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃ- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 - e2 ⇓ᵃ n1 ∸ n2
-    EA_* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃ* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
   infix 4 _⇓ᵃ_
@@ -523,24 +523,24 @@ We can use the evaluation relation in the same way that we use the `≡`
 relation: by stating a relationship, and proving it.  For example, as
 an informal proof tree we might have
 
-     -------- EA_ℕ     -------- EA_ℕ
+     -------- Eᵃℕ     -------- Eᵃℕ
      # 5 ⇓ᵃ 5           # 6 ⇓ᵃ 6
-     ---------------------------- EA_+     -------- EA_ℕ
+     ---------------------------- Eᵃ+     -------- Eᵃℕ
            # 5 + # 6 ⇓ᵃ 11                 # 2 ⇓ᵃ 2
-          ------------------------------------------ EA_*
+          ------------------------------------------ Eᵃ*
                    (# 5 + # 6) * # 2 ⇓ᵃ 22
 
 and as formal proofs,
 
 ```
   _ : # 2 ⇓ᵃ 2
-  _ = EA_ℕ
+  _ = Eᵃℕ
 
   _ : (# 5 + # 6) ⇓ᵃ 11
-  _ = EA_+ EA_ℕ EA_ℕ
+  _ = Eᵃ+ Eᵃℕ Eᵃℕ
 
   _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
-  _ = EA_* (EA_+ EA_ℕ EA_ℕ) EA_ℕ
+  _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
 ```
 
 ============================================================
@@ -557,7 +557,7 @@ definitions of evaluation agree.
 
 ```
   aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
-  aevalFnThenRel (# m) .m refl = EA_ℕ
+  aevalFnThenRel (# m) .m refl = Eᵃℕ
   aevalFnThenRel (a + a₁) n an = {!!}
   aevalFnThenRel (a - a₁) n an = {!!}
   aevalFnThenRel (a * a₁) n an = {!!}
@@ -577,7 +577,7 @@ Proof.
    induction H; simpl.
    + (* E_ANum *)
      reflexivity.
-   + (* EA_+ *)
+   + (* Eᵃ+ *)
      rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
    + (* E_AMinus *)
      rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
@@ -590,7 +590,7 @@ Proof.
    + (* ANum *)
      apply E_ANum.
    + (* APlus *)
-     apply EA_+.
+     apply Eᵃ+.
       apply IHa1. reflexivity.
       apply IHa2. reflexivity.
    + (* AMinus *)
@@ -652,8 +652,8 @@ would not be straightforward: What should we return as the result of
 `# 5 ÷ # 0`?  But extending `⇓ᵃ` is very easy.
 
     data _⇓ᵃ_ : AExp → ℕ → Set where
-      -- ... Constructors EA_ℕ, EA_+, EA_-, EA_* unchanged
-      EA_÷ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+      -- ... Constructors Eᵃℕ, Eᵃ+, Eᵃ-, Eᵃ* unchanged
+      Eᵃ÷ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
                → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
                → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
 
@@ -681,8 +681,8 @@ with the sense of "function" in a functional language.  But again,
 extending `⇓ᵃ` would be straightforward:
 
     data _⇓ᵃ_ : AExp → ℕ → Set where
-      -- ... Constructors EA_ℕ, EA_+, EA_-, EA_* unchanged
-      EA_any : ∀ { n : ℕ } → any ⇓ᵃ n
+      -- ... Constructors Eᵃℕ, Eᵃ+, Eᵃ-, Eᵃ* unchanged
+      Eᵃany : ∀ { n : ℕ } → any ⇓ᵃ n
 
 At this point you maybe wondering: which style should I use by
 default?  In the examples we've just seen, relational definitions
@@ -985,304 +985,208 @@ Next we need to define what it means to evaluate an Imp command.  The
 fact that `while` loops don't necessarily terminate makes defining an
 evaluation function tricky.
 
-(* #################################### *)
-(** ** Evaluation as a Function (Failed Attempt) *)
+Defining an evaluation *function* for commands will not work well.
+But it will be insightful to try it anyway.  Unlike expression
+evaluation, command evaluation does not have a simple integer or
+boolean result.  The result of running a loop or an assignment is more
+subtle than just a simple value.  These commands _change the state_.
+So the result of executing the command is to transform a _starting
+state_ to an _ending state_.
 
-(** Here's an attempt at defining an evaluation function for commands,
-    omitting the `while` case. *)
+```
+cmdEvalFn : State → Command → State
+cmdEvalFn st skip = st
+cmdEvalFn st (x := x₁) = x ↦ ⟦ x₁ ⟧ᵃ st , st
+cmdEvalFn st (c₁ , c₂) = cmdEvalFn (cmdEvalFn st c₁) c₂
+cmdEvalFn st (if x then c₁ else c₂ end) with ⟦ x ⟧ᵇ st
+...                                    | true = cmdEvalFn st c₁
+...                                    | false = cmdEvalFn st c₂
+cmdEvalFn st (while x loop c end) = st
+```
 
-(* LATER: In SmallStep we need to package the state and command into
-   a pair, so that we can talk about normal forms and such.  Probably
-   we should do it here too, for consistency.  (Won't change much
-   except the type declarations, but we'll need to add a comment why
-   we wrote them this way.) *)
-(** FULL: The following declaration is needed to be able to use the
-    notations in match patterns. *)
-Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
-  match c with
-    | <{ skip }> =>
-        st
-    | <{ x := a }> =>
-        (x !-> (aeval st a) ; st)
-    | <{ c1 ; c2 }> =>
-        let st' := ceval_fun_no_while st c1 in
-        ceval_fun_no_while st' c2
-    | <{ if b then c1 else c2 end}> =>
-        if (beval st b)
-          then ceval_fun_no_while st c1
-          else ceval_fun_no_while st c2
-    | <{ while b do c end }> =>
-        st  (* bogus *)
-  end.
-(* FULL *)
+In a traditional functional programming language like OCaml or Haskell
+we could add the `while` case as follows:
 
-(** In a traditional functional programming language like OCaml or
-    Haskell we could add the `while` case as follows:
-<<
-        Fixpoint ceval_fun (st : state) (c : com) : state :=
-          match c with
-            ...
-            | while b do c end =>
-                if (beval st b)
-                  then ceval_fun st (c ; while b do c end)
-                  else st
-          end.
->>
-    Coq doesn't accept such a definition ("Error: Cannot guess
-    decreasing argument of fix") because the function we want to
-    define is not guaranteed to terminate. Indeed, it _doesn't_ always
-    terminate: for example, the full version of the `ceval_fun`
-    function applied to the `loop` program above would never
-    terminate. Since Coq is not just a functional programming
-    language but also a consistent logic, any potentially
-    non-terminating function needs to be rejected. Here is
-    an (invalid!) program showing what would go wrong if Coq
-    allowed non-terminating recursive functions:
-<<
-         Fixpoint loop_false (n : nat) : False := loop_false n.
->>
-    That is, propositions like `False` would become provable
-    (`loop_false 0` would be a proof of `False`), which
-    would be a disaster for Coq's logical consistency.
+    cmdEvalFn : State → Command → State
+    -- ...other cases unchanged...
+    cmdEvalFn st (while x loop c end) with ⟦ x ⟧ᵇ st
+    ...                                | true = cmdEvalFn (cmdEvalFn st c)
+                                                          (while x loop c end)
+    ...                                | false = st
 
-    Thus, because it doesn't terminate on all inputs,
-    of `ceval_fun` cannot be written in Coq — at least not without
-    additional tricks and workarounds (see chapter \CHAP{ImpCEvalFun}
-    if you're curious about what those might be). *)
-(* LATER: Perhaps that discussion should be moved to — or previewed
-   in — Logic.v?
-   MRC'20: It's already in ProofObjects (which not everyone sees). *)
-(* /FULL *)
+Agda doesn't accept such a definition ("Termination checking failed")
+because the function we want to define is not guaranteed to
+terminate. Indeed, it _doesn't_ always terminate: for example, the
+full version of the `cmdEvalFn` function applied to the `loop` program
+in the examples above would never terminate.  Since Agda is not just a
+functional programming language but also a consistent logic, any
+potentially non-terminating function needs to be rejected.  So because
+it doesn't terminate on all inputs, a version of `cmdEvalFn` that runs
+while loops cannot be written in Agda — at least not without
+additional tricks and workarounds.
 
-(* TERSE *)
-(** *** Nontermination leads to Inconsistency *)
-(**  Consider the following "proof object":
+A better way to define the evaluation of `while` loops is to define
+`cmdEvalFn` as a _relation_ rather than a _function_, as we did for
+`⇓ᵃ` and `⇓ᵇ` above.  This is an important change.  Besides freeing us
+from awkward workarounds, it gives us much more flexibility in the
+definition.  For example, if we add nondeterministic features like
+`any` to the language, we want the definition of evaluation to be
+nondeterministic — i.e., not only will it not be total, it will not
+even be a function!
 
-<<
-        Fixpoint loop_false (n : nat) : False :=
-          loop_false n.
->>
-
-     Accepting such a definition would be catastrophic, so Coq
-     conservatively rejects _all_ nonterminating programs.
-*)
-(* /TERSE *)
-
-(* #################################### *)
-(** ** Evaluation as a Relation *)
-
-(** Here's a better way: define `ceval` as a _relation_ rather than a
-    _function_ — i.e., define it in `Prop` instead of `Type`, as we
-    did for `aevalR` above. *)
-
-(* FULL *)
-(* HIDEFROMADVANCED *)
-(** This is an important change.  Besides freeing us from awkward
-    workarounds, it gives us a lot more flexibility in the definition.
-    For example, if we add nondeterministic features like `any` to the
-    language, we want the definition of evaluation to be
-    nondeterministic — i.e., not only will it not be total, it will
-    not even be a function! *)
-
-(* /HIDEFROMADVANCED *)
-(* /FULL *)
-(** We'll use the notation `st =` c `=> st'` for the `ceval` relation:
-    `st =` c `=> st'` means that executing program `c` in a starting
-    state `st` results in an ending state `st'`.  This can be
-    pronounced "`c` takes state `st` to `st'`". *)
-
-(** *** Operational Semantics *)
-
-(** Here is an informal definition of evaluation, presented as inference
-    rules for readability:
+We'll use the notation `st =[ c ]=> st'` for the `ceval` relation:
+`st =[ c ]=> st'` means that executing program `c` in a starting state
+`st` results in an ending state `st'`.  This can be pronounced "`c`
+takes state `st` to `st'`".  Here is an informal definition of
+evaluation, presented as inference rules for readability:
 
                            -----------------                            (E_Skip)
-                           st =` skip `=> st
+                           st =[ skip ]=> st
 
                            aeval st a = n
                    -------------------------------                      (E_Ass)
-                   st =` x := a `=> (x !-> n ; st)
+                   st =[ x := a ]=> (x !-> n ; st)
 
-                           st  =` c1 `=> st'
-                           st' =` c2 `=> st''
+                           st  =[ c1 ]=> st'
+                           st' =[ c2 ]=> st′'
                          ---------------------                           (E_Seq)
-                         st =` c1;c2 `=> st''
+                         st =[ c1;c2 ]=> st′'
 
                           beval st b = true
-                           st =` c1 `=> st'
+                           st =[ c1 ]=> st'
                 --------------------------------------               (E_IfTrue)
-                st =` if b then c1 else c2 end `=> st'
+                st =[ if b then c1 else c2 end ]=> st'
 
                          beval st b = false
-                           st =` c2 `=> st'
+                           st =[ c2 ]=> st'
                 --------------------------------------              (E_IfFalse)
-                st =` if b then c1 else c2 end `=> st'
+                st =[ if b then c1 else c2 end ]=> st'
 
                          beval st b = false
                     -----------------------------                 (E_WhileFalse)
-                    st =` while b do c end `=> st
+                    st =[ while b do c end ]=> st
 
                           beval st b = true
-                           st =` c `=> st'
-                  st' =` while b do c end `=> st''
+                           st =[ c ]=> st'
+                  st' =[ while b do c end ]=> st′'
                   --------------------------------                 (E_WhileTrue)
-                  st  =` while b do c end `=> st''
+                  st  =[ while b do c end ]=> st′'
 
 *)
 
-(* HIDE: APT: Investigate rewriting these to use equality hypotheses
-   rather than repeated variables in the conclusion.  For example:
+Here is the formal definition.  Make sure you understand how it
+corresponds to the inference rules.
 
-      E_Skip : forall st st', st = st' -> st =` skip `=> st'.
+```
+data _=[_]=>_ : State → Command → State → Set where
+  Eskip : ∀ { st : State } → st =[ skip ]=> st
+  E:= : ∀ { st : State } { a : AExp } { n : ℕ } { x : String } →
+           ⟦ a ⟧ᵃ st ≡ n →
+             st =[ x := a ]=> ( x ↦ n , st )
+  E, : ∀ { st' : State } { st st′' : State } { c₁ c₂ : Command } →
+          st  =[ c₁ ]=> st'  ->
+            st' =[ c₂ ]=> st′' ->
+              st  =[ c₁ , c₂ ]=> st′'
+  EIfT : ∀ { st st' : State } { b : BExp } { c1 c2 : Command } →
+            ⟦ b ⟧ᵇ st ≡ true →
+              st =[ c1 ]=> st' →
+                st =[ if b then c1 else c2 end ]=> st'
+  EIfF : ∀ { st st' : State } { b : BExp } { c1 c2 : Command } →
+            ⟦ b ⟧ᵇ st ≡ false →
+              st =[ c2 ]=> st' →
+                st =[ if b then c1 else c2 end ]=> st'
+  EWhileF : ∀ { st : State } { b : BExp } { c : Command } →
+               ⟦ b ⟧ᵇ st ≡ false →
+                 st =[ while b loop c end ]=> st
+  EWhileT : ∀ { st st' st′' : State } { b : BExp } { c : Command } →
+               ⟦ b ⟧ᵇ st ≡ true →
+                 st =[ c ]=> st' →
+                   st' =[ while b loop c end ]=> st′' →
+                     st =[ while b loop c end ]=> st′'
+infixr 3 _=[_]=>_
+```
 
-   This makes the constructors easier to apply, and allows us to "swap
-   in" an equivalence in place of equality.
+The cost of defining evaluation as a relation instead of a function is
+that we now need to construct _proofs_ that some program evaluates to
+some result state, rather than just letting Agda's computation
+mechanism do it for us.  For example, for this program
 
-  BAY: It sounds nice, but I tried this (23 Feb 2011) and didn't
-    really find any benefit. The only difference seemed to be that it
-    made quite a few proofs a tiny bit more annoying, due to the need
-    for an extra 'reflexivity' or 'subst' or what have you. *)
+    X := 2 ,
+    if (X <= 1)
+      then Y := 3
+      else Z := 4
+    end
 
-(** FULL: Here is the formal definition.  Make sure you understand
-    how it corresponds to the inference rules. *)
-(** TERSE: *** *)
+informally we would have this proof tree:
 
-(* NOTATION: LATER: Consider
-                "st '={' c '}=>' st'"
-             or
-                "st '=<{' c '}>=>' st'"
-*)
-(* INSTRUCTORS: of template eval *)
-Reserved Notation
-         "st '=`' c '`=>' st'"
-         (at level 40, c custom com at level 99,
-          st constr, st' constr at next level).
+                                                              -------------------------------------------------------------- E:=
+                                                              X ↦ 2 , emptyState =[ Z := 4 ]=> Z ↦ 4 , X ↦ 2 , emptyState
+     ---------------------------------------------- E:=    ------------------------------------------------------------------- EIfF
+     emptyState =[ X := # 2 ]=> X ↦ 2 , emptyState         X ↦ 2 , emptyState =[ if ... end ]=> Z ↦ 4 , X ↦ 2 , emptyState
+     -------------------------------------------------------------------------------------------------------------------------  E,
+                                emptyState =[ X := # 2 , if ... end ]=> Z ↦ 4 , X ↦ 2 , emptyState
 
-Inductive ceval : com -> state -> state -> Prop :=
-  | E_Skip : forall st,
-      st =` skip `=> st
-  | E_Ass  : forall st a n x,
-      aeval st a = n ->
-      st =` x := a `=> (x !-> n ; st)
-  | E_Seq : forall c1 c2 st st' st'',
-      st  =` c1 `=> st'  ->
-      st' =` c2 `=> st'' ->
-      st  =` c1 ; c2 `=> st''
-  | E_IfTrue : forall st st' b c1 c2,
-      beval st b = true ->
-      st =` c1 `=> st' ->
-      st =` if b then c1 else c2 end`=> st'
-  | E_IfFalse : forall st st' b c1 c2,
-      beval st b = false ->
-      st =` c2 `=> st' ->
-      st =` if b then c1 else c2 end`=> st'
-  | E_WhileFalse : forall b st c,
-      beval st b = false ->
-      st =` while b do c end `=> st
-  | E_WhileTrue : forall st st' st'' b c,
-      beval st b = true ->
-      st  =` c `=> st' ->
-      st' =` while b do c end `=> st'' ->
-      st  =` while b do c end `=> st''
+which translates into this formal proof:
 
-  where "st =` c `=> st'" := (ceval c st st').
+```
+_ : emptyState =[
+      X := # 2 ,
+      if (id X <= # 1)
+        then Y := # 3
+        else Z := # 4
+      end
+    ]=> Z ↦ 4 , X ↦ 2 , emptyState
+_ = E, (E:= refl) (EIfF refl (E:= refl))
+```
 
-(** TERSE: *** *)
-(** The cost of defining evaluation as a relation instead of a
-    function is that we now need to construct _proofs_ that some
-    program evaluates to some result state, rather than just letting
-    Coq's computation mechanism do it for us. *)
+Here is another example,
 
-Example ceval_example1:
-  empty_st =`
-     X := 2;
-     if (X <= 1)
-       then Y := 3
-       else Z := 4
-     end
-  `=> (Z !-> 4 ; X !-> 2).
-Proof.
-  (* We must supply the intermediate state *)
-  apply E_Seq with (X !-> 2).
-  - (* assignment command *)
-    apply E_Ass. reflexivity.
-  - (* if command *)
-    apply E_IfFalse.
-    reflexivity.
-    apply E_Ass. reflexivity.
-Qed.
+```
+_ : emptyState =[
+      X := # 0 ,
+      Y := # 1 ,
+      Z := # 2
+    ]=> Z ↦ 2 , Y ↦ 1 , X ↦ 0 , emptyState
+_ = E, (E:= refl) (E, (E:= refl) (E:= refl))
+```
 
-(* FULL *)
-(* EX2 (ceval_example2) *)
-Example ceval_example2:
-  empty_st =`
-    X := 0;
-    Y := 1;
-    Z := 2
-  `=> (Z !-> 2 ; Y !-> 1 ; X !-> 0).
-Proof.
-  (* ADMITTED *)
-  apply E_Seq with (X !-> 0).
-  - (* first assignment command *)
-    apply E_Ass. reflexivity.
-  - (* second ; *)
-    apply E_Seq with (Y !-> 1 ; X !-> 0).
-    + (* second assignment command *)
-      apply E_Ass. reflexivity.
-    + (* third assignment *)
-      apply E_Ass. reflexivity.  Qed.
-(* /ADMITTED *)
-(** `` *)
 
-Set Printing Implicit.
-Check @ceval_example2.
+#### Exercise `pupToN` (recommended) {#pupToN}
 
-(* EX3? (pup_to_n) *)
-(** Write an Imp program that sums the numbers from `1` to `X`
-    (inclusive: `1 + 2 + ... + X`) in the variable `Y`.  Your program
-    should update the state as shown in theorem `pup_to_2_ceval`,
-    which you can reverse-engineer to discover the program you should
-    write.  The proof of that theorem will be somewhat lengthy. *)
-(* HIDE: CH: This is hard to solve without eapply.
-   Decreased number of iterations to 2. Made the whole thing optional. *)
+Write an Imp program that sums the numbers from `1` to `X` (inclusive:
+`1 + 2 + ... + X`) in the variable `Y`.  Your program should update
+the state as shown in theorem below.  You can reverse-engineer that
+state to discover the program you should write.  The proof of that
+theorem will be somewhat lengthy.
 
-pup_to_n : com
-  (* ADMITDEF *) :=
-  <{ Y := 0;
-     while ~(X = 0) do
-       Y := Y + X;
-       X := X - 1
-     end }>.
-(* /ADMITDEF *)
+    pupToN : Command
+    pupToN = -- FILL IN YOUR PROGRAM HERE
 
-Theorem pup_to_2_ceval :
-  (X !-> 2) =`
-    pup_to_n
-  `=> (X !-> 0 ; Y !-> 3 ; X !-> 1 ; Y !-> 2 ; Y !-> 0 ; X !-> 2).
-(* HIDE: Result is the same as (X !-> 0 ; Y !-> 3)
+    _ : X ↦ 2 , emptyState =[ pupToN ]=> X ↦ 0 , Y ↦ 3 , X ↦ 1 , Y ↦ 2 , Y ↦ 0 , X ↦ 2 , emptyState
+(* HIDE: Result is the same as (X ↦ 0 ; Y ↦ 3)
    if one admits functional extensionality *)
 Proof.
   (* ADMITTED *)
   unfold pup_to_n.
-  apply E_Seq with (Y !-> 0 ; X !-> 2).
+  apply ESeq with (Y ↦ 0 ; X ↦ 2).
   - (* assignment command *)
-    apply E_Ass. reflexivity.
+    apply EAsgn. reflexivity.
   - (* while command *)
-    apply E_WhileTrue with (X !-> 1 ; Y !-> 2 ; Y !-> 0 ; X !-> 2).
+    apply EWhileTrue with (X ↦ 1 ; Y ↦ 2 ; Y ↦ 0 ; X ↦ 2).
       reflexivity.
     + (* first round *)
-      apply E_Seq with (Y !-> 2 ; Y !-> 0 ; X !-> 2).
-      apply E_Ass. reflexivity.
-      apply E_Ass. reflexivity.
+      apply ESeq with (Y ↦ 2 ; Y ↦ 0 ; X ↦ 2).
+      apply EAsgn. reflexivity.
+      apply EAsgn. reflexivity.
     + (* the other rounds *)
-      eapply E_WhileTrue. reflexivity.
+      eapply EWhileTrue. reflexivity.
       * (* second round *)
-        eapply E_Seq.
-        apply E_Ass. reflexivity.
-        apply E_Ass. reflexivity.
+        eapply ESeq.
+        apply EAsgn. reflexivity.
+        apply EAsgn. reflexivity.
       * (* no more rounds *)
         simpl. rewrite t_update_eq.
-        apply E_WhileFalse. reflexivity. Qed.
+        apply EWhileFalse. reflexivity. Qed.
 (* /ADMITTED *)
 (** `` *)
 (* LATER: Comment from reader: Another good place to mention lack of
@@ -1294,16 +1198,16 @@ Proof.
 
 (* HIDE: PR: I phrased these quizzes with the following alternatives:
    (1) Not true
-   (2) True and easily provable in Coq
-   (3) True and takes more work to prove in Coq
-   (4) True and cannot be proved in Coq without additional axioms
+   (2) True and easily provable in Agda
+   (3) True and takes more work to prove in Agda
+   (4) True and cannot be proved in Agda without additional axioms
 *)
 (* QUIZ *)
 (** Is the following proposition provable?
 ``
       forall (c : com) (st st' : state),
-        st =` skip ; c `=> st' ->
-        st =` c `=> st'
+        st =[ skip ; c ]=> st' ->
+        st =[ c ]=> st'
 ``
     (1) Yes
 
@@ -1314,8 +1218,8 @@ Proof.
 *)
 (* HIDE *)
 Lemma quiz1_answer :  forall c st st',
-    st =` skip ; c `=> st' ->
-    st =` c `=> st'.
+    st =[ skip ; c ]=> st' ->
+    st =[ c ]=> st'.
 Proof.
    intros c st st' E.
    inversion E.
@@ -1330,9 +1234,9 @@ Qed.
 (** Is the following proposition provable?
 ``
       forall (c1 c2 : com) (st st' : state),
-          st =` c1;c2 `=> st' ->
-          st =` c1 `=> st ->
-          st =` c2 `=> st'
+          st =[ c1;c2 ]=> st' ->
+          st =[ c1 ]=> st ->
+          st =[ c2 ]=> st'
 ``
     (1) Yes
 
@@ -1348,8 +1252,8 @@ Qed.
 (** Is the following proposition provable?
 ``
       forall (b : bexp) (c : com) (st st' : state),
-          st =` if b then c else c end `=> st' ->
-          st =` c `=> st'
+          st =[ if b then c else c end ]=> st' ->
+          st =[ c ]=> st'
 ``
     (1) Yes
 
@@ -1360,8 +1264,8 @@ Qed.
 *)
 (* INSTRUCTORS *)
 Lemma quiz3_answer: forall (b : bexp) (c : com) (st st' : state),
-    st =` if b then c else c end`=> st' ->
-    st =` c `=> st'.
+    st =[ if b then c else c end`=> st' ->
+    st =[ c ]=> st'.
 Proof.
   intros b c st st' H. inversion H.
   subst. assumption.
@@ -1373,9 +1277,9 @@ Qed.
 (** Is the following proposition provable?
 ``
       forall b : bexp,
-         (forall st, beval st b = true) ->
+         (forall st, ⟦ b ⟧ᵇ st = true) ->
          forall (c : com) (st : state),
-           ~(exists st', st =` while b do c end `=> st')
+           ~(exists st', st =[ while b do c end ]=> st')
 ``
     (1) Yes
 
@@ -1387,9 +1291,9 @@ Qed.
 (* HIDE *)
 (* This one is tricky! *)
 Lemma quiz4_answer: forall b : bexp,
-    (forall st, beval st b = true) ->
+    (forall st, ⟦ b ⟧ᵇ st = true) ->
     forall (c : com) (st : state),
-      ~(exists st', st =` while b do c end `=> st').
+      ~(exists st', st =[ while b do c end ]=> st').
 Proof.
   intros b H c st.
   unfold not.
@@ -1406,7 +1310,7 @@ Qed.
 (** Is the following proposition provable?
 ``
       forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =` while b do c end `=> st') ->
+         ~(exists st', st =[ while b do c end ]=> st') ->
          forall st'', beval st'' b = true
 ``
     (1) Yes
@@ -1418,7 +1322,7 @@ Qed.
 *)
 (* HIDE *)
 Lemma quiz5_answer: forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =` while b do c end `=> st') ->
+         ~(exists st', st =[ while b do c end ]=> st') ->
          forall st'', beval st'' b = true.
 Proof.
   intros b c st H st''.
@@ -1447,34 +1351,34 @@ Abort. (* Can't make any progress - claim is false! *)
    some past CIS500 exam solutions!) *)
 
 Theorem ceval_deterministic: forall c st st1 st2,
-     st =` c `=> st1  ->
-     st =` c `=> st2 ->
+     st =[ c ]=> st1  ->
+     st =[ c ]=> st2 ->
      st1 = st2.
 (* FOLD *)
 Proof.
   intros c st st1 st2 E1 E2.
   generalize dependent st2.
   induction E1; intros st2 E2; inversion E2; subst.
-  - (* E_Skip *) reflexivity.
-  - (* E_Ass *) reflexivity.
-  - (* E_Seq *)
+  - (* ESkip *) reflexivity.
+  - (* EAsgn *) reflexivity.
+  - (* ESeq *)
     rewrite (IHE1_1 st'0 H1) in *.
     apply IHE1_2. assumption.
-  - (* E_IfTrue, b evaluates to true *)
+  - (* EIfTrue, b evaluates to true *)
       apply IHE1. assumption.
-  - (* E_IfTrue,  b evaluates to false (contradiction) *)
+  - (* EIfTrue,  b evaluates to false (contradiction) *)
       rewrite H in H5. discriminate.
-  - (* E_IfFalse, b evaluates to true (contradiction) *)
+  - (* EIfFalse, b evaluates to true (contradiction) *)
       rewrite H in H5. discriminate.
-  - (* E_IfFalse, b evaluates to false *)
+  - (* EIfFalse, b evaluates to false *)
       apply IHE1. assumption.
-  - (* E_WhileFalse, b evaluates to false *)
+  - (* EWhileFalse, b evaluates to false *)
     reflexivity.
-  - (* E_WhileFalse, b evaluates to true (contradiction) *)
+  - (* EWhileFalse, b evaluates to true (contradiction) *)
     rewrite H in H2. discriminate.
-  - (* E_WhileTrue, b evaluates to false (contradiction) *)
+  - (* EWhileTrue, b evaluates to false (contradiction) *)
     rewrite H in H4. discriminate.
-  - (* E_WhileTrue, b evaluates to true *)
+  - (* EWhileTrue, b evaluates to true *)
     rewrite (IHE1_1 st'0 H3) in *.
     apply IHE1_2. assumption.  Qed.
 (* /FOLD *)
@@ -1482,9 +1386,9 @@ Proof.
 (* HIDE *)
 (* Answer to previous quiz. *)
 Lemma quiz2_answer : forall c1 c2 st st',
-    st =` c1;c2 `=> st' ->
-    st =` c1 `=> st ->
-    st =` c2 `=> st'.
+    st =[ c1;c2 ]=> st' ->
+    st =[ c1 ]=> st ->
+    st =[ c2 ]=> st'.
 Proof.
   intros c1 c2 st st' H1 H2.
   inversion H1. subst.
@@ -1518,12 +1422,12 @@ Qed.
 
 Theorem plus2_spec : forall st n st',
   st X = n ->
-  st =` plus2 `=> st' ->
+  st =[ plus2 ]=> st' ->
   st' X = n + 2.
 Proof.
   intros st n st' HX Heval.
 
-  (** Inverting `Heval` essentially forces Coq to expand one step of
+  (** Inverting `Heval` essentially forces Agda to expand one step of
       the `ceval` computation — in this case revealing that `st'`
       must be `st` extended with the new value of `X`, since `plus2`
       is an assignment. *)
@@ -1540,7 +1444,7 @@ Proof.
 Theorem XtimesYinZ_spec1 : forall st nx ny st',
   st X = nx ->
   st Y = ny ->
-  st =` XtimesYinZ `=> st' ->
+  st =[ XtimesYinZ ]=> st' ->
   st' Z = nx * ny.
 Proof.
   intros st nx ny st' HX HY Heval.
@@ -1550,24 +1454,24 @@ Proof.
 
 (* Though perhaps a cleaner specification would be: *)
 Theorem XtimesYinZ_spec : forall st,
-    st =` XtimesYinZ `=> (Z !-> st X * st Y ; st ).
-Proof. intros. apply E_Ass. reflexivity. Qed.
+    st =[ XtimesYinZ ]=> (Z ↦ st X * st Y ; st ).
+Proof. intros. apply EAsgn. reflexivity. Qed.
 
 (* A less informative specification would be ... *)
 Theorem XtimesYinZ_spec2 : forall st, exists st',
-      st =` XtimesYinZ `=> st'.
+      st =[ XtimesYinZ ]=> st'.
 Proof.
-  intros. exists (Z !-> st X * st Y ; st).
-  apply E_Ass. reflexivity.
+  intros. exists (Z ↦ st X * st Y ; st).
+  apply EAsgn. reflexivity.
 Qed.
 (* /SOLUTION *)
 
-(* GRADE_MANUAL 3: XtimesYinZ_spec *)
+(* GRADEMANUAL 3: XtimesYinZ_spec *)
 (** `` *)
 
 (* EX3! (loop_never_stops) *)
 Theorem loop_never_stops : forall st st',
-  ~(st =` loop `=> st').
+  ~(st =[ loop ]=> st').
 Proof.
   intros st st' contra. unfold loop in contra.
   remember <{ while true do skip end }> as loopdef
@@ -1580,9 +1484,9 @@ Proof.
 
   (* ADMITTED *)
   induction contra; try (discriminate Heqloopdef).
-  - (* E_WhileFalse *)
+  - (* EWhileFalse *)
       injection Heqloopdef. intros H0 H1. rewrite -> H1 in H. discriminate H.
-    - (* E_WhileTrue *) apply IHcontra2. apply Heqloopdef. Qed.
+    - (* EWhileTrue *) apply IHcontra2. apply Heqloopdef. Qed.
 
 (* /ADMITTED *)
 (** `` *)
@@ -1654,39 +1558,39 @@ Proof.
 Theorem no_whiles_terminating : forall c st,
   no_whilesR c ->
   exists st',
-  st =` c `=> st'.
+  st =[ c ]=> st'.
 Proof.
   intros c st H. generalize dependent st.
   induction H; intros; simpl.
   - (* nw_Skip *) exists st. constructor.
-  - (* nw_Ass *) exists (x !-> aeval st ae ; st).
+  - (* nw_Ass *) exists (x ↦ aeval st ae ; st).
     constructor. reflexivity.
   - (* nw_Seq *)
     destruct (IHno_whilesR1 st) as `st' IH'`.
     destruct (IHno_whilesR2 st') as `st'' IH''`.
-    exists st''. apply E_Seq with st'; assumption.
+    exists st''. apply ESeq with st'; assumption.
   - (* nw_If *)
-    destruct (beval st be) eqn:Heqbv.
+    destruct (⟦ b ⟧ᵇ ste) eqn:Heqbv.
     + (* bv = true *)
       destruct (IHno_whilesR1 st) as `st' IH'`.
-      exists st'. apply E_IfTrue. rewrite Heqbv. reflexivity. assumption.
+      exists st'. apply EIfTrue. rewrite Heqbv. reflexivity. assumption.
     + (* bv = false *)
       destruct (IHno_whilesR2 st) as `st' IH'`.
-      exists st'. apply E_IfFalse. rewrite Heqbv. reflexivity. assumption.
+      exists st'. apply EIfFalse. rewrite Heqbv. reflexivity. assumption.
 Qed.
 
 (* And here is an alternative solution by induction on c: *)
 Theorem no_whiles_terminating' : forall c st1,
   no_whiles c = true ->
-  exists st2, st1 =` c `=> st2.
+  exists st2, st1 =[ c ]=> st2.
 Proof.
   induction c; intros st1 Hb.
 
   - (* skip *)
-    exists st1. apply E_Skip.
+    exists st1. apply ESkip.
 
   - (* := *)
-    exists (x !-> aeval st1 a ; st1). apply E_Ass. reflexivity.
+    exists (x ↦ aeval st1 a ; st1). apply EAsgn. reflexivity.
 
   - (* ; *)
     simpl in Hb.
@@ -1695,24 +1599,24 @@ Proof.
     apply (IHc1 st1) in Hb1. destruct Hb1 as `st1' ceH1`.
     apply (IHc2 st1') in Hb2. destruct Hb2 as `st1'' ceH2`.
     exists st1''.
-    apply E_Seq with (st' := st1'); assumption.
+    apply ESeq with (st' := st1'); assumption.
 
   - (* if *)
     simpl in Hb. rewrite andb_true_iff in Hb.
     destruct Hb as `Hb1 Hb2`.
     destruct (beval st1 b) eqn:Heqbv.
-    + (* E_IfTrue *)
+    + (* EIfTrue *)
       apply (IHc1 st1) in Hb1.
       destruct Hb1 as `st2 Hce1`. exists st2.
-      apply E_IfTrue.
+      apply EIfTrue.
       * (* b is true *)
         rewrite <- Heqbv. reflexivity.
       * (* true branch eval *)
         assumption.
-    + (* E_IfFalse *)
+    + (* EIfFalse *)
       apply (IHc2 st1) in Hb2.
       destruct Hb2 as `st2 Hce2`. exists st2.
-      apply E_IfFalse.
+      apply EIfFalse.
       * (* b is false *)
         rewrite <- Heqbv. reflexivity.
       * (* false branch eval *)
@@ -1780,7 +1684,7 @@ fact_invariant (n:nat) (st:state) : Prop :=
 Theorem fact_body_preserves_invariant: forall st st' n,
      fact_invariant n st ->
      st Z <> 0 ->
-     st =` fact_body `=> st' ->
+     st =[ fact_body ]=> st' ->
      fact_invariant n st'.
 (* FOLD *)
 Proof.
@@ -1803,17 +1707,17 @@ invariant: *)
 
 Theorem fact_loop_preserves_invariant : forall st st' n,
      fact_invariant n st ->
-     st =` fact_loop `=> st' ->
+     st =[ fact_loop ]=> st' ->
      fact_invariant n st'.
 (* FOLD *)
 Proof.
   intros st st' n H Hce.
   remember fact_loop as c.
   induction Hce; inversion Heqc; subst; clear Heqc.
-  - (* E_WhileFalse *)
+  - (* EWhileFalse *)
     (* trivial when the loop doesn't run... *)
     assumption.
-  - (* E_WhileTrue *)
+  - (* EWhileTrue *)
     (* if the loop does run, we know that fact_body preserves
        fact_invariant — we just need to assemble the pieces *)
     apply IHHce2.
@@ -1828,16 +1732,16 @@ Proof.
     condition guarding the loop must be false at the end: *)
 
 Theorem guard_false_after_loop: forall b c st st',
-     st =` while b do c end `=> st' ->
+     st =[ while b do c end ]=> st' ->
      beval st' b = false.
 (* FOLD *)
 Proof.
   intros b c st st' Hce.
   remember <{ while b do c end }> as cloop.
   induction Hce; inversion Heqcloop; subst; clear Heqcloop.
-  - (* E_WhileFalse *)
+  - (* EWhileFalse *)
     assumption.
-  - (* E_WhileTrue *)
+  - (* EWhileTrue *)
     apply IHHce2. reflexivity.  Qed.
 (* /FOLD *)
 
@@ -1845,7 +1749,7 @@ Proof.
 
 Theorem fact_com_correct : forall st st' n,
      st X = n ->
-     st =` fact_com `=> st' ->
+     st =[ fact_com ]=> st' ->
      st' Y = real_fact n.
 (* FOLD *)
 Proof.
@@ -1856,7 +1760,7 @@ Proof.
   inversion H1; subst; clear H1.
   rename st' into st''. simpl in H5.
   (* The invariant is true before the loop runs... *)
-  remember (Y !-> 1 ; Z !-> st X ; st) as st' eqn:Heqst'.
+  remember (Y ↦ 1 ; Z ↦ st X ; st) as st' eqn:Heqst'.
   assert (fact_invariant (st X) st').
     subst. unfold fact_invariant, t_update. simpl. lia.
   (* ...so when the loop is done running, the invariant
@@ -1892,7 +1796,7 @@ ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
 Theorem ss_body_preserves_invariant : forall st n z st',
      ss_invariant n z st ->
      st X <> 0 ->
-     st =` subtractSlowlyBody `=> st' ->
+     st =[ subtractSlowlyBody ]=> st' ->
      ss_invariant n z st'.
 Proof.
   unfold ss_invariant.
@@ -1906,15 +1810,15 @@ Qed.
 
 Theorem ss_preserves_invariant : forall st n z st',
      ss_invariant n z st ->
-     st =` subtractSlowly `=> st'  ->
+     st =[ subtractSlowly ]=> st'  ->
      ss_invariant n z st'.
 Proof.
   intros st n z st' H He.
   remember subtractSlowly as c.
   induction He; inversion Heqc; subst; clear Heqc.
-  - (* E_WhileFalse *)
+  - (* EWhileFalse *)
     assumption.
-  - (* E_WhileTrue *)
+  - (* EWhileTrue *)
     apply IHHe2; try reflexivity.
     apply ss_body_preserves_invariant with st; try assumption.
     intros Contra. simpl in H0. rewrite Contra in H0. inversion H0.  Qed.
@@ -1922,7 +1826,7 @@ Proof.
 Theorem ss_correct : forall st n z st',
      st X = n ->
      st Z = z ->
-     st =` subtractSlowly `=> st' ->
+     st =[ subtractSlowly ]=> st' ->
      st' Z = (z - n).
 Proof.
   intros st n z st' HX HZ He.
@@ -2037,7 +1941,7 @@ Proof. reflexivity. Qed.
 (* GRADE_THEOREM 1: s_execute1 *)
 
 Example s_execute2 :
-     s_execute (X !-> 3) `3;4`
+     s_execute (X ↦ 3) `3;4`
        `SPush 4; SLoad X; SMult; SPlus`
    = `15; 4`.
 (* ADMITTED *)
@@ -2255,15 +2159,15 @@ Inductive result : Type :=
 Reserved Notation "st '=`' c '`=>' st' '/' s"
      (at level 40, c custom com at level 99, st' constr at next level).
 
-(** Intuitively, `st =` c `=> st' / s` means that, if `c` is started in
+(** Intuitively, `st =[ c ]=> st' / s` means that, if `c` is started in
     state `st`, then it terminates in state `st'` and either signals
     that the innermost surrounding loop (or the whole program) should
     exit immediately (`s = SBreak`) or that execution should continue
     normally (`s = SContinue`).
 
-    The definition of the "`st =` c `=> st' / s`" relation is very
+    The definition of the "`st =[ c ]=> st' / s`" relation is very
     similar to the one we gave above for the regular evaluation
-    relation (`st =` c `=> st'`) — we just need to handle the
+    relation (`st =[ c ]=> st'`) — we just need to handle the
     termination signals appropriately:
 
     - If the command is `skip`, then the state doesn't change and
@@ -2313,36 +2217,36 @@ if_then_else {A : Type} (b : bool) (l r : A) :=
 (* /SOLUTION *)
 
 Inductive ceval : com -> state -> result -> state -> Prop :=
-  | E_Skip : forall st,
-      st =` CSkip `=> st / SContinue
+  | ESkip : forall st,
+      st =[ CSkip ]=> st / SContinue
   (* SOLUTION *)
-  | E_Break : forall st,
-      st =` CBreak `=> st / SBreak
-  | E_Ass  : forall st a n x,
+  | EBreak : forall st,
+      st =[ CBreak ]=> st / SBreak
+  | EAsgn  : forall st a n x,
       aeval st a = n ->
-      st =` x := a `=> (X !-> n ; st) / SContinue
-  | E_SeqContinue : forall c1 c2 st st' st'' s,
-      st =` c1 `=> st' / SContinue ->
-      st' =` c2 `=> st'' / s ->
-      st =` c1 ; c2 `=> st'' / s
-  | E_SeqBreak : forall c1 c2 st st',
-      st =` c1 `=> st' / SBreak ->
-      st =` c1 ; c2 `=> st' / SBreak
-  | E_If : forall c1 c2 b st st' s,
-      st =` if_then_else (beval st b) c1 c2 `=> st' / s ->
-      st =` if b then c1 else c2 end `=> st' / s
-  | E_WhileFalse : forall c b st,
-      beval st b = false ->
-      st =` while b do c end `=> st / SContinue
-  | E_WhileContinue : forall c b st st' st'',
-      beval st b = true ->
-      st  =` c `=> st' / SContinue ->
-      st' =` while b do c end `=> st'' / SContinue ->
-      st  =` while b do c end `=> st'' / SContinue
-  | E_WhileBreak : forall c b st st',
-      beval st b = true ->
-      st =` c `=> st' / SBreak ->
-      st =` while b do c end `=> st' / SContinue
+      st =[ x := a ]=> (X ↦ n ; st) / SContinue
+  | ESeqContinue : forall c1 c2 st st' st'' s,
+      st =[ c1 ]=> st' / SContinue ->
+      st' =[ c2 ]=> st'' / s ->
+      st =[ c1 ; c2 ]=> st'' / s
+  | ESeqBreak : forall c1 c2 st st',
+      st =[ c1 ]=> st' / SBreak ->
+      st =[ c1 ; c2 ]=> st' / SBreak
+  | EIf : forall c1 c2 b st st' s,
+      st =[ if_then_else (⟦ b ⟧ᵇ st) c1 c2 ]=> st' / s ->
+      st =[ if b then c1 else c2 end ]=> st' / s
+  | EWhileFalse : forall c b st,
+      ⟦ b ⟧ᵇ st = false ->
+      st =[ while b do c end ]=> st / SContinue
+  | EWhileContinue : forall c b st st' st'',
+      ⟦ b ⟧ᵇ st = true ->
+      st  =[ c ]=> st' / SContinue ->
+      st' =[ while b do c end ]=> st'' / SContinue ->
+      st  =[ while b do c end ]=> st'' / SContinue
+  | EWhileBreak : forall c b st st',
+      ⟦ b ⟧ᵇ st = true ->
+      st =[ c ]=> st' / SBreak ->
+      st =[ while b do c end ]=> st' / SContinue
   (* /SOLUTION *)
 
   where "st '=`' c '`=>' st' '/' s" := (ceval c st s st').
@@ -2350,7 +2254,7 @@ Inductive ceval : com -> state -> result -> state -> Prop :=
 (** Now prove the following properties of your definition of `ceval`: *)
 
 Theorem break_ignore : forall c st st' s,
-     st =` break; c `=> st' / s ->
+     st =[ break; c ]=> st' / s ->
      st = st'.
 Proof.
   (* ADMITTED *)
@@ -2363,7 +2267,7 @@ Qed.
 (* GRADE_THEOREM 1.5: break_ignore *)
 
 Theorem while_continue : forall b c st st' s,
-  st =` while b do c end `=> st' / s ->
+  st =[ while b do c end ]=> st' / s ->
   s = SContinue.
 Proof.
   (* ADMITTED *)
@@ -2373,13 +2277,13 @@ Qed.
 (* GRADE_THEOREM 1.5: while_continue *)
 
 Theorem while_stops_on_break : forall b c st st',
-  beval st b = true ->
-  st =` c `=> st' / SBreak ->
-  st =` while b do c end `=> st' / SContinue.
+  ⟦ b ⟧ᵇ st = true ->
+  st =[ c ]=> st' / SBreak ->
+  st =[ while b do c end ]=> st' / SContinue.
 Proof.
   (* ADMITTED *)
   intros b c st st' H1 H2.
-  apply E_WhileBreak; assumption.
+  apply EWhileBreak; assumption.
 Qed.
 (* /ADMITTED *)
 (* GRADE_THEOREM 3: while_stops_on_break *)
@@ -2387,20 +2291,20 @@ Qed.
 
 (* EX3A? (while_break_true) *)
 Theorem while_break_true : forall b c st st',
-  st =` while b do c end `=> st' / SContinue ->
+  st =[ while b do c end ]=> st' / SContinue ->
   beval st' b = true ->
-  exists st'', st'' =` c `=> st' / SBreak.
+  exists st'', st'' =[ c ]=> st' / SBreak.
 Proof.
 (* ADMITTED *)
   intros b c st st' H Hb.
   remember <{ while b do c end }> as c'.
   induction H; inversion Heqc'; clear Heqc'; subst.
-  - (* E_WhileFalse *)
+  - (* EWhileFalse *)
     rewrite Hb in H. discriminate H.
-  - (* E_WhileContinue *)
+  - (* EWhileContinue *)
     clear IHceval1.
     apply IHceval2. reflexivity. assumption.
-  - (* E_WhileBreak *)
+  - (* EWhileBreak *)
     exists st. assumption.
 Qed.
 (* /ADMITTED *)
@@ -2408,8 +2312,8 @@ Qed.
 
 (* EX4A? (ceval_deterministic) *)
 Theorem ceval_deterministic: forall (c:com) st st1 st2 s1 s2,
-     st =` c `=> st1 / s1 ->
-     st =` c `=> st2 / s2 ->
+     st =[ c ]=> st1 / s1 ->
+     st =[ c ]=> st2 / s2 ->
      st1 = st2 /\ s1 = s2.
 Proof.
   (* ADMITTED *)
@@ -2441,7 +2345,7 @@ Proof.
     try (apply IHE1 in H3; destruct H3 as `H31 H32`; try subst; inversion H32);
     try (apply IHE1 in H6; destruct H6 as `H61 H62`; try subst; inversion H62);
     try (split; reflexivity).
-  - (* E_If *)
+  - (* EIf *)
     apply IHE1. assumption.
 Qed.
 (* /ADMITTED *)
@@ -2508,7 +2412,7 @@ Inductive status : Type :=
   | SNormal
   | SThrow.
 
-(** Intuitively, `st =` c `=> st' / s` means that, if `c` is started in
+(** Intuitively, `st =[ c ]=> st' / s` means that, if `c` is started in
     state `st`, then it terminates in state `st'` and either signals
     that an exception has been raised (`s = SThrow`) or that execution
     can continue normally (`s = SNormal`).
@@ -2564,54 +2468,54 @@ if_then_else {A : Type} (b : bool) (l r : A) :=
 Reserved Notation "st '=`' c '`=>' st' '/' s"
          (at level 40, c custom com at level 99, st' constr at next level).
 
-(* SOONER: The E_WhileContinue case in this solution should have `s`,
+(* SOONER: The EWhileContinue case in this solution should have `s`,
    not `SNormal`, in the last two lines — see fixed version in
    comment.  This will require a bit of fixing proofs. *)
 Inductive ceval : com -> state -> status -> state -> Prop :=
-  | E_Skip : forall st,
-      st =` CSkip `=> st / SNormal
+  | ESkip : forall st,
+      st =[ CSkip ]=> st / SNormal
   (* SOLUTION *)
-  | E_Throw : forall st,
-      st =` CThrow `=> st / SThrow
-  | E_TryContinue : forall c1 c2 st st',
-      st =` c1 `=> st' / SNormal ->
-      st =` try c1 catch c2 end `=> st' / SNormal
-  | E_TryThrow : forall c1 c2 st st' st'' s,
-      st  =` c1 `=> st'  / SThrow ->
-      st' =` c2 `=> st'' / s ->
-      st  =` try c1 catch c2 end `=> st'' / s
-  | E_Ass  : forall st a n x,
+  | EThrow : forall st,
+      st =[ CThrow ]=> st / SThrow
+  | ETryContinue : forall c1 c2 st st',
+      st =[ c1 ]=> st' / SNormal ->
+      st =[ try c1 catch c2 end ]=> st' / SNormal
+  | ETryThrow : forall c1 c2 st st' st'' s,
+      st  =[ c1 ]=> st'  / SThrow ->
+      st' =[ c2 ]=> st'' / s ->
+      st  =[ try c1 catch c2 end ]=> st'' / s
+  | EAsgn  : forall st a n x,
       aeval st a = n ->
-      st =` x := a `=> (X !-> n ; st) / SNormal
-  | E_SeqContinue : forall c1 c2 st st' st'' s,
-      st  =` c1 `=> st'  / SNormal ->
-      st' =` c2 `=> st'' / s ->
-      st  =` c1 ; c2 `=> st'' / s
-  | E_SeqThrow : forall c1 c2 st st',
-      st =` c1 `=> st' / SThrow ->
-      st =` c1 ; c2 `=> st' / SThrow
-  | E_If : forall c1 c2 b st st' s,
-      st =` if_then_else (beval st b) c1 c2 `=> st' / s ->
-      st =` if b then c1 else c2 end `=> st' / s
-  | E_WhileFalse : forall c b st,
-      beval st b = false ->
-      st =` while b do c end `=> st / SNormal
-  | E_WhileContinue : forall c b st st' st'',
-      beval st b = true ->
-      st  =` c `=> st' / SNormal ->
-      st' =` while b do c end `=> st'' / SNormal ->
-      st  =` while b do c end `=> st'' / SNormal
+      st =[ x := a ]=> (X ↦ n ; st) / SNormal
+  | ESeqContinue : forall c1 c2 st st' st'' s,
+      st  =[ c1 ]=> st'  / SNormal ->
+      st' =[ c2 ]=> st'' / s ->
+      st  =[ c1 ; c2 ]=> st'' / s
+  | ESeqThrow : forall c1 c2 st st',
+      st =[ c1 ]=> st' / SThrow ->
+      st =[ c1 ; c2 ]=> st' / SThrow
+  | EIf : forall c1 c2 b st st' s,
+      st =[ if_then_else (⟦ b ⟧ᵇ st) c1 c2 ]=> st' / s ->
+      st =[ if b then c1 else c2 end ]=> st' / s
+  | EWhileFalse : forall c b st,
+      ⟦ b ⟧ᵇ st = false ->
+      st =[ while b do c end ]=> st / SNormal
+  | EWhileContinue : forall c b st st' st'',
+      ⟦ b ⟧ᵇ st = true ->
+      st  =[ c ]=> st' / SNormal ->
+      st' =[ while b do c end ]=> st'' / SNormal ->
+      st  =[ while b do c end ]=> st'' / SNormal
 (* HIDE: BETTER version!
-  | E_WhileContinue : forall c b st st' st'' s,
-      beval st b = true ->
+  | EWhileContinue : forall c b st st' st'' s,
+      ⟦ b ⟧ᵇ st = true ->
       c / st ==> SNormal / st' ->
       (while b do c end) / st' ==> s / st'' ->
       (while b do cend) / st ==> s / st''
 *)
-  | E_WhileThrow : forall c b st st',
-      beval st b = true ->
-      st =` c `=> st' / SThrow ->
-      st =` while b do c end `=> st' / SThrow
+  | EWhileThrow : forall c b st st',
+      ⟦ b ⟧ᵇ st = true ->
+      st =[ c ]=> st' / SThrow ->
+      st =[ while b do c end ]=> st' / SThrow
   (* /SOLUTION *)
 
   where "st '=`' c '`=>' st' '/' s" := (ceval c st s st').
@@ -2623,8 +2527,8 @@ Inductive ceval : com -> state -> status -> state -> Prop :=
    tests! *)
 
 Theorem ceval_deterministic_throw: forall (c:com) st st1 st2 s1 s2,
-     st =` c `=> st1 / s1 ->
-     st =` c `=> st2 / s2 ->
+     st =[ c ]=> st1 / s1 ->
+     st =[ c ]=> st2 / s2 ->
      st1 = st2 /\ s1 = s2.
 Proof.
   (* ADMITTED *)
@@ -2648,7 +2552,7 @@ Proof.
     try (apply IHE1 in H3; destruct H3 as `H31 H32`; try subst; inversion H32);
     try (apply IHE1 in H6; destruct H6 as `H61 H62`; try subst; inversion H62);
     try (split; reflexivity).
-  - (* E_If *)
+  - (* EIf *)
     apply IHE1. assumption.
 Qed.
 (* /ADMITTED *)
@@ -2661,7 +2565,7 @@ End ThrowImp.
 (** Add C-style `for` loops to the language of commands, update the
     `ceval` definition to define the semantics of `for` loops, and add
     cases for `for` loops as needed so that all the proofs in this
-    file are accepted by Coq.
+    file are accepted by Agda.
 
     A `for` loop should be parameterized by (a) a statement executed
     initially, (b) a test that is run on each iteration of the loop to
@@ -2701,7 +2605,8 @@ This section uses the following Unicode symbols:
     ᵃ    (\^a)
     ᵇ    (\^b)
     ÷    (\div)
-    
+    ′'    (\'')
+
 {:/comment}
 
 ---
