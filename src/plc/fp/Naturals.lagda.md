@@ -323,10 +323,10 @@ logarithm of _n_.
 
 ## Imports
 
-Shortly we will want to write some equations that hold between
-terms involving natural numbers.  To support doing so, we import
-the definition of equality and notations for reasoning
-about it from the Agda standard library:
+Shortly we will want to write some equations that hold between terms
+involving natural numbers.  To support doing so, we again import the
+definition of equality and notations for reasoning about it from the
+Agda standard library:
 
 ```
 import Relation.Binary.PropositionalEquality as Eq
@@ -334,27 +334,20 @@ open Eq using (_≡_; refl)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
 ```
 
-The first line brings the standard library module that defines
-equality into scope and gives it the name `Eq`. The second line
-opens that module, that is, adds all the names specified in the
-`using` clause into the current scope. In this case the names added
-are `_≡_`, the equality operator, and `refl`, the name for evidence
-that two terms are equal.  The third line takes a module that
-specifies operators to support reasoning about equivalence, and adds
-all the names specified in the `using` clause into the current scope.
-In this case, the names added are `begin_`, `_≡⟨⟩_`, and `_∎`.  We
-will see how these are used below.  We take these as givens for now,
-but will see how they are defined in
-the [Equality]({{ site.baseurl }}/Equality/) section.
+We have already seen the first two lines when we were giving unit
+tests for boolean-valued functions.  The third line takes a module
+that specifies operators to support reasoning about equivalence, and
+adds all the names specified in the `using` clause into the current
+scope.  In this case, the names added are `begin_`, `_≡⟨⟩_`, and `_∎`.
+We will see how these are used below.  We take these as givens for
+now, but will see how they are defined in the [Equality]({{
+site.baseurl }}/Equality/) section.
 
-Agda uses underbars to indicate where terms appear in infix or mixfix
-operators. Thus, `_≡_` and `_≡⟨⟩_` are infix (each operator is written
-between two terms), while `begin_` is prefix (it is written before a
-term), and `_∎` is postfix (it is written after a term).
-
-Parentheses and semicolons are among the few characters that cannot
-appear in names, so we do not need extra spaces in the `using` list.
-
+We have already seen that Agda uses underbars to indicate where terms
+appear in infix or mixfix operators. Thus, `_≡⟨⟩_` (like `_≡_` in the
+previous section) is an infix operator, while `begin_` is prefix (it
+is written before a term), and `_∎` is postfix (it is written after a
+term).
 
 ## Operations on naturals are recursive functions {#plus}
 

@@ -261,6 +261,8 @@ difference to the result: we do not need to divide this clause into
 separate clauses for each value of the second argument, when there is
 no difference to the result.
 
+#### Imports
+
 It is useful for us to see how we can define the boolean type and its
 basic operations.  But later we will use the boolean type
 defined in Agda's standard library rather than defining them
@@ -268,6 +270,29 @@ ourselves.  So at the start of these files, you will often see the
 declaration
 
     open import Data.Bool
+
+Shortly we will want to write some equations that hold between terms
+involving boolean values.  To support doing so, we import Agda's
+definition of the equality relation and a way to give evidence for it
+from the Agda standard library:
+
+```
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl)
+```
+
+The first line brings the standard library module that defines
+equality into scope and gives it the name `Eq`. The second line
+opens that module, that is, adds all the names specified in the
+`using` clause into the current scope. In this case the names added
+are `_≡_`, the equality operator, and `refl`, the name for evidence
+that two terms are equal.
+
+Agda uses underbars to indicate where terms appear in infix or mixfix
+operators. So `_≡_` is an infix operator.  We will see more kinds of
+operators in later sections.  Parentheses and semicolons are among the
+few characters that cannot appear in names, so we do not need the
+extra spaces that we have in the `using` list.
 
 #### Exercise `nand` (practice) {#nand}
 
@@ -410,10 +435,13 @@ This section uses the following Unicode symbols:
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ∨  U+2228  LOGICAL OR (\or)
     ∧  U_2227  LOCIGAL AND (\and)
+    ≡  U+2261  IDENTICAL TO (\==)
 
 Each line consists of the Unicode character (`→`), the corresponding
 code point (`U+2192`), the name of the character (`RIGHTWARDS ARROW`),
 and the sequence to type into Emacs to generate the character (`\->`).
+If we forget a character which we use in a section, and leave it out
+of the table, please let us know!
 
 For a full list of supported characters, use
 `agda-input-show-translations` with:

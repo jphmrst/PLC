@@ -272,26 +272,7 @@ sublists should be the same as their order in the original list.
     _ = refl
 
 
-## Function composition {#fnComposition}
-
-A common operation on functions is _composition_:
-
-```
-_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
-(g ∘ f) x  = g (f x)
-```
-
-So `g ∘ f` is the function that first applies `f` and
-then applies `g`.  An equivalent definition, exploiting lambda
-expressions, is as follows:
-
-```
-_∘′_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
-g ∘′ f  =  λ x → g (f x)
-```
-
-
-## Map
+### Map
 
 Another useful higher-order function is called `map`.
 
@@ -366,7 +347,7 @@ necessary, and use Agda to check that example calls to the revised
 functions still work.  (This exercise is easiest to do on a _copy_ of
 this file that you can throw away afterwards.)
 
-## Fold
+### Fold
 
 An even more powerful higher-order function is called `foldr`.  This
 function is the inspiration for the `reduce` operation that lies at
@@ -491,6 +472,8 @@ _ = refl
 
 ```
 
+### Partial applications and curried functions {#partialAppl}
+
 In fact, the multiple-argument functions we have already seen are also
 examples of passing functions as data.  To see why, recall the type of
 `_+_`.
@@ -541,6 +524,24 @@ the 1920's.  I was told a joke: "It should be called schönfinkeling,
 but currying is tastier". Only later did I learn that the explanation
 of the misattribution was itself a misattribution.  The idea actually
 appears in the _Begriffsschrift_ of Gottlob Frege, published in 1879.
+
+### Function composition {#fnComposition}
+
+A common operation on functions is _composition_:
+
+```
+_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+(g ∘ f) x  = g (f x)
+```
+
+So `g ∘ f` is the function that first applies `f` and
+then applies `g`.  An equivalent definition, exploiting lambda
+expressions, is as follows:
+
+```
+_∘′_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+g ∘′ f  =  λ x → g (f x)
+```
 
 ## Additional exercises
 

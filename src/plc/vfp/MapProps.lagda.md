@@ -3,7 +3,7 @@ title     : "MapProps: Properties of total and partial maps"
 layout    : page
 prev      : /Lists/
 permalink : /MapProps/
-next      : /
+next      : /Imp/
 ---
 
 ```
