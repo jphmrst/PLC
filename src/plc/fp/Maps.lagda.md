@@ -55,7 +55,7 @@ TotalMap A = String → A
 
 Intuitively, a total map over an element type `A` is just a function
 that can be used to look up `String`s, yielding values of type `A`.
-The function `↦↦` yields an empty total map, given a default element;
+The function `↪` yields an empty total map, given a default element;
 this map always returns the default element when applied to any
 string.
 

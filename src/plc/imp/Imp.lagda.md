@@ -8,12 +8,15 @@ next      : /
 
 ```
 module plc.imp.Imp where
+open import Data.String using (String)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
+
+open import plc.fp.Maps
 ```
 
 {::comment}
@@ -173,8 +176,8 @@ module ImpStage1 where
     _-_ : AExp → AExp → AExp 
     _*_ : AExp → AExp → AExp 
 
-  infixl 6  _*_
-  infixl 7  _+_  _-_
+  infixl 7  _*_
+  infixl 6  _+_  _-_
 
   data BExp : Set where
     T : BExp
@@ -186,7 +189,7 @@ module ImpStage1 where
     _||_ : BExp → BExp → BExp
 
   infixl 8  _&&_
-  infixl 9  _||_
+  infixl 7  _||_
 ```
 
 It is good to be comfortable with both sorts of notations: informal
@@ -338,7 +341,7 @@ original — we should prove it.
     ≡⟨ cong (⟦ m ⟧ᵃ Data.Nat.+_) sn ⟩
       ⟦ m ⟧ᵃ Data.Nat.+ ⟦ n ⟧ᵃ
     ≡⟨⟩
-      ⟦ (m + n) ⟧ᵃ
+      ⟦ m + n ⟧ᵃ
     ∎
 
   opHelper : (x y : AExp) →
@@ -365,7 +368,7 @@ original — we should prove it.
   optimize0plusSound : ∀ (a : AExp) → opt0+safe a
   optimize0plusSound (# n) = refl
   optimize0plusSound (# zero + y) = optimize0plusSound y
-  optimize0plusSound ((# (suc n)) + y) = begin
+  optimize0plusSound (# (suc n) + y) = begin
       ⟦ optimize0plus (# (suc n) + y) ⟧ᵃ
     ≡⟨⟩
       ⟦ # (suc n) + optimize0plus y ⟧ᵃ
@@ -376,7 +379,7 @@ original — we should prove it.
     ∎
   optimize0plusSound (x + z + y) = plusHelper (x + z) y (optimize0plusSound (x + z)) (optimize0plusSound y) refl
   optimize0plusSound (x - z + y) = plusHelper (x - z) y (optimize0plusSound (x - z)) (optimize0plusSound y) refl
-  optimize0plusSound ((x * z) + y) = plusHelper (x * z) y (optimize0plusSound (x * z)) (optimize0plusSound y) refl
+  optimize0plusSound (x * z + y) = plusHelper (x * z) y (optimize0plusSound (x * z)) (optimize0plusSound y) refl
   optimize0plusSound (x - y) = opHelper x y _-_ Data.Nat._∸_ refl refl (optimize0plusSound x) (optimize0plusSound y)
   optimize0plusSound (x * y) = opHelper x y _*_ Data.Nat._*_ refl refl (optimize0plusSound x) (optimize0plusSound y)
 ```
@@ -502,14 +505,14 @@ arithmetic expressions.
     EA_ℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
     EA_+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 + e2) ⇓ᵃ (n1 Data.Nat.+ n2)
+             → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
     EA_- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 - e2) ⇓ᵃ (n1 ∸ n2)
+             → e1 - e2 ⇓ᵃ n1 ∸ n2
     EA_* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → (e1 * e2) ⇓ᵃ (n1 Data.Nat.* n2)
-  infix 12 _⇓ᵃ_
+             → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
+  infix 4 _⇓ᵃ_
 ```
 
 Just as evaluation functions are traditionally written as surrounding
@@ -545,7 +548,7 @@ and as formal proofs,
 #### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
 
 In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
-instead of a function.
+`_⇓ᵇ_`.
 
 ### Equivalence of the evaluators
 
@@ -561,6 +564,7 @@ definitions of evaluation agree.
 
   postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
 ```
+{::comment}
 
 (* /HIDEFROMADVANCED *)
 Theorem aeval_iff_aevalR : forall a n,
@@ -618,752 +622,370 @@ Proof.
 Qed.
 (* /WORKINCLASS *)
 
-(* /HIDEFROMADVANCED *)
-(* FULL *)
-(* EX3 (bevalR) *)
-(** Write a relation `bevalR` in the same style as
-    `aevalR`, and prove that it is equivalent to `beval`. *)
-
-Reserved Notation "e '==>b' b" (at level 90, left associativity).
-Inductive bevalR: bexp -> bool -> Prop :=
-(* SOLUTION *)
-  | BETrue : bevalR BTrue true
-  | BEFalse : bevalR BFalse false
-  | BEEq : forall  a1 a2 n1 n2,
-    aevalR  a1 n1 ->
-    aevalR  a2 n2 ->
-    bevalR  (BEq a1 a2) (n1 =? n2)
-  | BELe : forall  a1 a2 n1 n2,
-    aevalR  a1 n1 ->
-    aevalR  a2 n2 ->
-    bevalR  (BLe a1 a2) (n1 <=? n2)
-  | BENot : forall  b tv,
-    bevalR  b tv ->
-    bevalR  (BNot b) (negb tv)
-  | BEAnd : forall  b1 b2 tv1 tv2,
-    bevalR  b1 tv1 ->
-    bevalR  b2 tv2 ->
-    bevalR  (BAnd b1 b2) (andb tv1 tv2)
-(* /SOLUTION *)
-where "e '==>b' b" := (bevalR e b) : type_scope
-.
-
-Lemma beval_iff_bevalR : forall b bv,
-  b ==>b bv <-> beval b = bv.
-Proof.
-  (* ADMITTED *)
-  split.
-  - (* -> *)
-    intros H.
-    induction H; simpl; intros; subst;
-       try (rewrite aeval_iff_aevalR in H, H0; rewrite H; rewrite H0); reflexivity.
-  - (* <- *)
-    generalize dependent bv.
-    induction b; simpl; intros; subst; constructor;
-      try rewrite aeval_iff_aevalR;
-      try apply IHb; try apply IHb1; try apply IHb2; try reflexivity.
-Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 3: beval_iff_bevalR *)
-(** `` *)
-(* /FULL *)
-(* LATER: Comment from reader: I am mainly following my nose and
-   doing trial & error when I write these long `;`-chains. Are there
-   some general patterns to follow? For example, what kinds of
-   situations call for `try (a_1; a_2; ...; a_k)` and what kinds call
-   for `try a_1; try a_2; ...; try a_l`? I know the difference between
-   their effects but it is not immediately clear to me what this means
-   for the practical uses. Also, are there recommended orders in which
-   to chain `intro`s, `rewrite`s, `apply`s, `reflexivity`s and
-   `simpl`s? Should `simpl`s be avoided for their slowness? When
-   exactly is `simpl` necessary? Most importantly, why was my proof
-   for `beval_iff_bevalR'` so much longer than yours for
-   `aeval_iff_aevalR'` ? *)
-
-(* TERSE: HIDEFROMHTML *)
-End AExp.
-(* TERSE: /HIDEFROMHTML *)
-
-(* ####################################################### *)
-(** ** Computational vs. Relational Definitions *)
-
-(** FULL: For the definitions of evaluation for arithmetic and boolean
-    expressions, the choice of whether to use functional or relational
-    definitions is mainly a matter of taste: either way works.
-
-    However, there are circumstances where relational definitions of
-    evaluation work much better than functional ones.  *)
-
-(** TERSE: Sometimes relational (not functional) definitions
-    are the only reasonable option... *)
-
-(* TERSE: HIDEFROMHTML *)
-Module aevalR_division.
-
-(* TERSE: /HIDEFROMHTML *)
-(* TERSE *)
-(** *** Adding division *)
-(* /TERSE *)
-
-(** FULL: For example, suppose that we wanted to extend the arithmetic
-    operations with division: *)
-
-Inductive aexp : Type :=
-  | ANum (n : nat)
-  | APlus (a1 a2 : aexp)
-  | AMinus (a1 a2 : aexp)
-  | AMult (a1 a2 : aexp)
-  | ADiv (a1 a2 : aexp).         (* <--- NEW *)
-
-(** FULL: Extending the definition of `aeval` to handle this new
-    operation would not be straightforward (what should we return as
-    the result of `ADiv (ANum 5) (ANum 0)`?).  But extending `aevalR`
-    is very easy. *)
-(** TERSE: What could `aeval` do with division by zero? *)
-
-(* TERSE *)
-(** *** Adding division, relationally *)
-(* /TERSE *)
-
-Reserved Notation "e '==>' n"
-                  (at level 90, left associativity).
-
-Inductive aevalR : aexp -> nat -> Prop :=
-  | E_ANum (n : nat) :
-      (ANum n) ==> n
-  | EA_+ (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (APlus a1 a2) ==> (n1 + n2)
-  | E_AMinus (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (AMinus a1 a2) ==> (n1 - n2)
-  | E_AMult (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (AMult a1 a2) ==> (n1 * n2)
-  | E_ADiv (a1 a2 : aexp) (n1 n2 n3 : nat) :          (* <----- NEW *)
-      (a1 ==> n1) -> (a2 ==> n2) -> (n2 > 0) ->
-      (mult n2 n3 = n1) -> (ADiv a1 a2) ==> n3
-
-where "a '==>' n" := (aevalR a n) : type_scope.
-
-(** Notice that the evaluation relation has now become _partial_:
-    There are some inputs for which it simply does not specify an
-    output. *)
-
-(* TERSE: HIDEFROMHTML *)
-End aevalR_division.
-
-Module aevalR_extended.
-
-(* TERSE: /HIDEFROMHTML *)
-(* TERSE *)
-(** *** Adding Nondeterminism *)
-(* /TERSE *)
-
-(** FULL: Or suppose that we want to extend the arithmetic operations
-    by a nondeterministic number generator `any` that, when evaluated,
-    may yield any number. Note that this is not the same as making a
-    _probabilistic_ choice among all possible numbers — we're not
-    specifying any particular probability distribution for the
-    results, just saying what results are _possible_. *)
-
-(** TERSE: A _nondeterministic_ number generator: *)
-
-Reserved Notation "e '==>' n" (at level 90, left associativity).
-
-Inductive aexp : Type :=
-  | AAny                           (* <--- NEW *)
-  | ANum (n : nat)
-  | APlus (a1 a2 : aexp)
-  | AMinus (a1 a2 : aexp)
-  | AMult (a1 a2 : aexp).
-
-(** FULL: Again, extending `aeval` would be tricky, since now
-    evaluation is _not_ a deterministic function from expressions to
-    numbers, but extending `aevalR` is no problem... *)
-(** TERSE: What could `aeval` do with nondeterminism? *)
-
-(* TERSE *)
-(** *** Adding nondeterminism, relationally *)
-(* /TERSE *)
-
-Inductive aevalR : aexp -> nat -> Prop :=
-  | E_Any (n : nat) :
-      AAny ==> n                        (* <--- NEW *)
-  | E_ANum (n : nat) :
-      (ANum n) ==> n
-  | EA_+ (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (APlus a1 a2) ==> (n1 + n2)
-  | E_AMinus (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (AMinus a1 a2) ==> (n1 - n2)
-  | E_AMult (a1 a2 : aexp) (n1 n2 : nat) :
-      (a1 ==> n1) -> (a2 ==> n2) -> (AMult a1 a2) ==> (n1 * n2)
-
-where "a '==>' n" := (aevalR a n) : type_scope.
-
-(* TERSE: HIDEFROMHTML *)
-End aevalR_extended.
-
-(* TERSE: /HIDEFROMHTML *)
-
-(* TERSE *)
-(** *** Tradeoffs *)
-(* /TERSE *)
-
-(** FULL: At this point you maybe wondering: which style should I use
-    by default?  In the examples we've just seen, relational
-    definitions turned out to be more useful than functional ones.
-    For situations like these, where the thing being defined is not
-    easy to express as a function, or indeed where it is _not_ a
-    function, there is no real choice.  But what about when both
-    styles are workable?
-
-    One point in favor of relational definitions is that they can be
-    more elegant and easier to understand.
-
-    Another is that Coq automatically generates nice inversion and
-    induction principles from `Inductive` definitions.
-
-    On the other hand, functional definitions can often be more
-    convenient:
-     - Functions are by definition deterministic and defined on all
-       arguments; for a relation we have to _prove_ these properties
-       explicitly if we need them.
-     - With functions we can also take advantage of Coq's computation
-       mechanism to simplify expressions during proofs.
-
-    Furthermore, functions can be directly "extracted" from Gallina to
-    executable code in OCaml or Haskell.
-
-    Ultimately, the choice often comes down to either the specifics of
-    a particular situation or simply a question of taste.  Indeed, in
-    large Coq developments it is common to see a definition given in
-    _both_ functional and relational styles, plus a lemma stating that
-    the two coincide, allowing further proofs to switch from one point
-    of view to the other at will. *)
-
-(** TERSE: Which to prefer: functional or relational?
-
-    - Functional: take advantage of computation.
-    - Relational: more (easily) expressive.
-    - Best of both worlds: define both and prove them equivalent.
-*)
-
-(* ####################################################### *)
-(** * Expressions With Variables *)
-
-(** Now we return to defining Imp. The next thing we need to do is to
-    enrich our arithmetic and boolean expressions with variables. To
-    keep things simple, we'll assume that all variables are global and
-    that they only hold numbers. *)
-
-(* ####################################################### *)
-(** ** States *)
-
-(* LATER: Maybe this section needs a little preface talking about "what is
-   the meaning of an expression with variables?"... *)
-(** LATER: (Note copied from Equiv.v right before the assign_aequiv
-   exercise): Some or all of this discussion should really happen when
-   states are introduced in Imp.v, and the whole idea of treating
-   states as an ADT should be raised there. *)
-
-(** Since we'll want to look variables up to find out their current
-    values, we'll reuse maps from the \CHAP{Maps} chapter, and
-    `string`s will be used to represent variables in Imp.
-
-    A _machine state_ (or just _state_) represents the current values
-    of _all_ variables at some point in the execution of a program. *)
-
-(** FULL: For simplicity, we assume that the state is defined for
-    _all_ variables, even though any given program is only going to
-    mention a finite number of them.  The state captures all of the
-    information stored in memory.  For Imp programs, because each
-    variable stores a natural number, we can represent the state as a
-    mapping from strings to `nat`, and will use `0` as default value
-    in the store. For more complex programming languages, the state
-    might have more structure. *)
-
-Definition state := total_map nat.
-
-(* INSTRUCTORS: BAY, 23 Feb 2011: We tried making state more general,
-
-   state X := id -> option X
-
-   so it could be reused generically later.  However, this ends up
-   complicating some of the proofs quite a bit, and not in an
-   interesting way.  For example, the factorial invariant would need
-   to be something like exists m n, st X = m /\ st Y = n /\
-   ... which is a pain to deal with. This file jumps up the complexity
-   quite a bit as it is, so we decided it's better to leave the simple
-   version here, and go for more generality later on in the course.
-   BCP/AAA 12/2015: This comment led us to implement both total and
-   partial maps in earlier chapters, so that we could re-use the total
-   ones here. *)
-
-(* ################################################### *)
-(** ** Syntax  *)
-
-(** We can add variables to the arithmetic expressions we had before by
-    simply adding one more constructor: *)
-
-Inductive aexp : Type :=
-  | ANum (n : nat)
-  | AId (x : string)              (* <--- NEW *)
-  | APlus (a1 a2 : aexp)
-  | AMinus (a1 a2 : aexp)
-  | AMult (a1 a2 : aexp).
-
-(** Defining a few variable names as notational shorthands will make
-    examples easier to read: *)
-(* INSTRUCTORS: We usually don't use x as a "bare identifier" in
-   examples — it is normally wrapped in an AId constructor.  If this
-   were _always_ the case, then it would make more sense to define the
-   notation `x` to mean `AId (Id 0)`.  But there quite a few
-   counterexamples.  Maybe we could define `xx` to mean `AId (Id 0)`,
-   or some such?  But it's still awkward.
-
-   BCP/AAA 2/16: Should we use a Coq coercion for this?  It means
-   introducing a new concept — a somewhat magical one — but it will
-   make examples look quite a bit nicer...
-
-   BCP 11/16: It will also solve some problems later on with
-   confusions about bound identifiers in Stlc vs. "global" ones in
-   Imp. I think it's a good idea to try it for the next big revision.
-
-   ET 10/17: coercions and notations are done, see below.  (still
-   keeping the global variables W, X, Y, Z for readability)
-
-   BCP 7/20: This still needs another look to see if there's a way to
-   make it globally better.
-*)
-
-Definition W : string := "W".
-Definition X : string := "X".
-Definition Y : string := "Y".
-Definition Z : string := "Z".
-
-(** FULL: (This convention for naming program variables (`X`, `Y`,
-    `Z`) clashes a bit with our earlier use of uppercase letters for
-    types.  Since we're not using polymorphism heavily in the chapters
-    developed to Imp, this overloading should not cause confusion.) *)
-
-(* TERSE: HIDEFROMHTML *)
-
-(** The definition of `bexp`s is unchanged (except that it now refers
-    to the new `aexp`s): *)
-
-Inductive bexp : Type :=
-  | BTrue
-  | BFalse
-  | BEq (a1 a2 : aexp)
-  | BLe (a1 a2 : aexp)
-  | BNot (b : bexp)
-  | BAnd (b1 b2 : bexp).
-(* TERSE: /HIDEFROMHTML *)
-
-(** ** Notations *)
-(** LATER: Maybe these notations and coercions should be introduced
-    earlier in the chapter? *)
-
-(** To make Imp programs easier to read and write, we introduce some
-    notations and implicit coercions.  You do not need to understand
-    exactly what these declarations do.  Briefly, though:
-       - The `Coercion` declaration stipulates that a function (or
-         constructor) can be implicitly used by the type system to
-         coerce a value of the input type to a value of the output
-         type.  For instance, the coercion declaration for `AId`
-         allows us to use plain strings when an `aexp` is expected;
-         the string will implicitly be wrapped with `AId`.
-       - `Declare Custom Entry com` tells Coq to create a new
-         "custom grammar" for parsing Imp expressions and
-         programs. The first notation declaration after this tells Coq
-         that anything between `<{` and `}>` should be parsed using
-         the Imp grammar. Again, it is not necessary to understand the
-         details, but it is important to recognize that we are
-         defining _new_ interpretations for some familiar operators
-         like `+`, `-`, `*`, `=`, `<=`, etc., when they occur between
-         `<{` and `}>`. *)
-
-(** TERSE: *** *)
-(* NOTATION: LATER: We could perhaps avoid this (somewhat confusing)
-   coercion by just defining all the single uppercase letters to be
-   identifiers, rather than using strings. But we can't make a similar
-   change in the lambda-expression syntax, where many more variable
-   names are needed, so not clear it's a good idea here. *)
-Coercion AId : string >-> aexp.
-(* NOTATION: LATER: And we might be able to avoid coercion by using
-   Coq's new numeral syntax mechanism. *)
-Coercion ANum : nat >-> aexp.
-
-(* INSTRUCTORS: If anything changes here, make sure to do the same
-   adjustment in all the other grammars for Imp-like languages... *)
-Declare Custom Entry com.
-Declare Scope com_scope.
-Notation "<{ e }>" := e (at level 0, e custom com at level 99) : com_scope.
-Notation "( x )" := x (in custom com, x at level 99) : com_scope.
-Notation "x" := x (in custom com at level 0, x constr at level 0) : com_scope.
-Notation "f x .. y" := (.. (f x) .. y)
-                  (in custom com at level 0, only parsing,
-                  f constr at level 0, x constr at level 9,
-                  y constr at level 9) : com_scope.
-(* INSTRUCTORS: Template for expr *)
-Notation "x + y" := (APlus x y) (in custom com at level 50, left associativity).
-Notation "x - y" := (AMinus x y) (in custom com at level 50, left associativity).
-Notation "x * y" := (AMult x y) (in custom com at level 40, left associativity).
-Notation "'true'"  := true (at level 1).
-Notation "'true'"  := BTrue (in custom com at level 0).
-Notation "'false'"  := false (at level 1).
-Notation "'false'"  := BFalse (in custom com at level 0).
-Notation "x <= y" := (BLe x y) (in custom com at level 70, no associativity).
-Notation "x = y"  := (BEq x y) (in custom com at level 70, no associativity).
-Notation "x && y" := (BAnd x y) (in custom com at level 80, left associativity).
-Notation "'~' b"  := (BNot b) (in custom com at level 75, right associativity).
-
-Open Scope com_scope.
-
-(* HIDE *)
-Locate "=".
-Check <{ X + Y }>.
-Check <{ X + Y = 0}>.
-Check <{ ~ (Y = X) }>.
-Check <{ X + Y }>.
-Check <{ ~ (X + Y = Y) && Z = W }>.
-(* /HIDE *)
-
-(** TERSE: *** *)
-
-(** We can now write `3 + (X * 2)` instead  of `APlus 3 (AMult X 2)`,
-    and `true && ~(X <= 4)` instead of `BAnd true (BNot (BLe X 4))`. *)
-
-Definition example_aexp : aexp := <{ 3 + (X * 2) }>.
-Definition example_bexp : bexp := <{ true && ~(X <= 4) }>.
-
-(** TERSE: *** *)
-(** One downside of these and notation tricks — coercions in
-    particular — is that they can make it a little harder for humans
-    to calculate the types of expressions.  If you ever find yourself
-    confused, try doing `Set Printing Coercions` to see exactly what
-    is going on. *)
-
-Print example_bexp.
-(* ===> example_bexp = <{(true && ~ (X <= 4))}> *)
-
-Set Printing Coercions.
-(* SOONER: Ori: CoqIde error msg:
-   "Set this option from the IDE menu instead".
-   I guess this is a recent change? *)
-Print example_bexp.
-(* ===> example_bexp = <{(true && ~ (AId X <= ANum 4))}> *)
-
-Unset Printing Coercions.
-
-(* ################################################### *)
-(** ** Evaluation *)
-
-(** FULL: The arith and boolean evaluators are extended to handle
-    variables in the obvious way, taking a state as an extra
-    argument: *)
-(** TERSE: Now we need to add an `st` parameter to both evaluation
-    functions: *)
-
-(* NOTATION: SOONER: Should we use notations in the patterns here (and
-   some other places where we don't)?  There are a bunch of places
-   where we do...  (BCP 20: YES!) *)
-Fixpoint aeval (st : state) (a : aexp) : nat :=
-  match a with
-  | ANum n => n
-  | AId x => st x                                (* <--- NEW *)
-  | <{a1 + a2}> => (aeval st a1) + (aeval st a2)
-  | <{a1 - a2}> => (aeval st a1) - (aeval st a2)
-  | <{a1 * a2}> => (aeval st a1) * (aeval st a2)
-  end.
-
-Fixpoint beval (st : state) (b : bexp) : bool :=
-  match b with
-  | <{true}>      => true
-  | <{false}>     => false
-  | <{a1 = a2}>   => (aeval st a1) =? (aeval st a2)
-  | <{a1 <= a2}>  => (aeval st a1) <=? (aeval st a2)
-  | <{~ b1}>      => negb (beval st b1)
-  | <{b1 && b2}>  => andb (beval st b1) (beval st b2)
-  end.
-
-(** TERSE: *** *)
-(** We specialize our notation for total maps to the specific case of
-    states, i.e. using `(_ !-> 0)` as empty state. *)
-
-Definition empty_st := (_ !-> 0).
-
-(** Now we can add a notation for a "singleton state" with just one
-    variable bound to a value. *)
-Notation "x '!->' v" := (t_update empty_st x v) (at level 100).
-
-(* FULL *)
-Example aexp1 :
-    aeval (X !-> 5) <{ (3 + (X * 2))}>
-  = 13.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-
-Example bexp1 :
-    beval (X !-> 5) <{ true && ~(X <= 4)}>
-  = true.
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* /FULL *)
-
-(* ####################################################### *)
-(** * Commands *)
-
-(** Now we are ready define the syntax and behavior of Imp
-    _commands_ (sometimes called _statements_). *)
-
-(* ################################################### *)
-(** ** Syntax *)
-
-(* HIDEFROMADVANCED *)
-(** Informally, commands `c` are described by the following BNF
-    grammar.
-``
-     c := skip | x := a | c ; c | if b then c else c end
-         | while b do c end
-``
- *)
-(* HIDE *)
-(* NOTE: MRC'20: the example in a comment below is repeated in actual
-   Coq code a few lines later.  We might as well only do it once. *)
-(** TERSE: *** *)
-(** For example, here's factorial in Imp:
-``
-     Z := X;
-     Y := 1;
-     while ~(Z = 0) do
-       Y := Y * Z;
-       Z := Z - 1
-     end
-``
-   When this command terminates, the variable `Y` will contain the
-   factorial of the initial value of `X`. *)
-(* /HIDE *)
-
-(** FULL: Here is the formal definition of the abstract syntax of
-    commands: *)
-(** TERSE: *** *)
-
-(* /HIDEFROMADVANCED *)
-Inductive com : Type :=
-  | CSkip
-  | CAss (x : string) (a : aexp)
-  | CSeq (c1 c2 : com)
-  | CIf (b : bexp) (c1 c2 : com)
-  | CWhile (b : bexp) (c : com).
-
-(** TERSE: *** *)
-(** As for expressions, we can use a few `Notation` declarations to
-    make reading and writing Imp programs more convenient. *)
-
-(* INSTRUCTORS: Definition of template com *)
-Notation "'skip'"  :=
-         CSkip (in custom com at level 0) : com_scope.
-Notation "x := y"  :=
-         (CAss x y)
-            (in custom com at level 0, x constr at level 0,
-             y at level 85, no associativity) : com_scope.
-Notation "x ; y" :=
-         (CSeq x y)
-           (in custom com at level 90, right associativity) : com_scope.
-Notation "'if' x 'then' y 'else' z 'end'" :=
-         (CIf x y z)
-           (in custom com at level 89, x at level 99,
-            y at level 99, z at level 99) : com_scope.
-Notation "'while' x 'do' y 'end'" :=
-         (CWhile x y)
-            (in custom com at level 89, x at level 99, y at level 99) : com_scope.
-
-(* HIDE *)
-Check <{ skip }>.
-Check <{ (skip ; skip) ; skip }>.
-Check <{ 1 + 2 }>.
-Check <{ 2 = 1 }>.
-Check <{ Z := X }>.
-Check <{ Z := X + 3 }>.
-Definition func (c : com) : com := <{ c ; skip }>.
-Check <{ skip; func <{ skip }> }>.
-Definition func2 (c1 c2 : com) : com := <{ c1 ; c2 }>.
-Check <{ skip ; func2 <{skip}> <{skip}> }>.
-Check <{ true && ~(false && true) }>.
-Check <{ if true then skip else skip end }>.
-Check <{ if true && true then skip; skip else skip; X:=X+1 end }>.
-Check <{ while ~(Z = 0) do Y := Y * Z; Z := Z - 1 end }>.
-(* /HIDE *)
-
-(* TERSE *)
-(** *** Imp Factorial in Coq *)
-(* /TERSE *)
-(** For example, here is the factorial function again, written as a
-    formal definition to Coq: *)
-
-Definition fact_in_coq : com :=
-  <{ Z := X;
-     Y := 1;
-     while ~(Z = 0) do
-       Y := Y * Z;
-       Z := Z - 1
-     end }>.
-
-(* NOTATION: LATER: KK: We might want to think about using format to
-   also print out terms with indentation. I don't think this is
-   necessary for now though.  (BCP: Yes, we can save this for the next
-   pass.) *)
-Print fact_in_coq.
-
-(* FULL *)
-(* LATER: MRC'20: this section is somewhat redundant w.r.t. the
-   discussion of `Set Printing Coercions` that has already occurred
-   above.  Would be nice to unify them. *)
-(** ** Desugaring notations *)
-
-(** Coq offers a rich set of features to manage the increasing
-    complexity of the objects we work with, such as coercions
-    and notations. However, their heavy usage can make for quite
-    overwhelming syntax. It is often instructive to "turn off"
-    those features to get a more elementary picture of things,
-    using the following commands:
-
-    - `Unset Printing Notations` (undo with `Set Printing Notations`)
-    - `Set Printing Coercions` (undo with `Unset Printing Coercions`)
-    - `Set Printing All` (undo with `Unset Printing All`)
-
-    These commands can also be used in the middle of a proof,
-    to elaborate the current goal and context.
- *)
-
-Unset Printing Notations.
-Print fact_in_coq.
-(* ===>
-   fact_in_coq =
-   CSeq (CAss Z X)
-        (CSeq (CAss Y (S O))
-              (CWhile (BNot (BEq Z O))
-                      (CSeq (CAss Y (AMult Y Z))
-                            (CAss Z (AMinus Z (S O))))))
-        : com *)
-Set Printing Notations.
-
-Set Printing Coercions.
-Print fact_in_coq.
-(* ===>
-  fact_in_coq =
-  <{ Z := (AId X);
-     Y := (ANum 1);
-     while ~ (AId Z) = (ANum 0) do
-       Y := (AId Y) * (AId Z);
-       Z := (AId Z) - (ANum 1)
-     end }>
-       : com *)
-Unset Printing Coercions.
-
-(** ** The `Locate` command *)
-(* LATER: MRC'20: this section is somewhat redundant w.r.t. a similar
-   discussion in Maps. Would be nice to unify them. *)
-
-(** *** Finding notations *)
-
-(** When faced with unknown notation, use `Locate` with a _string_
-    containing one of its symbols to see its possible interpretations. *)
-Locate "&&".
-(* ===>
-    Notation
-      "x && y" := BAnd x y (default interpretation)
-      "x && y" := andb x y : bool_scope (default interpretation)
-*)
-Locate ";".
-(* ===>
-    Notation
-      "x '|->' v ';' m" := update m x v (default interpretation)
-      "x ; y" := CSeq x y : com_scope (default interpretation)
-      "x '!->' v ';' m" := t_update m x v (default interpretation)
-      "` x ; y ; .. ; z `" := cons x (cons y .. (cons z nil) ..) : list_scope
-      (default interpretation) *)
-
-Locate "while".
-(* ===>
-    Notation
-      "'while' x 'do' y 'end'" := CWhile x y : com_scope (default interpretation)
-      "'_' '!->' v" := t_empty v (default interpretation)
-*)
-
-(** *** Finding identifiers *)
-
-(** When used with an identifier, the command `Locate` prints
-    the full path to every value in scope with the same name.
-    This is useful to troubleshoot problems due to variable
-    shadowing. *)
-Locate aexp.
-(* ===>
-     Inductive LF.Imp.aexp
-     Inductive LF.Imp.AExp.aexp
-       (shorter name to refer to it in current context is AExp.aexp)
-     Inductive LF.Imp.aevalR_division.aexp
-       (shorter name to refer to it in current context is aevalR_division.aexp)
-     Inductive LF.Imp.aevalR_extended.aexp
-       (shorter name to refer to it in current context is aevalR_extended.aexp)
-*)
-(* /FULL *)
-
-(* HIDEFROMADVANCED *)
-(* ####################################################### *)
-(** ** More Examples *)
-
-(** Assignment: *)
-
-Definition plus2 : com :=
-  <{ X := X + 2 }>.
-
-Definition XtimesYinZ : com :=
-  <{ Z := X * Y }>.
-
-Definition subtract_slowly_body : com :=
-  <{ Z := Z - 1 ;
-     X := X - 1 }>.
-
-(** *** Loops *)
-
-Definition subtract_slowly : com :=
-  <{ while ~(X = 0) do
-       subtract_slowly_body
-     end }>.
-
-Definition subtract_3_from_5_slowly : com :=
-  <{ X := 3 ;
-     Z := 5 ;
-     subtract_slowly }>.
-
-(** *** An infinite loop: *)
-
-Definition loop : com :=
-  <{ while true do
-       skip
-     end }>.
-
-(* HIDE *)
-(** Exponentiation: *)
-Definition exp_body : com :=
-  <{ Z := Z * X ;
-     Y := Y - 1 }>.
-Definition pexp : com :=
-  <{ while ~(Y = 0) do
-       exp_body
-     end }>.
-(** (Note that `pexp` should be run in a state where `Z` is `1`.) *)
-(* /HIDE *)
-
-(* /HIDEFROMADVANCED *)
-(* ################################################################ *)
-(** * Evaluating Commands *)
-
-(** Next we need to define what it means to evaluate an Imp command.
-    The fact that `while` loops don't necessarily terminate makes
-    defining an evaluation function tricky... *)
+{:/comment}
+
+#### Exercise `bevalRelationIffEval` (recommended) {#bevalRelationIffEval}
+
+Prove that your evaluation function `⟦ ... ⟧ᵇ` and relation `_⇓ᵇ_` are
+equivalent.
+
+### Computational vs. relational definitions
+
+For the definitions of evaluation for arithmetic and boolean
+expressions, the choice of whether to use functional or relational
+definitions is mainly a matter of taste: either way works.
+
+However, there are circumstances where relational definitions of
+evaluation work much better than functional ones.  For example,
+suppose that we wanted to extend the arithmetic operations with
+division:
+
+    data AExp : Set where
+      # : ℕ → AExp
+      _+_ : AExp → AExp → AExp 
+      _-_ : AExp → AExp → AExp 
+      _*_ : AExp → AExp → AExp 
+      _÷_ : AExp → AExp → AExp   --  <-- this one is new
+
+Extending the definition of `⟦ ... ⟧̂ᵃ` to handle this new operation
+would not be straightforward: What should we return as the result of
+`# 5 ÷ # 0`?  But extending `⇓ᵃ` is very easy.
+
+    data _⇓ᵃ_ : AExp → ℕ → Set where
+      -- ... Constructors EA_ℕ, EA_+, EA_-, EA_* unchanged
+      EA_÷ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+               → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+               → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
+
+Notice that the evaluation relation has now become _partial_: There
+are some inputs for which it simply does not specify an output.  This
+is a crucial difference between relations and functions: a partial
+relation is just fine, but all Agda functions **must** be total.
+
+Or suppose that we want to extend the arithmetic operations by a
+nondeterministic number generator `any` that, when evaluated, may
+yield any number. Note that this is not the same as making a
+_probabilistic_ choice among all possible numbers — we're not
+specifying any particular probability distribution for the results,
+just saying what results are _possible_.
+
+    data AExp : Set where
+      any : AExp
+      # : ℕ → AExp
+      -- Other constructors `#`, `_+_`, `_-_`, `_*_` unchanged 
+
+Extending `⟦ ... ⟧̂ᵃ` would be tricky, since now evaluation is _not_ a
+deterministic function from expressions to numbers.  A random number
+generator could have many different results, which is not consistent
+with the sense of "function" in a functional language.  But again,
+extending `⇓ᵃ` would be straightforward:
+
+    data _⇓ᵃ_ : AExp → ℕ → Set where
+      -- ... Constructors EA_ℕ, EA_+, EA_-, EA_* unchanged
+      EA_any : ∀ { n : ℕ } → any ⇓ᵃ n
+
+At this point you maybe wondering: which style should I use by
+default?  In the examples we've just seen, relational definitions
+turned out to be more useful than functional ones.  For situations
+like these, where the thing being defined is not easy to express as a
+function, or indeed where it is _not_ a function, there is no real
+choice.  But what about when both styles are workable?
+
+One point in favor of relational definitions is that they can be more
+elegant and easier to understand.
+On the other hand, functional definitions can often be more
+convenient:
+
+ - Functions are by definition deterministic and defined on all
+   arguments; for a relation we have to _prove_ these properties
+   explicitly if we need them.
+
+ - With functions we can also take advantage of Agda's computation
+   mechanism, and rely on simple proofs techniques like `refl`.
+
+Furthermore, we can use functions in runtime code if we compile to a
+standalone binary.  Relations do not correspond to runtime-executable
+code.
+
+Ultimately, the choice often comes down to either the specifics of a
+particular situation, or simply a question of taste.  Indeed, in large
+programs it is common to see a definition given in _both_ functional
+and relational styles, plus a lemma stating that the two coincide,
+allowing further proofs to switch from one point of view to the other
+at will.
+
+```
+  -- end of module ImpStage1
+```
+
+#######################################################
+
+## Expressions with variables
+
+Now we return to defining Imp. The next thing we need to do is to
+enrich our arithmetic and boolean expressions with variables.  To keep
+things simple, we'll assume that all variables are global and that
+they only hold numbers.
+
+What is the meaning of an expression with a variable in it?  What is
+the value of `x + 3`?  In Imp or Agda, just as in any other language
+you have seen, such as expression does not have any particular meaning
+by itself.  It has meaning only in the context of the _state_ of a
+running program.  The state gives the relationship between the names
+of variables and the values we associate with them.  Some other
+languages associate other information with the state as well, but to
+keep Imp simple we will be use the state only for these name-value
+bindings.
+
+For simplicity, we assume that the state is defined for _all_
+variables, even though any given program is only going to mention a
+finite number of them.  The state captures all of the information
+stored in memory.  For Imp programs, because each variable stores a
+natural number, we can represent the state as a mapping from strings
+to `nat`, and will use `0` as default value in the store.  For more
+complex programming languages, the state might have more structure.
+Fortunately we already have such a structure at hand — the [total
+maps]({{ site.baseurl }}/Maps/) from the "Functional Programming"
+chapter.
+
+So our definition of a state is a straightforward use of `TotalMap`,
+specialized to the numeric values we will store in Imp variables.
+
+```
+State : Set
+State = TotalMap ℕ
+```
+
+Then we can add variables to the arithmetic expressions we had before
+by simply adding one more constructor:
+
+```
+data AExp : Set where
+  # : ℕ → AExp
+  id : String → AExp          -- <--- This one is new
+  _+_ : AExp → AExp → AExp
+  _-_ : AExp → AExp → AExp 
+  _*_ : AExp → AExp → AExp 
+
+infixl 7  _*_
+infixl 6  _+_  _-_
+```
+
+For convenience we will declare a few variable names.
+
+```
+X : String
+X = "X"
+Y : String
+Y = "Y"
+Z : String
+Z = "Z"
+W : String
+W = "W"
+```
+
+This convention for naming program variables with upper-case letter
+(`X`, `Y`, `Z`) clashes a bit with our earlier use of uppercase
+letters for types.  Since we're not using polymorphism heavily in the
+chapters developed to Imp, this overloading should not cause
+confusion.
+
+The definition of `bexp`s is unchanged, except that it now refers to
+the new `aexp`s.
+
+```
+data BExp : Set where
+  T : BExp
+  F : BExp
+  _==_ : AExp → AExp → BExp
+  _<=_ : AExp → AExp → BExp
+  ! : BExp → BExp
+  _&&_ : BExp → BExp → BExp
+  _||_ : BExp → BExp → BExp
+
+infixl 8  _&&_
+infixl 7  _||_
+```
+
+The main change to our evaluation functions is that they now that the
+state as an extra argument.  Following tradition, we write the state
+immediately after the double-brackets.  Otherwise, the way we extend
+the two evaluators is straightforward.
+
+
+```
+⟦_⟧ᵃ_ : AExp → State → ℕ
+⟦ # n ⟧ᵃ st = n
+⟦ id name ⟧ᵃ st = st name
+⟦ ae1 + ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.+ ⟦ ae2 ⟧ᵃ st
+⟦ ae1 - ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st ∸ ⟦ ae2 ⟧ᵃ st
+⟦ ae1 * ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.* ⟦ ae2 ⟧ᵃ st
+
+⟦_⟧ᵇ_ : BExp → State → Bool
+⟦ T ⟧ᵇ st = true
+⟦ F ⟧ᵇ st = false
+⟦ ae1 == ae2 ⟧ᵇ st = ⟦ ae1 ⟧ᵃ st ≡ᵇ ⟦ ae2 ⟧ᵃ st
+⟦ ae1 <= ae2 ⟧ᵇ st = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
+                    where v1 : ℕ
+                          v1 = ⟦ ae1 ⟧ᵃ st
+                          v2 : ℕ
+                          v2 = ⟦ ae2 ⟧ᵃ st
+⟦ ! be ⟧ᵇ st = not (⟦ be ⟧ᵇ st)
+⟦ be1 && be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∧ ⟦ be2 ⟧ᵇ st
+⟦ be1 || be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∨ ⟦ be2 ⟧ᵇ st
+```
+
+Since the default value for Imp variable not otherwise set in zero, we
+can define an empty Imp state for convenience.
+
+```
+emptyState : State
+emptyState = ↪ 0
+```
+
+For example, we can evaluate the expression `3+X*2` in an environment
+where `Z` is bound to 5.
+
+```
+_ : ⟦ # 3 + id X * # 2 ⟧ᵃ (X ↦ 5 , emptyState) ≡ 13
+_ = refl
+
+_ : ⟦ T && ! (id X <= # 4) ⟧ᵇ (X ↦ 5 , emptyState) ≡ true
+_ = refl
+```
+
+## Commands
+
+Now we are ready define the syntax and behavior of Imp _commands_
+(sometimes called _statements_).
+
+Informally, commands `c` are described by the following BNF grammar.
+
+    c := skip | x := a
+              | c , c
+              | if b then c else c end
+              | while b loop c end
+
+For example, here's factorial in Imp:
+
+    Z := X ,
+    Y := 1 ,
+    while ! (Z == 0) loop
+      Y := Y * Z ,
+      Z := Z - 1
+    end
+
+When this command terminates, the variable `Y` will contain the
+factorial of the initial value of `X`.
+
+Here is the formal definition of the abstract syntax of commands:
+
+```
+data Command : Set where
+  skip : Command
+  _:=_ : String → AExp → Command
+  _,_ : Command → Command → Command
+  if_then_else_end : BExp → Command → Command → Command
+  while_loop_end : BExp → Command → Command
+
+infixr 4 _,_
+infixr 5 _:=_
+```
+
+Our factorial example is understood as an Agda expression once we add
+the `#` and `id` constructors for `AExp`s.
+
+```
+factorialOfX : Command
+factorialOfX = Z := id X ,
+               Y := # 1 ,
+               while ! (id Z == # 0) loop
+                 Y := id Y * id Z ,
+                 Z := id Z - # 1
+               end
+```
+
+Some other examples of Imp expressions and commands:
+
+```
+_ : Command
+_ = skip
+
+_ : Command
+_ = (skip , skip) , skip
+
+_ : AExp
+_ = # 1 + # 2
+
+_ : BExp
+_ = # 2 == # 1
+
+_ : Command
+_ = Z := id X
+
+_ : Command
+_ = Z := id X + # 3
+
+addSkip : Command → Command
+addSkip c = c , skip
+
+_ : Command
+_ = skip , addSkip skip
+
+_ : Command
+_ = if T then skip else skip end
+
+_ : Command
+_ = if T && T then skip , skip else skip , X := id X + # 1 end
+
+_ : Command
+_ = while ! (id Z == # 0) loop Y := id Y * id Z , Z := id Z - # 1 end
+```
+
+We will give names to these examples for later use:
+
+```
+plus2 : Command
+plus2 = X := id X + # 2
+
+XtimesYinZ : Command
+XtimesYinZ = Z := id X * id Y
+
+subtractSlowlyBody : Command
+subtractSlowlyBody = Z := id Z - # 1 ,
+                       X := id X - # 1
+
+subtractSlowly : Command
+subtractSlowly = while ! (id X == # 0) loop subtractSlowlyBody end
+
+subtract3from5slowly : Command
+subtract3from5slowly = X := # 3 ,
+                       Z := # 5 ,
+                       subtractSlowly
+
+-- An infinite loop
+
+forever : Command
+forever = while T loop skip end
+
+-- Exponentiation
+
+expBody : Command
+expBody = Z := id Z * id X ,
+          Y := id Y - # 1
+           
+pexp : Command
+pexp = while ! (id Y == # 0) loop
+         expBody
+       end
+       -- Note that `pexp` should be run in a state where `Z` is `1`.
+```
+
+### Evaluating commands
+
+Next we need to define what it means to evaluate an Imp command.  The
+fact that `while` loops don't necessarily terminate makes defining an
+evaluation function tricky.
 
 (* #################################### *)
 (** ** Evaluation as a Function (Failed Attempt) *)
@@ -1532,7 +1154,7 @@ Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
              or
                 "st '=<{' c '}>=>' st'"
 *)
-(* INSTRUCTORS: Definition of template eval *)
+(* INSTRUCTORS: of template eval *)
 Reserved Notation
          "st '=`' c '`=>' st'"
          (at level 40, c custom com at level 99,
@@ -1626,7 +1248,7 @@ Check @ceval_example2.
 (* HIDE: CH: This is hard to solve without eapply.
    Decreased number of iterations to 2. Made the whole thing optional. *)
 
-Definition pup_to_n : com
+pup_to_n : com
   (* ADMITDEF *) :=
   <{ Y := 0;
      while ~(X = 0) do
@@ -2120,16 +1742,16 @@ Proof.
 (** Recall the factorial program (broken up into smaller pieces this
     time, for convenience of proving things about it).  *)
 
-Definition fact_body : com :=
+fact_body : Command
   <{ Y := Y * Z ;
      Z := Z - 1 }>.
 
-Definition fact_loop : com :=
+fact_loop : Command
   <{ while ~(Z = 0) do
        fact_body
      end }>.
 
-Definition fact_com : com :=
+fact_com : Command
   <{ Z := X ;
      Y := 1 ;
      fact_loop }>.
@@ -2151,7 +1773,7 @@ Fixpoint real_fact (n:nat) : nat :=
     To show this, we rely on the critical idea of a _loop
     invariant_. *)
 
-Definition fact_invariant (n:nat) (st:state) : Prop :=
+fact_invariant (n:nat) (st:state) : Prop :=
   (st Y) * (real_fact (st Z)) = real_fact n.
 
 (** We show that the body of the factorial loop preserves the invariant: *)
@@ -2260,19 +1882,19 @@ Qed.
     Language Foundations_! *)
 
 (* FULL *)
-(* EX4? (subtract_slowly_spec) *)
-(** Prove a specification for `subtract_slowly`, using the above
+(* EX4? (subtractSlowly_spec) *)
+(** Prove a specification for `subtractSlowly`, using the above
     specification of `fact_com` and the invariant below as
     guides. *)
 
-Definition ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
+ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
   ((st Z) - st X) = (z - n).
 
 (* SOLUTION *)
 Theorem ss_body_preserves_invariant : forall st n z st',
      ss_invariant n z st ->
      st X <> 0 ->
-     st =` subtract_slowly_body `=> st' ->
+     st =` subtractSlowlyBody `=> st' ->
      ss_invariant n z st'.
 Proof.
   unfold ss_invariant.
@@ -2286,11 +1908,11 @@ Qed.
 
 Theorem ss_preserves_invariant : forall st n z st',
      ss_invariant n z st ->
-     st =` subtract_slowly `=> st'  ->
+     st =` subtractSlowly `=> st'  ->
      ss_invariant n z st'.
 Proof.
   intros st n z st' H He.
-  remember subtract_slowly as c.
+  remember subtractSlowly as c.
   induction He; inversion Heqc; subst; clear Heqc.
   - (* E_WhileFalse *)
     assumption.
@@ -2302,7 +1924,7 @@ Proof.
 Theorem ss_correct : forall st n z st',
      st X = n ->
      st Z = z ->
-     st =` subtract_slowly `=> st' ->
+     st =` subtractSlowly `=> st' ->
      st' Z = (z - n).
 Proof.
   intros st n z st' HX HZ He.
@@ -2687,7 +2309,7 @@ Reserved Notation "st '=`' c '`=>' st' '/' s"
 (** Because we include if syntax for the if syntax in com,
     we cannot use typical coq if syntax. We avoid this issues
     by making a function that encodes the behavior of if *)
-Definition if_then_else {A : Type} (b : bool) (l r : A) :=
+if_then_else {A : Type} (b : bool) (l r : A) :=
   if b then l else r.
 
 (* /SOLUTION *)
@@ -2932,7 +2554,7 @@ Inductive status : Type :=
 (** Because we include if syntax for the if syntax in com,
     we cannot use typical coq if syntax. We avoid this issues
     by making a function that encodes the behavior of if *)
-Definition if_then_else {A : Type} (b : bool) (l r : A) :=
+if_then_else {A : Type} (b : bool) (l r : A) :=
   if b then l else r.
 
 (* /SOLUTION *)
@@ -3080,6 +2702,8 @@ This section uses the following Unicode symbols:
     ⟧    (\]])
     ᵃ    (\^a)
     ᵇ    (\^b)
+    ÷    (\div)
+    
 {:/comment}
 
 ---
