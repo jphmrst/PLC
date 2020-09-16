@@ -968,8 +968,10 @@ required type of each:
     ?0 : ℕ
     ?1 : ℕ
 
-Going into hole 0 and type `C-c C-,` will display information on the
-required type of the hole, and what free variables are available:
+Going into hole 0 and type `C-c C-,` (note that the comma is part of
+the key sequence: control-c, and then control-comma) will display
+information on the required type of the hole, and what free variables
+are available:
 
     Goal: ℕ
     ————————————————————————————————————————————————————————————
