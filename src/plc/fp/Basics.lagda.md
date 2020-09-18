@@ -413,8 +413,8 @@ This library also provides several functions on characters
 
 #### Exercise `isLower` (practice) {#isLower}
 
-Implement the `isLower` function that returns the conjunction of three
-boolean values.
+Implement the `isLower` function that returns `true` when its argument
+is a lower-case letter, and returns `false` otherwise.
 
     isLower : Char → Bool
     isLower c = ?
