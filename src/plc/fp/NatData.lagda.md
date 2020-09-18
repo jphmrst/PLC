@@ -378,10 +378,10 @@ of times a particular value occurs in a bag.
     count : ℕ → Bag → ℕ
     -- Your definition goes here
 
-    _ : count 1 [1;2;3;1;4;1] = 3
+    _ : count 1 (1 ∷ 2 ∷ 3 ∷ 1 ∷ 4 ∷ 1 ∷ []) = 3
     _ = refl
 
-    _ : count 6 [1;2;3;1;4;1] = 0
+    _ : count 6 (1 ∷ 2 ∷ 3 ∷ 1 ∷ 4 ∷ 1 ∷ []) = 0
     _ = refl
 
 #### Exercise `bagsum` (practice) {#bagsum}
