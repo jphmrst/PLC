@@ -493,8 +493,10 @@ I recommend that you set up your workspace as follows.
     library to your Agda configuration.
 
      - First, fetch a copy of the book's sources using `git`.  Change
-       directory to your local space for this class, and check out the
-       version of the book we are using this semester with:
+       directory to your local space for this class (this should be a
+       *different* directory than where you have the Agda executable
+       or standard library), and check out the version of the book we
+       are using this semester with:
 
        ```bash
        cd /PATH/TO/YOUR/LOCAL/SPACE
@@ -561,6 +563,17 @@ I recommend that you set up your workspace as follows.
 
        Notice that we are now working with a subdirectory `workbook`
        instead of `book`.
+
+       You should take updates from the respository for this directory
+       from time-to-time in the same way as for the `book`
+       subdirectory, just in the `workbook` subdirectory instead.  It
+       is possible, although unlikely, that your changes and my
+       changes may not fit together well.  In Git, this is called a
+       _merge conflict_.  Most of the time, it will be easy for you to
+       review the conflict, and choose a way to combine them.  You can
+       find more information about resolving merge conflicts
+       [here](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line),
+       or from other Git tutorials which you can easily find online.
 
      - To experiment with the book's code, or to work exercises, you
        can edit these files in this `workbook` subdirectory.  When
