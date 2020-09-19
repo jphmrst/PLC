@@ -476,18 +476,22 @@ indentation patterns in the code that you write.
 ## Installing this book's sources {#pack}
 
 You can get the latest version of this book from GitHub,
-either by cloning the repository, or by downloading [the zip
-archive][coursepack-dev]:
+either by cloning the repository:
 
 ```bash
-git clone https://github.com/jphmrst/plfa.github.io.git
+git clone https://github.com/jphmrst/PLC
 ```
 
-It is possible to set up the Course Pack sources as an Agda library as
-well.  If you want to complete the exercises found in the `courses`
-folder, or to import modules from the book, you need to do this.  To
-do so, add the path to `plfa.agda-lib` to `~/.agda/libraries` and add
-`plfa` to `~/.agda/defaults`, both on lines of their own.
+You can also [downloading a zip archive][coursepack-dev], but then it
+is more difficult to merge updates to the book together with your
+changes, such as completing exercises in place.
+
+It is usually a good idea to also set up the Course Pack sources as an
+Agda library as well.  If you want to complete the exercises found in
+the `courses` folder, or to import modules from the book, you need to
+do this.  To do so, add the path to `plfa.agda-lib` to
+`~/.agda/libraries` and add `plfa` to `~/.agda/defaults`, both on
+lines of their own.
 
 I will be adding to the Course Pack over the semester, so you should
 probably keep *two* local versions
