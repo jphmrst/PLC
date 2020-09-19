@@ -240,9 +240,17 @@ _++_ : ∀ {A : Set} {m n : ℕ} → Vec A m → Vec A n → Vec A (m + n)
 
 Implement and test `length` for polymorphic `Vec`.
 
+{::comment}
+
+#### Exercise `vecFilter` (practice) {#vecFilter}
+
+Implement and test `filter` for polymorphic `Vec`.
+
 #### Exercise `vecReverse` (practice) {#vecReverse}
 
 Implement and test `reverse` for polymorphic `Vec`.
+
+{:/comment}
 
 #### Exercise `vecMap` (practice) {#vecMap}
 
