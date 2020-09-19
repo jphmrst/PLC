@@ -473,7 +473,7 @@ seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
 
-## Installing this book's sources {#pack}
+## Installing the Course Pack sources {#pack}
 
 ### Recommended semester setup
 
