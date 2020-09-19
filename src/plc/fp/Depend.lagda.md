@@ -201,6 +201,8 @@ So we can define a polymorphic vector which can hold any type, and be
 of any length.
 
 ```
+infixr 5 _∷_
+
 data Vec (A : Set) : ℕ → Set where
   [] : Vec A zero
   _∷_ : ∀ {n} (x : A) (xs : Vec A n) → Vec A (suc n)
@@ -241,10 +243,6 @@ Implement and test `length` for polymorphic `Vec`.
 #### Exercise `vecReverse` (practice) {#vecReverse}
 
 Implement and test `reverse` for polymorphic `Vec`.
-
-#### Exercise `vecFilter` (practice) {#vecFilter}
-
-Implement and test `filter` for polymorphic `Vec`.
 
 #### Exercise `vecMap` (practice) {#vecMap}
 
