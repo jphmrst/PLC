@@ -9,7 +9,7 @@ next :     /UWL/
 <!-- Links -->
 
 [coursepackURL]: https://docker.cs.uwlax.edu:9443/jmaraist/plc/
-[coursepack-dev]: https://github.com/jphmrst/PLC/archive/dev.zip
+[coursepack-dev]: https://github.com/jphmrst/PLC/archive/fall2020.zip
 
 [agda]: https://github.com/agda/agda/releases/tag/v2.6.0.1
 [agda-version]: https://img.shields.io/badge/agda-v2.6.0.1-blue.svg
@@ -475,11 +475,13 @@ indentation patterns in the code that you write.
 
 ## Installing this book's sources {#pack}
 
-You can get the latest version of this book from GitHub,
-either by cloning the repository:
+You can get the latest version of this book from GitHub.  The best way
+to do this is by using git command to clone the repository:
 
 ```bash
-git clone https://github.com/jphmrst/PLC
+git clone https://github.com/jphmrst/PLC YOUR-LOCAL-DIRECTORY
+cd YOUR-LOCAL-DIRECTORY
+git checkout fall2020
 ```
 
 You can also [downloading a zip archive][coursepack-dev], but then it
