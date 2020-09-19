@@ -475,8 +475,112 @@ indentation patterns in the code that you write.
 
 ## Installing this book's sources {#pack}
 
-You can get the latest version of this book from GitHub.  The best way
-to do this is by using git command to clone the repository:
+### Recommended semester setup
+
+Over the course of the semester I am likely to add exercises,
+additional explanations, and answers to questions to the posted
+website.  I recommend that you keep *two* local versions of the book:
+
+ - One which you keep "clean" and updated from the repository without
+   changes. 
+
+ - One which you use as a sandbox and for exercises, periodically
+   refreshing individual files from the clean copy.  
+
+I recommend that you set up your workspace as follows.
+
+ 1. Set up a reference copy of the book, and add it as a default
+    library to your Agda configuration.
+
+     - First, fetch a copy of the book's sources using `git`.  Change
+       directory to your local space for this class, and check out the
+       version of the book we are using this semester with:
+
+       ```bash
+       cd /PATH/TO/YOUR/LOCAL/SPACE
+       git clone https://github.com/jphmrst/PLC book
+       cd book
+       git checkout fall2020
+       ```
+
+     - Register this copy of the book's sources as an Agda library
+
+        1. Add the full path of the `plfa.agda-lib` file in the `PLC`
+           directory, to the `~/.agda/libraries` file.  Your
+           `~/.agda/libraries` file should then look like this:
+
+               /PATH/TO/AGDA-STDLIB/standard-library.agda-lib
+	       /PATH/TO/YOUR/LOCAL/SPACE/book/plfa.agda-lib
+        
+        2. Add `plfa` to `~/.agda/defaults`.  Your `~/.agda/defaults`
+           should then look like this:
+
+	       standard-library
+	       plfa
+
+       When you finish this step, you should be able to process a file
+       with these two line using Agda using `C-c C-l` from Emacs:
+
+           open import Data.Nat
+	   open import plc.fp.Basics
+
+     - From time to time, take an update to your local copy of the
+       book from its repository:
+
+       ```bash
+       cd /PATH/TO/YOUR/LOCAL/SPACE/book
+       git pull
+       ```
+
+       Be sure to notice that the path in the `cd` commands above and
+       below include `/book` at the end of them.
+
+     - To see if there is an update available, use:
+
+       ```bash
+       cd /PATH/TO/YOUR/LOCAL/SPACE/book
+       git status
+       ```
+
+     - Aside from pulling updates from the repository, **do not
+       otherwise change the contents of this `book` subdirectory!**
+       You will next make another copy which you can edit.
+
+ 2. Set up a sandbox/exercises copy of the book.
+
+     - Fetch another copy of the book's sources using `git`.  Again
+       change directory to your local space for this class, and check
+       out the version of the semester's book:
+
+       ```bash
+       cd /PATH/TO/YOUR/LOCAL/SPACE
+       git clone https://github.com/jphmrst/PLC workbook
+       cd workbook
+       git checkout fall2020
+       ```
+
+       Notice that we are now working with a subdirectory `workbook`
+       instead of `book`.
+
+     - To experiment with the book's code, or to work exercises, you
+       can edit these files in this `workbook` subdirectory.  When
+       there is an `open import` from a `workbook` subdirectory file,
+       it should load a file in the `book` subdirectory - so even if
+       you accidentally screw up the corresponding file in the
+       `workbook` directory, you can still work on the other file.
+
+ 3. Set up another directory for miscellaneous Agda files.
+
+    Create a directory like `/PATH/TO/YOUR/LOCAL/SPACE/agdawork`.  You
+    can use a directory like this for writing Agda files which are
+    standalone, and not part of the book.  Often, it is more
+    convenient to work on an exercise in isolation, or to use a plain
+    `.agda` file instead of the markup-oriented `.lagda.md` files.
+
+### General directions
+
+If you prefer to design your own setup, the general directions for
+setting up a local copy of the book is as follows:
 
 ```bash
 git clone https://github.com/jphmrst/PLC YOUR-LOCAL-DIRECTORY
@@ -496,23 +600,7 @@ Agda files — which is necessary for loading later sections of the book
  1. Add the full path of the `PLC` directory to `~/.agda/libraries`
         
  2. Add `plfa` to `~/.agda/defaults`, both on lines of their own.
-
-If you are using this book for a class, your instructor might add
-exercises or explanations over the term.  So you should probably keep
-*two* local versions:
-
- - One which you keep "clean" and updated from the repository without
-   changes.  To receive updates on the clean copy from the repository,
-   open a command-line shell in the clean copy's directory, and type
-
-       git pull
-
-   It is this clean copy which you should set as your Agda library as
-   the paragraph above describes.
-
- - One which you use as a sandbox and for exercises, periodically
-   refreshing individual files from the clean copy.  
-
+ 
 ## Optional: Enable generating standalone binaries {#standalone}
 
 This section is optional if all you want to do is debug and load the
