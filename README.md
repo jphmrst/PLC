@@ -294,38 +294,9 @@ separate, and put them in a different directory for classwork.  You
 not use these configurations for other projects in a way that might
 make it easy for you to tamper with the contents.
 
-## Installing this book's sources {#pack}
+## Emacs
 
-You can get the latest version of this book from GitHub,
-either by cloning the repository, or by downloading [the zip
-archive][coursepack-dev]:
-
-```bash
-git clone https://github.com/jphmrst/plfa.github.io.git
-```
-
-It is possible to set up the Course Pack sources as an Agda library as
-well.  If you want to complete the exercises found in the `courses`
-folder, or to import modules from the book, you need to do this.  To
-do so, add the path to `plfa.agda-lib` to `~/.agda/libraries` and add
-`plfa` to `~/.agda/defaults`, both on lines of their own.
-
-I will be adding to the Course Pack over the semester, so you should
-probably keep *two* local versions
-
- - One which you keep "clean," and updated from the repository without
-   changes.  To receive updates on the clean copy from the repository,
-   open a command-line shell in the clean copy's directory, and type
-
-       git pull
-
-   It is this clean copy which you should set as your Agda library as
-   the paragraph above describes.
-
- - One which you use as a sandbox and for exercises, periodically
-   refreshing individual files from the clean copy.  
-
-## Install Emacs, and familiarize yourself with it {#emacs}
+### Install Emacs, and familiarize yourself with it {#emacs}
 
 Emacs is a text editor which serves as Agda's IDE.
 
@@ -349,7 +320,7 @@ Emacs](https://www.gnu.org/software/emacs/tour/) page on the GNU Emacs
 site describes how to access the tutorial within your Emacs
 installation.
 
-## Install and configure agda-mode {#agdamode}
+### Install and configure agda-mode {#agdamode}
 
 The recommended editor for Agda is Emacs with `agda-mode`. Agda ships
 with `agda-mode`, so if you’ve installed Agda, all you have to do to
@@ -391,7 +362,7 @@ but Aquamacs users might need to move their startup settings to the
 `Preferences.el` file in `~/Library/Preferences/Aquamacs
 Emacs/Preferences`.
 
-## Using mononoki in Emacs {#mononoki}
+### The mononoki font {#mononoki}
 
 Agda uses Unicode characters for many key symbols, and it is important
 that the font which you use to view and edit Agda programs shows these
@@ -415,7 +386,7 @@ symbols correctly.  So we recommend that you install the font
     		        :width  'normal)
     ```
 
-## Entering Unicode characters in Emacs `agda-mode` {#unicode}
+### Entering Unicode characters in Emacs `agda-mode` {#unicode}
 
 When you write Agda code, you will need to insert characters which are
 not found on standard keyboards.  Emacs `agda-mode` makes it easier to
@@ -501,6 +472,37 @@ another example of a whitespace-sensitive language which you may have
 seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
+
+## Installing this book's sources {#pack}
+
+You can get the latest version of this book from GitHub,
+either by cloning the repository, or by downloading [the zip
+archive][coursepack-dev]:
+
+```bash
+git clone https://github.com/jphmrst/plfa.github.io.git
+```
+
+It is possible to set up the Course Pack sources as an Agda library as
+well.  If you want to complete the exercises found in the `courses`
+folder, or to import modules from the book, you need to do this.  To
+do so, add the path to `plfa.agda-lib` to `~/.agda/libraries` and add
+`plfa` to `~/.agda/defaults`, both on lines of their own.
+
+I will be adding to the Course Pack over the semester, so you should
+probably keep *two* local versions
+
+ - One which you keep "clean," and updated from the repository without
+   changes.  To receive updates on the clean copy from the repository,
+   open a command-line shell in the clean copy's directory, and type
+
+       git pull
+
+   It is this clean copy which you should set as your Agda library as
+   the paragraph above describes.
+
+ - One which you use as a sandbox and for exercises, periodically
+   refreshing individual files from the clean copy.  
 
 ## Optional: Enable generating standalone binaries {#standalone}
 
