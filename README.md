@@ -489,14 +489,17 @@ changes, such as completing exercises in place.
 It is usually a good idea to also set up the Course Pack sources as an
 Agda library as well.  If you want to complete the exercises found in
 the `courses` folder, or to import modules from the book, you need to
-do this.  To do so, add the path to `plfa.agda-lib` to
-`~/.agda/libraries` and add `plfa` to `~/.agda/defaults`, both on
-lines of their own.
+do this.  To do so,
 
-I will be adding to the Course Pack over the semester, so you should
-probably keep *two* local versions
+ 1. Add the full path of the `PLC` directory to `~/.agda/libraries`
+        
+ 2. Add `plfa` to `~/.agda/defaults`, both on lines of their own.
 
- - One which you keep "clean," and updated from the repository without
+If you are using this book for a class, your instructor might add
+exercises or explanations over the term.  So you should probably keep
+*two* local versions:
+
+ - One which you keep "clean" and updated from the repository without
    changes.  To receive updates on the clean copy from the repository,
    open a command-line shell in the clean copy's directory, and type
 
