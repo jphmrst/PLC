@@ -487,9 +487,9 @@ is more difficult to merge updates to the book together with your
 changes, such as completing exercises in place.
 
 It is usually a good idea to also set up the Course Pack sources as an
-Agda library as well.  If you want to complete the exercises found in
-the `courses` folder, or to import modules from the book, you need to
-do this.  To do so,
+Agda library as well.  If you want to import book modules into your
+Agda files — which is necessary for loading later sections of the book
+— then you must to do this.  To do so,
 
  1. Add the full path of the `PLC` directory to `~/.agda/libraries`
         
