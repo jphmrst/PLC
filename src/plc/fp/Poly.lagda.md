@@ -699,12 +699,20 @@ is valid.
 
 ### Do your signatures, clauses and uses all agree on which parameters are implicit?
 
-The three expressions below are all invalid, and will be
-flagged as an error by Agda:
+The three expressions below are all invalid, and will be flagged as
+errors by Agda:
 
-    myFn4 ℕ (1 ∷ 2 ∷ 3 ∷ [])
-    myFn4 (1 ∷ 2 ∷ 3 ∷ []) ℕ
-    myFn4 (1 ∷ 2 ∷ 3 ∷ []) {ℕ}
+    myFn4 ℕ (1 ∷ 2 ∷ 3 ∷ [])      -- Because there is only one
+                                   -- explicit argument to myFn4, and
+                                   -- it should be the list.
+    
+    myFn4 (1 ∷ 2 ∷ 3 ∷ []) ℕ      -- Again, only one explicit argument
+                                   -- to myFn4.
+    
+    myFn4 (1 ∷ 2 ∷ 3 ∷ []) {ℕ}    -- It is true that myFn4 takes one
+                                   -- explicit and one explicit
+                                   -- argument, but they are in the
+                                   -- opposite order than given here.
 
 In each of these three, we are not respecting the fact that the number
 and order of parameters as declared in the signature must be
