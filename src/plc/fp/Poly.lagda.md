@@ -613,6 +613,117 @@ if one exists.
     _ : lastButOne [] = nothing
     _ = refl
 
+## Troubleshooting your exercises {#troubleshootingExercises}
+
+This section will probably be most helpful after you have tried
+several exercises.  There are some common errors when writing
+functions, and this section summarizes some things to look for when
+you cannot get an exercise to work.
+
+### Do your signatures, clauses and uses all agree on the number and order of parameters?
+
+When you write the signature of a function, you are defining the
+number of parameters, and the order in which they must be provided, to
+a function.  When you then write the clauses of that function, and
+later on uses of that function, they must agree with what the
+signature says is the number and the order of the parameters.  It does
+not matter whether you define the parameters with quantified variables
+with `∀`, or with transitional arguments before an arrow `→`, and it
+does not matter whether the parameters should be types or values: all
+subsequent references to that function must agree on the number and
+order of parameters.
+
+For example, if you write a signature
+
+    myFn1 : ∀ (A : Set) → List A → ℕ
+
+then every clause defining `myFn1` (using the techniques of this
+section; we will see other ways soon) must have two arguments
+
+    myFn1 patternForTypeA patternForValueOfListA = ...
+
+and every use of `myFn1` will expect two arguments in order to produce
+a natural number result, like
+
+    myFn1 Bool (true ∷ true ∷ false ∷ [])
+
+Or with a signature 
+
+    myFn2 : Bool → List ℕ → List ℕ → ℕ
+
+then every clause defining `myFn2` (again using the techniques of this
+section) must have three arguments, for example
+
+    myFn2 true (x ∷ xs) (y ∷ ys) = ...
+    myFn2 true (x ∷ xs) [] = ...
+    myFn2 true [] ys = ...
+    myFn2 false _ _ = ...
+
+and every use of `myFn2` will expect three arguments in order to produce
+a natural number result.
+
+### Are you declaring the parameters you mean to declare as implicit?
+
+Remember the difference between 
+
+    myFn3 : ∀ (A : Set) → List A → ℕ
+
+and
+
+    myFn4 : ∀ {A : Set} → List A → ℕ
+
+In the first case, `A` is _explicit_.  The first argument to `myFn3` —
+whether in a clause defining `myFn3` or in a use of `myFn3` in some
+expression — must be a type.  And `myFn3` must have a second argument
+which is a list of that same type in order to return a number.  There
+is no flexibility: two arguments to define a clause, two arguments to
+get back a number.
+
+With the second signature, writing `{A : Set}` with curly braces
+instead of round parentheses, the first argument becomes implicit.
+Agda will try to work the right value of the argument out itself.  So
+a valid use of `myFn4` could be something like
+
+    myFn4 (1 ∷ 2 ∷ 3 ∷ [])
+
+We omit the argument in accordance with the signature, and expect Agda
+to work out that it should be `ℕ`.  In this example it is easy for
+Agda to work this out: we can see that the second argument has the
+type `List ℕ`, and so `A` must be `ℕ`.  If we *want* to include the
+first argument explicitly, then we *must* wrap it in curly braces, and
+it must be the first argument:
+
+    myFn4 {ℕ} (1 ∷ 2 ∷ 3 ∷ [])
+
+is valid.
+
+### Do your signatures, clauses and uses all agree on which parameters are implicit?
+
+The three expressions below are all invalid, and will be
+flagged as an error by Agda:
+
+    myFn4 ℕ (1 ∷ 2 ∷ 3 ∷ [])
+    myFn4 (1 ∷ 2 ∷ 3 ∷ []) ℕ
+    myFn4 (1 ∷ 2 ∷ 3 ∷ []) {ℕ}
+
+In each of these three, we are not respecting the fact that the number
+and order of parameters as declared in the signature must be
+respected.
+
+The same expectations apply to clauses which define `myFn3` and
+`myFn4`.  It would be wrong to define any of these clauses:
+
+    myFn3 {E} xs = ...          -- Because the first parameter must be
+                                -- explicit, not implicit
+
+    myFn3 xs E = ...            -- Assuming we use xs as a list, because
+                                -- the parameters are in the other order
+
+    myFn4 (x ∷ xs) {A} = ...    -- Because the first argument is the
+                                -- optional type, and the second
+                                -- argument is a list, not the other
+                                -- way around.
+
 ## Unicode
 
 This section uses the following Unicode symbols:
