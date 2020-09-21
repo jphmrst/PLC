@@ -65,13 +65,29 @@ the version of Agda which the repository holds may be out-of-date for
 what the course pack expects.  Agda is under active development, so if
 you install the development version of Agda from its GitHub
 repository, you may find that the developers have introduced changes
-which break the code in the course pack.  So it is important to have
-the specific versions of Agda and its libraries shown above.
+which break the code here.  So it is important to have the specific
+versions of Agda and its libraries shown above.
 
 You will also need an editor for writing and changing Agda source
 code.  Agda's best IDE is in Emacs, and we include steps below or
 installing Emacs, familiarizing yourself with its basic editing
 features, and with its Agda mode.
+
+## Consider a virtual machine if you are running Windows
+
+Agda seems to be tricky to install on Windows, and students often
+report issues completing their installations.  If you are working on a
+Windows computer, you should consider running a linux system via a
+virtual machine within Windows, and install Agda there.  [Virtual
+Box](https://www.virtualbox.org/) is a fairly simple and open-source
+solution which runs on both Windows and Macintosh hosts.
+
+Note that on many computers, hardware virtualization is disabled by
+default.  If this is the case on your computer, the virtual machine
+will appear as just a blank black screen, and will not actually run.
+To allow hardware virtualization, you must activate it from BIOS when
+you first turn on your machine.  Check the documentation for your
+particular computer model for instructions on accessing its BIOS.
 
 ## On Macs, install the [Xcode Developer Tools](https://developer.apple.com/xcode/)
 
