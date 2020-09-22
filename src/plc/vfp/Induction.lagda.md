@@ -51,29 +51,38 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
 
 ## Properties of operators
 
-Operators pop up all the time, and mathematicians have agreed
-on names for some of the most common properties.
+Operators pop up all the time, and mathematicians have agreed on names
+for some of the most common properties.  When we need to discuss
+operators in general, we will use symbols like ⊕ and ⊗.
 
-* _Identity_.   Operator `+` has left identity `0` if `0 + n ≡ n`, and
-  right identity `0` if `n + 0 ≡ n`, for all `n`. A value that is both
-  a left and right identity is just called an identity. Identity is also
-  sometimes called _unit_.
+* _Identity_.  Operator `⊕` has left identity `z` if `z ⊕ n ≡ n`, and
+  right identity `w` if `n ⊕ w ≡ n`, for all `n`. A value that is both
+  a left and right identity is just called an identity.  Identity is
+  also sometimes called _unit_.
 
-* _Associativity_.   Operator `+` is associative if the location
-  of parentheses does not matter: `(m + n) + p ≡ m + (n + p)`,
+  Addition of numbers `+` has zero as an identity, and concatenation
+  of strings has the empty string as an identity.  Subtraction has
+  zero as a right identity, and does not have a right identity.
+
+* _Associativity_.   Operator `⊕` is associative if the location
+  of parentheses does not matter: `(m ⊕ n) ⊕ p ≡ m ⊕ (n ⊕ p)`,
   for all `m`, `n`, and `p`.
 
-* _Commutativity_.   Operator `+` is commutative if order of
-  arguments does not matter: `m + n ≡ n + m`, for all `m` and `n`.
+* _Commutativity_.   Operator `⊕` is commutative if order of
+  arguments does not matter: `m ⊕ n ≡ n ⊕ m`, for all `m` and `n`.
 
-* _Distributivity_.   Operator `*` distributes over operator `+` from the
-  left if `(m + n) * p ≡ (m * p) + (n * p)`, for all `m`, `n`, and `p`,
-  and from the right if `m * (p + q) ≡ (m * p) + (m * q)`, for all `m`,
+  Addition, multiplication, and string concatenation are all both
+  associative and commutative, but subtraction and division are
+  neither.
+
+* _Distributivity_.   Operator `⊗` distributes over operator `⊕` from the
+  left if `(m ⊕ n) ⊗ p ≡ (m ⊗ p) ⊕ (n ⊗ p)`, for all `m`, `n`, and `p`,
+  and from the right if `m ⊗ (p ⊕ q) ≡ (m ⊗ p) ⊕ (m ⊗ q)`, for all `m`,
   `p`, and `q`.
 
-Addition has identity `0` and multiplication has identity `1`;
-addition and multiplication are both associative and commutative;
-and multiplication distributes over addition.
+  Multiplication distributes over addition, but addition does not
+  distribute over multiplication.  For boolean operators, ∧
+  distributes over ∨, _and_ ∨ distributes over ∧.
 
 If you ever bump into an operator at a party, you now know how
 to make small talk, by asking whether it has a unit and is
@@ -84,7 +93,7 @@ Less frivolously, if you ever bump into an operator while reading a
 technical paper, this gives you a way to orient yourself, by checking
 whether or not it has an identity, is associative or commutative, or
 distributes over another operator.  A careful author will often call
-out these properties---or their lack---for instance by pointing out
+out these properties — or their lack — for instance by pointing out
 that a newly introduced operator is associative but not commutative.
 
 #### Exercise `operators` (practice) {#operators}
@@ -124,21 +133,20 @@ _ =
     3 + (4 + 5)
   ∎
 ```
-Here we have displayed the computation as a chain of equations,
-one term to a line.  It is often easiest to read such chains from the top down
-until one reaches the simplest term (in this case, `12`), and
+Here we have displayed the computation as a chain of equations, one
+term to a line.  It is often easiest to read such chains from the top
+down until one reaches the simplest term (in this case, `12`), and
 then from the bottom up until one reaches the same term.
 
 The test reveals that associativity is perhaps not as obvious as first
 it appears.  Why should `7 + 5` be the same as `3 + 9`?  We might want
 to gather more evidence, testing the proposition by choosing other
-numbers.  But---since there are an infinite number of
-naturals---testing can never be complete.  Is there any way we can be
+numbers.  But—since there are an infinite number of
+naturals—testing can never be complete.  Is there any way we can be
 sure that associativity holds for _all_ the natural numbers?
 
 The answer is yes! We can prove a property holds for all naturals using
 _proof by induction_.
-
 
 ## Proof by induction
 
@@ -166,8 +174,8 @@ demonstrate are the following two inference rules:
 Let's unpack these rules.  The first rule is the base case, and
 requires we show that property `P` holds for `zero`.  The second rule
 is the inductive case, and requires we show that if we assume the
-inductive hypothesis---namely that `P` holds for `m`---then it follows that
-`P` also holds for `suc m`.
+inductive hypothesis — namely that `P` holds for `m` — then it follows
+that `P` also holds for `suc m`.
 
 Why does this work?  Again, it can be explained by a creation story.
 To start with, we know no properties:
@@ -830,7 +838,7 @@ each is required to prove:
 Going into hole 0 and typing `C-c C-,` will display the text:
 
     Goal: (n + p) ≡ (n + p)
-    ————————————————————————————————————————————————————————————
+    ------------------------------------------------------------
     p : ℕ
     n : ℕ
 
@@ -847,7 +855,7 @@ Typing `C-c C-l` renumbers the remaining hole to 0:
 Going into the new hole 0 and typing `C-c C-,` will display the text:
 
     Goal: suc ((m + n) + p) ≡ suc (m + (n + p))
-    ————————————————————————————————————————————————————————————
+    ------------------------------------------------------------
     p : ℕ
     n : ℕ
     m : ℕ
@@ -863,7 +871,7 @@ hypothesis, so let's edit the text accordingly:
 Going into the remaining hole and typing `C-c C-,` will display the text:
 
     Goal: suc (m + (n + p)) ≡ suc (m + (n + p))
-    ————————————————————————————————————————————————————————————
+    ------------------------------------------------------------
     p : ℕ
     n : ℕ
     m : ℕ
