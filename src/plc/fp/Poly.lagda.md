@@ -324,6 +324,13 @@ functions, together with operations on the resulting lists.  For some
 if these exercises, the character-manipulating functions of module
 `Data.Char` will be helpful.
 
+The `toList` and `fromList` functions expect to use the version of
+`List` from Agda's standard library, not the one we developed here.
+So work these exercises in a `.agda` file of their own.  Paste in the
+`open import` statements from the top of this file, plus
+
+    open import Data.List
+
 ##### Exercise `capitalize` (practice) {#capitalize}
 
 Write a function `capitalize` which converts all lower-case letters in
