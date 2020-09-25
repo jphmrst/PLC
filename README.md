@@ -387,8 +387,10 @@ symbols correctly.  So we recommend that you install the font
 
  1. *Installing mononoki*.  You can install directly from a download
     from [mononoki's GitHub][mononoki], but it may be easier if your
-    system repository provided a pre-packaged version.  For example,
-    on Debian `apt` there is a package `fonts-mononoki`.
+    system repository provided a pre-packaged version.
+
+    For example, on Debian and Ubuntu `apt` there is [a package
+    `fonts-mononoki`](https://packages.debian.org/sid/fonts/fonts-mononoki).
 
  2. *Using mononoki from Emacs*.  Add the following to the end of your
     emacs configuration file `~/.emacs`:
