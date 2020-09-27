@@ -66,8 +66,17 @@ The type is called Day, and its members are Monday, Tuesday, etc. The
 second line of the definition can be read "Monday is a day;" the third
 line can be read "Tuesday is a day;" and so on.
 
-Having defined the type `Day`, we can write functions that operate on
-that type.
+Having defined the type `Day`, we can do several things with the
+definition.  We can write a definition of a name which uses the values
+we define:
+
+```
+myFavoriteDay : Day
+myFavoriteDay = Saturday
+
+```
+
+We can also write functions that operate on that type.
 
 ```
 nextDay : Day → Day
@@ -87,13 +96,14 @@ how to type them in the Emacs text editor.  Here _type_ refers to
 typing with fingers as opposed to data types!
 
 Another thing to notice is that the argument and return types of this
-function are explicitly declared.  Some functional programming
-languages can work out these types even if they are not given
-explicitly — i.e., they perform type inference.  Agda performs some
-inference, but we will always include these type _signatures_ for the
-functions we write.  The type signature for this function tells us
-that `nextDay` transforms a value of type `Day` into a (possibly
-different, possibly the same) value of type `Day`.
+function, like the type of the name `yFavriteDay`, are explicitly
+declared.  Some functional programming languages can work out these
+types even if they are not given explicitly — i.e., they perform type
+inference.  Agda performs some inference, but we will always include
+these type _signatures_ for the functions we write.  The type
+signature for this function tells us that `nextDay` transforms a value
+of type `Day` into a (possibly different, possibly the same) value of
+type `Day`.
 
 This function definition may look strange at first.  It is as if we
 are defining the function seven times!  What we are actually doing is
@@ -115,6 +125,14 @@ both the ideas behind why this restriction exists, and how we account
 for failing cases in programs, in later sections.  For now, we must
 simply be aware that Agda will refuse to compile a function which does
 not satisfy totality.
+
+Once we have defined a name or a function, we can use it in subsequent
+definitions.
+
+```
+threeDaysAfterMyFavoriteDay : Day
+threeDaysAfterMyFavoriteDay = nextDay (nextDay (nextDay myFavoriteDay))
+```
 
 Here is another function on `Day` values:
 
