@@ -673,6 +673,19 @@ module Church where
   cnat = ∀ (X : Set) → (X → X) → (X → X)
 ```
 
+Note that these exercises are in a submodule `Church` of this section.
+If you are working on these exercises directly from the
+`Functional.lagda.md` file, then you will need to prefix names like
+`cnat` with the submodule name if you pass them to Emacs via `C-c
+C-n`: `Church.cnat` and so forth.  Alternatively, you can copy the
+definitions of module `Church` (without the `module Church where`
+prefix) to their own file.  If you want to use functions like `filter`
+and `map` defined earlier in this section, make sure to use
+
+    open import plc.fp.Functional
+
+at the beginning of your new work file.
+
 Let's see how to write some numbers with this notation.  Iterating a
 function once should be the same as just applying it.  Thus:
 
@@ -794,6 +807,9 @@ Continue with a definition of multiplication:
     _ : exp two two ≡ plus one three
     _ = refl
 
+
+    -- End of module Church
+
 ## Unicode
 
 This section uses the following Unicode symbols:
@@ -807,6 +823,7 @@ This section uses the following Unicode symbols:
 ---
 
 *This page is derived from Pierce et al., except for the section on
- currying which includes text from Wadler et al.  For more information
- see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+currying which includes text from Wadler et al., and additional
+starting exercises by Maraist.  For more information see the [sources
+and authorship]({{ site.baseurl }}/Sources/) page.*
  
