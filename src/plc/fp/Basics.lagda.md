@@ -414,7 +414,7 @@ The library provides several of the usual string utilities, such as:
 The type of characters is `Char`, and we import them with
 
 ```
-open import Data.Char
+open import Data.Char hiding (isLower)
 
 myInitial : Char
 myInitial = 'J'
@@ -424,7 +424,8 @@ This library also provides several functions on characters
 
  - Testing for certain character classes with `isLower`, `isDigit`,
    `isAlpha`, `isSpace`, `isAscii`, `isLatin1`, `isPrint`,
-   `isHexDigit`.
+   `isHexDigit`.  Since the exercise below is to write `isLower`, we
+   use the `hiding` clause above to suppress loading it.
 
  - Transforming one character to a related character with `toUpper`,
    `toLower`.
