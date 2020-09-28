@@ -122,7 +122,6 @@ PartialMap A = TotalMap (Maybe A)
 _↦ₚ_,_ : ∀ {A : Set} → String → A → PartialMap A → PartialMap A
 x ↦ₚ v , m = x ↦ just v , m
 infixr 4 _↦ₚ_,_
-
 ```
 
 We can also hide the last case when it is empty.
