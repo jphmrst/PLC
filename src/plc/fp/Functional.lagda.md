@@ -86,6 +86,60 @@ Adapt the tests of monomorphic `noNeighborDups` to the new functions,
 and extend them for lists of other types, finding appropriate
 comparison functions in the standard libraries.
 
+### Troubleshooting your exercises {#troubleshootStepByStep}
+
+It can be tricky to wrap your mind around what Agda is doing when you
+use functions as arguments.  The practice of writing down step-by-step
+how you think Agda will rewrite an expression according to the
+functions' definitions is a very valuable technique for understanding
+these subtle calculations!  For example, with the `minusTwo` example
+above, we would have
+
+      doIt3Times minusTwo 9 3
+    → minusTwo (minusTwo (minusTwo 9))
+    → minusTwo (minusTwo (9 ∸ 2))
+    → minusTwo (minusTwo (8 ∸ 1))
+    → minusTwo (minusTwo (7 ∸ 0))
+    → minusTwo (minusTwo 7)
+    → minusTwo (7 ∸ 2)
+    → minusTwo (6 ∸ 1)
+    → minusTwo (5 ∸ 0)
+    → minusTwo 5
+    → 5 ≐ 2
+    → 4 ≐ 1
+    → 3 ≐ 0
+    → 3
+
+We can ask Agda to check our rewrites by using `begin...≡⟨⟩...∎` in
+the unit tests rather than simply `refl`.
+
+```
+_ : doIt3Times minusTwo 9 ≡ 3
+_ = begin
+      doIt3Times minusTwo 9
+    ≡⟨⟩
+      minusTwo (minusTwo (minusTwo 9))
+    ≡⟨⟩
+      minusTwo (minusTwo (9 ∸ 2))
+    ≡⟨⟩
+      minusTwo (minusTwo 7)
+    ≡⟨⟩
+      minusTwo (7 ∸ 2)
+    ≡⟨⟩
+      minusTwo 5
+    ≡⟨⟩
+      5 ∸ 2
+    ≡⟨⟩
+      3
+    ∎
+```
+
+Note that `≡⟨⟩` does not require us to write out *every* step — we can
+elide steps which we might consider obvious.  But we can always add
+more detail when a bigger leap is not clear to us.  And we should
+always look more closely when Agda disagrees with a step we might
+describe!
+
 ### Filter
 
 Here is a more useful higher-order function, taking a list of `X`s and
@@ -155,7 +209,13 @@ _ : countOddMembers [] ≡ 0
 _ = refl
 ```
 
-## Anonymous functions
+#### Exercise filterStepByStep (starting) {#filterStepByStep}
+
+Replace the use of `refl` in the `filter lengthIs1` and in the three
+`countOddMembers` examples with a `begin...≡⟨⟩...∎` form showing the
+step-by-step derivation of the result.
+
+### Anonymous functions
 
 It is arguably a little sad, in the example just above, to be forced
 to define the function `lengthIs1` and give it a name just to be able
@@ -233,6 +293,11 @@ definition appears exactly where the function is used, so there is no
 need for the writer to remember to declare it in advance, or for the
 reader to search for the definition in the code.
 
+#### Exercise anonFnStepByStep (starting) {#anonFnStepByStep}
+
+In the `filter` example with `λ` above, replace the use of `refl` with
+a `begin...≡⟨⟩...∎` form showing the step-by-step derivation of the
+result.
 
 #### Exercise `filterEvenGt7` (starting) {#filterEvenGt7}
 
@@ -311,6 +376,12 @@ _ : map (λ { n → (even n ∷ odd n ∷ []) }) (2 ∷ 1 ∷ 2 ∷ 5 ∷ [])
            ∷ (true ∷ false ∷ []) ∷ (false ∷ true ∷ []) ∷ [])
 _ = refl
 ```
+
+#### Exercise mapStepByStep (starting) {#mapStepByStep}
+
+In the three `map` examples above, replace the use of `refl` with a
+`begin...≡⟨⟩...∎` form showing the step-by-step derivation of the
+result.
 
 #### Exercise `flatMap` (practice) {#flatMap}
 
@@ -442,6 +513,12 @@ _ = begin
     ≡⟨⟩ (((8 ∸ 4) ∸ 2) ∸ 1) ∸ 0
     ∎
 ```
+
+#### Exercise foldStepByStep (starting) {#foldStepByStep}
+
+In the three `foldr` and first two `foldl` examples above, replace the
+use of `refl` with a `begin...≡⟨⟩...∎` form showing the step-by-step
+derivation of the result.
 
 #### Exercise `foldTypesDifferent` (starting) {#foldTypesDifferent}
 
