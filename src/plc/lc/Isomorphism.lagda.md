@@ -7,7 +7,7 @@ next      : /Connectives/
 ---
 
 ```
-module plc.vfp.Isomorphism where
+module plc.lc.Isomorphism where
 ```
 
 This section introduces isomorphism as a way of asserting that two
