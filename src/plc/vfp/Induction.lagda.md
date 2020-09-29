@@ -106,7 +106,6 @@ Give an example of an operator that has an identity and is
 associative but is not commutative.
 (You do not have to prove these properties.)
 
-
 ## Associativity
 
 One property of addition is that it is _associative_, that is, that the
