@@ -1,13 +1,13 @@
 ---
-title     : "Lists: Properties of data structures"
+title     : "DataRel: Describing data structures with relations" 
 layout    : page
 prev      : /Decidable/
-permalink : /Lists/
+permalink : /DataRel/
 next      : /MapProps/
 ---
 
 ```
-module plc.vfp.Lists where
+module plc.vfp.DataRel where
 ```
 
 In this section we revisit the `List` data type, and study its
