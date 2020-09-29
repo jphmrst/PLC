@@ -7,7 +7,7 @@ next      : /Connectives/
 ---
 
 ```
-module plc.vfp.Isomorphism where
+module plc.lc.Isomorphism where
 ```
 
 This section introduces isomorphism as a way of asserting that two
@@ -25,6 +25,7 @@ open Eq using (_≡_; refl; cong; cong-app)
 open Eq.≡-Reasoning
 open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.Nat.Properties using (+-comm)
+open import plc.vfp.Relations
 ```
 
 ## Preliminaries
@@ -97,146 +98,6 @@ Here the type of `f` and `g` has changed from `A → B` to
 `∀ (x : A) → B x`, generalising ordinary functions to
 dependent functions.
 
-
-## Isomorphism
-
-Two sets are isomorphic if they are in one-to-one correspondence.
-Here is a formal definition of isomorphism:
-```
-infix 0 _≃_
-record _≃_ (A B : Set) : Set where
-  field
-    to   : A → B
-    from : B → A
-    from∘to : ∀ (x : A) → from (to x) ≡ x
-    to∘from : ∀ (y : B) → to (from y) ≡ y
-open _≃_
-```
-Let's unpack the definition. An isomorphism between sets `A` and `B` consists
-of four things:
-+ A function `to` from `A` to `B`,
-+ A function `from` from `B` back to `A`,
-+ Evidence `from∘to` asserting that `from` is a *left-inverse* for `to`,
-+ Evidence `to∘from` asserting that `from` is a *right-inverse* for `to`.
-
-In particular, the third asserts that `from ∘ to` is the identity, and
-the fourth that `to ∘ from` is the identity, hence the names.
-The declaration `open _≃_` makes available the names `to`, `from`,
-`from∘to`, and `to∘from`, otherwise we would need to write `_≃_.to` and so on.
-
-The above is our first use of records. A record declaration is equivalent
-to a corresponding inductive data declaration:
-```
-data _≃′_ (A B : Set): Set where
-  mk-≃′ : ∀ (to : A → B) →
-          ∀ (from : B → A) →
-          ∀ (from∘to : (∀ (x : A) → from (to x) ≡ x)) →
-          ∀ (to∘from : (∀ (y : B) → to (from y) ≡ y)) →
-          A ≃′ B
-
-to′ : ∀ {A B : Set} → (A ≃′ B) → (A → B)
-to′ (mk-≃′ f g g∘f f∘g) = f
-
-from′ : ∀ {A B : Set} → (A ≃′ B) → (B → A)
-from′ (mk-≃′ f g g∘f f∘g) = g
-
-from∘to′ : ∀ {A B : Set} → (A≃B : A ≃′ B) → (∀ (x : A) → from′ A≃B (to′ A≃B x) ≡ x)
-from∘to′ (mk-≃′ f g g∘f f∘g) = g∘f
-
-to∘from′ : ∀ {A B : Set} → (A≃B : A ≃′ B) → (∀ (y : B) → to′ A≃B (from′ A≃B y) ≡ y)
-to∘from′ (mk-≃′ f g g∘f f∘g) = f∘g
-```
-
-We construct values of the record type with the syntax
-
-    record
-      { to    = f
-      ; from  = g
-      ; from∘to = g∘f
-      ; to∘from = f∘g
-      }
-
-which corresponds to using the constructor of the corresponding
-inductive type
-
-    mk-≃′ f g g∘f f∘g
-
-where `f`, `g`, `g∘f`, and `f∘g` are values of suitable types.
-
-
-## Isomorphism is an equivalence
-
-Isomorphism is an equivalence, meaning that it is reflexive, symmetric,
-and transitive.  To show isomorphism is reflexive, we take both `to`
-and `from` to be the identity function:
-```
-≃-refl : ∀ {A : Set}
-    -----
-  → A ≃ A
-≃-refl =
-  record
-    { to      = λ{x → x}
-    ; from    = λ{y → y}
-    ; from∘to = λ{x → refl}
-    ; to∘from = λ{y → refl}
-    }
-```
-In the above, `to` and `from` are both bound to identity functions,
-and `from∘to` and `to∘from` are both bound to functions that discard
-their argument and return `refl`.  In this case, `refl` alone is an
-adequate proof since for the left inverse, `from (to x)`
-simplifies to `x`, and similarly for the right inverse.
-
-To show isomorphism is symmetric, we simply swap the roles of `to`
-and `from`, and `from∘to` and `to∘from`:
-```
-≃-sym : ∀ {A B : Set}
-  → A ≃ B
-    -----
-  → B ≃ A
-≃-sym A≃B =
-  record
-    { to      = from A≃B
-    ; from    = to   A≃B
-    ; from∘to = to∘from A≃B
-    ; to∘from = from∘to A≃B
-    }
-```
-
-To show isomorphism is transitive, we compose the `to` and `from`
-functions, and use equational reasoning to combine the inverses:
-```
-≃-trans : ∀ {A B C : Set}
-  → A ≃ B
-  → B ≃ C
-    -----
-  → A ≃ C
-≃-trans A≃B B≃C =
-  record
-    { to       = to   B≃C ∘ to   A≃B
-    ; from     = from A≃B ∘ from B≃C
-    ; from∘to  = λ{x →
-        begin
-          (from A≃B ∘ from B≃C) ((to B≃C ∘ to A≃B) x)
-        ≡⟨⟩
-          from A≃B (from B≃C (to B≃C (to A≃B x)))
-        ≡⟨ cong (from A≃B) (from∘to B≃C (to A≃B x)) ⟩
-          from A≃B (to A≃B x)
-        ≡⟨ from∘to A≃B x ⟩
-          x
-        ∎}
-    ; to∘from = λ{y →
-        begin
-          (to B≃C ∘ to A≃B) ((from A≃B ∘ from B≃C) y)
-        ≡⟨⟩
-          to B≃C (to A≃B (from A≃B (from B≃C y)))
-        ≡⟨ cong (to B≃C) (to∘from A≃B (from B≃C y)) ⟩
-          to B≃C (from B≃C y)
-        ≡⟨ to∘from B≃C y ⟩
-          y
-        ∎}
-     }
-```
 
 
 ## Equational reasoning for isomorphism
@@ -400,21 +261,6 @@ postulate
       -----
     → A ≲ B
 ```
-
-```
--- Your code goes here
-```
-
-#### Exercise `_⇔_` (practice) {#iff}
-
-Define equivalence of propositions (also known as "if and only if") as follows:
-```
-record _⇔_ (A B : Set) : Set where
-  field
-    to   : A → B
-    from : B → A
-```
-Show that equivalence is reflexive, symmetric, and transitive.
 
 ```
 -- Your code goes here

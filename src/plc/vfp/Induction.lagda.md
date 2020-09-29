@@ -3,7 +3,7 @@ title     : "Induction: Proof by Induction"
 layout    : page
 prev      : /Depend/
 permalink : /Induction/
-next      : /Relations/
+next      : /DataProp/
 ---
 
 ```

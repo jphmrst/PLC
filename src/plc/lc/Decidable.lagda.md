@@ -3,11 +3,11 @@ title     : "Decidable: Booleans and decision procedures"
 layout    : page
 prev      : /Quantifiers/
 permalink : /Decidable/
-next      : /Lists/
+next      : /
 ---
 
 ```
-module plc.vfp.Decidable where
+module plc.lc.Decidable where
 ```
 
 We have a choice as to how to represent relations:
@@ -33,8 +33,7 @@ open import Relation.Nullary.Negation using ()
   renaming (contradiction to ¬¬-intro)
 open import Data.Unit using (⊤; tt)
 open import Data.Empty using (⊥; ⊥-elim)
-open import plc.vfp.Relations using (_<_; z<s; s<s)
-open import plc.vfp.Isomorphism using (_⇔_)
+open import plc.vfp.Relations using (_<_; z<s; s<s; _⇔_)
 ```
 
 ## Evidence vs Computation

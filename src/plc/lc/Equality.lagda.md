@@ -1,13 +1,13 @@
 ---
 title     : "Equality: Equality and equational reasoning"
 layout    : page
-prev      : /Relations/
+prev      : /DataRel/
 permalink : /Equality/
-next      : /Connectives/
+next      : /Isomorphism/
 ---
 
 ```
-module plc.vfp.Equality where
+module plc.lc.Equality where
 ```
 
 Much of our reasoning has involved equality.  Given two terms `M`
