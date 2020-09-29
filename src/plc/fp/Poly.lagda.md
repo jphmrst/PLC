@@ -306,13 +306,18 @@ Write a polymorphic function `_++_` for appending two lists:
 
 #### Exercise `genericreverse` (practice) {#genericreverse}
 
-    reverse : ∀ (x : Set) → List x → List x
+For practice with both implicit and explicit type arguments, this
+exercise uses `(...)` instead of `{...}` to make `X` explicit.  The
+"official" version of this function in `Data.List` does use an
+implicit quantification.
+
+    reverse : ∀ (X : Set) → List X → List X
     -- Your clauses go here
 
-    _ : rev [ 1 ] ≡ [ 1 ]
+    _ : reverse ℕ [ 1 ] ≡ [ 1 ]
     _ = refl
 
-    _ : rev [ 10 , 20 , 30 ] ≡ [ 30 , 20 , 10 ]
+    _ : reverse ℕ [ 10 , 20 , 30 ] ≡ [ 30 , 20 , 10 ]
     _ = refl
 
 #### Strings as lists of characters

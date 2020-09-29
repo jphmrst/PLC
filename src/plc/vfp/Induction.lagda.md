@@ -671,7 +671,16 @@ the above equation into:
 Similarly, we write `(_+ x)` for the function that applied to `y`
 returns `y + x`; the same works for any infix operator.
 
+#### Exercise `trySectioning` (starting) {#trySectioning}
 
+Interact with Agda via Emacs to make sure you understand:
+
+ - The difference between `(_∸_ 3)` and `(_∸ 3)`
+
+ - The difference between `(_∸ 3)` and `(3 ∸_)`
+
+Hint: We use `∸` rather than `+` in this exercise because `+` is
+commutative, while `∸` is not.
 
 ## Creation, one last time
 

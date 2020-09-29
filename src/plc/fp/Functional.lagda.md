@@ -209,7 +209,7 @@ _ : countOddMembers [] ≡ 0
 _ = refl
 ```
 
-#### Exercise filterStepByStep (starting) {#filterStepByStep}
+#### Exercise `filterStepByStep` (starting) {#filterStepByStep}
 
 Replace the use of `refl` in the `filter lengthIs1` and in the three
 `countOddMembers` examples with a `begin...≡⟨⟩...∎` form showing the
@@ -293,7 +293,7 @@ definition appears exactly where the function is used, so there is no
 need for the writer to remember to declare it in advance, or for the
 reader to search for the definition in the code.
 
-#### Exercise anonFnStepByStep (starting) {#anonFnStepByStep}
+#### Exercise `anonFnStepByStep` (starting) {#anonFnStepByStep}
 
 In the `filter` example with `λ` above, replace the use of `refl` with
 a `begin...≡⟨⟩...∎` form showing the step-by-step derivation of the
@@ -377,7 +377,7 @@ _ : map (λ { n → (even n ∷ odd n ∷ []) }) (2 ∷ 1 ∷ 2 ∷ 5 ∷ [])
 _ = refl
 ```
 
-#### Exercise mapStepByStep (starting) {#mapStepByStep}
+#### Exercise `mapStepByStep` (starting) {#mapStepByStep}
 
 In the three `map` examples above, replace the use of `refl` with a
 `begin...≡⟨⟩...∎` form showing the step-by-step derivation of the
@@ -514,7 +514,7 @@ _ = begin
     ∎
 ```
 
-#### Exercise foldStepByStep (starting) {#foldStepByStep}
+#### Exercise `foldStepByStep` (starting) {#foldStepByStep}
 
 In the three `foldr` and first two `foldl` examples above, replace the
 use of `refl` with a `begin...≡⟨⟩...∎` form showing the step-by-step
