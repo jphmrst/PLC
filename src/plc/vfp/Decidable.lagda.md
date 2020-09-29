@@ -3,7 +3,7 @@ title     : "Decidable: Booleans and decision procedures"
 layout    : page
 prev      : /Quantifiers/
 permalink : /Decidable/
-next      : /Lists/
+next      : /
 ---
 
 ```

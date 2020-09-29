@@ -1,9 +1,9 @@
 ---
 title     : "Relations: Inductive definition of relations"
 layout    : page
-prev      : /Induction/
+prev      : /MapProps/
 permalink : /Relations/
-next      : /Equality/
+next      : /DataRel/
 ---
 
 ```

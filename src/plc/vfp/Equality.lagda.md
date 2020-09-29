@@ -1,9 +1,9 @@
 ---
 title     : "Equality: Equality and equational reasoning"
 layout    : page
-prev      : /Relations/
+prev      : /DataRel/
 permalink : /Equality/
-next      : /Connectives/
+next      : /Isomorphism/
 ---
 
 ```

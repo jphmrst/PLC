@@ -1,17 +1,17 @@
 ---
 title     : "DataRel: Describing data structures with relations" 
 layout    : page
-prev      : /Decidable/
+prev      : /Relations/
 permalink : /DataRel/
-next      : /MapProps/
+next      : /Equality/
 ---
 
 ```
 module plc.vfp.DataRel where
 ```
 
-In this section we revisit the `List` data type, and study its
-properties.
+In this section we will apply relations to describe properties of the
+`List` data type.
 
 ## Imports
 
@@ -25,573 +25,11 @@ open import Data.Nat.Properties using
   (+-assoc; +-identityˡ; +-identityʳ; *-assoc; *-identityˡ; *-identityʳ)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
+open import Data.List using (List; _∷_; []; _++_)
 open import Function using (_∘_)
-open import Level using (Level)
+open import plc.vfp.DataProp
 open import plc.vfp.Isomorphism using (_≃_; _⇔_)
 ```
-
-## Lists redux
-
-```
-data List (A : Set) : Set where
-  []  : List A
-  _∷_ : A → List A → List A
-
-infixr 5 _∷_
-
-pattern [_] z = z ∷ []
-pattern [_,_] y z = y ∷ z ∷ []
-pattern [_,_,_] x y z = x ∷ y ∷ z ∷ []
-pattern [_,_,_,_] w x y z = w ∷ x ∷ y ∷ z ∷ []
-pattern [_,_,_,_,_] v w x y z = v ∷ w ∷ x ∷ y ∷ z ∷ []
-pattern [_,_,_,_,_,_] u v w x y z = u ∷ v ∷ w ∷ x ∷ y ∷ z ∷ []
-
-infixr 5 _++_
-
-_++_ : ∀ {A : Set} → List A → List A → List A
-[]       ++ ys  =  ys
-(x ∷ xs) ++ ys  =  x ∷ (xs ++ ys)
-
-length : ∀ {A : Set} → List A → ℕ
-length []        =  zero
-length (x ∷ xs)  =  suc (length xs)
-```
-
-## Reasoning about append
-
-We can reason about lists in much the same way that we reason
-about numbers.  Here is the proof that append is associative:
-```
-++-assoc : ∀ {A : Set} (xs ys zs : List A)
-  → (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-++-assoc [] ys zs =
-  begin
-    ([] ++ ys) ++ zs
-  ≡⟨⟩
-    ys ++ zs
-  ≡⟨⟩
-    [] ++ (ys ++ zs)
-  ∎
-++-assoc (x ∷ xs) ys zs =
-  begin
-    (x ∷ xs ++ ys) ++ zs
-  ≡⟨⟩
-    x ∷ (xs ++ ys) ++ zs
-  ≡⟨⟩
-    x ∷ ((xs ++ ys) ++ zs)
-  ≡⟨ cong (x ∷_) (++-assoc xs ys zs) ⟩
-    x ∷ (xs ++ (ys ++ zs))
-  ≡⟨⟩
-    x ∷ xs ++ (ys ++ zs)
-  ∎
-```
-The proof is by induction on the first argument. The base case instantiates
-to `[]`, and follows by straightforward computation.
-The inductive case instantiates to `x ∷ xs`,
-and follows by straightforward computation combined with the
-inductive hypothesis.  As usual, the inductive hypothesis is indicated by a recursive
-invocation of the proof, in this case `++-assoc xs ys zs`.
-
-Recall that Agda supports [sections]({{ site.baseurl }}/Induction/#sections).
-Applying `cong (x ∷_)` promotes the inductive hypothesis:
-
-    (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-
-to the equality:
-
-    x ∷ ((xs ++ ys) ++ zs) ≡ x ∷ (xs ++ (ys ++ zs))
-
-which is needed in the proof.
-
-It is also easy to show that `[]` is a left and right identity for `_++_`.
-That it is a left identity is immediate from the definition:
-```
-++-identityˡ : ∀ {A : Set} (xs : List A) → [] ++ xs ≡ xs
-++-identityˡ xs =
-  begin
-    [] ++ xs
-  ≡⟨⟩
-    xs
-  ∎
-```
-That it is a right identity follows by simple induction:
-```
-++-identityʳ : ∀ {A : Set} (xs : List A) → xs ++ [] ≡ xs
-++-identityʳ [] =
-  begin
-    [] ++ []
-  ≡⟨⟩
-    []
-  ∎
-++-identityʳ (x ∷ xs) =
-  begin
-    (x ∷ xs) ++ []
-  ≡⟨⟩
-    x ∷ (xs ++ [])
-  ≡⟨ cong (x ∷_) (++-identityʳ xs) ⟩
-    x ∷ xs
-  ∎
-```
-As we will see later,
-these three properties establish that `_++_` and `[]` form
-a _monoid_ over lists.
-
-## Reasoning about length
-
-The length of one list appended to another is the
-sum of the lengths of the lists:
-```
-length-++ : ∀ {A : Set} (xs ys : List A)
-  → length (xs ++ ys) ≡ length xs + length ys
-length-++ {A} [] ys =
-  begin
-    length ([] ++ ys)
-  ≡⟨⟩
-    length ys
-  ≡⟨⟩
-    length {A} [] + length ys
-  ∎
-length-++ (x ∷ xs) ys =
-  begin
-    length ((x ∷ xs) ++ ys)
-  ≡⟨⟩
-    suc (length (xs ++ ys))
-  ≡⟨ cong suc (length-++ xs ys) ⟩
-    suc (length xs + length ys)
-  ≡⟨⟩
-    length (x ∷ xs) + length ys
-  ∎
-```
-The proof is by induction on the first argument. The base case
-instantiates to `[]`, and follows by straightforward computation.  As
-before, Agda cannot infer the implicit type parameter to `length`, and
-it must be given explicitly.  The inductive case instantiates to
-`x ∷ xs`, and follows by straightforward computation combined with the
-inductive hypothesis.  As usual, the inductive hypothesis is indicated
-by a recursive invocation of the proof, in this case `length-++ xs ys`,
-and it is promoted by the congruence `cong suc`.
-
-
-## Reverse
-
-Using append, it is easy to formulate a function to reverse a list:
-```
-reverse : ∀ {A : Set} → List A → List A
-reverse []        =  []
-reverse (x ∷ xs)  =  reverse xs ++ [ x ]
-```
-The reverse of the empty list is the empty list.
-The reverse of a non-empty list
-is the reverse of its tail appended to a unit list
-containing its head.
-
-Here is an example showing how to reverse a list:
-```
-_ : reverse [ 0 , 1 , 2 ] ≡ [ 2 , 1 , 0 ]
-_ =
-  begin
-    reverse (0 ∷ 1 ∷ 2 ∷ [])
-  ≡⟨⟩
-    reverse (1 ∷ 2 ∷ []) ++ [ 0 ]
-  ≡⟨⟩
-    (reverse (2 ∷ []) ++ [ 1 ]) ++ [ 0 ]
-  ≡⟨⟩
-    ((reverse [] ++ [ 2 ]) ++ [ 1 ]) ++ [ 0 ]
-  ≡⟨⟩
-    (([] ++ [ 2 ]) ++ [ 1 ]) ++ [ 0 ]
-  ≡⟨⟩
-    (([] ++ 2 ∷ []) ++ 1 ∷ []) ++ 0 ∷ []
-  ≡⟨⟩
-    (2 ∷ [] ++ 1 ∷ []) ++ 0 ∷ []
-  ≡⟨⟩
-    2 ∷ ([] ++ 1 ∷ []) ++ 0 ∷ []
-  ≡⟨⟩
-    (2 ∷ 1 ∷ []) ++ 0 ∷ []
-  ≡⟨⟩
-    2 ∷ (1 ∷ [] ++ 0 ∷ [])
-  ≡⟨⟩
-    2 ∷ 1 ∷ ([] ++ 0 ∷ [])
-  ≡⟨⟩
-    2 ∷ 1 ∷ 0 ∷ []
-  ≡⟨⟩
-    [ 2 , 1 , 0 ]
-  ∎
-```
-Reversing a list in this way takes time _quadratic_ in the length of
-the list. This is because reverse ends up appending lists of lengths
-`1`, `2`, up to `n - 1`, where `n` is the length of the list being
-reversed, append takes time linear in the length of the first
-list, and the sum of the numbers up to `n - 1` is `n * (n - 1) / 2`.
-(We will validate that last fact in an exercise later in this section.)
-
-#### Exercise `reverse-++-distrib` (recommended)
-
-Show that the reverse of one list appended to another is the
-reverse of the second appended to the reverse of the first:
-
-    reverse (xs ++ ys) ≡ reverse ys ++ reverse xs
-
-
-#### Exercise `reverse-involutive` (recommended)
-
-A function is an _involution_ if when applied twice it acts
-as the identity function.  Show that reverse is an involution:
-
-    reverse (reverse xs) ≡ xs
-
-
-## Faster reverse
-
-The definition above, while easy to reason about, is less efficient than
-one might expect since it takes time quadratic in the length of the list.
-The idea is that we generalise reverse to take an additional argument:
-```
-shunt : ∀ {A : Set} → List A → List A → List A
-shunt []       ys  =  ys
-shunt (x ∷ xs) ys  =  shunt xs (x ∷ ys)
-```
-The definition is by recursion on the first argument. The second argument
-actually becomes _larger_, but this is not a problem because the argument
-on which we recurse becomes _smaller_.
-
-Shunt is related to reverse as follows:
-```
-shunt-reverse : ∀ {A : Set} (xs ys : List A)
-  → shunt xs ys ≡ reverse xs ++ ys
-shunt-reverse [] ys =
-  begin
-    shunt [] ys
-  ≡⟨⟩
-    ys
-  ≡⟨⟩
-    reverse [] ++ ys
-  ∎
-shunt-reverse (x ∷ xs) ys =
-  begin
-    shunt (x ∷ xs) ys
-  ≡⟨⟩
-    shunt xs (x ∷ ys)
-  ≡⟨ shunt-reverse xs (x ∷ ys) ⟩
-    reverse xs ++ (x ∷ ys)
-  ≡⟨⟩
-    reverse xs ++ ([ x ] ++ ys)
-  ≡⟨ sym (++-assoc (reverse xs) [ x ] ys) ⟩
-    (reverse xs ++ [ x ]) ++ ys
-  ≡⟨⟩
-    reverse (x ∷ xs) ++ ys
-  ∎
-```
-The proof is by induction on the first argument.
-The base case instantiates to `[]`, and follows by straightforward computation.
-The inductive case instantiates to `x ∷ xs` and follows by the inductive
-hypothesis and associativity of append.  When we invoke the inductive hypothesis,
-the second argument actually becomes *larger*, but this is not a problem because
-the argument on which we induct becomes *smaller*.
-
-Generalising on an auxiliary argument, which becomes larger as the argument on
-which we recurse or induct becomes smaller, is a common trick. It belongs in
-your quiver of arrows, ready to slay the right problem.
-
-Having defined shunt be generalisation, it is now easy to respecialise to
-give a more efficient definition of reverse:
-```
-reverse′ : ∀ {A : Set} → List A → List A
-reverse′ xs = shunt xs []
-```
-
-Given our previous lemma, it is straightforward to show
-the two definitions equivalent:
-```
-reverses : ∀ {A : Set} (xs : List A)
-  → reverse′ xs ≡ reverse xs
-reverses xs =
-  begin
-    reverse′ xs
-  ≡⟨⟩
-    shunt xs []
-  ≡⟨ shunt-reverse xs [] ⟩
-    reverse xs ++ []
-  ≡⟨ ++-identityʳ (reverse xs) ⟩
-    reverse xs
-  ∎
-```
-
-Here is an example showing fast reverse of the list `[ 0 , 1 , 2 ]`:
-```
-_ : reverse′ [ 0 , 1 , 2 ] ≡ [ 2 , 1 , 0 ]
-_ =
-  begin
-    reverse′ (0 ∷ 1 ∷ 2 ∷ [])
-  ≡⟨⟩
-    shunt (0 ∷ 1 ∷ 2 ∷ []) []
-  ≡⟨⟩
-    shunt (1 ∷ 2 ∷ []) (0 ∷ [])
-  ≡⟨⟩
-    shunt (2 ∷ []) (1 ∷ 0 ∷ [])
-  ≡⟨⟩
-    shunt [] (2 ∷ 1 ∷ 0 ∷ [])
-  ≡⟨⟩
-    2 ∷ 1 ∷ 0 ∷ []
-  ∎
-```
-Now the time to reverse a list is linear in the length of the list.
-
-## Map {#Map}
-
-Map applies a function to every element of a list to generate a corresponding list.
-Map is an example of a _higher-order function_, one which takes a function as an
-argument or returns a function as a result:
-```
-map : ∀ {A B : Set} → (A → B) → List A → List B
-map f []        =  []
-map f (x ∷ xs)  =  f x ∷ map f xs
-```
-Map of the empty list is the empty list.
-Map of a non-empty list yields a list
-with head the same as the function applied to the head of the given list,
-and tail the same as map of the function applied to the tail of the given list.
-
-Here is an example showing how to use map to increment every element of a list:
-```
-_ : map suc [ 0 , 1 , 2 ] ≡ [ 1 , 2 , 3 ]
-_ =
-  begin
-    map suc (0 ∷ 1 ∷ 2 ∷ [])
-  ≡⟨⟩
-    suc 0 ∷ map suc (1 ∷ 2 ∷ [])
-  ≡⟨⟩
-    suc 0 ∷ suc 1 ∷ map suc (2 ∷ [])
-  ≡⟨⟩
-    suc 0 ∷ suc 1 ∷ suc 2 ∷ map suc []
-  ≡⟨⟩
-    suc 0 ∷ suc 1 ∷ suc 2 ∷ []
-  ≡⟨⟩
-    1 ∷ 2 ∷ 3 ∷ []
-  ∎
-```
-Map requires time linear in the length of the list.
-
-It is often convenient to exploit currying by applying
-map to a function to yield a new function, and at a later
-point applying the resulting function:
-```
-sucs : List ℕ → List ℕ
-sucs = map suc
-
-_ : sucs [ 0 , 1 , 2 ] ≡ [ 1 , 2 , 3 ]
-_ =
-  begin
-    sucs [ 0 , 1 , 2 ]
-  ≡⟨⟩
-    map suc [ 0 , 1 , 2 ]
-  ≡⟨⟩
-    [ 1 , 2 , 3 ]
-  ∎
-```
-
-Any type that is parameterised on another type, such as lists, has a
-corresponding map, which accepts a function and returns a function
-from the type parameterised on the domain of the function to the type
-parameterised on the range of the function. Further, a type that is
-parameterised on _n_ types will have a map that is parameterised on
-_n_ functions.
-
-
-#### Exercise `map-compose` (practice)
-
-Prove that the map of a composition is equal to the composition of two maps:
-
-    map (g ∘ f) ≡ map g ∘ map f
-
-The last step of the proof requires extensionality.
-
-```
--- Your code goes here
-```
-
-#### Exercise `map-++-distribute` (practice)
-
-Prove the following relationship between map and append:
-
-    map f (xs ++ ys) ≡ map f xs ++ map f ys
-
-```
--- Your code goes here
-```
-
-#### Exercise `map-Tree` (practice)
-
-Define a type of trees with leaves of type `A` and internal
-nodes of type `B`:
-```
-data Tree (A B : Set) : Set where
-  leaf : A → Tree A B
-  node : Tree A B → B → Tree A B → Tree A B
-```
-Define a suitable map operator over trees:
-
-    map-Tree : ∀ {A B C D : Set} → (A → C) → (B → D) → Tree A B → Tree C D
-
-```
--- Your code goes here
-```
-
-## Fold {#Fold}
-
-Fold takes an operator and a value, and uses the operator to combine
-each of the elements of the list, taking the given value as the result
-for the empty list:
-```
-foldr : ∀ {A B : Set} → (A → B → B) → B → List A → B
-foldr _⊗_ e []        =  e
-foldr _⊗_ e (x ∷ xs)  =  x ⊗ foldr _⊗_ e xs
-```
-Fold of the empty list is the given value.
-Fold of a non-empty list uses the operator to combine
-the head of the list and the fold of the tail of the list.
-
-Here is an example showing how to use fold to find the sum of a list:
-```
-_ : foldr _+_ 0 [ 1 , 2 , 3 , 4 ] ≡ 10
-_ =
-  begin
-    foldr _+_ 0 (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
-  ≡⟨⟩
-    1 + foldr _+_ 0 (2 ∷ 3 ∷ 4 ∷ [])
-  ≡⟨⟩
-    1 + (2 + foldr _+_ 0 (3 ∷ 4 ∷ []))
-  ≡⟨⟩
-    1 + (2 + (3 + foldr _+_ 0 (4 ∷ [])))
-  ≡⟨⟩
-    1 + (2 + (3 + (4 + foldr _+_ 0 [])))
-  ≡⟨⟩
-    1 + (2 + (3 + (4 + 0)))
-  ∎
-```
-Here we have an instance of `foldr` where `A` and `B` are both `ℕ`.
-Fold requires time linear in the length of the list.
-
-It is often convenient to exploit currying by applying
-fold to an operator and a value to yield a new function,
-and at a later point applying the resulting function:
-```
-sum : List ℕ → ℕ
-sum = foldr _+_ 0
-
-_ : sum [ 1 , 2 , 3 , 4 ] ≡ 10
-_ =
-  begin
-    sum [ 1 , 2 , 3 , 4 ]
-  ≡⟨⟩
-    foldr _+_ 0 [ 1 , 2 , 3 , 4 ]
-  ≡⟨⟩
-    10
-  ∎
-```
-
-Just as the list type has two constructors, `[]` and `_∷_`,
-so the fold function takes two arguments, `e` and `_⊗_`
-(in addition to the list argument).
-In general, a data type with _n_ constructors will have
-a corresponding fold function that takes _n_ arguments.
-
-As another example, observe that
-
-    foldr _∷_ [] xs ≡ xs
-
-Here, if `xs` is of type `List A`, then we see we have an instance of
-`foldr` where `A` is `A` and `B` is `List A`.  It follows that
-
-    xs ++ ys ≡ foldr _∷_ ys xs
-
-Demonstrating both these equations is left as an exercise.
-
-
-#### Exercise `product` (recommended)
-
-Use fold to define a function to find the product of a list of numbers.
-For example:
-
-    product [ 1 , 2 , 3 , 4 ] ≡ 24
-
-```
--- Your code goes here
-```
-
-#### Exercise `foldr-++` (recommended)
-
-Show that fold and append are related as follows:
-
-    foldr _⊗_ e (xs ++ ys) ≡ foldr _⊗_ (foldr _⊗_ e ys) xs
-
-```
--- Your code goes here
-```
-
-#### Exercise `foldr-∷` (practice)
-
-Show
-
-    foldr _∷_ [] xs ≡ xs
-
-Show as a consequence of `foldr-++` above that
-
-    xs ++ ys ≡ foldr _∷_ ys xs
-
-
-```
--- Your code goes here
-```
-
-#### Exercise `map-is-foldr` (practice)
-
-Show that map can be defined using fold:
-
-    map f ≡ foldr (λ x xs → f x ∷ xs) []
-
-The proof requires extensionality.
-
-```
--- Your code goes here
-```
-
-#### Exercise `fold-Tree` (practice)
-
-Define a suitable fold function for the type of trees given earlier:
-
-    fold-Tree : ∀ {A B C : Set} → (A → C) → (C → B → C → C) → Tree A B → C
-
-
-```
--- Your code goes here
-```
-
-#### Exercise `map-is-fold-Tree` (practice)
-
-Demonstrate an analogue of `map-is-foldr` for the type of trees.
-
-```
--- Your code goes here
-```
-
-#### Exercise `sum-downFrom` (stretch)
-
-Define a function that counts down as follows:
-```
-downFrom : ℕ → List ℕ
-downFrom zero     =  []
-downFrom (suc n)  =  n ∷ downFrom n
-```
-For example:
-```
-_ : downFrom 3 ≡ [ 2 , 1 , 0 ]
-_ = refl
-```
-Prove that the sum of the numbers `(n - 1) + ⋯ + 0` is
-equal to `n * (n ∸ 1) / 2`:
-
-    sum (downFrom n) * 2 ≡ n * (n ∸ 1)
-
 
 ## Monoids
 
@@ -693,8 +131,8 @@ foldr-monoid-++ _⊗_ e monoid-⊗ xs ys =
 Define a function `foldl` which is analogous to `foldr`, but where
 operations associate to the left rather than the right.  For example:
 
-    foldr _⊗_ e [ x , y , z ]  =  x ⊗ (y ⊗ (z ⊗ e))
-    foldl _⊗_ e [ x , y , z ]  =  ((e ⊗ x) ⊗ y) ⊗ z
+    foldr _⊗_ e (x ∷ y ∷ z ∷ [])  =  x ⊗ (y ⊗ (z ⊗ e))
+    foldl _⊗_ e (x ∷ y ∷ z ∷ [])  =  ((e ⊗ x) ⊗ y) ⊗ z
 
 ```
 -- Your code goes here
@@ -734,7 +172,7 @@ than or equal to two.  Recall that `z≤n` proves `zero ≤ n` for any
 `n`, and that if `m≤n` proves `m ≤ n` then `s≤s m≤n` proves `suc m ≤
 suc n`, for any `m` and `n`:
 ```
-_ : All (_≤ 2) [ 0 , 1 , 2 ]
+_ : All (_≤ 2) (0 ∷ 1 ∷ 2 ∷ [])
 _ = z≤n ∷ s≤s z≤n ∷ s≤s (s≤s z≤n) ∷ []
 ```
 Here `_∷_` and `[]` are the constructors of `All P` rather than of `List A`.
@@ -768,20 +206,20 @@ x ∈ xs = Any (x ≡_) xs
 _∉_ : ∀ {A : Set} (x : A) (xs : List A) → Set
 x ∉ xs = ¬ (x ∈ xs)
 ```
-For example, zero is an element of the list `[ 0 , 1 , 0 , 2 ]`.  Indeed, we can demonstrate
+For example, zero is an element of the list `(0 ∷ 1 ∷ 0 ∷ 2 ∷ [])`.  Indeed, we can demonstrate
 this fact in two different ways, corresponding to the two different
 occurrences of zero in the list, as the first element and as the third element:
 ```
-_ : 0 ∈ [ 0 , 1 , 0 , 2 ]
+_ : 0 ∈ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
 _ = here refl
 
-_ : 0 ∈ [ 0 , 1 , 0 , 2 ]
+_ : 0 ∈ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
 _ = there (there (here refl))
 ```
 Further, we can demonstrate that three is not in the list, because
 any possible proof that it is in the list leads to contradiction:
 ```
-not-in : 3 ∉ [ 0 , 1 , 0 , 2 ]
+not-in : 3 ∉ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
 not-in (here ())
 not-in (there (here ()))
 not-in (there (there (here ())))
@@ -957,7 +395,7 @@ data merge {A : Set} : (xs ys zs : List A) → Set where
 
 For example,
 ```
-_ : merge [ 1 , 4 ] [ 2 , 3 ] [ 1 , 2 , 3 , 4 ]
+_ : merge (1 ∷ 4 ∷ []) (2 ∷ 3 ∷ []) (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
 _ = left-∷ (right-∷ (right-∷ (left-∷ [])))
 
 ```
