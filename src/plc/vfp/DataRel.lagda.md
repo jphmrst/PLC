@@ -28,7 +28,7 @@ open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_�
 open import Data.List using (List; _∷_; []; _++_)
 open import Function using (_∘_)
 open import plc.vfp.DataProp
-open import plc.vfp.Isomorphism using (_≃_; _⇔_)
+open import plc.vfp.Relations using (_⇔_)
 ```
 
 ## Monoids

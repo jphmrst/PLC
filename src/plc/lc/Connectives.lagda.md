@@ -35,7 +35,8 @@ open Eq using (_≡_; refl)
 open Eq.≡-Reasoning
 open import Data.Nat using (ℕ)
 open import Function using (_∘_)
-open import plc.lc.Isomorphism using (_≃_; _≲_; extensionality)
+open import plc.vfp.Relations using (_≃_)
+open import plc.lc.Isomorphism using (_≲_; extensionality)
 open plc.lc.Isomorphism.≃-Reasoning
 ```
 
