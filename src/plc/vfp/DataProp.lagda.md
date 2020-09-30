@@ -10,8 +10,10 @@ next      : /MapProps/
 module plc.vfp.DataProp where
 ```
 
-In this section we revisit the `List` data type to study its
-properties.
+In the same way that we can state and prove properties about natural
+numbers, we can state and prove properties about other structures.  In
+this section we revisit the `Pair` and `List` data types to study
+their properties.
 
 ## Imports
 
@@ -22,7 +24,48 @@ open Eq.≡-Reasoning
 open import Data.Bool
 open import Data.Nat
 open import Data.List using (List; _∷_; []; _++_)
+open import plc.fp.Poly using (Prod; pair; fst; snd; swapPair;
+                               Maybe; nothing; just)
 ```
+
+## Reasoning about pairs
+
+Pairs are simple structures, and the statements we make about them are
+not especially deep.  We rely especially on pattern matching to
+extract the structure of pairs when they are the subject of a
+statement.
+
+```
+surjectivePairing : ∀ {A B : Set} (p : Prod A B) → p ≡ pair (fst p) (snd p)
+surjectivePairing (pair a b) = refl
+```
+
+The result is immediate, since is easy to see how
+
+    pair (fst (pair a b)) (snd (pair a b))
+
+rewrites to (pair a b).  But if we had left the pair not matched to an
+explicit pattern,
+
+    surjectivePairing p = ...
+
+Agda would not be able to find the result.
+
+#### Exercise `snd-fst-is-swapPair` (recommended)
+
+Prove that:
+
+    snd-fst-is-swapPair :  ∀ (A B : Set) (p : Prod A B) →
+                             (snd p, fst p) ≡ swapPair p
+    -- Your code goes here
+
+#### Exercise `fst-swapPair-is-snd` (recommended)
+
+Prove that:
+
+    fst-swapPair-is-snd : ∀ (A B : Set) (p : Prod A B) →
+                            fst (swapPair p) ≡ snd p
+    -- Your code goes here
 
 ## Reasoning about append
 
@@ -568,7 +611,9 @@ equal to `n * (n ∸ 1) / 2`:
 
 ## Standard Library
 
-Definitions similar to those in this section can be found in the standard library:
+Definitions similar to those in this section can be found in the
+standard library:
+
 ```
 import Data.List.Properties
   using (reverse-++-commute; map-compose; map-++-commute; foldr-++)
@@ -584,4 +629,6 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Wadler et al., with some exercises from
+Pierce et al., and some additional text by Maraist; for more information
+see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*

@@ -1025,7 +1025,6 @@ Show the following three laws
 
 for all `m`, `n`, and `p`.
 
-
 #### Exercise `Bin-laws` (stretch) {#Bin-laws}
 
 Recall that
@@ -1050,6 +1049,155 @@ For each law: if it holds, prove; if not, give a counterexample.
 -- Your code goes here
 ```
 
+### Rewriting with premises
+
+The following theorem does not require induction, but does require us
+to use its premises as we show two values as equal
+
+```
+plusIdExample : ∀ (n m : ℕ) → n ≡ m → n + n ≡ m + m
+```
+
+Instead of making a universal claim about all numbers `n` and `m`, it
+talks about a more specialized property that only holds when `n ≡ m`.
+In this case we pronounce the second arrow "implies."
+
+We start the proof in a way consistent with what we have before: both
+quantified values and the premise of the implication correspond to
+arguments.
+
+```
+plusIdExample n m n≡m = 
+```
+
+Remember that in Agda, almost all characters can be part of a name,
+including symbols like `≡`.  So when we write `n ≡ m` in the
+signature, Agda sees three distinct items.  But when we write `n≡m` in
+this clause, it is a single name with three characters.  The value
+which we expect for this parameter is evidence that `n ≡ m`, and we
+will use this evidence in our proof.
+
+```
+  begin
+    n + n
+  ≡⟨ cong (λ x → x + n) n≡m ⟩
+    m + n
+  ≡⟨ cong (λ x → m + x) n≡m ⟩
+    m + m
+  ∎
+```
+
+We use the evidence that `n ≡ m` as the justification to rewrite `n`
+as `m`.  Since `n` does not occur at the top-level of our proof, we
+must give the context via `cong` so that Agda can find the exact spot
+where we wish to rewrite.
+
+#### Exercise `plusIdExercise` (starting) {#plusIdExercise}
+
+Prove the following statement:
+
+    plusIdExercise : ∀ (n m o : ℕ) → n ≡ m → m ≡ o → n + m ≡ m + o
+    -- Your code goes here
+
+#### Exercise `multN1` (recommended) {#multN1}
+
+Prove the following statement:
+
+    multN1 : ∀ (p : ℕ) → p * 1 ≡ p
+    -- Your code goes here
+
+Remember that 1 is just `suc zero`.
+
+### Additional exercises
+
+These exercises may require any of the techniques in this section.
+
+```
+open import Data.Nat using (_≡ᵇ_)
+open import Data.Bool using (Bool; true; false; _∧_; _∨_; not)
+```
+
+#### Exercise `∧-comm` (starting) {#and-comm}
+
+Prove that:
+
+    ∧-comm : ∀ (b c : Bool) → b ∧ c ≡ c ∧ b
+    -- Your code goes here
+
+#### Exercise `notInvolutive` (recommended) {#notInvolutive}
+
+Prove that:
+
+    notInvolutive : ∀ (b : Bool) → not (not b) ≡ b
+    -- Your code goes here
+
+#### Exercise `mult0` (recommended) {#mult0}
+
+Prove the following statement:
+
+    mult0 : ∀ (n : ℕ) → n * 0 = 0
+    -- Your code goes here
+
+#### Exercise `plus1neq0` (recommended) {#plus1neq0}
+
+Prove the following statement:
+
+    plus1neq0 : ∀ (n : ℕ) → (n + 1 ≡ᵇ 0) ≡ false
+    -- Your code goes here
+
+You have at least two ways to prove this result.  Try to solve it both
+with and without using earlier arithmetic theorems for rewriting.
+
+#### Exercise `zeroNeq+1` (recommended) {#zeroNeq+1}
+
+Prove the following statement:
+
+    zeroNeq+1 : ∀ (n : ℕ) → (0 ≡ᵇ n + 1) ≡ false
+    -- Your code goes here
+
+#### Exercise `∧-true-elim` (practice) {#and-true-elim}
+
+Prove the following statement:
+
+    ∧-true-elim : ∀ (b c : Bool) → b ∧ c ≡ true → c ≡ true
+    -- Your code goes here
+
+#### Exercise `boolIdTwice` (practice) {#boolIdTwice}
+
+Prove that:
+
+    boolIdTwice : ∀ (f : Bool → Bool) →
+                    (∀ (x : Bool) → f x ≡ x) →
+                      ∀ (b : Bool) →
+                        f (f b) ≡ b
+    -- Your code goes here
+
+Be very mindful of the parentheses in this and the next exercise.
+
+#### Exercise `boolNotTwice` (practice) {#boolNotTwice}
+
+Prove that:
+
+    boolNotTwice : ∀ (f : Bool → Bool) →
+                     (∀ (x : Bool) → f x ≡ not x) →
+                       ∀ (b : Bool) →
+                         f (f b) ≡ b
+    -- Your code goes here
+
+#### Exercise `∧≡∨` (practice) {#and-eq-or}
+
+    ∧≡∨ : ∀ (b c : Bool) → (b ∧ c ≡ b ∨ c) → b ≡ c.
+    -- Your code goes here
+
+#### Exercise `suc-n+m` (practice) {#suc-n+m}
+
+    suc-n+m : ∀ (n m : ℕ) → suc (n + m) ≡ n + suc m
+    -- Your code goes here
+
+#### Exercise `≡ᵇtrue` (practice) {#eqb-true}
+
+    ≡ᵇtrue : ∀ (n : ℕ) → true ≡ (n ≡ᵇ n)
+    -- Your code goes here
 
 ## Standard library
 
@@ -1076,6 +1224,7 @@ The command `\'` gives access to a range of primes (`′ ″ ‴ ⁗`).
 ---
 
 *This page is derived from Wadler et al., with some additional text by
-Maraist.  Exercises `double-+` and `even-suc` are adapted from Pierce
-et al.  For more information see the [sources and authorship]({{
-site.baseurl }}/Sources/) page.*
+Maraist.  Exercises `double-+` and `even-suc`, and the last two
+sections and their exercises, are adapted from Pierce et al.  For more
+information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*
