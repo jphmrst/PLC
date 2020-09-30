@@ -624,8 +624,18 @@ import Data.List.Properties
 
 This section uses the following Unicode symbols:
 
+    λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
+    ′  U+2032  PRIME (\')
+    ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL (\forall, \all)
     ∷  U+2237  PROPORTION  (\::)
+    ∸  U+2238  DOT MINUS (\.-)
+    ≡  U+2261  IDENTICAL TO (\==)
     ⊗  U+2297  CIRCLED TIMES  (\otimes, \ox)
+    ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)
+    ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
+    ∎  U+220E  END OF PROOF (\qed)
 
 ---
 
