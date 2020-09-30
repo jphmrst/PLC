@@ -1210,12 +1210,23 @@ import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
 
 This section uses the following Unicode symbols:
 
-    ∀  U+2200  FOR ALL (\forall, \all)
     ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
+    λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
+    ᵇ  U+1D47  MODIFIER LETTER SMALL B (\^b)
     ′  U+2032  PRIME (\')
     ″  U+2033  DOUBLE PRIME (\'')
     ‴  U+2034  TRIPLE PRIME (\'3)
     ⁗  U+2057  QUADRUPLE PRIME (\'4)
+    ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL (\forall, \all)
+    ∧  U_2227  LOCIGAL AND (\and)
+    ∨  U+2228  LOGICAL OR (\or)
+    ∸  U+2238  DOT MINUS (\.-)
+    ≡  U+2261  IDENTICAL TO (\==)
+    ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)
+    ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
+    ∎  U+220E  END OF PROOF (\qed)
 
 Similar to `\r`, the command `\^r` gives access to a variety of
 superscript rightward arrows, and also a superscript letter `r`.
