@@ -103,25 +103,28 @@ _ = s≤s (s≤s z≤n)
 
 ## Implicit arguments
 
-This is our first use of implicit arguments.  In the definition of
-inequality, the two lines defining the constructors use `∀`, very
-similar to our use of `∀` in propositions such as:
+Note that we are using implicit arguments to the constructors for
+`_≤_`,
+
+    z≤n : ∀ {n : ℕ} → -- ...
+    s≤s : ∀ {m n : ℕ} → -- ...
+
+in contrast to the explicit arguments we used for theorems like
+`+-comm`,
 
     +-comm : ∀ (m n : ℕ) → m + n ≡ n + m
 
-However, here the declarations are surrounded by curly braces `{ }`
-rather than parentheses `( )`.  This means that the arguments are
-_implicit_ and need not be written explicitly; instead, they are
-_inferred_ by Agda's typechecker. Thus, we write `+-comm m n` for the
-proof that `m + n ≡ n + m`, but `z≤n` for the proof that `zero ≤ n`,
-leaving `n` implicit.  Similarly, if `m≤n` is evidence that `m ≤ n`,
-we write `s≤s m≤n` for evidence that `suc m ≤ suc n`, leaving both `m`
-and `n` implicit.
+So we wrote `+-comm m n` for the proof that `m + n ≡ n + m`, but need
+to write only `z≤n` for the proof that `zero ≤ n`: we can leave `n`
+implicit.  Similarly, if `m≤n` is evidence that `m ≤ n`, we write `s≤s
+m≤n` for evidence that `suc m ≤ suc n`, leaving both `m` and `n`
+implicit.
 
-If we wish, it is possible to provide implicit arguments explicitly by
-writing the arguments inside curly braces.  For instance, here is the
-Agda proof that `2 ≤ 4` repeated, with the implicit arguments made
-explicit:
+As in our previous ses of implicit arguments, it is possible to
+provide implicit arguments explicitly by writing the arguments inside
+curly braces if we wish to do so.  For instance, here again is an Agda
+proof that `2 ≤ 4`, with the implicit arguments made explicit:
+
 ```
 _ : 2 ≤ 4
 _ = s≤s {1} {3} (s≤s {0} {2} (z≤n {2}))
@@ -136,12 +139,15 @@ In the latter format, you may only supply some implicit arguments:
 _ : 2 ≤ 4
 _ = s≤s {n = 3} (s≤s {n = 2} z≤n)
 ```
-It is not permitted to swap implicit arguments, even when named.
+
+However it is not permitted to swap implicit arguments, even when
+named.
 
 
 ## Precedence
 
 We declare the precedence for comparison as follows:
+
 ```
 infix 4 _≤_
 ```
@@ -324,8 +330,8 @@ using holes and the `C-c C-c`, `C-c C-,`, and `C-c C-r` commands.
 ## Anti-symmetry
 
 The third property to prove about comparison is that it is
-antisymmetric: for all naturals `m` and `n`, if both `m ≤ n` and `n ≤
-m` hold, then `m ≡ n` holds:
+antisymmetric: for all naturals `m` and `n`, if both `m ≤ n` and
+`n ≤ m` hold, then `m ≡ n` holds:
 ```
 ≤-antisym : ∀ {m n : ℕ}
   → m ≤ n
@@ -338,8 +344,8 @@ m` hold, then `m ≡ n` holds:
 Again, the proof is by induction over the evidence that `m ≤ n`
 and `n ≤ m` hold.
 
-In the base case, both inequalities hold by `z≤n`, and so we are given
-`zero ≤ zero` and `zero ≤ zero` and must show `zero ≡ zero`, which
+In the base case, both inequalities hold by `z≤n`.  So we are given
+`zero ≤ zero` and `zero ≤ zero`, and we must show `zero ≡ zero`, which
 follows by reflexivity.  (Reflexivity of equality, that is, not
 reflexivity of inequality.)
 
