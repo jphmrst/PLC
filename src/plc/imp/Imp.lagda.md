@@ -41,10 +41,10 @@ programming language_ called Imp, embodying a tiny core fragment of
 conventional mainstream languages such as C and Java.  Here is a
 familiar mathematical function written in Imp.
 
-    Z := X;
-    Y := # 1;
+    Z := X ,
+    Y := # 1 ,
     while ~(Z = # 0) do
-      Y := Y * Z;
+      Y := Y * Z ,
       Z := Z - # 1
     end
 
@@ -553,15 +553,92 @@ In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
 ### Equivalence of the evaluators
 
 It is straightforward to prove that the relational and functional
-definitions of evaluation agree.
+definitions of evaluation agree, but we will need some new tools in
+Agda to communicate the result.
+
+    aevalFnRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n ↔ a ⇓ᵃ n
+
+The theorem says that for any program `a` and number `n`, applying the
+evaluation function to `a` returns `n` exactly when the evaluation
+relation connects `a` and `n`.  The theorem does not guarantee that
+either one are true — but if one holds, then the other will too.
+
+We consider one direction at a time: first, that the evaluation
+function implies the relation.
+
+```
+  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
+```
+
+We start the proof in the usual way: the quantifications and premises
+become arguments.
+
+    aevalFnThenRel m a ma = ?
+
+The proofs we have written so far have been on structures like natural
+numbers and lists.  In most of those proofs, we enumerated the
+different forms that the number or list could take.  The same approach
+applies here: we ask Agda to create a clause for each possible form of
+`AExp`.
+
+    aevalFnThenRel (# m) n an = { }1
+    aevalFnThenRel (a₁ + a₂) n an = { }2
+    aevalFnThenRel (a₁ - a₂) n an = { }3
+    aevalFnThenRel (a₁ * a₂) n an = { }4
+
+We will need to complete each clause, one at a time.  In each case the
+third argument, corresponding to the premise, is the evidence that the
+evaluation function links the first two arguments.  The premise is an
+equality — `≡` is the main connective.  As we saw in the last chapter,
+`refl` is one justification for an equality relationship which Agda
+understands.  In fact, `refl` is the *only* possible evidence for an
+`≡`-assertion.
+
+So if we use `C-c C-c` to enumerate the possible forms of evidence for
+`an` in the first clause, Agda will produce only one resulting clause,
+with `refl` as the evidence for the equality.
+
+    aevalFnThenRel (# m) .m refl = { }1
+
+Agda has also made a change to the second argument.  This is a _dot
+pattern_.  Agda uses dot patterns to convey that only certain patterns
+are possible in a clause.  Let's think through what this clause says:
+
+ - The first clause tells us that we are only considering terms of the
+   form `# m`.
+
+ - The third clause tells us that the term and the value `n` have the
+   relationship `⟦ a ⟧ᵃ ≡ n`; putting that together with knowing that
+   `a` is `# m`, we have that `⟦ # m ⟧ᵃ ≡ n`.
+
+ - The definition of `⟦_⟧ᵃ` tells us that `⟦ # m ⟧ᵃ` is `m`.
+
+ - So Agda can figure out that the only valid possibility for the
+   second argument is that it is the same as the number under the `#`.
+   This is the meaning of the pattern for the second argument: the dot
+   conveys the understanding only certain possible values will be
+   consistent with the evidence in the other arguments.
+
+What evidence should this clause return?  The signature tells us that
+the result type is a `⇓ᵃ`, and we know from the `data _⇓ᵃ_`
+declaration that there are four possible forms of evidence for `⇓ᵃ`.
+However, only one of them makes a statement about `#`-terms — and this
+form `Eᵃℕ` is the evidence for the first clause.
+
+```
+  aevalFnThenRel (# m) .m refl = Eᵃℕ
+```
 
 TODO
 
-  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
-  aevalFnThenRel (# m) .m refl = Eᵃℕ
-  aevalFnThenRel (a + a₁) n an = {!!}
-  aevalFnThenRel (a - a₁) n an = {!!}
-  aevalFnThenRel (a * a₁) n an = {!!}
+```
+  aevalFnThenRel (a₁ + a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.+ ⟦ a₂ ⟧ᵃ) refl =
+    Eᵃ+ (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
+  aevalFnThenRel (a₁ - a₂) .(⟦ a₁ ⟧ᵃ ∸ ⟦ a₂ ⟧ᵃ) refl =
+    Eᵃ- (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
+  aevalFnThenRel (a₁ * a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.* ⟦ a₂ ⟧ᵃ) refl =
+    Eᵃ* (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
+```
 
   postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
 
@@ -2566,8 +2643,9 @@ End ThrowImp.
 This section uses the following Unicode symbols:
 
 {::comment}
-×  U+00D7  MULTIPLICATION SIGN (\x)
-→  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ×  U+00D7  MULTIPLICATION SIGN (\x)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ⇓  U+21D3  DOWNWARDS DOUBLE ARROW (\d=)
     ∀  U+2200  FOR ALL  (\all)
     ∷  U+2237  PROPORTION  (\::)
     ≡  U+2261  IDENTICAL TO (\==)
@@ -2577,7 +2655,6 @@ This section uses the following Unicode symbols:
     ᵇ    (\^b)
     ÷    (\div)
     ′'    (\'')
-
 {:/comment}
 
 ---
