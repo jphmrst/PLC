@@ -21,9 +21,10 @@ their properties.
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; sym; trans; cong)
 open Eq.≡-Reasoning
+open import Function using (_∘_)
 open import Data.Bool
 open import Data.Nat
-open import Data.List using (List; _∷_; []; _++_)
+open import Data.List using (List; _∷_; []; _++_; map)
 open import plc.fp.Poly using (Prod; pair; fst; snd; swapPair;
                                Maybe; nothing; just)
 ```
@@ -354,14 +355,15 @@ Now the time to reverse a list is linear in the length of the list.
 
 ## Map {#Map}
 
-Map applies a function to every element of a list to generate a corresponding list.
-Map is an example of a _higher-order function_, one which takes a function as an
-argument or returns a function as a result:
-```
-map : ∀ {A B : Set} → (A → B) → List A → List B
-map f []        =  []
-map f (x ∷ xs)  =  f x ∷ map f xs
-```
+Map applies a function to every element of a list to generate a
+corresponding list.  Map is an example of a _higher-order function_,
+one which takes a function as an argument or returns a function as a
+result:
+
+    map : ∀ {A B : Set} → (A → B) → List A → List B
+    map f []        =  []
+    map f (x ∷ xs)  =  f x ∷ map f xs
+
 Map of the empty list is the empty list.
 Map of a non-empty list yields a list
 with head the same as the function applied to the head of the given list,
@@ -415,11 +417,13 @@ _n_ functions.
 
 #### Exercise `map-compose` (practice)
 
+This exercise uses the composition operator discussed in the
+[Functional section]({{ site.baseurl }}/Functional/#fnComposition),
+which here we import from the `Function` module.
+
 Prove that the map of a composition is equal to the composition of two maps:
 
-    map (g ∘ f) ≡ map g ∘ map f
-
-The last step of the proof requires extensionality.
+    map (g ∘ f) xs ≡ (map g ∘ map f) xs
 
 ```
 -- Your code goes here
