@@ -842,18 +842,15 @@ Java's objects or to C's `structs`, although of course wothout the
 mutability of those languages.  We will use Agda's records to describe
 relations when we need to name subrelations for later access.
 
-**Function composition**.  Note in the following sections that the
-symbol `∘` is defined in Agda's standard library `Function` as the
-usual notion of function composition that we know from mathematics,
-satisfying:
-
-    (f ∘ g) x ≡ f (g x)
-
-More specifically Agda defines `∘` using a lambda expression,
+In this section we make frequent use of the composition operator
+discussed in the [Functional section]({{ site.baseurl
+}}/Functional/#fnComposition), which here we import from the
+`Function` module.  Note that Agda defines `∘` using a lambda
+expression,
 
     f ∘ g = λ x → f (g x)
 
-But note also that like most characters in Agda, `∘` can be used to
+And note also that like most characters in Agda, `∘` can be used to
 build identifier names.  So while `f ∘ g` is the composition of the
 two functions `f` and `g`, `f∘g` is a three-character name.
 
