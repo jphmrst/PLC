@@ -25,7 +25,7 @@ open import Data.Nat.Properties using
   (+-assoc; +-identityˡ; +-identityʳ; *-assoc; *-identityˡ; *-identityʳ)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Product using (_×_; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
-open import Data.List using (List; _∷_; []; _++_)
+open import Data.List using (List; _∷_; []; _++_; map)
 open import Function using (_∘_)
 open import plc.vfp.DataProp
 open import plc.vfp.Relations using (_⇔_)
