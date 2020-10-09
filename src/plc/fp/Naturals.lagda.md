@@ -1295,6 +1295,11 @@ Agda's standard library also includes a library of floating-point
 values.  Consider this type of geometric shapes:
 
     open import Data.Float
+    open import Agda.Builtin.Float
+      renaming (primFloatPlus   to _+_;
+                primFloatMinus  to _-_;
+                primFloatTimes  to _*_;
+                primFloatDiv    to _÷_)
     data Shape : Set where
       circle : Float → Shape
       rectangle : Float → Float → Shape

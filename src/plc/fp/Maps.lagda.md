@@ -100,6 +100,12 @@ _ = refl
 This completes the definition of total maps.  Note that we don't need
 to define a `find` operation because it is just function application!
 
+#### Exercise `totalMapsStepByStep` (starting) {#totalMapsStepByStep}
+
+Replace the use of `refl` in the three `fooBarExample` tests above
+with a `begin...≡⟨⟩...∎` form showing the step-by-step derivation of
+the results.
+
 ## Partial maps
 
 We define _partial maps_ on top of total maps.  A partial map with
@@ -116,7 +122,6 @@ PartialMap A = TotalMap (Maybe A)
 _↦ₚ_,_ : ∀ {A : Set} → String → A → PartialMap A → PartialMap A
 x ↦ₚ v , m = x ↦ just v , m
 infixr 4 _↦ₚ_,_
-
 ```
 
 We can also hide the last case when it is empty.
@@ -138,6 +143,12 @@ _ = refl
 _ : churchTuring "Smith" ≡ nothing
 _ = refl
 ```
+
+#### Exercise `partialMapsStepByStep` (starting) {#partialMapsStepByStep}
+
+Replace the use of `refl` in the three `churchTuring` examples above
+with a `begin...≡⟨⟩...∎` form showing the step-by-step derivation of
+the results.
 
 #### Exercise `containsKey` (practice) {#containsKey}
 

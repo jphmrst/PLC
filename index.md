@@ -37,7 +37,12 @@ CS421/521, Concepts of Programming Languages.
 ## Verified functional programming
 
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
+  - [DataProp]({{ site.baseurl }}/DataProp/): Properties of data structures
+  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
+  - [DataRel]({{ site.baseurl }}/DataRel/): Relations for  data structures
+
+## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
   - Elements of logic in Agda
@@ -45,8 +50,6 @@ CS421/521, Concepts of Programming Languages.
     - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
-  - [Lists]({{ site.baseurl }}/Lists/): Properties of data structures
-  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
 
 ## Additional content modules will be posted as they are ready
 

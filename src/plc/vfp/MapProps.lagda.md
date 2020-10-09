@@ -1,9 +1,9 @@
 ---
 title     : "MapProps: Properties of total and partial maps"
 layout    : page
-prev      : /Lists/
+prev      : /DataProp/
 permalink : /MapProps/
-next      : /Imp/
+next      : /Relations/
 ---
 
 ```

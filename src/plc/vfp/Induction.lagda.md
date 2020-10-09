@@ -3,7 +3,7 @@ title     : "Induction: Proof by Induction"
 layout    : page
 prev      : /Depend/
 permalink : /Induction/
-next      : /Relations/
+next      : /DataProp/
 ---
 
 ```
@@ -62,7 +62,7 @@ operators in general, we will use symbols like ⊕ and ⊗.
 
   Addition of numbers `+` has zero as an identity, and concatenation
   of strings has the empty string as an identity.  Subtraction has
-  zero as a right identity, and does not have a right identity.
+  zero as a right identity, and does not have a left identity.
 
 * _Associativity_.   Operator `⊕` is associative if the location
   of parentheses does not matter: `(m ⊕ n) ⊕ p ≡ m ⊕ (n ⊕ p)`,
@@ -105,7 +105,6 @@ and are associative, commutative, and distribute over one another.
 Give an example of an operator that has an identity and is
 associative but is not commutative.
 (You do not have to prove these properties.)
-
 
 ## Associativity
 
@@ -671,7 +670,16 @@ the above equation into:
 Similarly, we write `(_+ x)` for the function that applied to `y`
 returns `y + x`; the same works for any infix operator.
 
+#### Exercise `trySectioning` (starting) {#trySectioning}
 
+Interact with Agda via Emacs to make sure you understand:
+
+ - The difference between `(_∸_ 3)` and `(_∸ 3)`
+
+ - The difference between `(_∸ 3)` and `(3 ∸_)`
+
+Hint: We use `∸` rather than `+` in this exercise because `+` is
+commutative, while `∸` is not.
 
 ## Creation, one last time
 
@@ -1017,7 +1025,6 @@ Show the following three laws
 
 for all `m`, `n`, and `p`.
 
-
 #### Exercise `Bin-laws` (stretch) {#Bin-laws}
 
 Recall that
@@ -1042,6 +1049,155 @@ For each law: if it holds, prove; if not, give a counterexample.
 -- Your code goes here
 ```
 
+### Rewriting with premises
+
+The following theorem does not require induction, but does require us
+to use its premises as we show two values as equal
+
+```
+plusIdExample : ∀ (n m : ℕ) → n ≡ m → n + n ≡ m + m
+```
+
+Instead of making a universal claim about all numbers `n` and `m`, it
+talks about a more specialized property that only holds when `n ≡ m`.
+In this case we pronounce the second arrow "implies."
+
+We start the proof in a way consistent with what we have before: both
+quantified values and the premise of the implication correspond to
+arguments.
+
+```
+plusIdExample n m n≡m = 
+```
+
+Remember that in Agda, almost all characters can be part of a name,
+including symbols like `≡`.  So when we write `n ≡ m` in the
+signature, Agda sees three distinct items.  But when we write `n≡m` in
+this clause, it is a single name with three characters.  The value
+which we expect for this parameter is evidence that `n ≡ m`, and we
+will use this evidence in our proof.
+
+```
+  begin
+    n + n
+  ≡⟨ cong (λ x → x + n) n≡m ⟩
+    m + n
+  ≡⟨ cong (λ x → m + x) n≡m ⟩
+    m + m
+  ∎
+```
+
+We use the evidence that `n ≡ m` as the justification to rewrite `n`
+as `m`.  Since `n` does not occur at the top-level of our proof, we
+must give the context via `cong` so that Agda can find the exact spot
+where we wish to rewrite.
+
+#### Exercise `plusIdExercise` (starting) {#plusIdExercise}
+
+Prove the following statement:
+
+    plusIdExercise : ∀ (n m o : ℕ) → n ≡ m → m ≡ o → n + m ≡ m + o
+    -- Your code goes here
+
+#### Exercise `multN1` (recommended) {#multN1}
+
+Prove the following statement:
+
+    multN1 : ∀ (p : ℕ) → p * 1 ≡ p
+    -- Your code goes here
+
+Remember that 1 is just `suc zero`.
+
+### Additional exercises
+
+These exercises may require any of the techniques in this section.
+
+```
+open import Data.Nat using (_≡ᵇ_)
+open import Data.Bool using (Bool; true; false; _∧_; _∨_; not)
+```
+
+#### Exercise `∧-comm` (starting) {#and-comm}
+
+Prove that:
+
+    ∧-comm : ∀ (b c : Bool) → b ∧ c ≡ c ∧ b
+    -- Your code goes here
+
+#### Exercise `notInvolutive` (recommended) {#notInvolutive}
+
+Prove that:
+
+    notInvolutive : ∀ (b : Bool) → not (not b) ≡ b
+    -- Your code goes here
+
+#### Exercise `mult0` (recommended) {#mult0}
+
+Prove the following statement:
+
+    mult0 : ∀ (n : ℕ) → n * 0 = 0
+    -- Your code goes here
+
+#### Exercise `plus1neq0` (recommended) {#plus1neq0}
+
+Prove the following statement:
+
+    plus1neq0 : ∀ (n : ℕ) → (n + 1 ≡ᵇ 0) ≡ false
+    -- Your code goes here
+
+You have at least two ways to prove this result.  Try to solve it both
+with and without using earlier arithmetic theorems for rewriting.
+
+#### Exercise `zeroNeq+1` (recommended) {#zeroNeq+1}
+
+Prove the following statement:
+
+    zeroNeq+1 : ∀ (n : ℕ) → (0 ≡ᵇ n + 1) ≡ false
+    -- Your code goes here
+
+#### Exercise `∧-true-elim` (practice) {#and-true-elim}
+
+Prove the following statement:
+
+    ∧-true-elim : ∀ (b c : Bool) → b ∧ c ≡ true → c ≡ true
+    -- Your code goes here
+
+#### Exercise `boolIdTwice` (practice) {#boolIdTwice}
+
+Prove that:
+
+    boolIdTwice : ∀ (f : Bool → Bool) →
+                    (∀ (x : Bool) → f x ≡ x) →
+                      ∀ (b : Bool) →
+                        f (f b) ≡ b
+    -- Your code goes here
+
+Be very mindful of the parentheses in this and the next exercise.
+
+#### Exercise `boolNotTwice` (practice) {#boolNotTwice}
+
+Prove that:
+
+    boolNotTwice : ∀ (f : Bool → Bool) →
+                     (∀ (x : Bool) → f x ≡ not x) →
+                       ∀ (b : Bool) →
+                         f (f b) ≡ b
+    -- Your code goes here
+
+#### Exercise `∧≡∨` (practice) {#and-eq-or}
+
+    ∧≡∨ : ∀ (b c : Bool) → (b ∧ c ≡ b ∨ c) → b ≡ c.
+    -- Your code goes here
+
+#### Exercise `suc-n+m` (practice) {#suc-n+m}
+
+    suc-n+m : ∀ (n m : ℕ) → suc (n + m) ≡ n + suc m
+    -- Your code goes here
+
+#### Exercise `≡ᵇtrue` (practice) {#eqb-true}
+
+    ≡ᵇtrue : ∀ (n : ℕ) → true ≡ (n ≡ᵇ n)
+    -- Your code goes here
 
 ## Standard library
 
@@ -1054,12 +1210,23 @@ import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
 
 This section uses the following Unicode symbols:
 
-    ∀  U+2200  FOR ALL (\forall, \all)
     ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
+    λ   U+03BB  GREEK SMALL LETTER LAMDA  (\Gl, \lambda)
+    ᵇ  U+1D47  MODIFIER LETTER SMALL B (\^b)
     ′  U+2032  PRIME (\')
     ″  U+2033  DOUBLE PRIME (\'')
     ‴  U+2034  TRIPLE PRIME (\'3)
     ⁗  U+2057  QUADRUPLE PRIME (\'4)
+    ℕ  U+2115  DOUBLE-STRUCK CAPITAL N (\bN)
+    →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
+    ∀  U+2200  FOR ALL (\forall, \all)
+    ∧  U_2227  LOCIGAL AND (\and)
+    ∨  U+2228  LOGICAL OR (\or)
+    ∸  U+2238  DOT MINUS (\.-)
+    ≡  U+2261  IDENTICAL TO (\==)
+    ⟨  U+27E8  MATHEMATICAL LEFT ANGLE BRACKET (\<)
+    ⟩  U+27E9  MATHEMATICAL RIGHT ANGLE BRACKET (\>)
+    ∎  U+220E  END OF PROOF (\qed)
 
 Similar to `\r`, the command `\^r` gives access to a variety of
 superscript rightward arrows, and also a superscript letter `r`.
@@ -1068,6 +1235,7 @@ The command `\'` gives access to a range of primes (`′ ″ ‴ ⁗`).
 ---
 
 *This page is derived from Wadler et al., with some additional text by
-Maraist.  Exercises `double-+` and `even-suc` are adapted from Pierce
-et al.  For more information see the [sources and authorship]({{
-site.baseurl }}/Sources/) page.*
+Maraist.  Exercises `double-+` and `even-suc`, and the last two
+sections and their exercises, are adapted from Pierce et al.  For more
+information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*

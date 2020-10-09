@@ -7,7 +7,7 @@ next      : /Decidable/
 ---
 
 ```
-module plc.vfp.Quantifiers where
+module plc.lc.Quantifiers where
 ```
 
 This section introduces universal and existential quantification.
@@ -21,7 +21,8 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
-open import plc.vfp.Isomorphism using (_≃_; extensionality)
+open import plc.vfp.Relations using (_≃_)
+open import plc.lc.Isomorphism using (extensionality)
 ```
 
 

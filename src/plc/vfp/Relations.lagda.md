@@ -1,9 +1,9 @@
 ---
 title     : "Relations: Inductive definition of relations"
 layout    : page
-prev      : /Induction/
+prev      : /MapProps/
 permalink : /Relations/
-next      : /Equality/
+next      : /DataRel/
 ---
 
 ```
@@ -17,9 +17,11 @@ the next step is to define relations, such as _less than or equal_.
 
 ```
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong)
+open Eq using (_≡_; refl; cong; sym)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.Nat.Properties using (+-comm)
+open import Function using (_∘_)
 ```
 
 
@@ -101,25 +103,28 @@ _ = s≤s (s≤s z≤n)
 
 ## Implicit arguments
 
-This is our first use of implicit arguments.  In the definition of
-inequality, the two lines defining the constructors use `∀`, very
-similar to our use of `∀` in propositions such as:
+Note that we are using implicit arguments to the constructors for
+`_≤_`,
+
+    z≤n : ∀ {n : ℕ} → -- ...
+    s≤s : ∀ {m n : ℕ} → -- ...
+
+in contrast to the explicit arguments we used for theorems like
+`+-comm`,
 
     +-comm : ∀ (m n : ℕ) → m + n ≡ n + m
 
-However, here the declarations are surrounded by curly braces `{ }`
-rather than parentheses `( )`.  This means that the arguments are
-_implicit_ and need not be written explicitly; instead, they are
-_inferred_ by Agda's typechecker. Thus, we write `+-comm m n` for the
-proof that `m + n ≡ n + m`, but `z≤n` for the proof that `zero ≤ n`,
-leaving `n` implicit.  Similarly, if `m≤n` is evidence that `m ≤ n`,
-we write `s≤s m≤n` for evidence that `suc m ≤ suc n`, leaving both `m`
-and `n` implicit.
+So we wrote `+-comm m n` for the proof that `m + n ≡ n + m`, but need
+to write only `z≤n` for the proof that `zero ≤ n`: we can leave `n`
+implicit.  Similarly, if `m≤n` is evidence that `m ≤ n`, we write `s≤s
+m≤n` for evidence that `suc m ≤ suc n`, leaving both `m` and `n`
+implicit.
 
-If we wish, it is possible to provide implicit arguments explicitly by
-writing the arguments inside curly braces.  For instance, here is the
-Agda proof that `2 ≤ 4` repeated, with the implicit arguments made
-explicit:
+As in our previous ses of implicit arguments, it is possible to
+provide implicit arguments explicitly by writing the arguments inside
+curly braces if we wish to do so.  For instance, here again is an Agda
+proof that `2 ≤ 4`, with the implicit arguments made explicit:
+
 ```
 _ : 2 ≤ 4
 _ = s≤s {1} {3} (s≤s {0} {2} (z≤n {2}))
@@ -134,12 +139,15 @@ In the latter format, you may only supply some implicit arguments:
 _ : 2 ≤ 4
 _ = s≤s {n = 3} (s≤s {n = 2} z≤n)
 ```
-It is not permitted to swap implicit arguments, even when named.
+
+However it is not permitted to swap implicit arguments, even when
+named.
 
 
 ## Precedence
 
 We declare the precedence for comparison as follows:
+
 ```
 infix 4 _≤_
 ```
@@ -322,8 +330,8 @@ using holes and the `C-c C-c`, `C-c C-,`, and `C-c C-r` commands.
 ## Anti-symmetry
 
 The third property to prove about comparison is that it is
-antisymmetric: for all naturals `m` and `n`, if both `m ≤ n` and `n ≤
-m` hold, then `m ≡ n` holds:
+antisymmetric: for all naturals `m` and `n`, if both `m ≤ n` and
+`n ≤ m` hold, then `m ≡ n` holds:
 ```
 ≤-antisym : ∀ {m n : ℕ}
   → m ≤ n
@@ -336,8 +344,8 @@ m` hold, then `m ≡ n` holds:
 Again, the proof is by induction over the evidence that `m ≤ n`
 and `n ≤ m` hold.
 
-In the base case, both inequalities hold by `z≤n`, and so we are given
-`zero ≤ zero` and `zero ≤ zero` and must show `zero ≡ zero`, which
+In the base case, both inequalities hold by `z≤n`.  So we are given
+`zero ≤ zero` and `zero ≤ zero`, and we must show `zero ≡ zero`, which
 follows by reflexivity.  (Reflexivity of equality, that is, not
 reflexivity of inequality.)
 
@@ -813,6 +821,208 @@ if `One b` then `1` is less or equal to the result of `from b`.)
 -- Your code goes here
 ```
 
+## Records
+
+One common case of using relations has a single constructor, and
+multiple premises.
+
+    data SomeRelation (T1 T2 ... Tn : Set) : Set where
+      oneConstructor : ∀ (x1 : ...) (x2 : ...) ... (xM : ...)
+                         → SomeRelation ...
+
+We will often find ourselves writing accompanying helper functions to
+extract the `x1`, `x2` and so forth for a particular instance of the
+relation,
+
+    x1 (oneConstructor v1 v2 ... vM) = v1
+
+This use case is common enough that Agda offers a shorthand `record`
+notation.  Agda's records are similar to the instance variables of
+Java's objects or to C's `structs`, although of course wothout the
+mutability of those languages.  We will use Agda's records to describe
+relations when we need to name subrelations for later access.
+
+In this section we make frequent use of the composition operator
+discussed in the [Functional section]({{ site.baseurl
+}}/Functional/#fnComposition), which here we import from the
+`Function` module.  Note that Agda defines `∘` using a lambda
+expression,
+
+    f ∘ g = λ x → f (g x)
+
+And note also that like most characters in Agda, `∘` can be used to
+build identifier names.  So while `f ∘ g` is the composition of the
+two functions `f` and `g`, `f∘g` is a three-character name.
+
+### Isomorphism
+
+Two sets are isomorphic if their elements can be put in exact
+correspondence.  Isomorphism is another name for the idea of a
+_bijection_, or for two sets which are both _one-to-one_ and _onto_.
+Here is a formal definition of isomorphism:
+
+```
+infix 0 _≃_
+record _≃_ (A B : Set) : Set where
+  field
+    to   : A → B
+    from : B → A
+    from∘to : ∀ (x : A) → from (to x) ≡ x
+    to∘from : ∀ (y : B) → to (from y) ≡ y
+open _≃_
+```
+
+Let's unpack the definition. An isomorphism between sets `A` and `B` consists
+of four things:
+
+ - A function `to` from `A` to `B`,
+
+ - A function `from` from `B` back to `A`,
+ 
+ - Evidence `from∘to` asserting that `from` is a *left-inverse* for
+   `to`,
+ 
+ - Evidence `to∘from` asserting that `from` is a *right-inverse* for
+   `to`.
+
+In particular, the third asserts that `from ∘ to` is the identity, and
+the fourth that `to ∘ from` is the identity, hence the names.  The
+declaration `open _≃_` makes available the names `to`, `from`,
+`from∘to`, and `to∘from`, otherwise we would need to write `_≃_.to`
+and so on.
+
+The above is our first use of records. A record declaration is equivalent
+to a corresponding inductive data declaration:
+```
+data _≃′_ (A B : Set): Set where
+  mk-≃′ : ∀ (to : A → B) →
+          ∀ (from : B → A) →
+          ∀ (from∘to : (∀ (x : A) → from (to x) ≡ x)) →
+          ∀ (to∘from : (∀ (y : B) → to (from y) ≡ y)) →
+          A ≃′ B
+
+to′ : ∀ {A B : Set} → (A ≃′ B) → (A → B)
+to′ (mk-≃′ f g g∘f f∘g) = f
+
+from′ : ∀ {A B : Set} → (A ≃′ B) → (B → A)
+from′ (mk-≃′ f g g∘f f∘g) = g
+
+from∘to′ : ∀ {A B : Set} → (A≃B : A ≃′ B) → (∀ (x : A) → from′ A≃B (to′ A≃B x) ≡ x)
+from∘to′ (mk-≃′ f g g∘f f∘g) = g∘f
+
+to∘from′ : ∀ {A B : Set} → (A≃B : A ≃′ B) → (∀ (y : B) → to′ A≃B (from′ A≃B y) ≡ y)
+to∘from′ (mk-≃′ f g g∘f f∘g) = f∘g
+```
+
+We construct values of the record type with the syntax
+
+    record
+      { to    = f
+      ; from  = g
+      ; from∘to = g∘f
+      ; to∘from = f∘g
+      }
+
+which corresponds to using the constructor of the corresponding
+inductive type
+
+    mk-≃′ f g g∘f f∘g
+
+where `f`, `g`, `g∘f`, and `f∘g` are values of suitable types.
+
+
+### Isomorphism is an equivalence
+
+Isomorphism is an equivalence, meaning that it is reflexive, symmetric,
+and transitive.  To show isomorphism is reflexive, we take both `to`
+and `from` to be the identity function:
+```
+≃-refl : ∀ {A : Set}
+    -----
+  → A ≃ A
+≃-refl =
+  record
+    { to      = λ{x → x}
+    ; from    = λ{y → y}
+    ; from∘to = λ{x → refl}
+    ; to∘from = λ{y → refl}
+    }
+```
+In the above, `to` and `from` are both bound to identity functions,
+and `from∘to` and `to∘from` are both bound to functions that discard
+their argument and return `refl`.  In this case, `refl` alone is an
+adequate proof since for the left inverse, `from (to x)`
+simplifies to `x`, and similarly for the right inverse.
+
+To show isomorphism is symmetric, we simply swap the roles of `to`
+and `from`, and `from∘to` and `to∘from`:
+```
+≃-sym : ∀ {A B : Set}
+  → A ≃ B
+    -----
+  → B ≃ A
+≃-sym A≃B =
+  record
+    { to      = from A≃B
+    ; from    = to   A≃B
+    ; from∘to = to∘from A≃B
+    ; to∘from = from∘to A≃B
+    }
+```
+
+To show isomorphism is transitive, we compose the `to` and `from`
+functions, and use equational reasoning to combine the inverses:
+```
+≃-trans : ∀ {A B C : Set}
+  → A ≃ B
+  → B ≃ C
+    -----
+  → A ≃ C
+≃-trans A≃B B≃C =
+  record
+    { to       = to   B≃C ∘ to   A≃B
+    ; from     = from A≃B ∘ from B≃C
+    ; from∘to  = λ{x →
+        begin
+          (from A≃B ∘ from B≃C) ((to B≃C ∘ to A≃B) x)
+        ≡⟨⟩
+          from A≃B (from B≃C (to B≃C (to A≃B x)))
+        ≡⟨ cong (from A≃B) (from∘to B≃C (to A≃B x)) ⟩
+          from A≃B (to A≃B x)
+        ≡⟨ from∘to A≃B x ⟩
+          x
+        ∎}
+    ; to∘from = λ{y →
+        begin
+          (to B≃C ∘ to A≃B) ((from A≃B ∘ from B≃C) y)
+        ≡⟨⟩
+          to B≃C (to A≃B (from A≃B (from B≃C y)))
+        ≡⟨ cong (to B≃C) (to∘from A≃B (from B≃C y)) ⟩
+          to B≃C (from B≃C y)
+        ≡⟨ to∘from B≃C y ⟩
+          y
+        ∎}
+     }
+```
+
+#### Exercise `_⇔_` (practice) {#iff}
+
+We define the equivalence of propositions (also known as "if and only
+if") as follows:
+
+```
+record _⇔_ (A B : Set) : Set where
+  field
+    to   : A → B
+    from : B → A
+```
+
+Show that equivalence is reflexive, symmetric, and transitive.
+
+```
+-- Your code goes here
+```
+
 ## Standard library
 
 Definitions similar to those in this section can be found in the standard library:
@@ -832,6 +1042,7 @@ and more arguments are implicit.
 
 This section uses the following Unicode symbols:
 
+    ∘  U+2218  RING OPERATOR (\o, \circ, \comp)
     ≤  U+2264  LESS-THAN OR EQUAL TO (\<=, \le)
     ≥  U+2265  GREATER-THAN OR EQUAL TO (\>=, \ge)
     ˡ  U+02E1  MODIFIER LETTER SMALL L (\^l)
