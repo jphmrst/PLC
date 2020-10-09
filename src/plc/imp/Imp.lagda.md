@@ -1,7 +1,7 @@
 ---
 title     : "Imp: Simple imperative programs"
 layout    : page
-prev      : /MapProps/
+prev      : /DataRel/
 permalink : /Imp/
 next      : /
 ---
@@ -18,22 +18,6 @@ open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 ```
-
-{::comment}
-
-(* LATER: Another nice challenge exercise at some point would be to add
-   C-style arrays (i.e., indirect read/write).  This sets up some
-   really nice challenge problems in Hoare.v (reasoning about arrays /
-   aliasing / etc.).
-*)
-(* HIDE: At some point we could consider moving material from the old
-   HoareLists.v to this chapter (and into later files, as
-   appropriate).  We haven't done it yet because it's a shame to
-   complicate the nice simple presentation here when it's used as the
-   basis for applications like Xavier's static analysis lectures.
-   Also, we hope to add a chapter or new volume on real separation logic... *)
-
-{:/comment}
 
 In this section we take a more serious look at how to use Agda to
 study other things.  Our case study is a simple _imperative
@@ -503,13 +487,13 @@ arithmetic expressions.
 ```
   data _⇓ᵃ_ : AExp → ℕ → Set where
     Eᵃℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
-    Eᵃ+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃ+ : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
-    Eᵃ- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃ- : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 - e2 ⇓ᵃ n1 ∸ n2
-    Eᵃ* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
+    Eᵃ* : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
              → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
              → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
   infix 4 _⇓ᵃ_
@@ -532,7 +516,8 @@ an informal proof tree we might have
 
 and as formal proofs,
 
-```
+TODO --- restore examples when params settle down
+
   _ : # 2 ⇓ᵃ 2
   _ = Eᵃℕ
 
@@ -541,7 +526,6 @@ and as formal proofs,
 
   _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
   _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
-```
 
 ============================================================
 
@@ -629,7 +613,11 @@ form `Eᵃℕ` is the evidence for the first clause.
   aevalFnThenRel (# m) .m refl = Eᵃℕ
 ```
 
-TODO
+We proceed similarly in each of the other cases.  For each of the
+other three forms of arithmetic expressions — addition, subtraction
+(monus), multiplication — only one clause of `⟦_⟧ᵃ` can return a value
+for that form of expression.  Agda recognizes this, and recognizes
+that a dot-pattern for the corresponding value is appropriate.
 
 ```
   aevalFnThenRel (a₁ + a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.+ ⟦ a₂ ⟧ᵃ) refl =
@@ -640,67 +628,104 @@ TODO
     Eᵃ* (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
 ```
 
-  postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
+This should one direction of implication, that the evaluation function
+implies the relation.  The other direction is that the evaluation
+relation implies the function.
 
-{::comment}
+```
+  aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
+```
 
-(* /HIDEFROMADVANCED *)
-Theorem aeval_iff_aevalR : forall a n,
-  (a ==> n) <-> aeval a = n.
-(* FOLD *)
-Proof.
- split.
- - (* -> *)
-   intros H.
-   induction H; simpl.
-   + (* E_ANum *)
-     reflexivity.
-   + (* Eᵃ+ *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
-   + (* E_AMinus *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
-   + (* E_AMult *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
- - (* <- *)
-   generalize dependent n.
-   induction a;
-      simpl; intros; subst.
-   + (* ANum *)
-     apply E_ANum.
-   + (* APlus *)
-     apply Eᵃ+.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-   + (* AMinus *)
-     apply E_AMinus.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-   + (* AMult *)
-     apply E_AMult.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-Qed.
-(* /FOLD *)
-(* HIDEFROMADVANCED *)
+We begin with the usual starting clause
 
-(** We can make the proof quite a bit shorter by making more
-    use of tacticals. *)
+    aevalRelThenFn a n aRn = ?
 
-Theorem aeval_iff_aevalR' : forall a n,
-  (a ==> n) <-> aeval a = n.
-Proof.
-  (* WORKINCLASS *)
-  split.
-  - (* -> *)
-    intros H; induction H; subst; reflexivity.
-  - (* <- *)
-    generalize dependent n.
-    induction a; simpl; intros; subst; constructor;
-       try apply IHa1; try apply IHa2; reflexivity.
-Qed.
-(* /WORKINCLASS *)
+and ask Agda to decompose into cases based on `a`:
 
-{:/comment}
+Remember that the forms of evidence which our theorem functions return
+is determined by the relation in the signature.  Above, the conclusion
+was a `⇓ᵃ`-formula, so the forms of evidence were assembled with the
+constructors of `⇓ᵃ`.  Here, the conclusion is a `≡`-formula, so the
+evidence wil be either `refl`, or a chain of equations.
+
+As for the other direction, the case of the constant expression is
+simple.  Note that we use the dot pattern on the expression: the only
+possible form of expression to which the `Eᵃℕ` constructor could apply
+is an integer literal.  In this case the result value and the value in
+the term must be the same.  So we name the result value, and use the
+dot pattern to tell Agda that the name in the expression pattern is
+defined elsewhere.
+
+```
+  aevalRelThenFn .(# n) n Eᵃℕ = refl
+```
+
+This clause needs only `refl` for evidence since `n` and `n` are
+identical.
+
+The pattens which Agda generates for the other clauses look a bit
+strange,
+
+    aevalRelThenFn .(_ + _) .(_ Data.Nat.+ _) (Eᵃ+ an₁ an₂) = ?
+
+and so forth.  The subterms in the Imp expressions and the values
+passed to the `Data.Nat` operators are related by the `an₁` and `an₂`
+evidence.  But Agda cannot access these items because they are
+_implicit_ arguments to `Eᵃ+` and the other constructors.  Carefully
+chosen implicit arguments can save us work and make our programs
+easier to read, but sometimes we need to expose the values.  If we
+explicitly name them,
+
+    aevalRelThenFn .(_ + _) .(_ Data.Nat.+ _) (Eᵃ+ {e1} {n1} {e2} {n2} an₁ an₂) = ?
+
+then we can use those name in the slots Agda could not otherwise fill
+in.
+
+    aevalRelThenFn .(e1 + e2) .(n1 Data.Nat.+ n2) (Eᵃ+ {e1} {n1} {e2} {n2} an₁ an₂) = ?
+
+We need to prove that `⟦ e1 + e2 ⟧ᵃ` and `n1 Data.Nat.+ n2` have the
+same value, and it is easest to use a chain of equations,
+
+```
+  aevalRelThenFn .(e1 + e2) .(n1 Data.Nat.+ n2) (Eᵃ+ {e1} {n1} {e2} {n2} aRn aRn₁) = 
+    begin
+      ⟦ e1 + e2 ⟧ᵃ
+    ≡⟨⟩
+      ⟦ e1 ⟧ᵃ Data.Nat.+ ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (Data.Nat._+ ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 Data.Nat.+ ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (n1 Data.Nat.+_) (aevalRelThenFn e2 n2 aRn₁) ⟩
+      n1 Data.Nat.+ n2
+    ∎  
+```
+
+The reasoning is the same for the other two cases, which also
+correspond directly to built-in arithmetic operators.
+
+```
+  aevalRelThenFn .(e1 - e2) .(n1 ∸ n2) (Eᵃ- {e1} {n1} {e2} {n2} aRn aRn₁) = 
+    begin
+      ⟦ e1 - e2 ⟧ᵃ
+    ≡⟨⟩
+      ⟦ e1 ⟧ᵃ ∸ ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (_∸ ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 ∸ ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (n1 ∸_) (aevalRelThenFn e2 n2 aRn₁) ⟩
+      n1 ∸ n2
+    ∎
+  aevalRelThenFn .(e1 * e2) .(n1 Data.Nat.* n2) (Eᵃ* {e1} {n1} {e2} {n2} aRn aRn₁) = 
+    begin
+      ⟦ e1 * e2 ⟧ᵃ
+    ≡⟨⟩
+      ⟦ e1 ⟧ᵃ Data.Nat.* ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (Data.Nat._* ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 Data.Nat.* ⟦ e2 ⟧ᵃ
+    ≡⟨ cong (n1 Data.Nat.*_) (aevalRelThenFn e2 n2 aRn₁) ⟩
+      n1 Data.Nat.* n2
+    ∎
+```
+
+TODO --- the bi-implication
 
 #### Exercise `bevalRelationIffEval` (recommended) {#bevalRelationIffEval}
 
