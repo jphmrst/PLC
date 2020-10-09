@@ -62,7 +62,7 @@ operators in general, we will use symbols like ⊕ and ⊗.
 
   Addition of numbers `+` has zero as an identity, and concatenation
   of strings has the empty string as an identity.  Subtraction has
-  zero as a right identity, and does not have a right identity.
+  zero as a right identity, and does not have a left identity.
 
 * _Associativity_.   Operator `⊕` is associative if the location
   of parentheses does not matter: `(m ⊕ n) ⊕ p ≡ m ⊕ (n ⊕ p)`,
