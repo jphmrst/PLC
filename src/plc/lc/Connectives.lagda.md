@@ -3,7 +3,7 @@ title     : "Connectives: Conjunction, disjunction, and implication"
 layout    : page
 prev      : /Isomorphism/
 permalink : /Connectives/
-next      : /Negation/
+next      : /Quantifiers/
 ---
 
 ```
@@ -37,141 +37,22 @@ open import Data.Nat using (ℕ)
 open import Function using (_∘_)
 open import plc.vfp.Relations using (_≃_)
 open import plc.lc.Isomorphism using (_≲_; extensionality)
+open import plc.vfp.Logic
 open plc.lc.Isomorphism.≃-Reasoning
 ```
 
 
 ## Conjunction is product
 
-Given two propositions `A` and `B`, the conjunction `A × B` holds
-if both `A` holds and `B` holds.  We formalise this idea by
-declaring a suitable inductive type:
-```
-data _×_ (A B : Set) : Set where
+Earlier we formalized conjunction via an inductive type:
 
-  ⟨_,_⟩ :
-      A
-    → B
-      -----
-    → A × B
-```
-Evidence that `A × B` holds is of the form `⟨ M , N ⟩`, where `M`
-provides evidence that `A` holds and `N` provides evidence that `B`
-holds.
-
-Given evidence that `A × B` holds, we can conclude that either
-`A` holds or `B` holds:
-```
-proj₁ : ∀ {A B : Set}
-  → A × B
-    -----
-  → A
-proj₁ ⟨ x , y ⟩ = x
-
-proj₂ : ∀ {A B : Set}
-  → A × B
-    -----
-  → B
-proj₂ ⟨ x , y ⟩ = y
-```
-If `L` provides evidence that `A × B` holds, then `proj₁ L` provides evidence
-that `A` holds, and `proj₂ L` provides evidence that `B` holds.
-
-Equivalently, we could also declare conjunction as a record type:
-```
-record _×′_ (A B : Set) : Set where
-  field
-    proj₁′ : A
-    proj₂′ : B
-open _×′_
-```
-Here record construction
-
-    record
-      { proj₁′ = M
-      ; proj₂′ = N
-      }
-
-corresponds to the term
-
-    ⟨ M , N ⟩
-
-where `M` is a term of type `A` and `N` is a term of type `B`.
-
-When `⟨_,_⟩` appears in a term on the right-hand side of an equation
-we refer to it as a _constructor_, and when it appears in a pattern on
-the left-hand side of an equation we refer to it as a _destructor_.
-We may also refer to `proj₁` and `proj₂` as destructors, since they
-play a similar role.
-
-Other terminology refers to `⟨_,_⟩` as _introducing_ a conjunction, and
-to `proj₁` and `proj₂` as _eliminating_ a conjunction; indeed, the
-former is sometimes given the name `×-I` and the latter two the names
-`×-E₁` and `×-E₂`.  As we read the rules from top to bottom,
-introduction and elimination do what they say on the tin: the first
-_introduces_ a formula for the connective, which appears in the
-conclusion but not in the hypotheses; the second _eliminates_ a
-formula for the connective, which appears in a hypothesis but not in
-the conclusion. An introduction rule describes under what conditions
-we say the connective holds---how to _define_ the connective. An
-elimination rule describes what we may conclude when the connective
-holds---how to _use_ the connective.
-
-(The paragraph above was adopted from "Propositions as Types", Philip Wadler,
-_Communications of the ACM_, December 2015.)
-
-In this case, applying each destructor and reassembling the results with the
-constructor is the identity over products:
-```
-η-× : ∀ {A B : Set} (w : A × B) → ⟨ proj₁ w , proj₂ w ⟩ ≡ w
-η-× ⟨ x , y ⟩ = refl
-```
-The pattern matching on the left-hand side is essential, since
-replacing `w` by `⟨ x , y ⟩` allows both sides of the
-propositional equality to simplify to the same term.
-
-We set the precedence of conjunction so that it binds less
-tightly than anything save disjunction:
-```
-infixr 2 _×_
-```
-Thus, `m ≤ n × n ≤ p` parses as `(m ≤ n) × (n ≤ p)`.
-
-Given two types `A` and `B`, we refer to `A × B` as the
-_product_ of `A` and `B`.  In set theory, it is also sometimes
-called the _Cartesian product_, and in computing it corresponds
-to a _record_ type. Among other reasons for
-calling it the product, note that if type `A` has `m`
-distinct members, and type `B` has `n` distinct members,
-then the type `A × B` has `m * n` distinct members.
-For instance, consider a type `Bool` with two members, and
-a type `Tri` with three members:
-```
-data Bool : Set where
-  true  : Bool
-  false : Bool
-
-data Tri : Set where
-  aa : Tri
-  bb : Tri
-  cc : Tri
-```
-Then the type `Bool × Tri` has six members:
-
-    ⟨ true  , aa ⟩    ⟨ true  , bb ⟩    ⟨ true ,  cc ⟩
-    ⟨ false , aa ⟩    ⟨ false , bb ⟩    ⟨ false , cc ⟩
-
-For example, the following function enumerates all
-possible arguments of type `Bool × Tri`:
-```
-×-count : Bool × Tri → ℕ
-×-count ⟨ true  , aa ⟩  =  1
-×-count ⟨ true  , bb ⟩  =  2
-×-count ⟨ true  , cc ⟩  =  3
-×-count ⟨ false , aa ⟩  =  4
-×-count ⟨ false , bb ⟩  =  5
-×-count ⟨ false , cc ⟩  =  6
-```
+    data _×_ (A B : Set) : Set where
+    
+      ⟨_,_⟩ :
+          A
+        → B
+          -----
+        → A × B
 
 Product on types also shares a property with product on numbers in
 that there is a sense in which it is commutative and associative.  In
@@ -184,8 +65,8 @@ Instantiating the patterns correctly in `from∘to` and `to∘from` is essential
 Replacing the definition of `from∘to` by `λ w → refl` will not work;
 and similarly for `to∘from`:
 ```
-×-comm : ∀ {A B : Set} → A × B ≃ B × A
-×-comm =
+×-comm≃ : ∀ {A B : Set} → A × B ≃ B × A
+×-comm≃ =
   record
     { to       =  λ{ ⟨ x , y ⟩ → ⟨ y , x ⟩ }
     ; from     =  λ{ ⟨ y , x ⟩ → ⟨ x , y ⟩ }
@@ -212,8 +93,8 @@ taking `⟨ ⟨ x , y ⟩ , z ⟩` to `⟨ x , ⟨ y , z ⟩ ⟩`, and the `from
 the inverse.  Again, the evidence of left and right inverse requires
 matching against a suitable pattern to enable simplification:
 ```
-×-assoc : ∀ {A B C : Set} → (A × B) × C ≃ A × (B × C)
-×-assoc =
+×-assoc≃ : ∀ {A B C : Set} → (A × B) × C ≃ A × (B × C)
+×-assoc≃ =
   record
     { to      = λ{ ⟨ ⟨ x , y ⟩ , z ⟩ → ⟨ x , ⟨ y , z ⟩ ⟩ }
     ; from    = λ{ ⟨ x , ⟨ y , z ⟩ ⟩ → ⟨ ⟨ x , y ⟩ , z ⟩ }
@@ -235,7 +116,7 @@ corresponds to `⟨ 1 , ⟨ true , aa ⟩ ⟩`, which is a member of the latter.
 
 #### Exercise `⇔≃×` (recommended)
 
-Show that `A ⇔ B` as defined [earlier]({{ site.baseurl }}/Isomorphism/#iff)
+Show that `A ⇔ B` as defined [earlier]({{ site.baseurl }}/Relation/#iff)
 is isomorphic to `(A → B) × (B → A)`.
 
 ```
@@ -243,41 +124,7 @@ is isomorphic to `(A → B) × (B → A)`.
 ```
 
 
-## Truth is unit
-
-Truth `⊤` always holds. We formalise this idea by
-declaring a suitable inductive type:
-```
-data ⊤ : Set where
-
-  tt :
-    --
-    ⊤
-```
-Evidence that `⊤` holds is of the form `tt`.
-
-There is an introduction rule, but no elimination rule.
-Given evidence that `⊤` holds, there is nothing more of interest we
-can conclude.  Since truth always holds, knowing that it holds tells
-us nothing new.
-
-The nullary case of `η-×` is `η-⊤`, which asserts that any
-value of type `⊤` must be equal to `tt`:
-```
-η-⊤ : ∀ (w : ⊤) → tt ≡ w
-η-⊤ tt = refl
-```
-The pattern matching on the left-hand side is essential.  Replacing
-`w` by `tt` allows both sides of the propositional equality to
-simplify to the same term.
-
-We refer to `⊤` as the _unit_ type. And, indeed,
-type `⊤` has exactly one member, `tt`.  For example, the following
-function enumerates all possible arguments of type `⊤`:
-```
-⊤-count : ⊤ → ℕ
-⊤-count tt = 1
-```
+## Isomorphisms with unit
 
 For numbers, one is the identity of multiplication. Correspondingly,
 unit is the identity of product _up to isomorphism_.  For left
@@ -314,7 +161,7 @@ Right identity follows from commutativity of product and left identity:
 ⊤-identityʳ {A} =
   ≃-begin
     (A × ⊤)
-  ≃⟨ ×-comm ⟩
+  ≃⟨ ×-comm≃ ⟩
     (⊤ × A)
   ≃⟨ ⊤-identityˡ ⟩
     A
@@ -326,100 +173,19 @@ equality.
 
 ## Disjunction is sum
 
-Given two propositions `A` and `B`, the disjunction `A ⊎ B` holds
-if either `A` holds or `B` holds.  We formalise this idea by
-declaring a suitable inductive type:
-```
-data _⊎_ (A B : Set) : Set where
+We formalised the disjunction `A ⊎ B`  by declaring the type:
 
-  inj₁ :
-      A
-      -----
-    → A ⊎ B
-
-  inj₂ :
-      B
-      -----
-    → A ⊎ B
-```
-Evidence that `A ⊎ B` holds is either of the form `inj₁ M`, where `M`
-provides evidence that `A` holds, or `inj₂ N`, where `N` provides
-evidence that `B` holds.
-
-Given evidence that `A → C` and `B → C` both hold, then given
-evidence that `A ⊎ B` holds we can conclude that `C` holds:
-```
-case-⊎ : ∀ {A B C : Set}
-  → (A → C)
-  → (B → C)
-  → A ⊎ B
-    -----------
-  → C
-case-⊎ f g (inj₁ x) = f x
-case-⊎ f g (inj₂ y) = g y
-```
-Pattern matching against `inj₁` and `inj₂` is typical of how we exploit
-evidence that a disjunction holds.
-
-When `inj₁` and `inj₂` appear on the right-hand side of an equation we
-refer to them as _constructors_, and when they appear on the
-left-hand side we refer to them as _destructors_.  We also refer to
-`case-⊎` as a destructor, since it plays a similar role.  Other
-terminology refers to `inj₁` and `inj₂` as _introducing_ a
-disjunction, and to `case-⊎` as _eliminating_ a disjunction; indeed
-the former are sometimes given the names `⊎-I₁` and `⊎-I₂` and the
-latter the name `⊎-E`.
-
-Applying the destructor to each of the constructors is the identity:
-```
-η-⊎ : ∀ {A B : Set} (w : A ⊎ B) → case-⊎ inj₁ inj₂ w ≡ w
-η-⊎ (inj₁ x) = refl
-η-⊎ (inj₂ y) = refl
-```
-More generally, we can also throw in an arbitrary function from a disjunction:
-```
-uniq-⊎ : ∀ {A B C : Set} (h : A ⊎ B → C) (w : A ⊎ B) →
-  case-⊎ (h ∘ inj₁) (h ∘ inj₂) w ≡ h w
-uniq-⊎ h (inj₁ x) = refl
-uniq-⊎ h (inj₂ y) = refl
-```
-The pattern matching on the left-hand side is essential.  Replacing
-`w` by `inj₁ x` allows both sides of the propositional equality to
-simplify to the same term, and similarly for `inj₂ y`.
-
-We set the precedence of disjunction so that it binds less tightly
-than any other declared operator:
-```
-infixr 1 _⊎_
-```
-Thus, `A × C ⊎ B × C` parses as `(A × C) ⊎ (B × C)`.
-
-Given two types `A` and `B`, we refer to `A ⊎ B` as the
-_sum_ of `A` and `B`.  In set theory, it is also sometimes
-called the _disjoint union_, and in computing it corresponds
-to a _variant record_ type. Among other reasons for
-calling it the sum, note that if type `A` has `m`
-distinct members, and type `B` has `n` distinct members,
-then the type `A ⊎ B` has `m + n` distinct members.
-For instance, consider a type `Bool` with two members, and
-a type `Tri` with three members, as defined earlier.
-Then the type `Bool ⊎ Tri` has five
-members:
-
-    inj₁ true     inj₂ aa
-    inj₁ false    inj₂ bb
-                  inj₂ cc
-
-For example, the following function enumerates all
-possible arguments of type `Bool ⊎ Tri`:
-```
-⊎-count : Bool ⊎ Tri → ℕ
-⊎-count (inj₁ true)   =  1
-⊎-count (inj₁ false)  =  2
-⊎-count (inj₂ aa)     =  3
-⊎-count (inj₂ bb)     =  4
-⊎-count (inj₂ cc)     =  5
-```
+    data _⊎_ (A B : Set) : Set where
+    
+      inj₁ :
+          A
+          -----
+        → A ⊎ B
+    
+      inj₂ :
+          B
+          -----
+        → A ⊎ B
 
 Sum on types also shares a property with sum on numbers in that it is
 commutative and associative _up to isomorphism_.
@@ -442,55 +208,10 @@ Show sum is associative up to isomorphism.
 
 ## False is empty
 
-False `⊥` never holds.  We formalise this idea by declaring
-a suitable inductive type:
-```
-data ⊥ : Set where
-  -- no clauses!
-```
-There is no possible evidence that `⊥` holds.
+We formalized falsity `⊥` as the type:
 
-Dual to `⊤`, for `⊥` there is no introduction rule but an elimination rule.
-Since false never holds, knowing that it holds tells us we are in a
-paradoxical situation.  Given evidence that `⊥` holds, we might
-conclude anything!  This is a basic principle of logic, known in
-medieval times by the Latin phrase _ex falso_, and known to children
-through phrases such as "if pigs had wings, then I'd be the Queen of
-Sheba".  We formalise it as follows:
-```
-⊥-elim : ∀ {A : Set}
-  → ⊥
-    --
-  → A
-⊥-elim ()
-```
-This is our first use of the _absurd pattern_ `()`.
-Here since `⊥` is a type with no members, we indicate that it is
-_never_ possible to match against a value of this type by using
-the pattern `()`.
-
-The nullary case of `case-⊎` is `⊥-elim`.  By analogy,
-we might have called it `case-⊥`, but chose to stick with the name
-in the standard library.
-
-The nullary case of `uniq-⊎` is `uniq-⊥`, which asserts that `⊥-elim`
-is equal to any arbitrary function from `⊥`:
-```
-uniq-⊥ : ∀ {C : Set} (h : ⊥ → C) (w : ⊥) → ⊥-elim w ≡ h w
-uniq-⊥ h ()
-```
-Using the absurd pattern asserts there are no possible values for `w`,
-so the equation holds trivially.
-
-We refer to `⊥` as the _empty_ type. And, indeed,
-type `⊥` has no members. For example, the following function
-enumerates all possible arguments of type `⊥`:
-```
-⊥-count : ⊥ → ℕ
-⊥-count ()
-```
-Here again the absurd pattern `()` indicates that no value can match
-type `⊥`.
+    data ⊥ : Set where
+      -- no clauses!
 
 For numbers, zero is the identity of addition. Correspondingly, empty
 is the identity of sums _up to isomorphism_.
@@ -513,76 +234,8 @@ Show empty is the right identity of sums up to isomorphism.
 
 ## Implication is function {#implication}
 
-Given two propositions `A` and `B`, the implication `A → B` holds if
-whenever `A` holds then `B` must also hold.  We formalise implication using
-the function type, which has appeared throughout this book.
-
-Evidence that `A → B` holds is of the form
-
-    λ (x : A) → N
-
-where `N` is a term of type `B` containing as a free variable `x` of type `A`.
-Given a term `L` providing evidence that `A → B` holds, and a term `M`
-providing evidence that `A` holds, the term `L M` provides evidence that
-`B` holds.  In other words, evidence that `A → B` holds is a function that
-converts evidence that `A` holds into evidence that `B` holds.
-
-Put another way, if we know that `A → B` and `A` both hold,
-then we may conclude that `B` holds:
-```
-→-elim : ∀ {A B : Set}
-  → (A → B)
-  → A
-    -------
-  → B
-→-elim L M = L M
-```
-In medieval times, this rule was known by the name _modus ponens_.
-It corresponds to function application.
-
-Defining a function, with a named definition or a lambda abstraction,
-is referred to as _introducing_ a function,
-while applying a function is referred to as _eliminating_ the function.
-
-Elimination followed by introduction is the identity:
-```
-η-→ : ∀ {A B : Set} (f : A → B) → (λ (x : A) → f x) ≡ f
-η-→ f = refl
-```
-
-Implication binds less tightly than any other operator. Thus, `A ⊎ B →
-B ⊎ A` parses as `(A ⊎ B) → (B ⊎ A)`.
-
-Given two types `A` and `B`, we refer to `A → B` as the _function_
-space from `A` to `B`.  It is also sometimes called the _exponential_,
-with `B` raised to the `A` power.  Among other reasons for calling
-it the exponential, note that if type `A` has `m` distinct
-members, and type `B` has `n` distinct members, then the type
-`A → B` has `nᵐ` distinct members.  For instance, consider a
-type `Bool` with two members and a type `Tri` with three members,
-as defined earlier. Then the type `Bool → Tri` has nine (that is,
-three squared) members:
-
-    λ{true → aa; false → aa}  λ{true → aa; false → bb}  λ{true → aa; false → cc}
-    λ{true → bb; false → aa}  λ{true → bb; false → bb}  λ{true → bb; false → cc}
-    λ{true → cc; false → aa}  λ{true → cc; false → bb}  λ{true → cc; false → cc}
-
-For example, the following function enumerates all possible
-arguments of the type `Bool → Tri`:
-```
-→-count : (Bool → Tri) → ℕ
-→-count f with f true | f false
-...          | aa     | aa      =   1
-...          | aa     | bb      =   2
-...          | aa     | cc      =   3
-...          | bb     | aa      =   4
-...          | bb     | bb      =   5
-...          | bb     | cc      =   6
-...          | cc     | aa      =   7
-...          | cc     | bb      =   8
-...          | cc     | cc      =   9
-```
-
+We associated implication with function types, and noted that they are
+also called exponentials.
 Exponential on types also share a property with exponential on
 numbers in that many of the standard identities for numbers carry
 over to the types.
@@ -728,33 +381,166 @@ second only corresponds to an embedding, revealing a sense in which
 one of these laws is "more true" than the other.
 
 
-#### Exercise `⊎-weak-×` (recommended)
+## Negation
 
-Show that the following property holds:
-```
-postulate
-  ⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
-```
-This is called a _weak distributive law_. Give the corresponding
-distributive law, and explain how it relates to the weak version.
+We formalized the negation `¬ A` as the proposition that `A` implies false:
 
-```
--- Your code goes here
-```
+    ¬_ : Set → Set
+    ¬ A = A → ⊥
 
+The De Morgan laws on negation carry over to isomorphisms:
 
-#### Exercise `⊎×-implies-×⊎` (practice)
+#### Exercise `⊎-dual-×` (recommended)
 
-Show that a disjunct of conjuncts implies a conjunct of disjuncts:
-```
-postulate
-  ⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
-```
-Does the converse hold? If so, prove; if not, give a counterexample.
+Show that conjunction, disjunction, and negation are related by a
+version of De Morgan's Law.
+
+    ¬ (A ⊎ B) ≃ (¬ A) × (¬ B)
+
+This result is an easy consequence of something we've proved previously.
 
 ```
 -- Your code goes here
 ```
+
+Do we also have the following?
+
+    ¬ (A × B) ≃ (¬ A) ⊎ (¬ B)
+
+If so, prove; if not, can you give a relation weaker than
+isomorphism that relates the two sides?
+
+
+## Intuitive and Classical logic
+
+In Gilbert and Sullivan's _The Gondoliers_, Casilda is told that
+as an infant she was married to the heir of the King of Batavia, but
+that due to a mix-up no one knows which of two individuals, Marco or
+Giuseppe, is the heir.  Alarmed, she wails "Then do you mean to say
+that I am married to one of two gondoliers, but it is impossible to
+say which?"  To which the response is "Without any doubt of any kind
+whatever."
+
+Logic comes in many varieties, and one distinction is between
+_classical_ and _intuitionistic_. Intuitionists, concerned
+by assumptions made by some logicians about the nature of
+infinity, insist upon a constructionist notion of truth.  In
+particular, they insist that a proof of `A ⊎ B` must show
+_which_ of `A` or `B` holds, and hence they would reject the
+claim that Casilda is married to Marco or Giuseppe until one of the
+two was identified as her husband.  Perhaps Gilbert and Sullivan
+anticipated intuitionism, for their story's outcome is that the heir
+turns out to be a third individual, Luiz, with whom Casilda is,
+conveniently, already in love.
+
+Intuitionists also reject the law of the excluded middle, which
+asserts `A ⊎ ¬ A` for every `A`, since the law gives no clue as to
+_which_ of `A` or `¬ A` holds. Heyting formalised a variant of
+Hilbert's classical logic that captures the intuitionistic notion of
+provability. In particular, the law of the excluded middle is provable
+in Hilbert's logic, but not in Heyting's.  Further, if the law of the
+excluded middle is added as an axiom to Heyting's logic, then it
+becomes equivalent to Hilbert's.  Kolmogorov showed the two logics
+were closely related: he gave a double-negation translation, such that
+a formula is provable in classical logic if and only if its
+translation is provable in intuitionistic logic.
+
+Propositions as Types was first formulated for intuitionistic logic.
+It is a perfect fit, because in the intuitionist interpretation the
+formula `A ⊎ B` is provable exactly when one exhibits either a proof
+of `A` or a proof of `B`, so the type corresponding to disjunction is
+a disjoint sum.
+
+(Parts of the above are adopted from "Propositions as Types", Philip Wadler,
+_Communications of the ACM_, December 2015.)
+
+## Excluded middle is irrefutable
+
+The law of the excluded middle can be formulated as follows:
+```
+postulate
+  em : ∀ {A : Set} → A ⊎ ¬ A
+```
+As we noted, the law of the excluded middle does not hold in
+intuitionistic logic.  However, we can show that it is _irrefutable_,
+meaning that the negation of its negation is provable (and hence that
+its negation is never provable):
+```
+em-irrefutable : ∀ {A : Set} → ¬ ¬ (A ⊎ ¬ A)
+em-irrefutable = λ k → k (inj₂ (λ x → k (inj₁ x)))
+```
+The best way to explain this code is to develop it interactively:
+
+    em-irrefutable k = ?
+
+Given evidence `k` that `¬ (A ⊎ ¬ A)`, that is, a function that given a
+value of type `A ⊎ ¬ A` returns a value of the empty type, we must fill
+in `?` with a term that returns a value of the empty type.  The only way
+we can get a value of the empty type is by applying `k` itself, so let's
+expand the hole accordingly:
+
+    em-irrefutable k = k ?
+
+We need to fill the new hole with a value of type `A ⊎ ¬ A`. We don't have
+a value of type `A` to hand, so let's pick the second disjunct:
+
+    em-irrefutable k = k (inj₂ λ{ x → ? })
+
+The second disjunct accepts evidence of `¬ A`, that is, a function
+that given a value of type `A` returns a value of the empty type.  We
+bind `x` to the value of type `A`, and now we need to fill in the hole
+with a value of the empty type.  Once again, the only way we can get a
+value of the empty type is by applying `k` itself, so let's expand the
+hole accordingly:
+
+    em-irrefutable k = k (inj₂ λ{ x → k ? })
+
+This time we do have a value of type `A` to hand, namely `x`, so we can
+pick the first disjunct:
+
+    em-irrefutable k = k (inj₂ λ{ x → k (inj₁ x) })
+
+There are no holes left! This completes the proof.
+
+The following story illustrates the behaviour of the term we have created.
+(With apologies to Peter Selinger, who tells a similar story
+about a king, a wizard, and the Philosopher's stone.)
+
+Once upon a time, the devil approached a man and made an offer:
+"Either (a) I will give you one billion dollars, or (b) I will grant
+you any wish if you pay me one billion dollars.
+Of course, I get to choose whether I offer (a) or (b)."
+
+The man was wary.  Did he need to sign over his soul?
+No, said the devil, all the man need do is accept the offer.
+
+The man pondered.  If he was offered (b) it was unlikely that he would
+ever be able to buy the wish, but what was the harm in having the
+opportunity available?
+
+"I accept," said the man at last.  "Do I get (a) or (b)?"
+
+The devil paused.  "I choose (b)."
+
+The man was disappointed but not surprised.  That was that, he thought.
+But the offer gnawed at him.  Imagine what he could do with his wish!
+Many years passed, and the man began to accumulate money.  To get the
+money he sometimes did bad things, and dimly he realised that
+this must be what the devil had in mind.
+Eventually he had his billion dollars, and the devil appeared again.
+
+"Here is a billion dollars," said the man, handing over a valise
+containing the money.  "Grant me my wish!"
+
+The devil took possession of the valise.  Then he said, "Oh, did I say
+(b) before?  I'm so sorry.  I meant (a).  It is my great pleasure to
+give you one billion dollars."
+
+And the devil handed back to the man the same valise that the man had
+just handed to him.
+
+(Parts of the above are adopted from "Call-by-Value is Dual to Call-by-Name",
+Philip Wadler, _International Conference on Functional Programming_, 2003.)
 
 
 ## Standard library

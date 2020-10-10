@@ -134,6 +134,41 @@ You may have noticed that `×` seems very similar to the `Prod` type of
 the last chapter.  In fact, it is exactly the same, except for its
 name!
 
+Given two types `A` and `B`, we refer to `A × B` as the
+_product_ of `A` and `B`.  In set theory, it is also sometimes
+called the _Cartesian product_, and in computing it corresponds
+to a _record_ type. Among other reasons for
+calling it the product, note that if type `A` has `m`
+distinct members, and type `B` has `n` distinct members,
+then the type `A × B` has `m * n` distinct members.
+For instance, consider a type `Bool` with two members, and
+a type `Tri` with three members:
+
+```
+data Tri : Set where
+  aa : Tri
+  bb : Tri
+  cc : Tri
+```
+
+Then the type `Bool × Tri` has six members:
+
+    ⟨ true  , aa ⟩    ⟨ true  , bb ⟩    ⟨ true ,  cc ⟩
+    ⟨ false , aa ⟩    ⟨ false , bb ⟩    ⟨ false , cc ⟩
+
+For example, the following function enumerates all
+possible arguments of type `Bool × Tri`:
+
+```
+×-count : Bool × Tri → ℕ
+×-count ⟨ true  , aa ⟩  =  1
+×-count ⟨ true  , bb ⟩  =  2
+×-count ⟨ true  , cc ⟩  =  3
+×-count ⟨ false , aa ⟩  =  4
+×-count ⟨ false , bb ⟩  =  5
+×-count ⟨ false , cc ⟩  =  6
+```
+
 
 ## A unit of truth
 
@@ -237,24 +272,14 @@ infixr 1 _⊎_
 ```
 Thus, `A × C ⊎ B × C` parses as `(A × C) ⊎ (B × C)`.
 
-Given two types `A` and `B`, we refer to `A ⊎ B` as the
-_sum_ of `A` and `B`.  In set theory, it is also sometimes
-called the _disjoint union_, and in computing it corresponds
-to a _variant record_ type. Among other reasons for
-calling it the sum, note that if type `A` has `m`
-distinct members, and type `B` has `n` distinct members,
-then the type `A ⊎ B` has `m + n` distinct members.
-For instance, consider a type `Bool` with two members, and
-a type `Tri` with three members.
-
-```
-data Tri : Set where
-  aa : Tri
-  bb : Tri
-  cc : Tri
-```
-
-Then the type `Bool ⊎ Tri` has five members:
+Given two types `A` and `B`, we refer to `A ⊎ B` as the _sum_ of `A`
+and `B`.  In set theory, it is also sometimes called the _disjoint
+union_, and in computing it corresponds to a _variant record_
+type. Among other reasons for calling it the sum, note that if type
+`A` has `m` distinct members, and type `B` has `n` distinct members,
+then the type `A ⊎ B` has `m + n` distinct members.  For instance,
+consider again types `Bool` and `Tri`: the type `Bool ⊎ Tri` has five
+members:
 
     inj₁ true     inj₂ aa
     inj₁ false    inj₂ bb
@@ -537,10 +562,6 @@ arguments of the type `Bool → Tri`:
 ...          | cc     | bb      =   8
 ...          | cc     | cc      =   9
 ```
-
-Exponentials on types also share a property with exponential on
-numbers in that many of the standard identities for numbers carry
-over to the types.
 
 ## Logical equivalence
 
