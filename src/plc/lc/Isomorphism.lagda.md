@@ -3,7 +3,7 @@ title     : "Isomorphism: Isomorphism and Embedding"
 layout    : page
 prev      : /Equality/
 permalink : /Isomorphism/
-next      : /Connectives/
+next      : /LogicRedux/
 ---
 
 ```

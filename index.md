@@ -46,10 +46,8 @@ CS421/521, Concepts of Programming Languages.
 ## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-  - Elements of logic in Agda
-    - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
-    - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
-    - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
+  - [LogicRedux]({{ site.baseurl }}/LogicRedux/): A deeper look at the basic connectives
+  - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 
 ## Additional content modules will be posted as they are ready
