@@ -39,7 +39,6 @@ permalink: /
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
   - Elements of logic in Agda
     - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
-    - [Negation]({{ site.baseurl }}/Negation/): Negation, with intuitionistic and classical logic
     - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 
