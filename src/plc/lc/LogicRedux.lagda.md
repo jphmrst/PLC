@@ -1,13 +1,13 @@
 ---
-title     : "Connectives: Conjunction, disjunction, and implication"
+title     : "LogicRedux: Conjunction, disjunction, and implication"
 layout    : page
 prev      : /Isomorphism/
-permalink : /Connectives/
+permalink : /LogicRedux/
 next      : /Quantifiers/
 ---
 
 ```
-module plc.lc.Connectives where
+module plc.lc.LogicRedux where
 ```
 
 <!-- The ⊥ ⊎ A ≅ A exercise requires a (inj₁ ()) pattern,

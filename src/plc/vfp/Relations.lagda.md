@@ -391,7 +391,7 @@ evidence of `m ≤ n` and `n ≤ m` respectively.
 
 (For those familiar with logic, the above definition
 could also be written as a disjunction. Disjunctions will
-be introduced in the [Connectives]({{ site.baseurl }}/Connectives/) section.)
+be introduced in the [Logic]({{ site.baseurl }}/Logic/) section.)
 
 This is our first use of a datatype with _parameters_,
 in this case `m` and `n`.  It is equivalent to the following
@@ -1034,7 +1034,7 @@ import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-antisym; ≤-total;
 ```
 In the standard library, `≤-total` is formalised in terms of
 disjunction (which we define in
-the [Connectives]({{ site.baseurl }}/Connectives/) section),
+the [Logic]({{ site.baseurl }}/Logic/) section),
 and `+-monoʳ-≤`, `+-monoˡ-≤`, `+-mono-≤` are proved differently than here,
 and more arguments are implicit.
 

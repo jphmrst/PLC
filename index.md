@@ -37,9 +37,8 @@ permalink: /
 ## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-  - Elements of logic in Agda
-    - [Connectives]({{ site.baseurl }}/Connectives/): Conjunction, disjunction, and implication
-    - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
+  - [LogicRedux]({{ site.baseurl }}/LogicRedux/): A deeper look at the basic connectives
+  - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 
 ## Incomplete
