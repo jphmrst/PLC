@@ -31,7 +31,8 @@ permalink: /
   - [DataProp]({{ site.baseurl }}/DataProp/): Properties of data structures
   - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
-  - [DataRel]({{ site.baseurl }}/DataRel/): Relations for  data structures
+  - [DataRel]({{ site.baseurl }}/DataRel/): Relations for data structures
+  - [Logic]({{ site.baseurl }}/Logic/): Connectives and deduction
 
 ## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning

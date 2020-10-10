@@ -1,7 +1,7 @@
 ---
 title     : "Imp: Simple imperative programs"
 layout    : page
-prev      : /DataRel/
+prev      : /Logic/
 permalink : /Imp/
 next      : /
 ---

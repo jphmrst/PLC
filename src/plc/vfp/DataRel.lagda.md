@@ -3,7 +3,7 @@ title     : "DataRel: Describing data structures with relations"
 layout    : page
 prev      : /Relations/
 permalink : /DataRel/
-next      : /Equality/
+next      : /Logic/
 ---
 
 ```
