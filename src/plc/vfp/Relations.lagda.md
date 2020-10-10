@@ -1015,6 +1015,7 @@ record _⇔_ (A B : Set) : Set where
   field
     to   : A → B
     from : B → A
+infix 3 _⇔_
 ```
 
 Show that equivalence is reflexive, symmetric, and transitive.
