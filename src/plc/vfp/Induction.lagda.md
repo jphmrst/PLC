@@ -1355,7 +1355,7 @@ Prove the following statement:
 You have at least two ways to prove this result.  Try to solve it both
 with and without using earlier arithmetic theorems for rewriting.
 
-#### Exercise `zeroNeq+1` (recommended) {#zeroNeq+1}
+#### Exercise `zeroNeq+1` (recommended) {#zeroNeqPlus1}
 
 Prove the following statement:
 
@@ -1396,7 +1396,7 @@ Prove that:
     ∧≡∨ : ∀ (b c : Bool) → (b ∧ c ≡ b ∨ c) → b ≡ c.
     -- Your code goes here
 
-#### Exercise `suc-n+m` (practice) {#suc-n+m}
+#### Exercise `suc-n+m` (practice) {#sucMinusNPlusM}
 
     suc-n+m : ∀ (n m : ℕ) → suc (n + m) ≡ n + suc m
     -- Your code goes here
