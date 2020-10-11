@@ -405,7 +405,6 @@ in that variables are associated with each argument type, and the
 result type may mention (or depend upon) these variables; hence they
 are called _dependent functions_.
 
-
 ## Our second proof: commutativity
 
 Another important property of addition is that it is _commutative_, that is,
@@ -556,6 +555,7 @@ yield the needed equation.  This completes the second lemma.
 ### The proposition
 
 Finally, here is our proposition's statement and proof:
+
 ```
 +-comm : ∀ (m n : ℕ) → m + n ≡ n + m
 +-comm m zero =
@@ -577,6 +577,7 @@ Finally, here is our proposition's statement and proof:
     suc n + m
   ∎
 ```
+
 The first line states that we are defining the identifier
 `+-comm` which provides evidence for the proposition:
 
@@ -680,6 +681,189 @@ Interact with Agda via Emacs to make sure you understand:
 
 Hint: We use `∸` rather than `+` in this exercise because `+` is
 commutative, while `∸` is not.
+
+### Getting used to errors {#errorExers}
+
+In Agda as in all other programming languages, understanding error
+messages is an essential skill.  The error messages arising from
+proofs can be particularly hard to understand: the errors are often
+subtle.  Moreover, when two parts of your proofs do not match up, it
+can be difficult for Agda to work out which one is "right," so the
+error messages are often very general.  The next few exercises will
+lead you to break the proof of associativity in different ways, to see
+how Agda reacts in different situations.
+
+All of the code in this section is commented out — of course, since it
+is intentionally broken!  Add the triple-ticks to code blocks one at a
+time to allow Agda to raise they errors they exhibit.
+
+For example, one of the key equations of the inductive case of
+`+-comm` is
+
+      suc (m + n)
+    ≡⟨ cong suc (+-comm m n) ⟩
+      suc (n + m)
+
+If we forget to include the reason at all, it means that we are
+telling Agda that the two sides of that equation can be demonstrated
+just by rewriting according to the rules defined in function clauses.
+But this isn't true — there are no instances of `zero + M` or `(suc M)
++ N` in those terms.  If we were to use `≡⟨⟩` to link those two
+expressions,
+
+    +-comm' : ∀ (m n : ℕ) → m + n ≡ n + m
+    +-comm' m zero =
+      begin
+        m + zero
+      ≡⟨ +-identityʳ m ⟩
+        m
+      ≡⟨⟩
+        zero + m
+      ∎
+    +-comm' m (suc n) =
+      begin
+        m + suc n
+      ≡⟨ +-suc m n ⟩
+        suc (m + n)
+      ≡⟨⟩
+        suc (n + m)
+      ≡⟨⟩
+        suc n + m
+      ∎
+
+Agda would raise an error,
+
+    n != m of type ℕ
+    when checking that the inferred type of an application
+      suc (n + m) ≡ _y_312
+    matches the expected type
+      suc (m + n) ≡ suc n + m
+
+and Emacs would highlight the last four lines in red,
+
+      suc (n + m)
+    ≡⟨⟩
+      suc n + m
+    ∎
+
+The error is about the type that Agda attributes to that expression.
+The type that Agda works out for the expression is not same as the
+type that it needs for the place where it found the expression.  A
+smaller example of this mismatch would be the incorrect expression
+
+    3 + "what"
+
+Agda works out that type of `"what"` is `String`, but that the type of
+an expression in the context `3 + ...` is `Nat`.  In `+-comm'`, Agda
+can tell from the signature and from the first lines of `+-comm'`
+
+    +-comm' : ∀ (m n : ℕ) → m + n ≡ n + m
+    +-comm' m zero =
+      begin
+        m + zero
+      ≡⟨ +-identityʳ m ⟩
+        m
+      ≡⟨⟩
+        zero + m
+      ∎
+    +-comm' m (suc n) =
+      begin
+        m + suc n
+      ≡⟨ +-suc m n ⟩
+        suc (m + n)
+      ≡⟨⟩
+        ....
+
+That it needs an expression of type
+
+    suc (m + n) ≡ n + suc m
+
+This is what the last two lines of the message tell us.  What does
+Agda find that we put in this place?  In typing the expression
+
+      suc (n + m)
+    ≡⟨⟩
+      suc n + m
+    ∎
+
+Agda finds that it has a `≡`-type, and that its left subexpression is
+`suc (n + m)`.  This much is enough for Agda to raise the error: the
+left subexpression of the type it needs is `suc (m + n)` — the
+variables `m` and `n` are reversed.  Agda stops there, and reports the
+error.  This is why we see the name `_y_312` in the error message:
+that name is a marker that Agda would fill out later.
+
+When we see this mismatch, it tells us that some part of the
+transition
+
+      suc (m + n)
+    ≡⟨⟩
+      suc (n + m)
+
+is lacking.  But Agda cannot predict what we want: it could be that
+the problem is part of the first expression `suc (m + n)`, part of the
+evidence `refl` implied by `≡⟨⟩`, or part of the second expression
+`suc (n + m)`.  It is up to us, as the author of the proof, to work
+out which of these three we need to correct.
+
+#### Exercise `ProofErr1` (starting) {#proofErr1}
+
+Use Agda to find the error in this proof:
+
+    +-assoc' : ∀ (m n p : ℕ) → (m + n) + p ≡ m + (n + p)
+    +-assoc' zero n p =
+      begin
+        (zero + n) + p
+      ≡⟨⟩
+        n + p
+      ≡⟨⟩
+        zero + (n + p)
+      ∎
+    +-assoc' (suc m) n p =
+      begin
+        (suc m + n) + p
+      ≡⟨⟩
+        suc (m + n) + p
+      ≡⟨⟩
+        suc ((m + n) + p)
+      ≡⟨ +-assoc' m n p ⟩
+        suc (m + (n + p))
+      ≡⟨⟩
+        suc m + (n + p)
+      ∎
+
+Agda is able to identify a much smaller suspected error in this
+case. because a justification cannot fit with the expression before
+it.  What type does a call to `+-assoc' X Y Z` return, assuming that
+`X`, `Y` and `Z` are all of type `ℕ`?  What type does `suc ((m + n) +
+p) ≡ X` have?  Why do they not match, no matter what `X` is?
+
+#### Exercise `ProofErr2` (starting) {#proofErr2}
+
+Use Emacs to find the error in this Agda proof:
+
+    +-comm″ : ∀ (m n : ℕ) → m + n ≡ n + m
+    +-comm″ m zero =
+      begin
+        m + zero
+      ≡⟨ +-identityʳ m ⟩
+        m
+      ≡⟨⟩
+        zero + m
+      ∎
+    +-comm″ m (suc n) =
+      begin
+        m + suc n
+      ≡⟨ +-suc m n ⟩
+        suc (m + n)
+      ≡⟨ cong suc (+-comm″ m n) ⟩
+        suc (m + n)
+      ≡⟨⟩
+        suc n + m
+      ∎
+
+What expression does Agda highlight as the source of the error?  What
+type does it expect for the expression, and wha does it find?
 
 ## Creation, one last time
 
@@ -900,6 +1084,29 @@ move on to the next hole.  There is a
 [Quick Guide](https://agda.readthedocs.io/en/v2.5.4/getting-started/quick-guide.html)
 to Agda mode with a summary of Emacs key bindings in the online
 Agda documentation.
+
+#### General hint: aim for the induction hypothesis {#useTheIH}
+
+As a general rule, the key step in the inductive case of a proof is
+the use of the induction hypothesis.  In `+-assoc`, the induction
+hypothesis was the _only_ step that was not rewriting according to
+`refl` (via `≡⟨⟩`).  In `+-comm`, we used another lemma `+-suc`, but
+this lemma served only to set up the use of the induction hypothesis.
+
+Sometimes, if we should use the inductive hypothesis but instead try
+to rely on outside lemmas only, we may find that we embark on a long
+series of linked results, each one requiring the next, and maybe
+seeming circular.  This situation is often a sign that we should go
+back to the original proof, and look for a way to use the induction
+hypothesis.
+
+Again, this strategy is a _general_ rule for inductive proofs, not an
+ironclad absolute for all proofs.  Below we will see some proofs which
+require a case analysis but _not_ induction — it happens!  But these
+instances tend not to be simpler.  When your search for a proof
+instead seems to go down a rabbit hole of more and more complicated
+lemmas, each depending on the next, one strategy is to re-focus on
+finding the inductive case in the original result.
 
 #### Exercise `+-swap` (recommended) {#plus-swap}
 

@@ -132,10 +132,10 @@ In some ways, a BNF is quite informal.  It does gives suggestions
 about the surface syntax of expressions, like the fact that the
 addition operation is written with an infix `+`.  But it also leaves
 other aspects of lexical analysis and parsing unspecified, like the
-relative precedence of [+], [-], and [*], the use of parens to group
-subexpressions.  Some additional information — and human intelligence
-— would be required to turn this description into a formal definition,
-such as for implementing a compiler.
+relative precedence of `+`, `-`, and `*`, and the use of parentheses
+to group subexpressions.  Some additional information — and human
+intelligence — would be required to turn this description into a
+formal definition, such as for implementing a compiler.
 
 In other ways the BNF version is light and easy to read.  It is not
 tied to any particular language's syntax, as we will shortly do when
