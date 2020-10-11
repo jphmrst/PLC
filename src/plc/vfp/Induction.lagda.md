@@ -707,9 +707,9 @@ For example, one of the key equations of the inductive case of
 If we forget to include the reason at all, it means that we are
 telling Agda that the two sides of that equation can be demonstrated
 just by rewriting according to the rules defined in function clauses.
-But this isn't true — there are no instances of `zero + M` or `(suc M)
-+ N` in those terms.  If we were to use `≡⟨⟩` to link those two
-expressions,
+But this isn't true — there are no instances of `zero + M` or
+`(suc M) + N` in those terms.
+If we were to use `≡⟨⟩` to link those two expressions,
 
     +-comm' : ∀ (m n : ℕ) → m + n ≡ n + m
     +-comm' m zero =
