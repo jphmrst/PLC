@@ -15,8 +15,8 @@ open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_�
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
-
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
+open import plc.vfp.Relations using (_⇔_)
 ```
 
 In this section we take a more serious look at how to use Agda to
@@ -516,8 +516,7 @@ an informal proof tree we might have
 
 and as formal proofs,
 
-TODO --- restore examples when params settle down
-
+```
   _ : # 2 ⇓ᵃ 2
   _ = Eᵃℕ
 
@@ -526,6 +525,7 @@ TODO --- restore examples when params settle down
 
   _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
   _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
+```
 
 ============================================================
 
@@ -725,7 +725,15 @@ correspond directly to built-in arithmetic operators.
     ∎
 ```
 
-TODO --- the bi-implication
+With these two lemmas we can state an equivalence theorem.
+
+```
+  aevalFn⇔Rel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n ⇔ a ⇓ᵃ n
+  aevalFn⇔Rel a n = record
+    { to   = λ aFn -> aevalFnThenRel a n aFn
+    ; from = λ aRn -> aevalRelThenFn a n aRn
+    }
+```
 
 #### Exercise `bevalRelationIffEval` (recommended) {#bevalRelationIffEval}
 
@@ -1268,6 +1276,9 @@ theorem will be somewhat lengthy.
     _ : X ↦ 2 , emptyState =[ pupToN ]=> X ↦ 0 , Y ↦ 3 , X ↦ 1 , Y ↦ 2 , Y ↦ 0 , X ↦ 2 , emptyState
     _ = -- FILL IN YOUR PROOF HERE
 
+
+
+TODO --- unconverted material starts here
 
 (* HIDE: PR: I phrased these quizzes with the following alternatives:
    (1) Not true
