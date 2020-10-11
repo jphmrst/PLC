@@ -725,7 +725,7 @@ If we were to use `≡⟨⟩` to link those two expressions,
         m + suc n
       ≡⟨ +-suc m n ⟩
         suc (m + n)
-      ≡⟨⟩
+      ≡⟨⟩                --  <-- This reason dropped
         suc (n + m)
       ≡⟨⟩
         suc n + m
