@@ -393,10 +393,6 @@ although the use of functions to model states does simplify our model
 in some ways, the expressions which describe these state become longer
 here.
 
-{::comment}
-TODO FUTURE --- describe @-patterns earlier so it's not new here
-{:/comment}
-
 We begin with the simple named parameters as usual.  The first five
 parameters correspond to the five quantified values in the signature,
 and the last three parameters correspond to the three premises of the
@@ -448,20 +444,45 @@ The simplest case is for the no-operation command `skip`.
 cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = st₁≡st₂
 ```
 
-TODO --- write up these clauses
+Going forward it is important to keep in mind that we are
+demonstrating an equality.  The evidence for this equality in the
+previous `skip` clause was readily available, but it is more typical,
+especially in inductive clauses, that we will need to build new
+evience for the result.  The clause for the assignment statement `:=`
+shows two typical techniques for establishing equality, both of which
+we have seen in some form before.
+
+ - We have frequently used equation blocks in the last chapter, and we
+   see one here.  The evidence for justifications for the steps of
+   this block is drawn from the arguments of the proof function.
+
+ - Since the states whose equivalences we prove are on `TotalMap`
+   functions, we will use the library of results from the
+   [`MapProps` section]({{ site.baseurl }}/MapProps/).
+
+Once again we see that the form of command corresponds to only a
+single form of evaluation evidence, and that that evidence in turn
+restricts the possible forms of resulting states `st₁'` and `st₂'`.
+Note that part of the evidence echoes part of the command: the
+expression `a` appears explicitly in the evidence, and the local
+dot-pattern in the evidence emphasizes that the expression must be the
+same.  The expression `a` also appears implicitly a second time in
+each piece of evidence, since it is a subject of the third element of
+each `E:=` evidence value.  We use a `where` clause for readability,
+to explicitly name a key element of the overall evidence.
 
 ```
-cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( x ↦ n₂ , st₂ )
-                st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
+cevalPreserves≡ (x := a) st₁ st₂ .( x ↦ n₁ , st₁ ) .( x ↦ n₂ , st₂ )
+                st₁≡st₂ (E:= .a n₁ aEvalsToN₁) (E:= .a n₂ aEvalsToN₂) =
                   tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
                   where n₁≡n₂ : n₁ ≡ n₂
                         n₁≡n₂ = begin
                                   n₁
-                                ≡⟨ sym e₁ ⟩ 
+                                ≡⟨ sym aEvalsToN₁ ⟩ 
                                   (⟦ a ⟧ᵃ st₁)
                                 ≡⟨ cong (⟦ a ⟧ᵃ_) st₁≡st₂ ⟩ 
                                   (⟦ a ⟧ᵃ st₂)
-                                ≡⟨ e₂ ⟩
+                                ≡⟨ aEvalsToN₂ ⟩
                                   n₂
                                 ∎
 ```
@@ -480,11 +501,11 @@ TODO --- write up these clauses
 
 ```
 cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
-                (EIfT _ e₁) (EIfT _ e₂) =
-  cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
+                (EIfT _ aEvalsToN₁) (EIfT _ aEvalsToN₂) =
+  cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
 cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
-                (EIfF _ e₁) (EIfF _ e₂) = 
-  cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
+                (EIfF _ aEvalsToN₁) (EIfF _ aEvalsToN₂) = 
+  cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
 ```
 
 TODO --- write up these clauses
@@ -515,6 +536,10 @@ cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
 ```
 
 TODO --- write up these clauses
+
+{::comment}
+TODO FUTURE --- describe @-patterns earlier so it's not new here
+{:/comment}
 
 ```
 cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
