@@ -29,10 +29,10 @@ permalink: /
 
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [DataProp]({{ site.baseurl }}/DataProp/): Properties of data structures
-  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
   - [DataRel]({{ site.baseurl }}/DataRel/): Relations for data structures
   - [Logic]({{ site.baseurl }}/Logic/): Connectives and deduction
+  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
 
 ## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
@@ -44,8 +44,8 @@ permalink: /
 ## Incomplete
 
 ### Imperative programming
-  - [Imp]({{ site.baseurl }}/Imp/): A small imperative language, and
-    its operational semantics
+  - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
+  - [Imp]({{ site.baseurl }}/Imp/): Commands and their operational semantics
   - Equiv: What does it mean for two imperative programs to be equivalent?
   - Hoare: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
