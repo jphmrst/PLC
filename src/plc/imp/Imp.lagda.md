@@ -12,7 +12,6 @@ open import Function using (case_of_)
 open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
@@ -352,19 +351,109 @@ that we will make use of some of the results on partial maps from
 
 We will actually prove a slightly more general result first, that
 `ceval` preserves the equality relationship.  This technique is
-helpful when intermediate steps need the more general result.
+helpful when intermediate steps need the more general result.  We
+begin as usual with a signature stating the result we wish to show.
 
-TODO --- write up this long proof
 ```
 cevalPreserves≡ : ∀ (c : Command) (st₁ st₂ st₁' st₂' : State)
                     → st₁ ≡ st₂
                       → st₁ =[ c ]=> st₁'  
                         → st₂ =[ c ]=> st₂'
                           → st₁' ≡ st₂'
+```
+
+We can illustrate this statement in a diagram:
+
+           =[ c ]=>
+    st₁ ==============> st₁'
+     |                  .
+     | ≡                . ≡
+     |                  .
+    st₂ ==============> st₂'
+           =[ c ]=>
+
+The diagram uses solid lines to show relationships which we are
+_given_, and a dotted line to show the relationship which we _want to
+show_.  Each line is labeled with the relation which we are asserting
+between the endpoints of that line.
+
+This proof will probably be the most difficult, and certainly the
+longest, that we have seen so far.  However, most of the techniques we
+will see in the proof are techniques we have used before: case
+analysis and induction, application of evidence to equation blocks,
+propagation of constraints by dot-patterns.  The complexity of this
+proof arises from a number of sources: First, the fact that we are
+reasoning across three given erelationships, as the diagram shows.
+The indirectness of the relationship between the four states in the
+quantification requires additional reasoning steps.  Moreover, the
+number of cases in both the semantic relation `_=[_]=>_` and the forms
+of `Command` adds to the number of cases in the proof.  There are more
+quantified values and premises to this theorem than our usual.  And
+although the use of functions to model states does simplify our model
+in some ways, the expressions which describe these state become longer
+here.
+
+{::comment}
+TODO FUTURE --- describe @-patterns earlier so it's not new here
+{:/comment}
+
+We begin with the simple named parameters as usual.  The first five
+parameters correspond to the five quantified values in the signature,
+and the last three parameters correspond to the three premises of the
+final conclusion, for which the body of the proof function builds
+evidence.
+
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
+
+We can diagram these roles of each parameter,
+
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂'
+                     |   \             /     |       |         |
+                     |    \___________/      |       |         +-- Evidence that st₂ =[ c ]=> st₂'
+                     |          |            |       |
+                     |          |            |       +-- Evidence that st₁ =[ c ]=> st₁'
+                     |          |            |
+                     |          |            +-- Evidence that st₁ ≡ st₂
+                     |          |     
+                     |          +-- The four quantified states
+                     |
+                     +-- The quantified command
+
+We proceed with a case analysis of the possible forms of statement.
+The simplest case is for the no-operation command `skip`.
+
+    cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
+
+- The only evidence for the `_=[_]=>_` relation which pertains to the
+   `skip` command is `Eskip`, so we can narrow the pattern for the
+   `st₁=>st₁'` and `st₂=>st₂'` arguments to `Eskip` only.
+
+       cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ Eskip Eskip = ?
+
+ - In turn, the `Eskip` evidence tells us that the starting and ending
+   states for each `_=[ skip ]=>_` relation _must be the same_.  So
+   instead of giving distinct names to the `st₁'` and `st₂'`
+   parameters, we can use a dot-pattern to assert the equalities among
+   these values.
+
+       cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = ?
+
+ - Our general goal for each of these clauses is to show that
+   `st₁' ≡ st₂'`.  With the introduction of the dot-patterns,
+   we have transformed that goal for _this_ clause to `st₁ ≡ st₂`.
+   But this is exactly what the evidence of the `st₁≡st₂` argument
+   demonstrates, so we can return that evidence for this clause.   
+
+```
 cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = st₁≡st₂
+```
+
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( x ↦ n₂ , st₂ )
-                   st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
-                     tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
+                st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
+                  tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
                    where n₁≡n₂ : n₁ ≡ n₂
                          n₁≡n₂ = begin
                                   n₁
@@ -375,19 +464,32 @@ cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( 
                                 ≡⟨ e₂ ⟩
                                   n₂
                                 ∎
+```
+
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
-                   (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
+                (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
   cevalPreserves≡ c₂ stA stB st₁' st₂' stA≡stB stASt₁' stBSt₂'
   where stA≡stB : stA ≡ stB
         stA≡stB = cevalPreserves≡ c₁ st₁ st₂ stA stB st₁≡st₂ stStA stStB
+```
 
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EIfT _ e₁) (EIfT _ e₂) =
   cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
 cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EIfF _ e₁) (EIfF _ e₂) = 
   cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
+```
 
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
                 (EIfT xIsTrue _) (EIfF xIsFalse _) =
   case (begin
@@ -410,7 +512,11 @@ cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
         ≡⟨ xIsTrue ⟩
           true
         ∎) of λ ()
-                       
+```
+
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
                 (EWhileF x₁) (EWhileF x₂) = st₁≡st₂
 cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st₂
@@ -420,7 +526,11 @@ cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st�
  where intermediates : st₁* ≡ st₂*
        intermediates = cevalPreserves≡ c st₁ st₂ st₁* st₂* st₁≡st₂
                                         st₁⇒st₁* st₂⇒st₂*
+```
 
+TODO --- write up these clauses
+
+```
 cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
   case (begin
           false
@@ -1296,6 +1406,6 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Pierce et al. with some additional material
-by Maraist; for more information see the [sources and authorship]({{
+*This page is derived from Pierce et al. with additional material by
+Maraist; for more information see the [sources and authorship]({{
 site.baseurl }}/Sources/) page.*
