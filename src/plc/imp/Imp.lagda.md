@@ -454,8 +454,8 @@ TODO --- write up these clauses
 cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( x ↦ n₂ , st₂ )
                 st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
                   tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
-                   where n₁≡n₂ : n₁ ≡ n₂
-                         n₁≡n₂ = begin
+                  where n₁≡n₂ : n₁ ≡ n₂
+                        n₁≡n₂ = begin
                                   n₁
                                 ≡⟨ sym e₁ ⟩ 
                                   (⟦ a ⟧ᵃ st₁)
