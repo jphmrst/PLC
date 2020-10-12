@@ -8,14 +8,16 @@ next      : /
 
 ```
 module plc.imp.Imp where
-open import Data.String using (String)
+open import Function using (case_of_)
+open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
-open import Data.Bool using (Bool; true; false; not; _∨_; _∧_)
+open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym)
+open Eq using (_≡_; refl; cong; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
+open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
 ```
 
@@ -1191,7 +1193,7 @@ corresponds to the inference rules.
 ```
 data _=[_]=>_ : State → Command → State → Set where
   Eskip : ∀ { st : State } → st =[ skip ]=> st
-  E:= : ∀ { st : State } { a : AExp } { n : ℕ } { x : String } →
+  E:= : ∀ { st : State } { x : String } ( a : AExp ) ( n : ℕ ) →
            ⟦ a ⟧ᵃ st ≡ n →
              st =[ x := a ]=> ( x ↦ n , st )
   E, : ∀ { st' : State } { st st′' : State } { c₁ c₂ : Command } →
@@ -1209,7 +1211,7 @@ data _=[_]=>_ : State → Command → State → Set where
   EWhileF : ∀ { st : State } { b : BExp } { c : Command } →
                ⟦ b ⟧ᵇ st ≡ false →
                  st =[ while b loop c end ]=> st
-  EWhileT : ∀ { st st' st′' : State } { b : BExp } { c : Command } →
+  EWhileT : ∀ { st' st st′' : State } { b : BExp } { c : Command } →
                ⟦ b ⟧ᵇ st ≡ true →
                  st =[ c ]=> st' →
                    st' =[ while b loop c end ]=> st′' →
@@ -1247,7 +1249,7 @@ _ : emptyState =[
         else Z := # 4
       end
     ]=> Z ↦ 4 , X ↦ 2 , emptyState
-_ = E, (E:= refl) (EIfF refl (E:= refl))
+_ = E, (E:= (# 2) 2 refl) (EIfF refl (E:= (# 4) 4 refl))
 ```
 
 Here is another example,
@@ -1258,7 +1260,7 @@ _ : emptyState =[
       Y := # 1 ,
       Z := # 2
     ]=> Z ↦ 2 , Y ↦ 1 , X ↦ 0 , emptyState
-_ = E, (E:= refl) (E, (E:= refl) (E:= refl))
+_ = E, (E:= (# 0) 0 refl) (E, (E:= (# 1) 1 refl) (E:= (# 2) 2 refl))
 ```
 
 
@@ -1278,231 +1280,162 @@ theorem will be somewhat lengthy.
 
 
 
-TODO --- unconverted material starts here
+## Determinism of evaluation
 
-(* HIDE: PR: I phrased these quizzes with the following alternatives:
-   (1) Not true
-   (2) True and easily provable in Agda
-   (3) True and takes more work to prove in Agda
-   (4) True and cannot be proved in Agda without additional axioms
-*)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (c : com) (st st' : state),
-        st =[ skip ; c ]=> st' ->
-        st =[ c ]=> st'
-``
-    (1) Yes
+Changing from a computational to a relational definition of evaluation
+is a good move because it frees us from the artificial requirement
+that evaluation should be a total function.  But it also raises a
+question: Is the second definition of evaluation really a partial
+_function_?  Or is it possible that, beginning from the same state
+`st`, we could evaluate some command `c` in different ways to reach
+two different output states `st'` and `st''`?
 
-    (2) No
+In fact, this cannot happen: `ceval` _is_ a partial function.  Note
+that we will make use of some of the results on partial maps from
+[Section MapProps]({{ site.baseurl }}/MapProps/) in this result.
 
-    (3) Not sure
+We will actually prove a slightly more general result first, that
+`ceval` preserves the equality relationship.  This technique is
+helpful when intermediate steps need the more general result.
 
-*)
-(* HIDE *)
-Lemma quiz1_answer :  forall c st st',
-    st =[ skip ; c ]=> st' ->
-    st =[ c ]=> st'.
-Proof.
-   intros c st st' E.
-   inversion E.
-   inversion H1.
-   subst.
-   assumption.
-Qed.
+TODO --- unconverted material starts here --- write up this long proof
+```
+cevalPreserves≡ : ∀ (c : Command) (st₁ st₂ st₁' st₂' : State)
+                    → st₁ ≡ st₂
+                      → st₁ =[ c ]=> st₁'  
+                        → st₂ =[ c ]=> st₂'
+                          → st₁' ≡ st₂'
+cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = st₁≡st₂
+cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( x ↦ n₂ , st₂ )
+                   st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
+                     tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
+                   where n₁≡n₂ : n₁ ≡ n₂
+                         n₁≡n₂ = begin
+                                  n₁
+                                ≡⟨ sym e₁ ⟩ 
+                                  (⟦ a ⟧ᵃ st₁)
+                                ≡⟨ cong (⟦ a ⟧ᵃ_) st₁≡st₂ ⟩ 
+                                  (⟦ a ⟧ᵃ st₂)
+                                ≡⟨ e₂ ⟩
+                                  n₂
+                                ∎
+cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
+                   (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
+  cevalPreserves≡ c₂ stA stB st₁' st₂' stA≡stB stASt₁' stBSt₂'
+  where stA≡stB : stA ≡ stB
+        stA≡stB = cevalPreserves≡ c₁ st₁ st₂ stA stB st₁≡st₂ stStA stStB
 
-(* /HIDE *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (c1 c2 : com) (st st' : state),
-          st =[ c1;c2 ]=> st' ->
-          st =[ c1 ]=> st ->
-          st =[ c2 ]=> st'
-``
-    (1) Yes
+cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfT _ e₁) (EIfT _ e₂) =
+  cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
+cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfF _ e₁) (EIfF _ e₂) = 
+  cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
 
-    (2) No
+cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfT xIsTrue _) (EIfF xIsFalse _) =
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfF xIsFalse _) (EIfT xIsTrue _) = 
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+                       
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
+                (EWhileF x₁) (EWhileF x₂) = st₁≡st₂
+cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EWhileT {st₁*} _ st₁⇒st₁* st₁*⇒st₁')
+                (EWhileT {st₂*} _ st₂⇒st₂* st₂*⇒st₂') = 
+ cevalPreserves≡ cmd st₁* st₂* st₁' st₂' intermediates st₁*⇒st₁' st₂*⇒st₂'
+ where intermediates : st₁* ≡ st₂*
+       intermediates = cevalPreserves≡ c st₁ st₂ st₁* st₂* st₁≡st₂
+                                        st₁⇒st₁* st₂⇒st₂*
 
-    (3) Not sure
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂ (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+```
 
-*)
-(* INSTRUCTORS: Answer is given later as it depends on
-   ceval_deterministic *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (b : bexp) (c : com) (st st' : state),
-          st =[ if b then c else c end ]=> st' ->
-          st =[ c ]=> st'
-``
-    (1) Yes
+Then the proof of `ceval`'s determinism is immediate, since every starting state is equal to itself.
 
-    (2) No
+```
+cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
+                       → st =[ c ]=> st₁  
+                         → st =[ c ]=> st₂
+                           -> st₁ ≡ st₂
+cevalDeterministic c st st₁ st₂ = cevalPreserves≡ c st st st₁ st₂ refl
+```
 
-    (3) Not sure
+## Reasoning about Imp programs
 
-*)
-(* INSTRUCTORS *)
-Lemma quiz3_answer: forall (b : bexp) (c : com) (st st' : state),
-    st =[ if b then c else c end`=> st' ->
-    st =[ c ]=> st'.
-Proof.
-  intros b c st st' H. inversion H.
-  subst. assumption.
-  subst. assumption.
-Qed.
-(* /INSTRUCTORS *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall b : bexp,
-         (forall st, ⟦ b ⟧ᵇ st = true) ->
-         forall (c : com) (st : state),
-           ~(exists st', st =[ while b do c end ]=> st')
-``
-    (1) Yes
+--   LATER: This section doesn't seem very useful — to anybody!  It
+--   takes too much time to go through it in class, and even for
+--   advanced students it's too low-level and grubby to be a very
+--   convincing motivation for what follows — i.e., to feel motivated
+--   by its grubbiness, you have to understand it, but this takes more
+--   time than it's worth.  Better to cut the whole rest of the
+--   file (except the further exercises at the very end), or at least
+--   make it optional.
+--
+--   (BCP 10/18: However, this removes quite a few exercises. Is the
+--   homework assignment still meaty enough?  I'm going to leave it
+--   as-is for now, but we should reconsider this later.) *)
 
-    (2) No
+We'll get deeper into more systematic and powerful techniques for
+reasoning about Imp programs in the next sections, but we can get some
+distance just working with the bare definitions.  This section
+explores some examples.
 
-    (3) Not sure
+```
+addingTwo : ∀ (st st' : State) (n : ℕ)
+              → st X ≡ n
+                → st =[ plus2 ]=> st'
+                  → st' X ≡ n Data.Nat.+ 2
+addingTwo st .( X ↦ n2 , st ) n xBoundToN
+             (E:= {.st} {.X} .(id X + # 2) n2 aEvalN) = 
+  begin
+    ("X" ↦ n2 , st) X
+  ≡⟨ cong (λ z → ("X" ↦ z , st) X) (sym aEvalN) ⟩
+    ("X" ↦ (st X Data.Nat.+ 2) , st) X
+  ≡⟨ tUpdateEq st X (st X Data.Nat.+ 2) ⟩
+    st X Data.Nat.+ 2
+  ≡⟨ cong (Data.Nat._+ 2) xBoundToN ⟩
+    n Data.Nat.+ 2
+  ∎
+```
 
-*)
-(* HIDE *)
-(* This one is tricky! *)
-Lemma quiz4_answer: forall b : bexp,
-    (forall st, ⟦ b ⟧ᵇ st = true) ->
-    forall (c : com) (st : state),
-      ~(exists st', st =[ while b do c end ]=> st').
-Proof.
-  intros b H c st.
-  unfold not.
-  intros W.
-  destruct W as `st' WW`.
-  remember <{ while b do c end }> as cc.
-  induction WW; try discriminate Heqcc; inversion Heqcc; subst.
-  - rewrite H in H0. discriminate H0.
-  - apply IHWW2. reflexivity.
-Qed.
-(* /HIDE *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =[ while b do c end ]=> st') ->
-         forall st'', beval st'' b = true
-``
-    (1) Yes
-
-    (2) No
-
-    (3) Not sure
-
-*)
-(* HIDE *)
-Lemma quiz5_answer: forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =[ while b do c end ]=> st') ->
-         forall st'', beval st'' b = true.
-Proof.
-  intros b c st H st''.
-Abort. (* Can't make any progress - claim is false! *)
-(* /HIDE *)
-(* /QUIZ *)
-
-(* ####################################################### *)
-(** ** Determinism of Evaluation *)
-
-(* LATER: Maybe this should go at the end of the file in a section
-   marked optional?  Not everybody will want to spend time on it. *)
-(* FULL *)
-(** Changing from a computational to a relational definition of
-    evaluation is a good move because it frees us from the artificial
-    requirement that evaluation should be a total function.  But it
-    also raises a question: Is the second definition of evaluation
-    really a partial _function_?  Or is it possible that, beginning from
-    the same state `st`, we could evaluate some command `c` in
-    different ways to reach two different output states `st'` and
-    `st''`?
-
-    In fact, this cannot happen: `ceval` _is_ a partial function: *)
-(* /FULL *)
-(* LATER: Informal proof needed!  (And once can surely be found in
-   some past CIS500 exam solutions!) *)
-
-Theorem ceval_deterministic: forall c st st1 st2,
-     st =[ c ]=> st1  ->
-     st =[ c ]=> st2 ->
-     st1 = st2.
-(* FOLD *)
-Proof.
-  intros c st st1 st2 E1 E2.
-  generalize dependent st2.
-  induction E1; intros st2 E2; inversion E2; subst.
-  - (* ESkip *) reflexivity.
-  - (* EAsgn *) reflexivity.
-  - (* ESeq *)
-    rewrite (IHE1_1 st'0 H1) in *.
-    apply IHE1_2. assumption.
-  - (* EIfTrue, b evaluates to true *)
-      apply IHE1. assumption.
-  - (* EIfTrue,  b evaluates to false (contradiction) *)
-      rewrite H in H5. discriminate.
-  - (* EIfFalse, b evaluates to true (contradiction) *)
-      rewrite H in H5. discriminate.
-  - (* EIfFalse, b evaluates to false *)
-      apply IHE1. assumption.
-  - (* EWhileFalse, b evaluates to false *)
-    reflexivity.
-  - (* EWhileFalse, b evaluates to true (contradiction) *)
-    rewrite H in H2. discriminate.
-  - (* EWhileTrue, b evaluates to false (contradiction) *)
-    rewrite H in H4. discriminate.
-  - (* EWhileTrue, b evaluates to true *)
-    rewrite (IHE1_1 st'0 H3) in *.
-    apply IHE1_2. assumption.  Qed.
-(* /FOLD *)
-
-(* HIDE *)
-(* Answer to previous quiz. *)
-Lemma quiz2_answer : forall c1 c2 st st',
-    st =[ c1;c2 ]=> st' ->
-    st =[ c1 ]=> st ->
-    st =[ c2 ]=> st'.
-Proof.
-  intros c1 c2 st st' H1 H2.
-  inversion H1. subst.
-  rewrite ceval_deterministic with (c := c1) (st := st)
-                                   (st1 := st) (st2 := st'0);
-     assumption.
-Qed.
-(* /HIDE *)
-
-(* FULL *)
-(* ####################################################### *)
-(** * Reasoning About Imp Programs *)
-
-(* LATER: This section doesn't seem very useful — to anybody!  It
-   takes too much time to go through it in class, and even for
-   advanced students it's too low-level and grubby to be a very
-   convincing motivation for what follows — i.e., to feel motivated
-   by its grubbiness, you have to understand it, but this takes more
-   time than it's worth.  Better to cut the whole rest of the
-   file (except the further exercises at the very end), or at least
-   make it optional.
-
-   (BCP 10/18: However, this removes quite a few exercises. Is the
-   homework assignment still meaty enough?  I'm going to leave it
-   as-is for now, but we should reconsider this later.) *)
-
-(** We'll get deeper into more systematic and powerful techniques for
-    reasoning about Imp programs in _Programming Language
-    Foundations_, but we can get some distance just working with the
-    bare definitions.  This section explores some examples. *)
+TODO --- unconverted material starts here --- write up this long proof
 
 Theorem plus2_spec : forall st n st',
   st X = n ->
