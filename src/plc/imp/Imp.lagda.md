@@ -19,6 +19,7 @@ open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
+open import plc.vfp.Logic
 open import plc.imp.ImpExprs public
 ```
 
@@ -242,8 +243,6 @@ evaluation, presented as inference rules for readability:
                   --------------------------------                 (E_WhileTrue)
                   st  =[ while b do c end ]=> st′'
 
-*)
-
 Here is the formal definition.  Make sure you understand how it
 corresponds to the inference rules.
 
@@ -355,7 +354,7 @@ We will actually prove a slightly more general result first, that
 `ceval` preserves the equality relationship.  This technique is
 helpful when intermediate steps need the more general result.
 
-TODO --- unconverted material starts here --- write up this long proof
+TODO --- write up this long proof
 ```
 cevalPreserves≡ : ∀ (c : Command) (st₁ st₂ st₁' st₂' : State)
                     → st₁ ≡ st₂
@@ -456,18 +455,22 @@ cevalDeterministic c st st₁ st₂ = cevalPreserves≡ c st st st₁ st₂ refl
 
 ## Reasoning about Imp programs
 
---   LATER: This section doesn't seem very useful — to anybody!  It
---   takes too much time to go through it in class, and even for
---   advanced students it's too low-level and grubby to be a very
---   convincing motivation for what follows — i.e., to feel motivated
---   by its grubbiness, you have to understand it, but this takes more
---   time than it's worth.  Better to cut the whole rest of the
---   file (except the further exercises at the very end), or at least
---   make it optional.
---
---   (BCP 10/18: However, this removes quite a few exercises. Is the
---   homework assignment still meaty enough?  I'm going to leave it
---   as-is for now, but we should reconsider this later.) *)
+{::comment}
+
+LATER: This section doesn't seem very useful — to anybody!  It
+takes too much time to go through it in class, and even for
+advanced students it's too low-level and grubby to be a very
+convincing motivation for what follows — i.e., to feel motivated
+by its grubbiness, you have to understand it, but this takes more
+time than it's worth.  Better to cut the whole rest of the
+file (except the further exercises at the very end), or at least
+make it optional.
+
+(BCP 10/18: However, this removes quite a few exercises. Is the
+homework assignment still meaty enough?  I'm going to leave it
+as-is for now, but we should reconsider this later.) *)
+
+{:/comment}
 
 We'll get deeper into more systematic and powerful techniques for
 reasoning about Imp programs in the next sections, but we can get some
@@ -492,439 +495,47 @@ addingTwo st .( X ↦ n2 , st ) n xBoundToN
   ∎
 ```
 
-TODO --- unconverted material starts here --- write up this long proof
+#### Exercise `XtimesYinZSpec` (practice) {#XtimesYinZSpec}
 
-Theorem plus2_spec : forall st n st',
-  st X = n ->
-  st =[ plus2 ]=> st' ->
-  st' X = n + 2.
-Proof.
-  intros st n st' HX Heval.
+State and prove a similar specification of `XtimesYinZ`.
 
-  (** Inverting `Heval` essentially forces Agda to expand one step of
-      the `ceval` computation — in this case revealing that `st'`
-      must be `st` extended with the new value of `X`, since `plus2`
-      is an assignment. *)
+#### Exercise `loopNeverStops` (practice) {#loopNeverStops}
 
-  inversion Heval. subst. clear Heval. simpl.
-  apply t_update_eq.  Qed.
+Prove this theorem about a nonterminating program:
 
-(* SOONER: This used to be recommended.  Should it be reinstated? *)
-(* EX3? (XtimesYinZ_spec) *)
-(** State and prove a specification of `XtimesYinZ`. *)
+```
+postulate loopNeverStops : ∀ (st st' : State) → ¬ (st =[ forever ]=> st')
+-- Remove the "postulate" keyword and add your proof code here
+```
 
-(* SOLUTION *)
-(* Here is a specification in the style of plus2_spec *)
-Theorem XtimesYinZ_spec1 : forall st nx ny st',
-  st X = nx ->
-  st Y = ny ->
-  st =[ XtimesYinZ ]=> st' ->
-  st' Z = nx * ny.
-Proof.
-  intros st nx ny st' HX HY Heval.
-  (* Start by inverting the assignment *)
-  inversion Heval. subst.
-  apply t_update_eq.  Qed.
+#### Exercise `noWhiles` (practice) {#noWhiles}
 
-(* Though perhaps a cleaner specification would be: *)
-Theorem XtimesYinZ_spec : forall st,
-    st =[ XtimesYinZ ]=> (Z ↦ st X * st Y ; st ).
-Proof. intros. apply EAsgn. reflexivity. Qed.
+Consider the following function:
 
-(* A less informative specification would be ... *)
-Theorem XtimesYinZ_spec2 : forall st, exists st',
-      st =[ XtimesYinZ ]=> st'.
-Proof.
-  intros. exists (Z ↦ st X * st Y ; st).
-  apply EAsgn. reflexivity.
-Qed.
-(* /SOLUTION *)
+```
+noWhiles : Command → Bool
+noWhiles skip = true
+noWhiles (x := x₁) = true
+noWhiles (c , c₁) = noWhiles c ∧ noWhiles c₁
+noWhiles if x then c else c₁ end = noWhiles c ∧ noWhiles c₁
+noWhiles while x loop c end = false
+```
 
-(* GRADEMANUAL 3: XtimesYinZ_spec *)
-(** `` *)
+This predicate yields `true` just on programs that have no while
+loops.  Write a property `noWhilesR (c : Command) : Set` such that
+`no_whilesR c` is provable exactly when `c` is a program with no while
+loops.  Then prove its equivalence with `no_whiles`. 
 
-(* EX3! (loop_never_stops) *)
-Theorem loop_never_stops : forall st st',
-  ~(st =[ loop ]=> st').
-Proof.
-  intros st st' contra. unfold loop in contra.
-  remember <{ while true do skip end }> as loopdef
-           eqn:Heqloopdef.
+#### Exercise `noWhilesTerminating` (stretch) {#noWhilesTerminating}
 
-  (** Proceed by induction on the assumed derivation showing that
-      `loopdef` terminates.  Most of the cases are immediately
-      contradictory (and so can be solved in one step with
-      `discriminate`). *)
+Imp programs that don't involve while loops always terminate.  State
+and prove a theorem `noWhilesTerminating` that says this.
 
-  (* ADMITTED *)
-  induction contra; try (discriminate Heqloopdef).
-  - (* EWhileFalse *)
-      injection Heqloopdef. intros H0 H1. rewrite -> H1 in H. discriminate H.
-    - (* EWhileTrue *) apply IHcontra2. apply Heqloopdef. Qed.
+{::comment}
 
-(* /ADMITTED *)
-(** `` *)
+TODO --- Convert and un-comment
 
-(* EX3 (no_whiles_eqv) *)
-(** Consider the following function: *)
-
-Fixpoint no_whiles (c : com) : bool :=
-  match c with
-  | <{ skip }> =>
-      true
-  | <{ _ := _ }> =>
-      true
-  | <{ c1 ; c2 }> =>
-      andb (no_whiles c1) (no_whiles c2)
-  | <{ if _ then ct else cf end }> =>
-      andb (no_whiles ct) (no_whiles cf)
-  | <{ while _ do _ end }>  =>
-      false
-  end.
-
-(** This predicate yields `true` just on programs that have no while
-    loops.  Using `Inductive`, write a property `no_whilesR` such that
-    `no_whilesR c` is provable exactly when `c` is a program with no
-    while loops.  Then prove its equivalence with `no_whiles`. *)
-
-Inductive no_whilesR: com -> Prop :=
- (* SOLUTION *)
- | nw_Skip: no_whilesR <{ skip }>
- | nw_Ass: forall x ae, no_whilesR <{ x := ae }>
- | nw_Seq: forall c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ c1 ; c2 }>
- | nw_If: forall be c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ if be then c1 else c2 end }>
-(* /SOLUTION *)
-.
-
-Theorem no_whiles_eqv:
-   forall c, no_whiles c = true <-> no_whilesR c.
-Proof.
-  (* ADMITTED *)
-   intros; split.
-  - (* -> *)
-   induction c; intro Hc;
-     try (simpl in Hc; rewrite andb_true_iff in Hc;
-       destruct Hc as `Hc1 Hc2`);
-     try constructor;
-     try (apply IHc1; assumption); try (apply IHc2; assumption).
-   + (* while *) discriminate Hc.
-  - (* <- *)
-    intro H. induction H; simpl;
-      try reflexivity;
-      try (rewrite IHno_whilesR1; rewrite IHno_whilesR2; reflexivity).
-  Qed.
-  (* /ADMITTED *)
-(** `` *)
-
-(* EX4 (no_whiles_terminating) *)
-(** Imp programs that don't involve while loops always terminate.
-    State and prove a theorem `no_whiles_terminating` that says this. *)
-(** FULL: Use either `no_whiles` or `no_whilesR`, as you prefer. *)
-
-(* SOLUTION *)
-(* Here is a solution by induction on no_whilesR: *)
-Theorem no_whiles_terminating : forall c st,
-  no_whilesR c ->
-  exists st',
-  st =[ c ]=> st'.
-Proof.
-  intros c st H. generalize dependent st.
-  induction H; intros; simpl.
-  - (* nw_Skip *) exists st. constructor.
-  - (* nw_Ass *) exists (x ↦ aeval st ae ; st).
-    constructor. reflexivity.
-  - (* nw_Seq *)
-    destruct (IHno_whilesR1 st) as `st' IH'`.
-    destruct (IHno_whilesR2 st') as `st'' IH''`.
-    exists st''. apply ESeq with st'; assumption.
-  - (* nw_If *)
-    destruct (⟦ b ⟧ᵇ ste) eqn:Heqbv.
-    + (* bv = true *)
-      destruct (IHno_whilesR1 st) as `st' IH'`.
-      exists st'. apply EIfTrue. rewrite Heqbv. reflexivity. assumption.
-    + (* bv = false *)
-      destruct (IHno_whilesR2 st) as `st' IH'`.
-      exists st'. apply EIfFalse. rewrite Heqbv. reflexivity. assumption.
-Qed.
-
-(* And here is an alternative solution by induction on c: *)
-Theorem no_whiles_terminating' : forall c st1,
-  no_whiles c = true ->
-  exists st2, st1 =[ c ]=> st2.
-Proof.
-  induction c; intros st1 Hb.
-
-  - (* skip *)
-    exists st1. apply ESkip.
-
-  - (* := *)
-    exists (x ↦ aeval st1 a ; st1). apply EAsgn. reflexivity.
-
-  - (* ; *)
-    simpl in Hb.
-    rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    apply (IHc1 st1) in Hb1. destruct Hb1 as `st1' ceH1`.
-    apply (IHc2 st1') in Hb2. destruct Hb2 as `st1'' ceH2`.
-    exists st1''.
-    apply ESeq with (st' := st1'); assumption.
-
-  - (* if *)
-    simpl in Hb. rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    destruct (beval st1 b) eqn:Heqbv.
-    + (* EIfTrue *)
-      apply (IHc1 st1) in Hb1.
-      destruct Hb1 as `st2 Hce1`. exists st2.
-      apply EIfTrue.
-      * (* b is true *)
-        rewrite <- Heqbv. reflexivity.
-      * (* true branch eval *)
-        assumption.
-    + (* EIfFalse *)
-      apply (IHc2 st1) in Hb2.
-      destruct Hb2 as `st2 Hce2`. exists st2.
-      apply EIfFalse.
-      * (* b is false *)
-        rewrite <- Heqbv. reflexivity.
-      * (* false branch eval *)
-        assumption.
-
-  - (* while *)
-    discriminate Hb.  Qed.
-(* /SOLUTION *)
-
-(* GRADE_MANUAL 6: no_whiles_terminating *)
-(** `` *)
-(* /FULL *)
-
-(* LATER: The following section always gets skipped over when I (BCP)
-   teach the course, because there isn't time to go through all the
-   details and we're going to see the right way to do the same thing
-   in a later chapter, so I am hiding it for now.  I wouldn't mind
-   reinstating it for the use of advanced / self-study readers if
-   somebody wants to write some text to really explain it, but what's
-   there is a bit too telegraphic, so I'm removing it for now. *)
-(* HIDE *)
-(* ####################################################### *)
-(** * Case Study (Optional) *)
-
-(** Recall the factorial program (broken up into smaller pieces this
-    time, for convenience of proving things about it).  *)
-
-fact_body : Command
-  <{ Y := Y * Z ;
-     Z := Z - 1 }>.
-
-fact_loop : Command
-  <{ while ~(Z = 0) do
-       fact_body
-     end }>.
-
-fact_com : Command
-  <{ Z := X ;
-     Y := 1 ;
-     fact_loop }>.
-
-(** Here is an alternative "mathematical" definition of the factorial
-    function: *)
-
-Fixpoint real_fact (n:nat) : nat :=
-  match n with
-  | O => 1
-  | S n' => n * (real_fact n')
-  end.
-
-(** We would like to show that they agree — if we start `fact_com` in
-    a state where variable `X` contains some number `n`, then it will
-    terminate in a state where variable `Y` contains the factorial of
-    `n`.
-
-    To show this, we rely on the critical idea of a _loop
-    invariant_. *)
-
-fact_invariant (n:nat) (st:state) : Prop :=
-  (st Y) * (real_fact (st Z)) = real_fact n.
-
-(** We show that the body of the factorial loop preserves the invariant: *)
-
-(* LATER: Needs an informal proof! *)
-Theorem fact_body_preserves_invariant: forall st st' n,
-     fact_invariant n st ->
-     st Z <> 0 ->
-     st =[ fact_body ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  unfold fact_invariant, fact_body.
-  intros st st' n Hm HZnz He.
-  inversion He; subst; clear He.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  unfold t_update. simpl.
-  (* Show that st Z = S z' for some z' *)
-  destruct (st Z) as `| z'`.
-    exfalso. apply HZnz. reflexivity.
-  rewrite <- Hm. rewrite <- mult_assoc.
-  replace (S z' - 1) with z' by lia.
-  reflexivity.  Qed.
-(* /FOLD *)
-
-(** From this, we can show that the whole loop also preserves the
-invariant: *)
-
-Theorem fact_loop_preserves_invariant : forall st st' n,
-     fact_invariant n st ->
-     st =[ fact_loop ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  intros st st' n H Hce.
-  remember fact_loop as c.
-  induction Hce; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    (* trivial when the loop doesn't run... *)
-    assumption.
-  - (* EWhileTrue *)
-    (* if the loop does run, we know that fact_body preserves
-       fact_invariant — we just need to assemble the pieces *)
-    apply IHHce2.
-      apply fact_body_preserves_invariant with st;
-            try assumption.
-      intros Contra. simpl in H0; subst.
-      rewrite Contra in H0. inversion H0.
-      reflexivity.  Qed.
-(* /FOLD *)
-
-(** Next, we show that, for any loop, if the loop terminates, then the
-    condition guarding the loop must be false at the end: *)
-
-Theorem guard_false_after_loop: forall b c st st',
-     st =[ while b do c end ]=> st' ->
-     beval st' b = false.
-(* FOLD *)
-Proof.
-  intros b c st st' Hce.
-  remember <{ while b do c end }> as cloop.
-  induction Hce; inversion Heqcloop; subst; clear Heqcloop.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHce2. reflexivity.  Qed.
-(* /FOLD *)
-
-(** Finally, we can patching it all together... *)
-
-Theorem fact_com_correct : forall st st' n,
-     st X = n ->
-     st =[ fact_com ]=> st' ->
-     st' Y = real_fact n.
-(* FOLD *)
-Proof.
-  intros st st' n HX Hce.
-  inversion Hce; subst; clear Hce.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  inversion H1; subst; clear H1.
-  rename st' into st''. simpl in H5.
-  (* The invariant is true before the loop runs... *)
-  remember (Y ↦ 1 ; Z ↦ st X ; st) as st' eqn:Heqst'.
-  assert (fact_invariant (st X) st').
-    subst. unfold fact_invariant, t_update. simpl. lia.
-  (* ...so when the loop is done running, the invariant
-     is maintained *)
-  assert (fact_invariant (st X) st'').
-    apply fact_loop_preserves_invariant with st'; assumption.
-  unfold fact_invariant in H0.
-  (* Finally, if the loop terminated, then Z is 0; so Y must be
-     factorial of X *)
-  apply guard_false_after_loop in H5. simpl in H5.
-  destruct (st'' Z) eqn:E.
-  - (* st'' Z = 0 *) simpl in H0. lia.
-  - (* st'' Z > 0 (impossible) *) inversion H5.
-Qed.
-(* /FOLD *)
-
-(** One might wonder whether all this work with poking at states and
-    unfolding definitions could be ameliorated with some more powerful
-    lemmas and/or more uniform reasoning principles... Indeed, this is
-    exactly the topic of the coming chapter \CHAP{Hoare} in _Programming
-    Language Foundations_! *)
-
-(* FULL *)
-(* EX4? (subtractSlowly_spec) *)
-(** Prove a specification for `subtractSlowly`, using the above
-    specification of `fact_com` and the invariant below as
-    guides. *)
-
-ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
-  ((st Z) - st X) = (z - n).
-
-(* SOLUTION *)
-Theorem ss_body_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st X <> 0 ->
-     st =[ subtractSlowlyBody ]=> st' ->
-     ss_invariant n z st'.
-Proof.
-  unfold ss_invariant.
-  intros st n z st' H Hnz He.
-  inversion He; subst; clear He.
-  inversion H2; subst; clear H2.
-  inversion H5; subst; clear H5.
-  unfold t_update. simpl.
-  lia.   (* Interestingly, this is all we need here  — although only after a perceptible delay! *)
-Qed.
-
-Theorem ss_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st =[ subtractSlowly ]=> st'  ->
-     ss_invariant n z st'.
-Proof.
-  intros st n z st' H He.
-  remember subtractSlowly as c.
-  induction He; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHe2; try reflexivity.
-    apply ss_body_preserves_invariant with st; try assumption.
-    intros Contra. simpl in H0. rewrite Contra in H0. inversion H0.  Qed.
-
-Theorem ss_correct : forall st n z st',
-     st X = n ->
-     st Z = z ->
-     st =[ subtractSlowly ]=> st' ->
-     st' Z = (z - n).
-Proof.
-  intros st n z st' HX HZ He.
-  assert (ss_invariant n z st).
-    unfold ss_invariant.
-    subst.
-    reflexivity.
-  assert (ss_invariant n z st').
-    apply ss_preserves_invariant with st; assumption.
-  unfold ss_invariant in H0.
-  apply guard_false_after_loop in He. simpl in He.
-  destruct (st' X) eqn:E.
-  - (* st' X = 0 *) lia.
-  - (* st' X > 0 (impossible) *) inversion He.
-Qed.
-(* /SOLUTION *)
-(** `` *)
-(* /HIDE *)
-
-(* TERSE: HIDEFROMHTML *)
-(* HIDE: N.b.: No "FULL" here because this exercise is needed for the
-   TERSE version of the Smallstep chapter. *)
-(* ####################################################### *)
-(** * Additional Exercises *)
+## Additional exercises 
 
 (* EX3 (stack_compiler) *)
 (** Old HP Calculators, programming languages like Forth and Postscript,
@@ -1664,11 +1275,12 @@ End ThrowImp.
 (* mode: outline-minor *)
 (* /HIDE *)
 
+{:/comment}
+
 ## Unicode
 
 This section uses the following Unicode symbols:
 
-{::comment}
     ×  U+00D7  MULTIPLICATION SIGN (\x)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ⇓  U+21D3  DOWNWARDS DOUBLE ARROW (\d=)
@@ -1681,7 +1293,6 @@ This section uses the following Unicode symbols:
     ᵇ    (\^b)
     ÷    (\div)
     ′'    (\'')
-{:/comment}
 
 ---
 

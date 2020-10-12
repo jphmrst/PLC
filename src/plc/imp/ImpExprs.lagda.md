@@ -1,9 +1,9 @@
 ---
 title     : "ImpExprs: Expression and values in Imp"
 layout    : page
-prev      : /Logic/
-permalink : /Imp/
-next      : /
+prev      : /MapProps/
+permalink : /ImpExprs/
+next      : /Imp/
 ---
 
 ```
@@ -529,8 +529,6 @@ and as formal proofs,
   _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
   _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
 ```
-
-============================================================
 
 #### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
 

@@ -1,7 +1,7 @@
 ---
 title     : "Relations: Inductive definition of relations"
 layout    : page
-prev      : /MapProps/
+prev      : /DataProp/
 permalink : /Relations/
 next      : /DataRel/
 ---

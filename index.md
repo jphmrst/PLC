@@ -34,6 +34,13 @@ permalink: /
   - [Logic]({{ site.baseurl }}/Logic/): Connectives and deduction
   - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
 
+## Imperative programming
+  - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
+  - [Imp]({{ site.baseurl }}/Imp/): Commands and their operational semantics
+  - Equiv: What does it mean for two imperative programs to be equivalent?
+  - Hoare: A compositional semantics for imperative programs
+  - Step: An alternative operational semantics
+
 ## Logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
   - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
@@ -42,14 +49,6 @@ permalink: /
   - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 
 ## Incomplete
-
-### Imperative programming
-  - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
-  - [Imp]({{ site.baseurl }}/Imp/): Commands and their operational semantics
-  - Equiv: What does it mean for two imperative programs to be equivalent?
-  - Hoare: A compositional semantics for imperative programs
-  - Step: An alternative operational semantics
-  - Additional topics to be posted
 
 ### Lambda calculus
 
