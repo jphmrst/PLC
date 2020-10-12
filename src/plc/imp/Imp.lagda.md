@@ -578,7 +578,18 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂ (EWhileT xI
         ∎) of λ ()
 ```
 
-Then the proof of `ceval`'s determinism is immediate, since every starting state is equal to itself.
+The determinism result we originally imagined is somewhat simpler than
+the `cevalPreserves≡` lemma:
+
+                st
+               /  \
+    =[ c ]=>  /    \  =[ c ]=>
+             /      \
+           st₁ - - - st₂
+                 ≡
+                 
+But the proof determinism is immediate from the `cevalPreserves≡`
+lemma, since every starting state is equal to itself.
 
 ```
 cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
@@ -587,6 +598,15 @@ cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
                            -> st₁ ≡ st₂
 cevalDeterministic c st st₁ st₂ = cevalPreserves≡ c st st st₁ st₂ refl
 ```
+
+#### Exercise `cevalDeterministicRefl` (starting) {#cevalDeterministicRefl}
+
+Why do we use `refl` as an argument in the body of `cevalDeterministic`?
+
+#### Exercise `cevalDeterministicInformal` (starting) {#cevalDeterministicInformal}
+
+To better understand the `cevalPreserves≡` and `cevalDeterministic`
+proofs, write out the informal proofs of these results.
 
 ## Reasoning about Imp programs
 
