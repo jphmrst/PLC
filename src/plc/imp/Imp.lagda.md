@@ -1451,6 +1451,6 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Pierce et al. with additional material by
-Maraist; for more information see the [sources and authorship]({{
-site.baseurl }}/Sources/) page.*
+*This page is derived from Pierce et al. with additional explanations
+and exercises by Maraist; for more information see the [sources and
+authorship]({{ site.baseurl }}/Sources/) page.*
