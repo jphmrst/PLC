@@ -349,7 +349,7 @@ In fact, this cannot happen: `ceval` _is_ a partial function.  Note
 that we will make use of some of the results on partial maps from
 [Section MapProps]({{ site.baseurl }}/MapProps/) in this result.
 
-We will actually prove a slightly more general result first, that
+We will actually prove a slightly more general lemma first, that
 `ceval` preserves the equality relationship.  This technique is
 helpful when intermediate steps need the more general result.  We
 begin as usual with a signature stating the result we wish to show.
@@ -503,11 +503,7 @@ composition.
           =[ c₁ ]=>           =[ c₂ ]=>
 
 The result follows by applying `cevalPreserves≡` for an induction
-hypotehesis on each of the two steps of the reduction.  Note that it
-is situations such as this one which lead us to prove this more
-general lemma first: Even if we begin with a single term instead of
-`st₁` and `st₂`, we will only ever have `stA ≡ stB` for the second
-inductive step.
+hypotehesis on each of the two steps of the reduction.  
 
 ```
 cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
@@ -517,53 +513,109 @@ cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
         stA≡stB = cevalPreserves≡ c₁ st₁ st₂ stA stB st₁≡st₂ stStA stStB
 ```
 
-TODO --- write up these clauses
+The next two clauses arise from `if`-commands.  Where the two states
+`st₁` and `st₂` give the same result for the boolean condition `b`, we
+have a simple inductive case on either `cTrue` or `cFalse`.
 
 ```
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EIfT _ aEvalsToN₁) (EIfT _ aEvalsToN₂) =
-  cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
+  cevalPreserves≡ cTrue st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EIfF _ aEvalsToN₁) (EIfF _ aEvalsToN₂) = 
-  cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+  cevalPreserves≡ cFalse st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
 ```
 
-TODO --- write up these clauses
+The next two clauses also arise from `if`-commands, but these two
+clauses — literally — do not make sense!  The clauses cover the
+situations where the two evaluations of the condition `b`, one by
+`st₁` and the other by `st₂`, give different results.  The reason we
+say that there clauses do not make sense is that since `st₁ ≡ st₂`, as
+we are given, we should also have that `⟦ b ⟧ᵇ st₁ ≡ ⟦ b ⟧ᵇ st₂`.  The
+fact that we do not is a contradiction.  Since there is a
+contradiction _in the setup_ of these clauses, we can use a technique
+which tells Agda to disregard these clauses — that they are _absurd_.
 
+Agda can rule out certain kinds of absurdity without our needing to
+write an explicit clause for them.  One example of this kind of
+absurdity would be one for a `skip` statement with `E,`-constructed
+evidence: Agda notices that the statement forms are incompatible, and
+does not expect to see such a clause.  But there are limits to the
+reasoning that a system can make automatically, and Agda need us to
+reveal the absurdity of these two clauses.
+
+For Agda to acknowledge the absurdity of a clause, we must use the
+evidence provided in that clause to construct evidence of a formula
+that Agda can tell is impossible.  Here we use this construction:
+
+    begin
+      false
+    ≡⟨ sym bIsFalse ⟩
+      ⟦ b ⟧ᵇ st₂
+    ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+      ⟦ b ⟧ᵇ st₁
+    ≡⟨ bIsTrue ⟩
+      true
+    ∎
+
+This proof has the type `false ≡ true`.  By combining the arguments to
+the clause in this way, we produce a result that is clearly false to
+Agda: Agda understands that different constructors of a type produce
+values which **cannot** be equal.
+
+Once we describe how to construct "evidence" of absurdity, we can use
+that evidence in the structure
+
+    case ( ... ) of λ ()
+
+This structure asserts to Agda that it will never be possible to
+invoke this clause, since calling the clause would involve
+constructing impossible evidence.
+ 
 ```
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
-                (EIfT xIsTrue _) (EIfF xIsFalse _) =
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfT bIsTrue _) (EIfF bIsFalse _) =
   case (begin
           false
-        ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₂
-        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
-          ⟦ x ⟧ᵇ st₁
-        ≡⟨ xIsTrue ⟩
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
-                (EIfF xIsFalse _) (EIfT xIsTrue _) = 
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfF bIsFalse _) (EIfT bIsTrue _) = 
   case (begin
           false
-        ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₁
-        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
-          ⟦ x ⟧ᵇ st₂
-        ≡⟨ xIsTrue ⟩
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ cong (⟦ b ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
 ```
 
-TODO --- write up these clauses
-
-{::comment}
-TODO FUTURE --- describe @-patterns earlier so it's not new here
-{:/comment}
+There are four clauses related to `while` loops, mirroring the four
+clauses for `if` blocks: two are applicable to real situations, and
+two are absurd.  The real cases implement the two possibilities of the
+loop condition evaluating to either `true` or `false`.
 
 ```
 cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
                 (EWhileF x₁) (EWhileF x₂) = st₁≡st₂
+```
+
+Note the pattern for the argument command in the `true` case:
+
+    cmd@(while x loop c end)
+
+This construction is called an _as-pattern_.  It allows us both to
+refer to the argument as a whole through the name `cmd`, and to give
+names to the components inside the argument.
+
+```
 cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EWhileT {st₁*} _ st₁⇒st₁* st₁*⇒st₁')
                 (EWhileT {st₂*} _ st₂⇒st₂* st₂*⇒st₂') = 
@@ -573,10 +625,12 @@ cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st�
                                         st₁⇒st₁* st₂⇒st₂*
 ```
 
-TODO --- write up these clauses
+Finally, these last two clauses address the absurd cases of different
+results arising from the same boolean condition.
 
 ```
-cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂
+                (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
@@ -586,7 +640,8 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (
         ≡⟨ xIsTrue ⟩
           true
         ∎) of λ ()
-cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂ (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
+cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂
+                (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
