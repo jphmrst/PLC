@@ -47,7 +47,7 @@ CS421/521, Concepts of Programming Languages.
   - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
   - [Imp]({{ site.baseurl }}/Imp/): Commands and their operational semantics
   - Equiv: What does it mean for two imperative programs to be equivalent?
-  - Hoare: A compositional semantics for imperative programs
+  - HoareLogic: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
 
 ## Logic and computation
