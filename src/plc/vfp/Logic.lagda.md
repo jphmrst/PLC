@@ -3,7 +3,7 @@ title     : "Logic: Connectives and deduction"
 layout    : page
 prev      : /DataRel/
 permalink : /Logic/
-next      : /Imp/
+next      : /MapProps/
 ---
 
 ```
@@ -485,11 +485,11 @@ we know for arithmetic, where
 Indeed, there is exactly one proof of `⊥ → ⊥`.  We can write
 this proof two different ways:
 ```
-id : ⊥ → ⊥
-id x = x
+id₁ : ⊥ → ⊥
+id₁ x = x
 
-id′ : ⊥ → ⊥
-id′ ()
+id₂ : ⊥ → ⊥
+id₂ ()
 ```
 
 ## Implication

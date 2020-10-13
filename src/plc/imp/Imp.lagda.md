@@ -12,13 +12,13 @@ open import Function using (case_of_)
 open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
+open import plc.vfp.Logic
 open import plc.imp.ImpExprs public
 ```
 
@@ -242,8 +242,6 @@ evaluation, presented as inference rules for readability:
                   --------------------------------                 (E_WhileTrue)
                   st  =[ while b do c end ]=> st′'
 
-*)
-
 Here is the formal definition.  Make sure you understand how it
 corresponds to the inference rules.
 
@@ -351,69 +349,273 @@ In fact, this cannot happen: `ceval` _is_ a partial function.  Note
 that we will make use of some of the results on partial maps from
 [Section MapProps]({{ site.baseurl }}/MapProps/) in this result.
 
-We will actually prove a slightly more general result first, that
+We will actually prove a slightly more general lemma first, that
 `ceval` preserves the equality relationship.  This technique is
-helpful when intermediate steps need the more general result.
+helpful when intermediate steps need the more general result.  We
+begin as usual with a signature stating the result we wish to show.
 
-TODO --- unconverted material starts here --- write up this long proof
 ```
 cevalPreserves≡ : ∀ (c : Command) (st₁ st₂ st₁' st₂' : State)
                     → st₁ ≡ st₂
                       → st₁ =[ c ]=> st₁'  
                         → st₂ =[ c ]=> st₂'
                           → st₁' ≡ st₂'
+```
+
+We can illustrate this statement in a diagram:
+
+           =[ c ]=>
+    st₁ ==============> st₁'
+     |                  .
+     | ≡                . ≡
+     |                  .
+    st₂ ==============> st₂'
+           =[ c ]=>
+
+The diagram uses solid lines to show relationships which we are
+_given_, and a dotted line to show the relationship which we _want to
+show_.  Each line is labeled with the relation which we are asserting
+between the endpoints of that line.
+
+This proof will probably be the most difficult, and certainly the
+longest, that we have seen so far.  However, most of the techniques we
+will see in the proof are techniques we have used before: case
+analysis and induction, application of evidence to equation blocks,
+propagation of constraints by dot-patterns.  The complexity of this
+proof arises from a number of sources: First, the fact that we are
+reasoning across three given erelationships, as the diagram shows.
+The indirectness of the relationship between the four states in the
+quantification requires additional reasoning steps.  Moreover, the
+number of cases in both the semantic relation `_=[_]=>_` and the forms
+of `Command` adds to the number of cases in the proof.  There are more
+quantified values and premises to this theorem than our usual.  And
+although the use of functions to model states does simplify our model
+in some ways, the expressions which describe these state become longer
+here.
+
+We begin with the simple named parameters as usual.  The first five
+parameters correspond to the five quantified values in the signature,
+and the last three parameters correspond to the three premises of the
+final conclusion, for which the body of the proof function builds
+evidence.
+
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
+
+We can diagram these roles of each parameter,
+
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂'
+                     |   \             /     |       |         |
+                     |    \___________/      |       |         +-- Evidence that st₂ =[ c ]=> st₂'
+                     |          |            |       |
+                     |          |            |       +-- Evidence that st₁ =[ c ]=> st₁'
+                     |          |            |
+                     |          |            +-- Evidence that st₁ ≡ st₂
+                     |          |     
+                     |          +-- The four quantified states
+                     |
+                     +-- The quantified command
+
+We proceed with a case analysis of the possible forms of statement.
+The simplest case is for the no-operation command `skip`.
+
+    cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
+
+- The only evidence for the `_=[_]=>_` relation which pertains to the
+   `skip` command is `Eskip`, so we can narrow the pattern for the
+   `st₁=>st₁'` and `st₂=>st₂'` arguments to `Eskip` only.
+
+       cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ Eskip Eskip = ?
+
+ - In turn, the `Eskip` evidence tells us that the starting and ending
+   states for each `_=[ skip ]=>_` relation _must be the same_.  So
+   instead of giving distinct names to the `st₁'` and `st₂'`
+   parameters, we can use a dot-pattern to assert the equalities among
+   these values.
+
+       cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = ?
+
+ - Our general goal for each of these clauses is to show that
+   `st₁' ≡ st₂'`.  With the introduction of the dot-patterns,
+   we have transformed that goal for _this_ clause to `st₁ ≡ st₂`.
+   But this is exactly what the evidence of the `st₁≡st₂` argument
+   demonstrates, so we can return that evidence for this clause.   
+
+```
 cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = st₁≡st₂
-cevalPreserves≡ (x := a) st₁ st₂ st₁'@.( x ↦ n₁ , st₁ ) st₂'@.( x ↦ n₂ , st₂ )
-                   st₁≡st₂ (E:= .a n₁ e₁) (E:= .a n₂ e₂) =
-                     tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
-                   where n₁≡n₂ : n₁ ≡ n₂
-                         n₁≡n₂ = begin
+```
+
+Going forward it is important to keep in mind that we are
+demonstrating an equality.  The evidence for this equality in the
+previous `skip` clause was readily available, but it is more typical,
+especially in inductive clauses, that we will need to build new
+evience for the result.  The clause for the assignment statement `:=`
+shows two typical techniques for establishing equality, both of which
+we have seen in some form before.
+
+ - We have frequently used equation blocks in the last chapter, and we
+   see one here.  The evidence for justifications for the steps of
+   this block is drawn from the arguments of the proof function.
+
+ - Since the states whose equivalences we prove are on `TotalMap`
+   functions, we will use the library of results from the
+   [`MapProps` section]({{ site.baseurl }}/MapProps/).
+
+Once again we see that the form of command corresponds to only a
+single form of evaluation evidence, and that that evidence in turn
+restricts the possible forms of resulting states `st₁'` and `st₂'`.
+Note that part of the evidence echoes part of the command: the
+expression `a` appears explicitly in the evidence, and the local
+dot-pattern in the evidence emphasizes that the expression must be the
+same.  The expression `a` also appears implicitly a second time in
+each piece of evidence, since it is a subject of the third element of
+each `E:=` evidence value.  We use a `where` clause for readability,
+to explicitly name a key element of the overall evidence.
+
+```
+cevalPreserves≡ (x := a) st₁ st₂ .( x ↦ n₁ , st₁ ) .( x ↦ n₂ , st₂ )
+                st₁≡st₂ (E:= .a n₁ aEvalsToN₁) (E:= .a n₂ aEvalsToN₂) =
+                  tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
+                  where n₁≡n₂ : n₁ ≡ n₂
+                        n₁≡n₂ = begin
                                   n₁
-                                ≡⟨ sym e₁ ⟩ 
+                                ≡⟨ sym aEvalsToN₁ ⟩ 
                                   (⟦ a ⟧ᵃ st₁)
                                 ≡⟨ cong (⟦ a ⟧ᵃ_) st₁≡st₂ ⟩ 
                                   (⟦ a ⟧ᵃ st₂)
-                                ≡⟨ e₂ ⟩
+                                ≡⟨ aEvalsToN₂ ⟩
                                   n₂
                                 ∎
+```
+
+In the result for sequential composition of commands, we are given the
+existence of intermediate states which serve as the midpoint of
+`_=[_]=>_`, as part of the evidence of the transition for the overall
+composition.
+
+          =[ c₁ ]=>           =[ c₂ ]=>
+    st₁ -------------> stA -------------> st₁'
+     |                  .                  .
+     |                  .                  .
+     | ≡                . ≡                . ≡
+     |                  .                  .
+     |                  .                  .
+    st₂ -------------> stB -------------> st₂'
+          =[ c₁ ]=>           =[ c₂ ]=>
+
+The result follows by applying `cevalPreserves≡` for an induction
+hypotehesis on each of the two steps of the reduction.  
+
+```
 cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
-                   (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
+                (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
   cevalPreserves≡ c₂ stA stB st₁' st₂' stA≡stB stASt₁' stBSt₂'
   where stA≡stB : stA ≡ stB
         stA≡stB = cevalPreserves≡ c₁ st₁ st₂ stA stB st₁≡st₂ stStA stStB
+```
 
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
-                (EIfT _ e₁) (EIfT _ e₂) =
-  cevalPreserves≡ c st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ st₁' st₂' st₁≡st₂
-                (EIfF _ e₁) (EIfF _ e₂) = 
-  cevalPreserves≡ c₁ st₁ st₂ st₁' st₂' st₁≡st₂ e₁ e₂
+The next two clauses arise from `if`-commands.  Where the two states
+`st₁` and `st₂` give the same result for the boolean condition `b`, we
+have a simple inductive case on either `cTrue` or `cFalse`.
 
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
-                (EIfT xIsTrue _) (EIfF xIsFalse _) =
+```
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfT _ aEvalsToN₁) (EIfT _ aEvalsToN₂) =
+  cevalPreserves≡ cTrue st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfF _ aEvalsToN₁) (EIfF _ aEvalsToN₂) = 
+  cevalPreserves≡ cFalse st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+```
+
+The next two clauses also arise from `if`-commands, but these two
+clauses — literally — do not make sense!  The clauses cover the
+situations where the two evaluations of the condition `b`, one by
+`st₁` and the other by `st₂`, give different results.  The reason we
+say that there clauses do not make sense is that since `st₁ ≡ st₂`, as
+we are given, we should also have that `⟦ b ⟧ᵇ st₁ ≡ ⟦ b ⟧ᵇ st₂`.  The
+fact that we do not is a contradiction.  Since there is a
+contradiction _in the setup_ of these clauses, we can use a technique
+which tells Agda to disregard these clauses — that they are _absurd_.
+
+Agda can rule out certain kinds of absurdity without our needing to
+write an explicit clause for them.  One example of this kind of
+absurdity would be one for a `skip` statement with `E,`-constructed
+evidence: Agda notices that the statement forms are incompatible, and
+does not expect to see such a clause.  But there are limits to the
+reasoning that a system can make automatically, and Agda need us to
+reveal the absurdity of these two clauses.
+
+For Agda to acknowledge the absurdity of a clause, we must use the
+evidence provided in that clause to construct evidence of a formula
+that Agda can tell is impossible.  Here we use this construction:
+
+    begin
+      false
+    ≡⟨ sym bIsFalse ⟩
+      ⟦ b ⟧ᵇ st₂
+    ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+      ⟦ b ⟧ᵇ st₁
+    ≡⟨ bIsTrue ⟩
+      true
+    ∎
+
+This proof has the type `false ≡ true`.  By combining the arguments to
+the clause in this way, we produce a result that is clearly false to
+Agda: Agda understands that different constructors of a type produce
+values which **cannot** be equal.
+
+Once we describe how to construct "evidence" of absurdity, we can use
+that evidence in the structure
+
+    case ( ... ) of λ ()
+
+This structure asserts to Agda that it will never be possible to
+invoke this clause, since calling the clause would involve
+constructing impossible evidence.
+ 
+```
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfT bIsTrue _) (EIfF bIsFalse _) =
   case (begin
           false
-        ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₂
-        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
-          ⟦ x ⟧ᵇ st₁
-        ≡⟨ xIsTrue ⟩
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
-cevalPreserves≡ (if x then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
-                (EIfF xIsFalse _) (EIfT xIsTrue _) = 
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfF bIsFalse _) (EIfT bIsTrue _) = 
   case (begin
           false
-        ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₁
-        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
-          ⟦ x ⟧ᵇ st₂
-        ≡⟨ xIsTrue ⟩
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ cong (⟦ b ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
-                       
+```
+
+There are four clauses related to `while` loops, mirroring the four
+clauses for `if` blocks: two are applicable to real situations, and
+two are absurd.  The real cases implement the two possibilities of the
+loop condition evaluating to either `true` or `false`.
+
+```
 cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
                 (EWhileF x₁) (EWhileF x₂) = st₁≡st₂
+```
+
+Note the pattern for the argument command in the `true` case:
+
+    cmd@(while x loop c end)
+
+This construction is called an _as-pattern_.  It allows us both to
+refer to the argument as a whole through the name `cmd`, and to give
+names to the components inside the argument.
+
+```
 cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st₂
                 (EWhileT {st₁*} _ st₁⇒st₁* st₁*⇒st₁')
                 (EWhileT {st₂*} _ st₂⇒st₂* st₂*⇒st₂') = 
@@ -421,8 +623,14 @@ cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st�
  where intermediates : st₁* ≡ st₂*
        intermediates = cevalPreserves≡ c st₁ st₂ st₁* st₂* st₁≡st₂
                                         st₁⇒st₁* st₂⇒st₂*
+```
 
-cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
+Finally, these last two clauses address the absurd cases of different
+results arising from the same boolean condition.
+
+```
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂
+                (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
@@ -432,7 +640,8 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂ (
         ≡⟨ xIsTrue ⟩
           true
         ∎) of λ ()
-cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂ (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
+cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂
+                (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
@@ -444,7 +653,18 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂ (EWhileT xI
         ∎) of λ ()
 ```
 
-Then the proof of `ceval`'s determinism is immediate, since every starting state is equal to itself.
+The determinism result we originally imagined is somewhat simpler than
+the `cevalPreserves≡` lemma:
+
+                st
+               /  \
+    =[ c ]=>  /    \  =[ c ]=>
+             /      \
+           st₁ - - - st₂
+                 ≡
+                 
+But the proof determinism is immediate from the `cevalPreserves≡`
+lemma, since every starting state is equal to itself.
 
 ```
 cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
@@ -454,20 +674,33 @@ cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
 cevalDeterministic c st st₁ st₂ = cevalPreserves≡ c st st st₁ st₂ refl
 ```
 
+#### Exercise `cevalDeterministicRefl` (starting) {#cevalDeterministicRefl}
+
+Why do we use `refl` as an argument in the body of `cevalDeterministic`?
+
+#### Exercise `cevalDeterministicInformal` (starting) {#cevalDeterministicInformal}
+
+To better understand the `cevalPreserves≡` and `cevalDeterministic`
+proofs, write out the informal proofs of these results.
+
 ## Reasoning about Imp programs
 
---   LATER: This section doesn't seem very useful — to anybody!  It
---   takes too much time to go through it in class, and even for
---   advanced students it's too low-level and grubby to be a very
---   convincing motivation for what follows — i.e., to feel motivated
---   by its grubbiness, you have to understand it, but this takes more
---   time than it's worth.  Better to cut the whole rest of the
---   file (except the further exercises at the very end), or at least
---   make it optional.
---
---   (BCP 10/18: However, this removes quite a few exercises. Is the
---   homework assignment still meaty enough?  I'm going to leave it
---   as-is for now, but we should reconsider this later.) *)
+{::comment}
+
+LATER: This section doesn't seem very useful — to anybody!  It
+takes too much time to go through it in class, and even for
+advanced students it's too low-level and grubby to be a very
+convincing motivation for what follows — i.e., to feel motivated
+by its grubbiness, you have to understand it, but this takes more
+time than it's worth.  Better to cut the whole rest of the
+file (except the further exercises at the very end), or at least
+make it optional.
+
+(BCP 10/18: However, this removes quite a few exercises. Is the
+homework assignment still meaty enough?  I'm going to leave it
+as-is for now, but we should reconsider this later.) *)
+
+{:/comment}
 
 We'll get deeper into more systematic and powerful techniques for
 reasoning about Imp programs in the next sections, but we can get some
@@ -492,439 +725,47 @@ addingTwo st .( X ↦ n2 , st ) n xBoundToN
   ∎
 ```
 
-TODO --- unconverted material starts here --- write up this long proof
+#### Exercise `XtimesYinZSpec` (practice) {#XtimesYinZSpec}
 
-Theorem plus2_spec : forall st n st',
-  st X = n ->
-  st =[ plus2 ]=> st' ->
-  st' X = n + 2.
-Proof.
-  intros st n st' HX Heval.
+State and prove a similar specification of `XtimesYinZ`.
 
-  (** Inverting `Heval` essentially forces Agda to expand one step of
-      the `ceval` computation — in this case revealing that `st'`
-      must be `st` extended with the new value of `X`, since `plus2`
-      is an assignment. *)
+#### Exercise `loopNeverStops` (practice) {#loopNeverStops}
 
-  inversion Heval. subst. clear Heval. simpl.
-  apply t_update_eq.  Qed.
+Prove this theorem about a nonterminating program:
 
-(* SOONER: This used to be recommended.  Should it be reinstated? *)
-(* EX3? (XtimesYinZ_spec) *)
-(** State and prove a specification of `XtimesYinZ`. *)
+```
+postulate loopNeverStops : ∀ (st st' : State) → ¬ (st =[ forever ]=> st')
+-- Remove the "postulate" keyword and add your proof code here
+```
 
-(* SOLUTION *)
-(* Here is a specification in the style of plus2_spec *)
-Theorem XtimesYinZ_spec1 : forall st nx ny st',
-  st X = nx ->
-  st Y = ny ->
-  st =[ XtimesYinZ ]=> st' ->
-  st' Z = nx * ny.
-Proof.
-  intros st nx ny st' HX HY Heval.
-  (* Start by inverting the assignment *)
-  inversion Heval. subst.
-  apply t_update_eq.  Qed.
+#### Exercise `noWhiles` (practice) {#noWhiles}
 
-(* Though perhaps a cleaner specification would be: *)
-Theorem XtimesYinZ_spec : forall st,
-    st =[ XtimesYinZ ]=> (Z ↦ st X * st Y ; st ).
-Proof. intros. apply EAsgn. reflexivity. Qed.
+Consider the following function:
 
-(* A less informative specification would be ... *)
-Theorem XtimesYinZ_spec2 : forall st, exists st',
-      st =[ XtimesYinZ ]=> st'.
-Proof.
-  intros. exists (Z ↦ st X * st Y ; st).
-  apply EAsgn. reflexivity.
-Qed.
-(* /SOLUTION *)
+```
+noWhiles : Command → Bool
+noWhiles skip = true
+noWhiles (x := x₁) = true
+noWhiles (c , c₁) = noWhiles c ∧ noWhiles c₁
+noWhiles if x then c else c₁ end = noWhiles c ∧ noWhiles c₁
+noWhiles while x loop c end = false
+```
 
-(* GRADEMANUAL 3: XtimesYinZ_spec *)
-(** `` *)
+This predicate yields `true` just on programs that have no while
+loops.  Write a property `noWhilesR (c : Command) : Set` such that
+`no_whilesR c` is provable exactly when `c` is a program with no while
+loops.  Then prove its equivalence with `no_whiles`. 
 
-(* EX3! (loop_never_stops) *)
-Theorem loop_never_stops : forall st st',
-  ~(st =[ loop ]=> st').
-Proof.
-  intros st st' contra. unfold loop in contra.
-  remember <{ while true do skip end }> as loopdef
-           eqn:Heqloopdef.
+#### Exercise `noWhilesTerminating` (stretch) {#noWhilesTerminating}
 
-  (** Proceed by induction on the assumed derivation showing that
-      `loopdef` terminates.  Most of the cases are immediately
-      contradictory (and so can be solved in one step with
-      `discriminate`). *)
+Imp programs that don't involve while loops always terminate.  State
+and prove a theorem `noWhilesTerminating` that says this.
 
-  (* ADMITTED *)
-  induction contra; try (discriminate Heqloopdef).
-  - (* EWhileFalse *)
-      injection Heqloopdef. intros H0 H1. rewrite -> H1 in H. discriminate H.
-    - (* EWhileTrue *) apply IHcontra2. apply Heqloopdef. Qed.
+{::comment}
 
-(* /ADMITTED *)
-(** `` *)
+TODO --- Convert and un-comment
 
-(* EX3 (no_whiles_eqv) *)
-(** Consider the following function: *)
-
-Fixpoint no_whiles (c : com) : bool :=
-  match c with
-  | <{ skip }> =>
-      true
-  | <{ _ := _ }> =>
-      true
-  | <{ c1 ; c2 }> =>
-      andb (no_whiles c1) (no_whiles c2)
-  | <{ if _ then ct else cf end }> =>
-      andb (no_whiles ct) (no_whiles cf)
-  | <{ while _ do _ end }>  =>
-      false
-  end.
-
-(** This predicate yields `true` just on programs that have no while
-    loops.  Using `Inductive`, write a property `no_whilesR` such that
-    `no_whilesR c` is provable exactly when `c` is a program with no
-    while loops.  Then prove its equivalence with `no_whiles`. *)
-
-Inductive no_whilesR: com -> Prop :=
- (* SOLUTION *)
- | nw_Skip: no_whilesR <{ skip }>
- | nw_Ass: forall x ae, no_whilesR <{ x := ae }>
- | nw_Seq: forall c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ c1 ; c2 }>
- | nw_If: forall be c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ if be then c1 else c2 end }>
-(* /SOLUTION *)
-.
-
-Theorem no_whiles_eqv:
-   forall c, no_whiles c = true <-> no_whilesR c.
-Proof.
-  (* ADMITTED *)
-   intros; split.
-  - (* -> *)
-   induction c; intro Hc;
-     try (simpl in Hc; rewrite andb_true_iff in Hc;
-       destruct Hc as `Hc1 Hc2`);
-     try constructor;
-     try (apply IHc1; assumption); try (apply IHc2; assumption).
-   + (* while *) discriminate Hc.
-  - (* <- *)
-    intro H. induction H; simpl;
-      try reflexivity;
-      try (rewrite IHno_whilesR1; rewrite IHno_whilesR2; reflexivity).
-  Qed.
-  (* /ADMITTED *)
-(** `` *)
-
-(* EX4 (no_whiles_terminating) *)
-(** Imp programs that don't involve while loops always terminate.
-    State and prove a theorem `no_whiles_terminating` that says this. *)
-(** FULL: Use either `no_whiles` or `no_whilesR`, as you prefer. *)
-
-(* SOLUTION *)
-(* Here is a solution by induction on no_whilesR: *)
-Theorem no_whiles_terminating : forall c st,
-  no_whilesR c ->
-  exists st',
-  st =[ c ]=> st'.
-Proof.
-  intros c st H. generalize dependent st.
-  induction H; intros; simpl.
-  - (* nw_Skip *) exists st. constructor.
-  - (* nw_Ass *) exists (x ↦ aeval st ae ; st).
-    constructor. reflexivity.
-  - (* nw_Seq *)
-    destruct (IHno_whilesR1 st) as `st' IH'`.
-    destruct (IHno_whilesR2 st') as `st'' IH''`.
-    exists st''. apply ESeq with st'; assumption.
-  - (* nw_If *)
-    destruct (⟦ b ⟧ᵇ ste) eqn:Heqbv.
-    + (* bv = true *)
-      destruct (IHno_whilesR1 st) as `st' IH'`.
-      exists st'. apply EIfTrue. rewrite Heqbv. reflexivity. assumption.
-    + (* bv = false *)
-      destruct (IHno_whilesR2 st) as `st' IH'`.
-      exists st'. apply EIfFalse. rewrite Heqbv. reflexivity. assumption.
-Qed.
-
-(* And here is an alternative solution by induction on c: *)
-Theorem no_whiles_terminating' : forall c st1,
-  no_whiles c = true ->
-  exists st2, st1 =[ c ]=> st2.
-Proof.
-  induction c; intros st1 Hb.
-
-  - (* skip *)
-    exists st1. apply ESkip.
-
-  - (* := *)
-    exists (x ↦ aeval st1 a ; st1). apply EAsgn. reflexivity.
-
-  - (* ; *)
-    simpl in Hb.
-    rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    apply (IHc1 st1) in Hb1. destruct Hb1 as `st1' ceH1`.
-    apply (IHc2 st1') in Hb2. destruct Hb2 as `st1'' ceH2`.
-    exists st1''.
-    apply ESeq with (st' := st1'); assumption.
-
-  - (* if *)
-    simpl in Hb. rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    destruct (beval st1 b) eqn:Heqbv.
-    + (* EIfTrue *)
-      apply (IHc1 st1) in Hb1.
-      destruct Hb1 as `st2 Hce1`. exists st2.
-      apply EIfTrue.
-      * (* b is true *)
-        rewrite <- Heqbv. reflexivity.
-      * (* true branch eval *)
-        assumption.
-    + (* EIfFalse *)
-      apply (IHc2 st1) in Hb2.
-      destruct Hb2 as `st2 Hce2`. exists st2.
-      apply EIfFalse.
-      * (* b is false *)
-        rewrite <- Heqbv. reflexivity.
-      * (* false branch eval *)
-        assumption.
-
-  - (* while *)
-    discriminate Hb.  Qed.
-(* /SOLUTION *)
-
-(* GRADE_MANUAL 6: no_whiles_terminating *)
-(** `` *)
-(* /FULL *)
-
-(* LATER: The following section always gets skipped over when I (BCP)
-   teach the course, because there isn't time to go through all the
-   details and we're going to see the right way to do the same thing
-   in a later chapter, so I am hiding it for now.  I wouldn't mind
-   reinstating it for the use of advanced / self-study readers if
-   somebody wants to write some text to really explain it, but what's
-   there is a bit too telegraphic, so I'm removing it for now. *)
-(* HIDE *)
-(* ####################################################### *)
-(** * Case Study (Optional) *)
-
-(** Recall the factorial program (broken up into smaller pieces this
-    time, for convenience of proving things about it).  *)
-
-fact_body : Command
-  <{ Y := Y * Z ;
-     Z := Z - 1 }>.
-
-fact_loop : Command
-  <{ while ~(Z = 0) do
-       fact_body
-     end }>.
-
-fact_com : Command
-  <{ Z := X ;
-     Y := 1 ;
-     fact_loop }>.
-
-(** Here is an alternative "mathematical" definition of the factorial
-    function: *)
-
-Fixpoint real_fact (n:nat) : nat :=
-  match n with
-  | O => 1
-  | S n' => n * (real_fact n')
-  end.
-
-(** We would like to show that they agree — if we start `fact_com` in
-    a state where variable `X` contains some number `n`, then it will
-    terminate in a state where variable `Y` contains the factorial of
-    `n`.
-
-    To show this, we rely on the critical idea of a _loop
-    invariant_. *)
-
-fact_invariant (n:nat) (st:state) : Prop :=
-  (st Y) * (real_fact (st Z)) = real_fact n.
-
-(** We show that the body of the factorial loop preserves the invariant: *)
-
-(* LATER: Needs an informal proof! *)
-Theorem fact_body_preserves_invariant: forall st st' n,
-     fact_invariant n st ->
-     st Z <> 0 ->
-     st =[ fact_body ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  unfold fact_invariant, fact_body.
-  intros st st' n Hm HZnz He.
-  inversion He; subst; clear He.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  unfold t_update. simpl.
-  (* Show that st Z = S z' for some z' *)
-  destruct (st Z) as `| z'`.
-    exfalso. apply HZnz. reflexivity.
-  rewrite <- Hm. rewrite <- mult_assoc.
-  replace (S z' - 1) with z' by lia.
-  reflexivity.  Qed.
-(* /FOLD *)
-
-(** From this, we can show that the whole loop also preserves the
-invariant: *)
-
-Theorem fact_loop_preserves_invariant : forall st st' n,
-     fact_invariant n st ->
-     st =[ fact_loop ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  intros st st' n H Hce.
-  remember fact_loop as c.
-  induction Hce; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    (* trivial when the loop doesn't run... *)
-    assumption.
-  - (* EWhileTrue *)
-    (* if the loop does run, we know that fact_body preserves
-       fact_invariant — we just need to assemble the pieces *)
-    apply IHHce2.
-      apply fact_body_preserves_invariant with st;
-            try assumption.
-      intros Contra. simpl in H0; subst.
-      rewrite Contra in H0. inversion H0.
-      reflexivity.  Qed.
-(* /FOLD *)
-
-(** Next, we show that, for any loop, if the loop terminates, then the
-    condition guarding the loop must be false at the end: *)
-
-Theorem guard_false_after_loop: forall b c st st',
-     st =[ while b do c end ]=> st' ->
-     beval st' b = false.
-(* FOLD *)
-Proof.
-  intros b c st st' Hce.
-  remember <{ while b do c end }> as cloop.
-  induction Hce; inversion Heqcloop; subst; clear Heqcloop.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHce2. reflexivity.  Qed.
-(* /FOLD *)
-
-(** Finally, we can patching it all together... *)
-
-Theorem fact_com_correct : forall st st' n,
-     st X = n ->
-     st =[ fact_com ]=> st' ->
-     st' Y = real_fact n.
-(* FOLD *)
-Proof.
-  intros st st' n HX Hce.
-  inversion Hce; subst; clear Hce.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  inversion H1; subst; clear H1.
-  rename st' into st''. simpl in H5.
-  (* The invariant is true before the loop runs... *)
-  remember (Y ↦ 1 ; Z ↦ st X ; st) as st' eqn:Heqst'.
-  assert (fact_invariant (st X) st').
-    subst. unfold fact_invariant, t_update. simpl. lia.
-  (* ...so when the loop is done running, the invariant
-     is maintained *)
-  assert (fact_invariant (st X) st'').
-    apply fact_loop_preserves_invariant with st'; assumption.
-  unfold fact_invariant in H0.
-  (* Finally, if the loop terminated, then Z is 0; so Y must be
-     factorial of X *)
-  apply guard_false_after_loop in H5. simpl in H5.
-  destruct (st'' Z) eqn:E.
-  - (* st'' Z = 0 *) simpl in H0. lia.
-  - (* st'' Z > 0 (impossible) *) inversion H5.
-Qed.
-(* /FOLD *)
-
-(** One might wonder whether all this work with poking at states and
-    unfolding definitions could be ameliorated with some more powerful
-    lemmas and/or more uniform reasoning principles... Indeed, this is
-    exactly the topic of the coming chapter \CHAP{Hoare} in _Programming
-    Language Foundations_! *)
-
-(* FULL *)
-(* EX4? (subtractSlowly_spec) *)
-(** Prove a specification for `subtractSlowly`, using the above
-    specification of `fact_com` and the invariant below as
-    guides. *)
-
-ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
-  ((st Z) - st X) = (z - n).
-
-(* SOLUTION *)
-Theorem ss_body_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st X <> 0 ->
-     st =[ subtractSlowlyBody ]=> st' ->
-     ss_invariant n z st'.
-Proof.
-  unfold ss_invariant.
-  intros st n z st' H Hnz He.
-  inversion He; subst; clear He.
-  inversion H2; subst; clear H2.
-  inversion H5; subst; clear H5.
-  unfold t_update. simpl.
-  lia.   (* Interestingly, this is all we need here  — although only after a perceptible delay! *)
-Qed.
-
-Theorem ss_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st =[ subtractSlowly ]=> st'  ->
-     ss_invariant n z st'.
-Proof.
-  intros st n z st' H He.
-  remember subtractSlowly as c.
-  induction He; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHe2; try reflexivity.
-    apply ss_body_preserves_invariant with st; try assumption.
-    intros Contra. simpl in H0. rewrite Contra in H0. inversion H0.  Qed.
-
-Theorem ss_correct : forall st n z st',
-     st X = n ->
-     st Z = z ->
-     st =[ subtractSlowly ]=> st' ->
-     st' Z = (z - n).
-Proof.
-  intros st n z st' HX HZ He.
-  assert (ss_invariant n z st).
-    unfold ss_invariant.
-    subst.
-    reflexivity.
-  assert (ss_invariant n z st').
-    apply ss_preserves_invariant with st; assumption.
-  unfold ss_invariant in H0.
-  apply guard_false_after_loop in He. simpl in He.
-  destruct (st' X) eqn:E.
-  - (* st' X = 0 *) lia.
-  - (* st' X > 0 (impossible) *) inversion He.
-Qed.
-(* /SOLUTION *)
-(** `` *)
-(* /HIDE *)
-
-(* TERSE: HIDEFROMHTML *)
-(* HIDE: N.b.: No "FULL" here because this exercise is needed for the
-   TERSE version of the Smallstep chapter. *)
-(* ####################################################### *)
-(** * Additional Exercises *)
+## Additional exercises 
 
 (* EX3 (stack_compiler) *)
 (** Old HP Calculators, programming languages like Forth and Postscript,
@@ -1664,11 +1505,12 @@ End ThrowImp.
 (* mode: outline-minor *)
 (* /HIDE *)
 
+{:/comment}
+
 ## Unicode
 
 This section uses the following Unicode symbols:
 
-{::comment}
     ×  U+00D7  MULTIPLICATION SIGN (\x)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ⇓  U+21D3  DOWNWARDS DOUBLE ARROW (\d=)
@@ -1681,10 +1523,9 @@ This section uses the following Unicode symbols:
     ᵇ    (\^b)
     ÷    (\div)
     ′'    (\'')
-{:/comment}
 
 ---
 
-*This page is derived from Pierce et al. with some additional material
-by Maraist; for more information see the [sources and authorship]({{
-site.baseurl }}/Sources/) page.*
+*This page is derived from Pierce et al. with additional explanations
+and exercises by Maraist; for more information see the [sources and
+authorship]({{ site.baseurl }}/Sources/) page.*

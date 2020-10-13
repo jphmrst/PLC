@@ -1,23 +1,20 @@
 ---
 title     : "ImpExprs: Expression and values in Imp"
 layout    : page
-prev      : /Logic/
-permalink : /Imp/
-next      : /
+prev      : /MapProps/
+permalink : /ImpExprs/
+next      : /Imp/
 ---
 
 ```
 module plc.imp.ImpExprs where
-open import Function using (case_of_)
 open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
-open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+open import Data.Bool using (Bool; true; false; not; _∨_; _∧_)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym; trans)
+open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
-open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
 ```
 
@@ -529,8 +526,6 @@ and as formal proofs,
   _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
   _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
 ```
-
-============================================================
 
 #### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
 

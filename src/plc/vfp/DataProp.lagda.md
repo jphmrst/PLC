@@ -3,7 +3,7 @@ title     : "DataProp: Properties of data structures"
 layout    : page
 prev      : /Induction/
 permalink : /DataProp/
-next      : /MapProps/
+next      : /Relations/
 ---
 
 ```
