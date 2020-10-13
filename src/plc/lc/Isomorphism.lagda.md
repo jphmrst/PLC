@@ -38,68 +38,6 @@ _∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
 (g ∘ f) x  = g (f x)
 ```
 
-## Extensionality {#extensionality}
-
-Extensionality asserts that the only way to distinguish functions is
-by applying them; if two functions applied to the same argument always
-yield the same result, then they are the same function.  It is the
-converse of `cong-app`, as introduced
-[earlier]({{ site.baseurl }}/Equality/#cong).
-
-Agda does not presume extensionality, but we can postulate that it holds:
-```
-postulate
-  extensionality : ∀ {A B : Set} {f g : A → B}
-    → (∀ (x : A) → f x ≡ g x)
-      -----------------------
-    → f ≡ g
-```
-Postulating extensionality does not lead to difficulties, as it is
-known to be consistent with the theory that underlies Agda.
-
-As an example, consider that we need results from two libraries,
-one where addition is defined, as in
-the [Naturals]({{ site.baseurl }}/Naturals/) section,
-and one where it is defined the other way around.
-```
-_+′_ : ℕ → ℕ → ℕ
-m +′ zero  = m
-m +′ suc n = suc (m +′ n)
-```
-Applying commutativity, it is easy to show that both operators always
-return the same result given the same arguments:
-```
-same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
-same-app m n rewrite +-comm m n = helper m n
-  where
-  helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
-  helper m zero    = refl
-  helper m (suc n) = cong suc (helper m n)
-```
-However, it might be convenient to assert that the two operators are
-actually indistinguishable. This we can do via two applications of
-extensionality:
-```
-same : _+′_ ≡ _+_
-same = extensionality (λ m → extensionality (λ n → same-app m n))
-```
-We occasionally need to postulate extensionality in what follows.
-
-More generally, we may wish to postulate extensionality for
-dependent functions.
-```
-postulate
-  ∀-extensionality : ∀ {A : Set} {B : A → Set} {f g : ∀(x : A) → B x}
-    → (∀ (x : A) → f x ≡ g x)
-      -----------------------
-    → f ≡ g
-```
-Here the type of `f` and `g` has changed from `A → B` to
-`∀ (x : A) → B x`, generalising ordinary functions to
-dependent functions.
-
-
-
 ## Equational reasoning for isomorphism
 
 It is straightforward to support a variant of equational reasoning for

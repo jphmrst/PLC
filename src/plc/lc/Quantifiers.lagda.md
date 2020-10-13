@@ -22,7 +22,7 @@ open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import plc.vfp.Relations using (_≃_)
-open import plc.lc.Isomorphism using (extensionality)
+open import plc.vfp.Logic using (extensionality)
 ```
 
 
