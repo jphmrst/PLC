@@ -487,7 +487,27 @@ cevalPreserves≡ (x := a) st₁ st₂ .( x ↦ n₁ , st₁ ) .( x ↦ n₂ , s
                                 ∎
 ```
 
-TODO --- write up these clauses
+In the result for sequential composition of commands, we are given the
+existence of intermediate states which serve as the midpoint of
+`_=[_]=>_`, as part of the evidence of the transition for the overall
+composition.
+
+          =[ c₁ ]=>           =[ c₂ ]=>
+    st₁ -------------> stA -------------> st₁'
+     |                  .                  .
+     |                  .                  .
+     | ≡                . ≡                . ≡
+     |                  .                  .
+     |                  .                  .
+    st₂ -------------> stB -------------> st₂'
+          =[ c₁ ]=>           =[ c₂ ]=>
+
+The result follows by applying `cevalPreserves≡` for an induction
+hypotehesis on each of the two steps of the reduction.  Note that it
+is situations such as this one which lead us to prove this more
+general lemma first: Even if we begin with a single term instead of
+`st₁` and `st₂`, we will only ever have `stA ≡ stB` for the second
+inductive step.
 
 ```
 cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
