@@ -35,6 +35,7 @@ build-uwl: .build-uwl
 
 deploy-uwl: .build-uwl $(MARKDOWN_FILES)
 	rsync --archive --verbose --compress --update --backup \
+		--delete-excluded \
 		-e "ssh -l jmaraist" \
 		_uwl/ \
 		${DEST_MACHINE}:internal-www/plc
