@@ -57,7 +57,7 @@ Agda would not be able to find the result.
 Prove that:
 
     snd-fst-is-swapPair :  ∀ (A B : Set) (p : Prod A B) →
-                             (snd p, fst p) ≡ swapPair p
+                             pair (snd p) (fst p) ≡ swapPair p
     -- Your code goes here
 
 #### Exercise `fst-swapPair-is-snd` (recommended)
