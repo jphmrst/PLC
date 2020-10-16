@@ -1,933 +1,25 @@
 ---
 title     : "Imp: Simple imperative programs"
 layout    : page
-prev      : /MapProps/
+prev      : /ImpExprs/
 permalink : /Imp/
 next      : /
 ---
 
 ```
 module plc.imp.Imp where
-open import Data.String using (String)
+open import Function using (case_of_)
+open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
-open import Data.Bool using (Bool; true; false; not; _∨_; _∧_)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym)
+open Eq using (_≡_; refl; cong; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
-
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
-```
-
-{::comment}
-
-(* LATER: Another nice challenge exercise at some point would be to add
-   C-style arrays (i.e., indirect read/write).  This sets up some
-   really nice challenge problems in Hoare.v (reasoning about arrays /
-   aliasing / etc.).
-*)
-(* HIDE: At some point we could consider moving material from the old
-   HoareLists.v to this chapter (and into later files, as
-   appropriate).  We haven't done it yet because it's a shame to
-   complicate the nice simple presentation here when it's used as the
-   basis for applications like Xavier's static analysis lectures.
-   Also, we hope to add a chapter or new volume on real separation logic... *)
-
-{:/comment}
-
-In this section we take a more serious look at how to use Agda to
-study other things.  Our case study is a simple _imperative
-programming language_ called Imp, embodying a tiny core fragment of
-conventional mainstream languages such as C and Java.  Here is a
-familiar mathematical function written in Imp.
-
-    Z := X ,
-    Y := # 1 ,
-    while ~(Z = # 0) do
-      Y := Y * Z ,
-      Z := Z - # 1
-    end
-
-We concentrate here on defining the _syntax_ and _semantics_ of Imp;
-later sections will develop a theory of _program equivalence_ and
-introduce _Hoare Logic_, a widely used logic for reasoning about
-imperative programs.
-
-## Compilers, interpreters and parsing
-
-{::comment}
-(* LATER: At this point, I usually take some of the lecture time to
-   give a high-level picture of the structure of an interpreter, the
-   processes of lexing and parsing, the notion of ASTs, etc.  Might be
-   nice to work some of those ideas into the notes. - BCP *)
-{:/comment}
-
-Compilers and interpreters have very similar structure internally.
-Both of them are complicated programs, written with multiple _phases_
-along the way from the plain text in which a human writes a program,
-on the way to the output of machine code.  Usually, the first two
-phases of the compiler are _scanning_ and _parsing_.
-
- - Scanning is the process of dividing the characters of an input file
-   into _lexemes_, the basic units of a language: keywords like
-   `module` or `import`, identifiers like `x` or `y`, numbers and
-   other constants like `0` or `99`, punctuation like `;` or `.`.
-   Another type of lexeme is whitespace.  In many languages (like Java
-   or C) whitespace is simply ignored, while in Agda whitespace does
-   impact the meaning of a program.
-
- - Parsing is the process of converting an unstructured, linear
-   sequence of lexemes to a structured representation of a program's
-   syntax (that is, a data structure) called an _abstract syntax tree_
-   (AST).  For example, the AST for an assignment statement would have
-   one child representing the left-hand side of the assignment, the
-   location being assigned to, and another child representing the
-   right-hand side of the assignment, the expression whose value
-   should be assigned.
-
-Scanning and parsing are interesting and challenging problems, but
-they are not problems which we will consider in this class.  To simply
-our study and focus on the meaning of languages, we will instead
-construct ASTs directly.  Agda's flexible syntax will allow us to
-write the ASTs in a way which looks like the source code: essentially,
-we will exploit Agda's own parser to serve as the parser for Imp.
-
-## Arithmetic and boolean expressions
-
-We'll present Imp in three parts: first a core language of _arithmetic
-and boolean expressions_, then an extension of these expressions with
-_variables_, and finally a language of _commands_ including
-assignment, conditions, sequencing, and loops.
-
-### Formal and informal representations
-
-How do we describe the syntax of a language?  As we discussed above,
-we will define its representation within Agda, its syntax trees, as
-data structures.  But how do we define the way a string of characters
-which is part of the language should look?  One way is with a notation
-called _Backus-Naur Form_ (BNF), which is a way of writing a _formal
-grammar_.  Here is a BNF defining the syntax of arithmetic and boolean
-expressions in IMP:
-
-    a := n        where n ∈ ℕ
-       | a + a
-       | a - a
-       | a * a
-
-    b := T
-       | F
-       | a == a
-       | a <= a
-       | ! b
-       | b && b
-       | b || b
-
- - The `a` and `b` are called the _nonterminals_ of the grammar.
-   Those two letters do not directly appear in any of the actual
-   arithmetic or boolean expressions we are defining.  They are
-   stand-ins which we use in other parts of the BNF.
-
- - When we write `x := S`, where `x` is a nonterminal and `S` is a
-   string, we say that a string represented by `S` could take the form
-   given by the string `S`.  `S` might contain other nonterminals, in
-   which case we might recursively apply our understanding of what
-   those nonterminals might represent.  At least some of the time, `S`
-   will contain _terminal_ symbols, which do not represent anything
-   else.  In the BNF above, `+`, `-`, `*`, `==`, `<=`, `!`, `&&` and
-   `||` are all terminals.  We use the representation `n where n ∈ ℕ`
-   to stand for several different terminals, but none of them are
-   further rewritten.
-
- - So applying the understanding we have from the BNFs, we can see
-   that `32 + 45` and `5 - 2 - 1` are both arithmetic expressions,
-   that `T && F || ! F` and `3 == 4 || 3 <= 4` are both boolean
-   expressions, and that `5 * T` is neither a boolean nor an
-   arithmetic expression.
-
-In some ways, a BNF is quite informal.  It does gives suggestions
-about the surface syntax of expressions, like the fact that the
-addition operation is written with an infix `+`.  But it also leaves
-other aspects of lexical analysis and parsing unspecified, like the
-relative precedence of [+], [-], and [*], the use of parens to group
-subexpressions.  Some additional information — and human intelligence
-— would be required to turn this description into a formal definition,
-such as for implementing a compiler.
-
-In other ways the BNF version is light and easy to read.  It is not
-tied to any particular language's syntax, as we will shortly do when
-we translate the BNFs to Agda data types.  Its informality makes it
-flexible, a big advantage in situations like discussions at the
-blackboard, where conveying general ideas is more important than
-getting every detail nailed down precisely.
-
-Indeed, there are dozens of BNF-like notations and people switch
-freely among them, usually without bothering to say which kind of BNF
-they're using because there is no need to: a rough-and-ready informal
-understanding is all that's important.
-
-From the BNFs we can formally define the _abstract syntax_ of
-arithmetic and boolean expressions:
-
-```
-module ImpStage1 where
-  data AExp : Set where
-    # : ℕ → AExp
-    _+_ : AExp → AExp → AExp 
-    _-_ : AExp → AExp → AExp 
-    _*_ : AExp → AExp → AExp 
-
-  infixl 7  _*_
-  infixl 6  _+_  _-_
-
-  data BExp : Set where
-    T : BExp
-    F : BExp
-    _==_ : AExp → AExp → BExp
-    _<=_ : AExp → AExp → BExp
-    ! : BExp → BExp
-    _&&_ : BExp → BExp → BExp
-    _||_ : BExp → BExp → BExp
-
-  infixl 8  _&&_
-  infixl 7  _||_
-```
-
-It is good to be comfortable with both sorts of notations: informal
-notations like BNF for communicating between humans, and formal
-notations like `data` declarations for carrying out implementations
-and proofs.
-
-### Evaluating expressions
-
-_Evaluating_ an arithmetic expression produces a number.  Evaluation
-is, of course, a function from arithmetic expressions to natural
-numbers.  It is traditional to write functions which we understand as
-a translation or interpretation from one representation to another in
-a special way: using a pair of double-brackets, `⟦ ... ⟧`. with the
-argument in the middle.  For the arithmetic expression evaluator, we
-append a superscript `ᵃ` to the closing double-bracket.  Agda lets us
-define these envelope-style functions using a similar method as for
-infix operations, where we use the underscore to stand in the argument
-position in the signature.
-
-```
-  ⟦_⟧ᵃ : AExp → ℕ
-  ⟦ # n ⟧ᵃ = n
-  ⟦ ae1 + ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ Data.Nat.+ ⟦ ae2 ⟧ᵃ
-  ⟦ ae1 - ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ ∸ ⟦ ae2 ⟧ᵃ
-  ⟦ ae1 * ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ Data.Nat.* ⟦ ae2 ⟧ᵃ
-```
-
-Note that since we have defined our own version of `+` and `*` for
-this module, we must explicitly clarify when we want to use the
-version of `+` declared within the `Data.Nat` module.  We did import
-the `∸` operator from `Data.Nat`, so we can use it without the module
-prefix.
-
-Similarly, evaluating a boolean expression yields a boolean.
-
-```
-  ⟦_⟧ᵇ : BExp → Bool
-  ⟦ T ⟧ᵇ = true
-  ⟦ F ⟧ᵇ = false
-  ⟦ (ae1 == ae2) ⟧ᵇ = ⟦ ae1 ⟧ᵃ ≡ᵇ ⟦ ae2 ⟧ᵃ
-  ⟦ (ae1 <= ae2) ⟧ᵇ = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
-                       where v1 : ℕ
-                             v1 = ⟦ ae1 ⟧ᵃ
-                             v2 : ℕ
-                             v2 = ⟦ ae2 ⟧ᵃ
-  ⟦ ! be ⟧ᵇ = not ⟦ be ⟧ᵇ
-  ⟦ be1 && be2 ⟧ᵇ = ⟦ be1 ⟧ᵇ ∧ ⟦ be2 ⟧ᵇ
-  ⟦ be1 || be2 ⟧ᵇ = ⟦ be1 ⟧ᵇ ∨ ⟦ be2 ⟧ᵇ
-```
-
-Notice that the boolean evaluator calls the arithmetic evaluator for
-the comparison operators `==` and `<=`.  These operators take numeric
-arguments, but return a boolean result.
-
-#### Exercise `impeval1` (starting) {#impeval1}
-
-What do these Imp expression evaluate to?  Which evaluation function
-must you use for each?
-
- - `# 3 + (# 4 - # 1)`
- - `# 3 + # 4 * # 5`
- - `(# 4 - # 1) <= # 5`
-
-### Optimization
-
-We haven't defined very much yet, but we can already get some mileage
-out of the definitions.  Suppose we define a function that takes an
-arithmetic expression and slightly simplifies it, changing every
-occurrence of `0 + e` (i.e., `# 0 + e`) into just `e`.
-
-```
-  optimize0plus : AExp → AExp
-  optimize0plus ae@(# n) = ae
-  optimize0plus (# 0 + ae2) = optimize0plus ae2
-  optimize0plus (ae1 + ae2) = optimize0plus ae1 + optimize0plus ae2
-  optimize0plus (ae1 - ae2) = optimize0plus ae1 - optimize0plus ae2
-  optimize0plus (ae1 * ae2) = optimize0plus ae1 * optimize0plus ae2
-```
-
-To make sure our optimization is doing the right thing we can test it
-on some examples.
-
-```
-  _ : optimize0plus (# 2 + (# 0 + (# 0 + # 1))) ≡ # 2 + # 1
-  _ = refl
-
-  _ : optimize0plus (# 2 + # 1) ≡ # 2 + # 1
-  _ = refl
-```
-
-The second example shows that when there are no optimizations to
-perform, `optimize0plus` leaves the expression alone.
-
-But if we want to be sure that the optimization is correct — that
-evaluating an optimized expression gives the same result as the
-original — we should prove it.
-
-{::comment}
-  s1 : (x : AExp) → (y : AExp) →
-         ⟦ optimize0plus (x * y) ⟧ᵃ ≡
-           ⟦ optimize0plus x * optimize0plus y ⟧ᵃ
-  s1 x y =
-    begin
-      ⟦ optimize0plus (x * y) ⟧ᵃ
-    ≡⟨ refl ⟩
-      ⟦ optimize0plus x * optimize0plus y ⟧ᵃ
-    ∎
-      
-
-  o0pS_op : ∀ { x y : AExp } →
-              (k : AExp → AExp → AExp) → (f : ℕ → ℕ → ℕ) →
-                opt0+safe x → opt0+safe y →
-                  (∀ { m n : AExp } → ⟦ k m n ⟧ᵃ ≡ f ⟦ m ⟧ᵃ ⟦ n ⟧ᵃ) → 
-                    (optimize0plus (k x y) ≡ k (optimize0plus x) (optimize0plus y)) →
-                      opt0+safe (k x y)
-  o0pS_op {x} {y} k f sx sy kf kdown = 
-    begin
-      ⟦ optimize0plus (k x y) ⟧ᵃ
-    ≡⟨ cong aeval kdown ⟩
-      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᵃ
-    ≡⟨ kf ⟩
-      f ⟦ optimize0plus x ⟧ᵃ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (λ x → f x ⟦ optimize0plus y ⟧ᵃ) sx ⟩
-      f ⟦ x ⟧ᵃ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (f ⟦ x ⟧ᵃ) sy ⟩
-      f ⟦ x ⟧ᵃ ⟦ y ⟧ᵃ
-    ≡⟨ sym kf ⟩
-      ⟦ k x y ⟧ᵃ
-    ∎
-{:/comment}
-
-```
-  opt0+safe : AExp → Set
-  opt0+safe m = ⟦ optimize0plus m ⟧ᵃ ≡ ⟦ m ⟧ᵃ
-
-  plusHelper : (m n : AExp) →
-                 opt0+safe m → opt0+safe n →
-                   (optimize0plus (m + n) ≡ optimize0plus m + optimize0plus n) →
-                     opt0+safe (m + n)
-  plusHelper m n sm sn nonz = begin
-      ⟦ optimize0plus (m + n) ⟧ᵃ
-    ≡⟨ cong ⟦_⟧ᵃ nonz ⟩
-      ⟦ optimize0plus m + optimize0plus n ⟧ᵃ
-    ≡⟨⟩
-      ⟦ optimize0plus m ⟧ᵃ Data.Nat.+ ⟦ optimize0plus n ⟧ᵃ
-    ≡⟨ cong (Data.Nat._+ ⟦ optimize0plus n ⟧ᵃ) sm ⟩
-      ⟦ m ⟧ᵃ Data.Nat.+ ⟦ optimize0plus n ⟧ᵃ
-    ≡⟨ cong (⟦ m ⟧ᵃ Data.Nat.+_) sn ⟩
-      ⟦ m ⟧ᵃ Data.Nat.+ ⟦ n ⟧ᵃ
-    ≡⟨⟩
-      ⟦ m + n ⟧ᵃ
-    ∎
-
-  opHelper : (x y : AExp) →
-               (k : AExp → AExp → AExp) →
-                 (f : ℕ → ℕ → ℕ) →
-                   (∀ { m n : AExp } → ⟦ k m n ⟧ᵃ ≡ f ⟦ m ⟧ᵃ ⟦ n ⟧ᵃ) →
-                     (optimize0plus (k x y) ≡ k (optimize0plus x) (optimize0plus y)) →
-                       opt0+safe x → opt0+safe y →
-                         opt0+safe (k x y)
-  opHelper x y k f fk kpush sx sy = begin
-      ⟦ optimize0plus (k x y) ⟧ᵃ
-    ≡⟨ cong ⟦_⟧ᵃ kpush ⟩
-      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᵃ
-    ≡⟨ fk ⟩
-      f (⟦ optimize0plus x ⟧ᵃ) (⟦ optimize0plus y ⟧ᵃ)
-    ≡⟨ cong (λ m → f m (⟦ optimize0plus y ⟧ᵃ)) sx ⟩
-      f ⟦ x ⟧ᵃ (⟦ optimize0plus y ⟧ᵃ)
-    ≡⟨ cong (f ⟦ x ⟧ᵃ) sy ⟩
-      f ⟦ x ⟧ᵃ ⟦ y ⟧ᵃ
-    ≡⟨ sym fk ⟩
-      ⟦ k x y ⟧ᵃ
-    ∎
-
-  optimize0plusSound : ∀ (a : AExp) → opt0+safe a
-  optimize0plusSound (# n) = refl
-  optimize0plusSound (# zero + y) = optimize0plusSound y
-  optimize0plusSound (# (suc n) + y) = begin
-      ⟦ optimize0plus (# (suc n) + y) ⟧ᵃ
-    ≡⟨⟩
-      ⟦ # (suc n) + optimize0plus y ⟧ᵃ
-    ≡⟨⟩
-      ⟦ # (suc n) ⟧ᵃ Data.Nat.+ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (⟦ # (suc n) ⟧ᵃ Data.Nat.+_) (optimize0plusSound y) ⟩
-      ⟦ # (suc n) + y ⟧ᵃ
-    ∎
-  optimize0plusSound (x + z + y) = plusHelper (x + z) y (optimize0plusSound (x + z)) (optimize0plusSound y) refl
-  optimize0plusSound (x - z + y) = plusHelper (x - z) y (optimize0plusSound (x - z)) (optimize0plusSound y) refl
-  optimize0plusSound (x * z + y) = plusHelper (x * z) y (optimize0plusSound (x * z)) (optimize0plusSound y) refl
-  optimize0plusSound (x - y) = opHelper x y _-_ Data.Nat._∸_ refl refl (optimize0plusSound x) (optimize0plusSound y)
-  optimize0plusSound (x * y) = opHelper x y _*_ Data.Nat._*_ refl refl (optimize0plusSound x) (optimize0plusSound y)
-```
-
-### Inference Rule Notation
-
-In informal discussions, it is convenient to write the rules for
-⇓ᵃ and similar relations in the more readable graphical form of
-_inference rules_, where the premises above the line justify the
-conclusion below the line (we have already seen them in the
-\CHAP{IndProp} chapter).
-
-For example, the constructor `E_APlus`
-
-        EA_+ : ∀ {e1 e2 : AExp} {n1 n2 : ℕ} 
-                 → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-                 → (e1 + e2) ⇓ᵃ (n1 Data.Nat.+ n2)
-
-would be written like this as an inference rule:
-
-                                   e1 ⇓ᵃ n1    e2 ⇓ᵃ n2
-                                   --------------------  (EA_+)
-                                    e1 + e2 ⇓ᵃ n1 + n2
-
-Formally, there is nothing deep about inference rules: they are just
-implications.  You can read the rule name on the right as the name of
-the constructor and read each of the linebreaks between the premises
-above the line (as well as the line itself) as `→`.  All the variables
-mentioned in the rule (`e1`, `n1`, etc.) are implicitly bound by
-universal quantifiers at the beginning. (Such variables are often
-called _metavariables_ to distinguish them from the variables of the
-language we are defining.  At the moment, our arithmetic expressions
-don't include variables, but we'll soon be adding them.)  The whole
-collection of rules is understood as being wrapped in an `data`
-declaration.  In informal prose, this is either elided or else
-indicated by saying something like "Let `⇓ᵃ` be the smallest relation
-closed under the following rules...".
-
-So we could (informally) define `⇓ᵃ` as the smallest relation closed
-under these rules:
-
-                              ----------                              (E_ANum)
-                               # n ⇓ᵃ n
-
-                               e1 ⇓ᵃ n1
-                               e2 ⇓ᵃ n2
-                         --------------------                         (EA_+)
-                          e1 + e2 ⇓ᵃ n1 + n2
-
-                               e1 ⇓ᵃ n1
-                               e2 ⇓ᵃ n2
-                        ---------------------                        (E_AMinus)
-                          e1 - e2 ⇓ᵃ n1 - n2
-
-                               e1 ⇓ᵃ n1
-                               e2 ⇓ᵃ n2
-                         --------------------                         (E_AMult)
-                          e1 * e2 ⇓ᵃ n1 * n2
-
-
-We can use this notation for inference rules in other contexts as well.
-For example, it is convenient for writing more more complicated theorems in a clearer way.
-
-{::comment}
-
-(* INSTRUCTORS: It might be useful to write the inference rules on the
-   chalkboard, walking through the translation from the inductive
-   definition, and then use these quizzes to check comprehension. *)
-
-(* HIDE *)
-  (* LATER: The first two quizzes here seem kind of boring. *)
-  (* QUIZ *)
-  (** Which rules are needed to prove the following?
-  ``
-     (AMult (APlus (ANum 3) (ANum 1)) (ANum 0)) ⇓ᵃ 0
-  ``
-
-    (1) `E_ANum` and `EA_+`
-
-    (2) `E_ANum` only
-
-    (3) `E_ANum` and `E_AMult`
-
-    (4) `E_AMult` and `EA_+`
-
-    (5) `E_ANum`, `E_AMult`, and `EA_+`
-
-  *)
-  (* /QUIZ *)
-  (* QUIZ *)
-  (** Which rules are needed to prove the following?
-  ``
-     (AMinus (ANum 3) (AMinus (ANum 2) (ANum 1))) ⇓ᵃ 2
-  ``
-
-    (1) `E_ANum` and `EA_+`
-
-    (2) `E_ANum` only
-
-    (3) `E_ANum` and `E_AMinus`
-
-    (4) `E_AMinus` and `EA_+`
-
-    (5) `E_ANum`, `E_AMinus`, and `EA_+`
-
-  *)
-  (* /QUIZ *)
-(* /HIDE *)
-
-{:/comment}
-
-
-### Evaluation as a relation
-
-We have presented `aeval` and `beval` as functions.  Another way to
-think about evaluation — one that we will see is often more flexible —
-is as a _relation_ between expressions and their values.  This leads
-naturally to inductive definitions like the following one for
-arithmetic expressions.
-
-```
-  data _⇓ᵃ_ : AExp → ℕ → Set where
-    Eᵃℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
-    Eᵃ+ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
-    Eᵃ- : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 - e2 ⇓ᵃ n1 ∸ n2
-    Eᵃ* : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
-  infix 4 _⇓ᵃ_
-```
-
-Just as evaluation functions are traditionally written as surrounding
-double-brackets, evaluation relations are traditionally written as a
-downward double-arrow.
-
-We can use the evaluation relation in the same way that we use the `≡`
-relation: by stating a relationship, and proving it.  For example, as
-an informal proof tree we might have
-
-     -------- Eᵃℕ     -------- Eᵃℕ
-     # 5 ⇓ᵃ 5           # 6 ⇓ᵃ 6
-     ---------------------------- Eᵃ+     -------- Eᵃℕ
-           # 5 + # 6 ⇓ᵃ 11                 # 2 ⇓ᵃ 2
-          ------------------------------------------ Eᵃ*
-                   (# 5 + # 6) * # 2 ⇓ᵃ 22
-
-and as formal proofs,
-
-```
-  _ : # 2 ⇓ᵃ 2
-  _ = Eᵃℕ
-
-  _ : (# 5 + # 6) ⇓ᵃ 11
-  _ = Eᵃ+ Eᵃℕ Eᵃℕ
-
-  _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
-  _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
-```
-
-============================================================
-
-#### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
-
-In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
-`_⇓ᵇ_`.
-
-### Equivalence of the evaluators
-
-It is straightforward to prove that the relational and functional
-definitions of evaluation agree, but we will need some new tools in
-Agda to communicate the result.
-
-    aevalFnRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n ↔ a ⇓ᵃ n
-
-The theorem says that for any program `a` and number `n`, applying the
-evaluation function to `a` returns `n` exactly when the evaluation
-relation connects `a` and `n`.  The theorem does not guarantee that
-either one are true — but if one holds, then the other will too.
-
-We consider one direction at a time: first, that the evaluation
-function implies the relation.
-
-```
-  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
-```
-
-We start the proof in the usual way: the quantifications and premises
-become arguments.
-
-    aevalFnThenRel m a ma = ?
-
-The proofs we have written so far have been on structures like natural
-numbers and lists.  In most of those proofs, we enumerated the
-different forms that the number or list could take.  The same approach
-applies here: we ask Agda to create a clause for each possible form of
-`AExp`.
-
-    aevalFnThenRel (# m) n an = { }1
-    aevalFnThenRel (a₁ + a₂) n an = { }2
-    aevalFnThenRel (a₁ - a₂) n an = { }3
-    aevalFnThenRel (a₁ * a₂) n an = { }4
-
-We will need to complete each clause, one at a time.  In each case the
-third argument, corresponding to the premise, is the evidence that the
-evaluation function links the first two arguments.  The premise is an
-equality — `≡` is the main connective.  As we saw in the last chapter,
-`refl` is one justification for an equality relationship which Agda
-understands.  In fact, `refl` is the *only* possible evidence for an
-`≡`-assertion.
-
-So if we use `C-c C-c` to enumerate the possible forms of evidence for
-`an` in the first clause, Agda will produce only one resulting clause,
-with `refl` as the evidence for the equality.
-
-    aevalFnThenRel (# m) .m refl = { }1
-
-Agda has also made a change to the second argument.  This is a _dot
-pattern_.  Agda uses dot patterns to convey that only certain patterns
-are possible in a clause.  Let's think through what this clause says:
-
- - The first clause tells us that we are only considering terms of the
-   form `# m`.
-
- - The third clause tells us that the term and the value `n` have the
-   relationship `⟦ a ⟧ᵃ ≡ n`; putting that together with knowing that
-   `a` is `# m`, we have that `⟦ # m ⟧ᵃ ≡ n`.
-
- - The definition of `⟦_⟧ᵃ` tells us that `⟦ # m ⟧ᵃ` is `m`.
-
- - So Agda can figure out that the only valid possibility for the
-   second argument is that it is the same as the number under the `#`.
-   This is the meaning of the pattern for the second argument: the dot
-   conveys the understanding only certain possible values will be
-   consistent with the evidence in the other arguments.
-
-What evidence should this clause return?  The signature tells us that
-the result type is a `⇓ᵃ`, and we know from the `data _⇓ᵃ_`
-declaration that there are four possible forms of evidence for `⇓ᵃ`.
-However, only one of them makes a statement about `#`-terms — and this
-form `Eᵃℕ` is the evidence for the first clause.
-
-```
-  aevalFnThenRel (# m) .m refl = Eᵃℕ
-```
-
-TODO
-
-```
-  aevalFnThenRel (a₁ + a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.+ ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ+ (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
-  aevalFnThenRel (a₁ - a₂) .(⟦ a₁ ⟧ᵃ ∸ ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ- (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
-  aevalFnThenRel (a₁ * a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.* ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ* (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
-```
-
-  postulate aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
-
-{::comment}
-
-(* /HIDEFROMADVANCED *)
-Theorem aeval_iff_aevalR : forall a n,
-  (a ==> n) <-> aeval a = n.
-(* FOLD *)
-Proof.
- split.
- - (* -> *)
-   intros H.
-   induction H; simpl.
-   + (* E_ANum *)
-     reflexivity.
-   + (* Eᵃ+ *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
-   + (* E_AMinus *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
-   + (* E_AMult *)
-     rewrite IHaevalR1.  rewrite IHaevalR2.  reflexivity.
- - (* <- *)
-   generalize dependent n.
-   induction a;
-      simpl; intros; subst.
-   + (* ANum *)
-     apply E_ANum.
-   + (* APlus *)
-     apply Eᵃ+.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-   + (* AMinus *)
-     apply E_AMinus.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-   + (* AMult *)
-     apply E_AMult.
-      apply IHa1. reflexivity.
-      apply IHa2. reflexivity.
-Qed.
-(* /FOLD *)
-(* HIDEFROMADVANCED *)
-
-(** We can make the proof quite a bit shorter by making more
-    use of tacticals. *)
-
-Theorem aeval_iff_aevalR' : forall a n,
-  (a ==> n) <-> aeval a = n.
-Proof.
-  (* WORKINCLASS *)
-  split.
-  - (* -> *)
-    intros H; induction H; subst; reflexivity.
-  - (* <- *)
-    generalize dependent n.
-    induction a; simpl; intros; subst; constructor;
-       try apply IHa1; try apply IHa2; reflexivity.
-Qed.
-(* /WORKINCLASS *)
-
-{:/comment}
-
-#### Exercise `bevalRelationIffEval` (recommended) {#bevalRelationIffEval}
-
-Prove that your evaluation function `⟦ ... ⟧ᵇ` and relation `_⇓ᵇ_` are
-equivalent.
-
-### Computational vs. relational definitions
-
-For the definitions of evaluation for arithmetic and boolean
-expressions, the choice of whether to use functional or relational
-definitions is mainly a matter of taste: either way works.
-
-However, there are circumstances where relational definitions of
-evaluation work much better than functional ones.  For example,
-suppose that we wanted to extend the arithmetic operations with
-division:
-
-    data AExp : Set where
-      # : ℕ → AExp
-      _+_ : AExp → AExp → AExp 
-      _-_ : AExp → AExp → AExp 
-      _*_ : AExp → AExp → AExp 
-      _÷_ : AExp → AExp → AExp   --  <-- this one is new
-
-Extending the definition of `⟦ ... ⟧̂ᵃ` to handle this new operation
-would not be straightforward: What should we return as the result of
-`# 5 ÷ # 0`?  But extending `⇓ᵃ` is very easy.
-
-    data _⇓ᵃ_ : AExp → ℕ → Set where
-      -- ... Constructors Eᵃℕ, Eᵃ+, Eᵃ-, Eᵃ* unchanged
-      Eᵃ÷ : ∀ {n1 n2 : ℕ} {e1 e2 : AExp} 
-               → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-               → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
-
-Notice that the evaluation relation has now become _partial_: There
-are some inputs for which it simply does not specify an output.  This
-is a crucial difference between relations and functions: a partial
-relation is just fine, but all Agda functions **must** be total.
-
-Or suppose that we want to extend the arithmetic operations by a
-nondeterministic number generator `any` that, when evaluated, may
-yield any number. Note that this is not the same as making a
-_probabilistic_ choice among all possible numbers — we're not
-specifying any particular probability distribution for the results,
-just saying what results are _possible_.
-
-    data AExp : Set where
-      any : AExp
-      # : ℕ → AExp
-      -- Other constructors `#`, `_+_`, `_-_`, `_*_` unchanged 
-
-Extending `⟦ ... ⟧̂ᵃ` would be tricky, since now evaluation is _not_ a
-deterministic function from expressions to numbers.  A random number
-generator could have many different results, which is not consistent
-with the sense of "function" in a functional language.  But again,
-extending `⇓ᵃ` would be straightforward:
-
-    data _⇓ᵃ_ : AExp → ℕ → Set where
-      -- ... Constructors Eᵃℕ, Eᵃ+, Eᵃ-, Eᵃ* unchanged
-      Eᵃany : ∀ { n : ℕ } → any ⇓ᵃ n
-
-At this point you maybe wondering: which style should I use by
-default?  In the examples we've just seen, relational definitions
-turned out to be more useful than functional ones.  For situations
-like these, where the thing being defined is not easy to express as a
-function, or indeed where it is _not_ a function, there is no real
-choice.  But what about when both styles are workable?
-
-One point in favor of relational definitions is that they can be more
-elegant and easier to understand.
-On the other hand, functional definitions can often be more
-convenient:
-
- - Functions are by definition deterministic and defined on all
-   arguments; for a relation we have to _prove_ these properties
-   explicitly if we need them.
-
- - With functions we can also take advantage of Agda's computation
-   mechanism, and rely on simple proofs techniques like `refl`.
-
-Furthermore, we can use functions in runtime code if we compile to a
-standalone binary.  Relations do not correspond to runtime-executable
-code.
-
-Ultimately, the choice often comes down to either the specifics of a
-particular situation, or simply a question of taste.  Indeed, in large
-programs it is common to see a definition given in _both_ functional
-and relational styles, plus a lemma stating that the two coincide,
-allowing further proofs to switch from one point of view to the other
-at will.
-
-```
-  -- end of module ImpStage1
-```
-
-## Expressions with variables
-
-Now we return to defining Imp. The next thing we need to do is to
-enrich our arithmetic and boolean expressions with variables.  To keep
-things simple, we'll assume that all variables are global and that
-they only hold numbers.
-
-What is the meaning of an expression with a variable in it?  What is
-the value of `x + 3`?  In Imp or Agda, just as in any other language
-you have seen, such as expression does not have any particular meaning
-by itself.  It has meaning only in the context of the _state_ of a
-running program.  The state gives the relationship between the names
-of variables and the values we associate with them.  Some other
-languages associate other information with the state as well, but to
-keep Imp simple we will be use the state only for these name-value
-bindings.
-
-For simplicity, we assume that the state is defined for _all_
-variables, even though any given program is only going to mention a
-finite number of them.  The state captures all of the information
-stored in memory.  For Imp programs, because each variable stores a
-natural number, we can represent the state as a mapping from strings
-to `nat`, and will use `0` as default value in the store.  For more
-complex programming languages, the state might have more structure.
-Fortunately we already have such a structure at hand — the [total
-maps]({{ site.baseurl }}/Maps/) from the "Functional Programming"
-chapter.
-
-So our definition of a state is a straightforward use of `TotalMap`,
-specialized to the numeric values we will store in Imp variables.
-
-```
-State : Set
-State = TotalMap ℕ
-```
-
-Then we can add variables to the arithmetic expressions we had before
-by simply adding one more constructor:
-
-```
-data AExp : Set where
-  # : ℕ → AExp
-  id : String → AExp          -- <--- This one is new
-  _+_ : AExp → AExp → AExp
-  _-_ : AExp → AExp → AExp 
-  _*_ : AExp → AExp → AExp 
-
-infixl 7  _*_
-infixl 6  _+_  _-_
-```
-
-For convenience we will declare a few variable names.
-
-```
-X : String
-X = "X"
-Y : String
-Y = "Y"
-Z : String
-Z = "Z"
-W : String
-W = "W"
-```
-
-This convention for naming program variables with upper-case letter
-(`X`, `Y`, `Z`) clashes a bit with our earlier use of uppercase
-letters for types.  Since we're not using polymorphism heavily in the
-chapters developed to Imp, this overloading should not cause
-confusion.
-
-The definition of `bexp`s is unchanged, except that it now refers to
-the new `aexp`s.
-
-```
-data BExp : Set where
-  T : BExp
-  F : BExp
-  _==_ : AExp → AExp → BExp
-  _<=_ : AExp → AExp → BExp
-  ! : BExp → BExp
-  _&&_ : BExp → BExp → BExp
-  _||_ : BExp → BExp → BExp
-
-infixl 8  _&&_
-infixl 7  _||_
-```
-
-The main change to our evaluation functions is that they now that the
-state as an extra argument.  Following tradition, we write the state
-immediately after the double-brackets.  Otherwise, the way we extend
-the two evaluators is straightforward.
-
-
-```
-⟦_⟧ᵃ_ : AExp → State → ℕ
-⟦ # n ⟧ᵃ st = n
-⟦ id name ⟧ᵃ st = st name
-⟦ ae1 + ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.+ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 - ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st ∸ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 * ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.* ⟦ ae2 ⟧ᵃ st
-
-⟦_⟧ᵇ_ : BExp → State → Bool
-⟦ T ⟧ᵇ st = true
-⟦ F ⟧ᵇ st = false
-⟦ ae1 == ae2 ⟧ᵇ st = ⟦ ae1 ⟧ᵃ st ≡ᵇ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 <= ae2 ⟧ᵇ st = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
-                    where v1 : ℕ
-                          v1 = ⟦ ae1 ⟧ᵃ st
-                          v2 : ℕ
-                          v2 = ⟦ ae2 ⟧ᵃ st
-⟦ ! be ⟧ᵇ st = not (⟦ be ⟧ᵇ st)
-⟦ be1 && be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∧ ⟦ be2 ⟧ᵇ st
-⟦ be1 || be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∨ ⟦ be2 ⟧ᵇ st
-```
-
-Since the default value for Imp variable not otherwise set in zero, we
-can define an empty Imp state for convenience.
-
-```
-emptyState : State
-emptyState = ↪ 0
-```
-
-For example, we can evaluate the expression `3+X*2` in an environment
-where `Z` is bound to 5.
-
-```
-_ : ⟦ # 3 + id X * # 2 ⟧ᵃ (X ↦ 5 , emptyState) ≡ 13
-_ = refl
-
-_ : ⟦ T && ! (id X <= # 4) ⟧ᵇ (X ↦ 5 , emptyState) ≡ true
-_ = refl
+open import plc.vfp.MapProps
+open import plc.vfp.Relations using (_⇔_)
+open import plc.vfp.Logic
+open import plc.imp.ImpExprs public
 ```
 
 ## Commands
@@ -1150,15 +242,13 @@ evaluation, presented as inference rules for readability:
                   --------------------------------                 (E_WhileTrue)
                   st  =[ while b do c end ]=> st′'
 
-*)
-
 Here is the formal definition.  Make sure you understand how it
 corresponds to the inference rules.
 
 ```
 data _=[_]=>_ : State → Command → State → Set where
   Eskip : ∀ { st : State } → st =[ skip ]=> st
-  E:= : ∀ { st : State } { a : AExp } { n : ℕ } { x : String } →
+  E:= : ∀ { st : State } { x : String } ( a : AExp ) ( n : ℕ ) →
            ⟦ a ⟧ᵃ st ≡ n →
              st =[ x := a ]=> ( x ↦ n , st )
   E, : ∀ { st' : State } { st st′' : State } { c₁ c₂ : Command } →
@@ -1176,7 +266,7 @@ data _=[_]=>_ : State → Command → State → Set where
   EWhileF : ∀ { st : State } { b : BExp } { c : Command } →
                ⟦ b ⟧ᵇ st ≡ false →
                  st =[ while b loop c end ]=> st
-  EWhileT : ∀ { st st' st′' : State } { b : BExp } { c : Command } →
+  EWhileT : ∀ { st' st st′' : State } { b : BExp } { c : Command } →
                ⟦ b ⟧ᵇ st ≡ true →
                  st =[ c ]=> st' →
                    st' =[ while b loop c end ]=> st′' →
@@ -1214,7 +304,7 @@ _ : emptyState =[
         else Z := # 4
       end
     ]=> Z ↦ 4 , X ↦ 2 , emptyState
-_ = E, (E:= refl) (EIfF refl (E:= refl))
+_ = E, (E:= (# 2) 2 refl) (EIfF refl (E:= (# 4) 4 refl))
 ```
 
 Here is another example,
@@ -1225,7 +315,7 @@ _ : emptyState =[
       Y := # 1 ,
       Z := # 2
     ]=> Z ↦ 2 , Y ↦ 1 , X ↦ 0 , emptyState
-_ = E, (E:= refl) (E, (E:= refl) (E:= refl))
+_ = E, (E:= (# 0) 0 refl) (E, (E:= (# 1) 1 refl) (E:= (# 2) 2 refl))
 ```
 
 
@@ -1244,661 +334,438 @@ theorem will be somewhat lengthy.
     _ = -- FILL IN YOUR PROOF HERE
 
 
-(* HIDE: PR: I phrased these quizzes with the following alternatives:
-   (1) Not true
-   (2) True and easily provable in Agda
-   (3) True and takes more work to prove in Agda
-   (4) True and cannot be proved in Agda without additional axioms
-*)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (c : com) (st st' : state),
-        st =[ skip ; c ]=> st' ->
-        st =[ c ]=> st'
-``
-    (1) Yes
 
-    (2) No
+## Determinism of evaluation
 
-    (3) Not sure
+Changing from a computational to a relational definition of evaluation
+is a good move because it frees us from the artificial requirement
+that evaluation should be a total function.  But it also raises a
+question: Is the second definition of evaluation really a partial
+_function_?  Or is it possible that, beginning from the same state
+`st`, we could evaluate some command `c` in different ways to reach
+two different output states `st'` and `st''`?
 
-*)
-(* HIDE *)
-Lemma quiz1_answer :  forall c st st',
-    st =[ skip ; c ]=> st' ->
-    st =[ c ]=> st'.
-Proof.
-   intros c st st' E.
-   inversion E.
-   inversion H1.
-   subst.
-   assumption.
-Qed.
+In fact, this cannot happen: `ceval` _is_ a partial function.  Note
+that we will make use of some of the results on partial maps from
+[Section MapProps]({{ site.baseurl }}/MapProps/) in this result.
 
-(* /HIDE *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (c1 c2 : com) (st st' : state),
-          st =[ c1;c2 ]=> st' ->
-          st =[ c1 ]=> st ->
-          st =[ c2 ]=> st'
-``
-    (1) Yes
+We will actually prove a slightly more general lemma first, that
+`ceval` preserves the equality relationship.  This technique is
+helpful when intermediate steps need the more general result.  We
+begin as usual with a signature stating the result we wish to show.
 
-    (2) No
+```
+cevalPreserves≡ : ∀ (c : Command) (st₁ st₂ st₁' st₂' : State)
+                    → st₁ ≡ st₂
+                      → st₁ =[ c ]=> st₁'  
+                        → st₂ =[ c ]=> st₂'
+                          → st₁' ≡ st₂'
+```
 
-    (3) Not sure
+We can illustrate this statement in a diagram:
 
-*)
-(* INSTRUCTORS: Answer is given later as it depends on
-   ceval_deterministic *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (b : bexp) (c : com) (st st' : state),
-          st =[ if b then c else c end ]=> st' ->
-          st =[ c ]=> st'
-``
-    (1) Yes
+           =[ c ]=>
+    st₁ ==============> st₁'
+     |                  .
+     | ≡                . ≡
+     |                  .
+    st₂ ==============> st₂'
+           =[ c ]=>
 
-    (2) No
+The diagram uses solid lines to show relationships which we are
+_given_, and a dotted line to show the relationship which we _want to
+show_.  Each line is labeled with the relation which we are asserting
+between the endpoints of that line.
 
-    (3) Not sure
+This proof will probably be the most difficult, and certainly the
+longest, that we have seen so far.  However, most of the techniques we
+will see in the proof are techniques we have used before: case
+analysis and induction, application of evidence to equation blocks,
+propagation of constraints by dot-patterns.  The complexity of this
+proof arises from a number of sources: First, the fact that we are
+reasoning across three given erelationships, as the diagram shows.
+The indirectness of the relationship between the four states in the
+quantification requires additional reasoning steps.  Moreover, the
+number of cases in both the semantic relation `_=[_]=>_` and the forms
+of `Command` adds to the number of cases in the proof.  There are more
+quantified values and premises to this theorem than our usual.  And
+although the use of functions to model states does simplify our model
+in some ways, the expressions which describe these state become longer
+here.
 
-*)
-(* INSTRUCTORS *)
-Lemma quiz3_answer: forall (b : bexp) (c : com) (st st' : state),
-    st =[ if b then c else c end`=> st' ->
-    st =[ c ]=> st'.
-Proof.
-  intros b c st st' H. inversion H.
-  subst. assumption.
-  subst. assumption.
-Qed.
-(* /INSTRUCTORS *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall b : bexp,
-         (forall st, ⟦ b ⟧ᵇ st = true) ->
-         forall (c : com) (st : state),
-           ~(exists st', st =[ while b do c end ]=> st')
-``
-    (1) Yes
+We begin with the simple named parameters as usual.  The first five
+parameters correspond to the five quantified values in the signature,
+and the last three parameters correspond to the three premises of the
+final conclusion, for which the body of the proof function builds
+evidence.
 
-    (2) No
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
 
-    (3) Not sure
+We can diagram these roles of each parameter,
 
-*)
-(* HIDE *)
-(* This one is tricky! *)
-Lemma quiz4_answer: forall b : bexp,
-    (forall st, ⟦ b ⟧ᵇ st = true) ->
-    forall (c : com) (st : state),
-      ~(exists st', st =[ while b do c end ]=> st').
-Proof.
-  intros b H c st.
-  unfold not.
-  intros W.
-  destruct W as `st' WW`.
-  remember <{ while b do c end }> as cc.
-  induction WW; try discriminate Heqcc; inversion Heqcc; subst.
-  - rewrite H in H0. discriminate H0.
-  - apply IHWW2. reflexivity.
-Qed.
-(* /HIDE *)
-(* /QUIZ *)
-(* QUIZ *)
-(** Is the following proposition provable?
-``
-      forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =[ while b do c end ]=> st') ->
-         forall st'', beval st'' b = true
-``
-    (1) Yes
+    cevalPreserves≡ cmd st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂'
+                     |   \             /     |       |         |
+                     |    \___________/      |       |         +-- Evidence that st₂ =[ c ]=> st₂'
+                     |          |            |       |
+                     |          |            |       +-- Evidence that st₁ =[ c ]=> st₁'
+                     |          |            |
+                     |          |            +-- Evidence that st₁ ≡ st₂
+                     |          |     
+                     |          +-- The four quantified states
+                     |
+                     +-- The quantified command
 
-    (2) No
+We proceed with a case analysis of the possible forms of statement.
+The simplest case is for the no-operation command `skip`.
 
-    (3) Not sure
+    cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ st₁=>st₁' st₂=>st₂' = ?
 
-*)
-(* HIDE *)
-Lemma quiz5_answer: forall (b : bexp) (c : com) (st : state),
-         ~(exists st', st =[ while b do c end ]=> st') ->
-         forall st'', beval st'' b = true.
-Proof.
-  intros b c st H st''.
-Abort. (* Can't make any progress - claim is false! *)
-(* /HIDE *)
-(* /QUIZ *)
+- The only evidence for the `_=[_]=>_` relation which pertains to the
+   `skip` command is `Eskip`, so we can narrow the pattern for the
+   `st₁=>st₁'` and `st₂=>st₂'` arguments to `Eskip` only.
 
-(* ####################################################### *)
-(** ** Determinism of Evaluation *)
+       cevalPreserves≡ skip st₁ st₂ st₁' st₂' st₁≡st₂ Eskip Eskip = ?
 
-(* LATER: Maybe this should go at the end of the file in a section
-   marked optional?  Not everybody will want to spend time on it. *)
-(* FULL *)
-(** Changing from a computational to a relational definition of
-    evaluation is a good move because it frees us from the artificial
-    requirement that evaluation should be a total function.  But it
-    also raises a question: Is the second definition of evaluation
-    really a partial _function_?  Or is it possible that, beginning from
-    the same state `st`, we could evaluate some command `c` in
-    different ways to reach two different output states `st'` and
-    `st''`?
+ - In turn, the `Eskip` evidence tells us that the starting and ending
+   states for each `_=[ skip ]=>_` relation _must be the same_.  So
+   instead of giving distinct names to the `st₁'` and `st₂'`
+   parameters, we can use a dot-pattern to assert the equalities among
+   these values.
 
-    In fact, this cannot happen: `ceval` _is_ a partial function: *)
-(* /FULL *)
-(* LATER: Informal proof needed!  (And once can surely be found in
-   some past CIS500 exam solutions!) *)
+       cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = ?
 
-Theorem ceval_deterministic: forall c st st1 st2,
-     st =[ c ]=> st1  ->
-     st =[ c ]=> st2 ->
-     st1 = st2.
-(* FOLD *)
-Proof.
-  intros c st st1 st2 E1 E2.
-  generalize dependent st2.
-  induction E1; intros st2 E2; inversion E2; subst.
-  - (* ESkip *) reflexivity.
-  - (* EAsgn *) reflexivity.
-  - (* ESeq *)
-    rewrite (IHE1_1 st'0 H1) in *.
-    apply IHE1_2. assumption.
-  - (* EIfTrue, b evaluates to true *)
-      apply IHE1. assumption.
-  - (* EIfTrue,  b evaluates to false (contradiction) *)
-      rewrite H in H5. discriminate.
-  - (* EIfFalse, b evaluates to true (contradiction) *)
-      rewrite H in H5. discriminate.
-  - (* EIfFalse, b evaluates to false *)
-      apply IHE1. assumption.
-  - (* EWhileFalse, b evaluates to false *)
-    reflexivity.
-  - (* EWhileFalse, b evaluates to true (contradiction) *)
-    rewrite H in H2. discriminate.
-  - (* EWhileTrue, b evaluates to false (contradiction) *)
-    rewrite H in H4. discriminate.
-  - (* EWhileTrue, b evaluates to true *)
-    rewrite (IHE1_1 st'0 H3) in *.
-    apply IHE1_2. assumption.  Qed.
-(* /FOLD *)
+ - Our general goal for each of these clauses is to show that
+   `st₁' ≡ st₂'`.  With the introduction of the dot-patterns,
+   we have transformed that goal for _this_ clause to `st₁ ≡ st₂`.
+   But this is exactly what the evidence of the `st₁≡st₂` argument
+   demonstrates, so we can return that evidence for this clause.   
 
-(* HIDE *)
-(* Answer to previous quiz. *)
-Lemma quiz2_answer : forall c1 c2 st st',
-    st =[ c1;c2 ]=> st' ->
-    st =[ c1 ]=> st ->
-    st =[ c2 ]=> st'.
-Proof.
-  intros c1 c2 st st' H1 H2.
-  inversion H1. subst.
-  rewrite ceval_deterministic with (c := c1) (st := st)
-                                   (st1 := st) (st2 := st'0);
-     assumption.
-Qed.
-(* /HIDE *)
+```
+cevalPreserves≡ skip st₁ st₂ .st₁ .st₂ st₁≡st₂ Eskip Eskip = st₁≡st₂
+```
 
-(* FULL *)
-(* ####################################################### *)
-(** * Reasoning About Imp Programs *)
+Going forward it is important to keep in mind that we are
+demonstrating an equality.  The evidence for this equality in the
+previous `skip` clause was readily available, but it is more typical,
+especially in inductive clauses, that we will need to build new
+evience for the result.  The clause for the assignment statement `:=`
+shows two typical techniques for establishing equality, both of which
+we have seen in some form before.
 
-(* LATER: This section doesn't seem very useful — to anybody!  It
-   takes too much time to go through it in class, and even for
-   advanced students it's too low-level and grubby to be a very
-   convincing motivation for what follows — i.e., to feel motivated
-   by its grubbiness, you have to understand it, but this takes more
-   time than it's worth.  Better to cut the whole rest of the
-   file (except the further exercises at the very end), or at least
-   make it optional.
+ - We have frequently used equation blocks in the last chapter, and we
+   see one here.  The evidence for justifications for the steps of
+   this block is drawn from the arguments of the proof function.
 
-   (BCP 10/18: However, this removes quite a few exercises. Is the
-   homework assignment still meaty enough?  I'm going to leave it
-   as-is for now, but we should reconsider this later.) *)
+ - Since the states whose equivalences we prove are on `TotalMap`
+   functions, we will use the library of results from the
+   [`MapProps` section]({{ site.baseurl }}/MapProps/).
 
-(** We'll get deeper into more systematic and powerful techniques for
-    reasoning about Imp programs in _Programming Language
-    Foundations_, but we can get some distance just working with the
-    bare definitions.  This section explores some examples. *)
+Once again we see that the form of command corresponds to only a
+single form of evaluation evidence, and that that evidence in turn
+restricts the possible forms of resulting states `st₁'` and `st₂'`.
+Note that part of the evidence echoes part of the command: the
+expression `a` appears explicitly in the evidence, and the local
+dot-pattern in the evidence emphasizes that the expression must be the
+same.  The expression `a` also appears implicitly a second time in
+each piece of evidence, since it is a subject of the third element of
+each `E:=` evidence value.  We use a `where` clause for readability,
+to explicitly name a key element of the overall evidence.
 
-Theorem plus2_spec : forall st n st',
-  st X = n ->
-  st =[ plus2 ]=> st' ->
-  st' X = n + 2.
-Proof.
-  intros st n st' HX Heval.
+```
+cevalPreserves≡ (x := a) st₁ st₂ .( x ↦ n₁ , st₁ ) .( x ↦ n₂ , st₂ )
+                st₁≡st₂ (E:= .a n₁ aEvalsToN₁) (E:= .a n₂ aEvalsToN₂) =
+                  tSinglePoint≡Updates st₁ st₂ x n₁ n₂ st₁≡st₂ n₁≡n₂ 
+                  where n₁≡n₂ : n₁ ≡ n₂
+                        n₁≡n₂ = begin
+                                  n₁
+                                ≡⟨ sym aEvalsToN₁ ⟩ 
+                                  (⟦ a ⟧ᵃ st₁)
+                                ≡⟨ cong (⟦ a ⟧ᵃ_) st₁≡st₂ ⟩ 
+                                  (⟦ a ⟧ᵃ st₂)
+                                ≡⟨ aEvalsToN₂ ⟩
+                                  n₂
+                                ∎
+```
 
-  (** Inverting `Heval` essentially forces Agda to expand one step of
-      the `ceval` computation — in this case revealing that `st'`
-      must be `st` extended with the new value of `X`, since `plus2`
-      is an assignment. *)
+In the result for sequential composition of commands, we are given the
+existence of intermediate states which serve as the midpoint of
+`_=[_]=>_`, as part of the evidence of the transition for the overall
+composition.
 
-  inversion Heval. subst. clear Heval. simpl.
-  apply t_update_eq.  Qed.
+          =[ c₁ ]=>           =[ c₂ ]=>
+    st₁ -------------> stA -------------> st₁'
+     |                  .                  .
+     |                  .                  .
+     | ≡                . ≡                . ≡
+     |                  .                  .
+     |                  .                  .
+    st₂ -------------> stB -------------> st₂'
+          =[ c₁ ]=>           =[ c₂ ]=>
 
-(* SOONER: This used to be recommended.  Should it be reinstated? *)
-(* EX3? (XtimesYinZ_spec) *)
-(** State and prove a specification of `XtimesYinZ`. *)
+The result follows by applying `cevalPreserves≡` for an induction
+hypotehesis on each of the two steps of the reduction.  
 
-(* SOLUTION *)
-(* Here is a specification in the style of plus2_spec *)
-Theorem XtimesYinZ_spec1 : forall st nx ny st',
-  st X = nx ->
-  st Y = ny ->
-  st =[ XtimesYinZ ]=> st' ->
-  st' Z = nx * ny.
-Proof.
-  intros st nx ny st' HX HY Heval.
-  (* Start by inverting the assignment *)
-  inversion Heval. subst.
-  apply t_update_eq.  Qed.
+```
+cevalPreserves≡ (c₁ , c₂) st₁ st₂ st₁' st₂' st₁≡st₂
+                (E, {stA} stStA stASt₁') (E, {stB} stStB stBSt₂') = 
+  cevalPreserves≡ c₂ stA stB st₁' st₂' stA≡stB stASt₁' stBSt₂'
+  where stA≡stB : stA ≡ stB
+        stA≡stB = cevalPreserves≡ c₁ st₁ st₂ stA stB st₁≡st₂ stStA stStB
+```
 
-(* Though perhaps a cleaner specification would be: *)
-Theorem XtimesYinZ_spec : forall st,
-    st =[ XtimesYinZ ]=> (Z ↦ st X * st Y ; st ).
-Proof. intros. apply EAsgn. reflexivity. Qed.
+The next two clauses arise from `if`-commands.  Where the two states
+`st₁` and `st₂` give the same result for the boolean condition `b`, we
+have a simple inductive case on either `cTrue` or `cFalse`.
 
-(* A less informative specification would be ... *)
-Theorem XtimesYinZ_spec2 : forall st, exists st',
-      st =[ XtimesYinZ ]=> st'.
-Proof.
-  intros. exists (Z ↦ st X * st Y ; st).
-  apply EAsgn. reflexivity.
-Qed.
-(* /SOLUTION *)
+```
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfT _ aEvalsToN₁) (EIfT _ aEvalsToN₂) =
+  cevalPreserves≡ cTrue st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+cevalPreserves≡ (if b then cTrue else cFalse end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EIfF _ aEvalsToN₁) (EIfF _ aEvalsToN₂) = 
+  cevalPreserves≡ cFalse st₁ st₂ st₁' st₂' st₁≡st₂ aEvalsToN₁ aEvalsToN₂
+```
 
-(* GRADEMANUAL 3: XtimesYinZ_spec *)
-(** `` *)
+The next two clauses also arise from `if`-commands, but these two
+clauses — literally — do not make sense!  The clauses cover the
+situations where the two evaluations of the condition `b`, one by
+`st₁` and the other by `st₂`, give different results.  The reason we
+say that there clauses do not make sense is that since `st₁ ≡ st₂`, as
+we are given, we should also have that `⟦ b ⟧ᵇ st₁ ≡ ⟦ b ⟧ᵇ st₂`.  The
+fact that we do not is a contradiction.  Since there is a
+contradiction _in the setup_ of these clauses, we can use a technique
+which tells Agda to disregard these clauses — that they are _absurd_.
 
-(* EX3! (loop_never_stops) *)
-Theorem loop_never_stops : forall st st',
-  ~(st =[ loop ]=> st').
-Proof.
-  intros st st' contra. unfold loop in contra.
-  remember <{ while true do skip end }> as loopdef
-           eqn:Heqloopdef.
+Agda can rule out certain kinds of absurdity without our needing to
+write an explicit clause for them.  One example of this kind of
+absurdity would be one for a `skip` statement with `E,`-constructed
+evidence: Agda notices that the statement forms are incompatible, and
+does not expect to see such a clause.  But there are limits to the
+reasoning that a system can make automatically, and Agda need us to
+reveal the absurdity of these two clauses.
 
-  (** Proceed by induction on the assumed derivation showing that
-      `loopdef` terminates.  Most of the cases are immediately
-      contradictory (and so can be solved in one step with
-      `discriminate`). *)
+For Agda to acknowledge the absurdity of a clause, we must use the
+evidence provided in that clause to construct evidence of a formula
+that Agda can tell is impossible.  Here we use this construction:
 
-  (* ADMITTED *)
-  induction contra; try (discriminate Heqloopdef).
-  - (* EWhileFalse *)
-      injection Heqloopdef. intros H0 H1. rewrite -> H1 in H. discriminate H.
-    - (* EWhileTrue *) apply IHcontra2. apply Heqloopdef. Qed.
-
-(* /ADMITTED *)
-(** `` *)
-
-(* EX3 (no_whiles_eqv) *)
-(** Consider the following function: *)
-
-Fixpoint no_whiles (c : com) : bool :=
-  match c with
-  | <{ skip }> =>
-      true
-  | <{ _ := _ }> =>
-      true
-  | <{ c1 ; c2 }> =>
-      andb (no_whiles c1) (no_whiles c2)
-  | <{ if _ then ct else cf end }> =>
-      andb (no_whiles ct) (no_whiles cf)
-  | <{ while _ do _ end }>  =>
+    begin
       false
-  end.
+    ≡⟨ sym bIsFalse ⟩
+      ⟦ b ⟧ᵇ st₂
+    ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+      ⟦ b ⟧ᵇ st₁
+    ≡⟨ bIsTrue ⟩
+      true
+    ∎
 
-(** This predicate yields `true` just on programs that have no while
-    loops.  Using `Inductive`, write a property `no_whilesR` such that
-    `no_whilesR c` is provable exactly when `c` is a program with no
-    while loops.  Then prove its equivalence with `no_whiles`. *)
+This proof has the type `false ≡ true`.  By combining the arguments to
+the clause in this way, we produce a result that is clearly false to
+Agda: Agda understands that different constructors of a type produce
+values which **cannot** be equal.
 
-Inductive no_whilesR: com -> Prop :=
- (* SOLUTION *)
- | nw_Skip: no_whilesR <{ skip }>
- | nw_Ass: forall x ae, no_whilesR <{ x := ae }>
- | nw_Seq: forall c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ c1 ; c2 }>
- | nw_If: forall be c1 c2,
-     no_whilesR c1 ->
-     no_whilesR c2 ->
-     no_whilesR <{ if be then c1 else c2 end }>
-(* /SOLUTION *)
-.
+Once we describe how to construct "evidence" of absurdity, we can use
+that evidence in the structure
 
-Theorem no_whiles_eqv:
-   forall c, no_whiles c = true <-> no_whilesR c.
-Proof.
-  (* ADMITTED *)
-   intros; split.
-  - (* -> *)
-   induction c; intro Hc;
-     try (simpl in Hc; rewrite andb_true_iff in Hc;
-       destruct Hc as `Hc1 Hc2`);
-     try constructor;
-     try (apply IHc1; assumption); try (apply IHc2; assumption).
-   + (* while *) discriminate Hc.
-  - (* <- *)
-    intro H. induction H; simpl;
-      try reflexivity;
-      try (rewrite IHno_whilesR1; rewrite IHno_whilesR2; reflexivity).
-  Qed.
-  (* /ADMITTED *)
-(** `` *)
+    case ( ... ) of λ ()
 
-(* EX4 (no_whiles_terminating) *)
-(** Imp programs that don't involve while loops always terminate.
-    State and prove a theorem `no_whiles_terminating` that says this. *)
-(** FULL: Use either `no_whiles` or `no_whilesR`, as you prefer. *)
+This structure asserts to Agda that it will never be possible to
+invoke this clause, since calling the clause would involve
+constructing impossible evidence.
+ 
+```
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfT bIsTrue _) (EIfF bIsFalse _) =
+  case (begin
+          false
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ bIsTrue ⟩
+          true
+        ∎) of λ ()
+cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
+                (EIfF bIsFalse _) (EIfT bIsTrue _) = 
+  case (begin
+          false
+        ≡⟨ sym bIsFalse ⟩
+          ⟦ b ⟧ᵇ st₁
+        ≡⟨ cong (⟦ b ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ b ⟧ᵇ st₂
+        ≡⟨ bIsTrue ⟩
+          true
+        ∎) of λ ()
+```
 
-(* SOLUTION *)
-(* Here is a solution by induction on no_whilesR: *)
-Theorem no_whiles_terminating : forall c st,
-  no_whilesR c ->
-  exists st',
-  st =[ c ]=> st'.
-Proof.
-  intros c st H. generalize dependent st.
-  induction H; intros; simpl.
-  - (* nw_Skip *) exists st. constructor.
-  - (* nw_Ass *) exists (x ↦ aeval st ae ; st).
-    constructor. reflexivity.
-  - (* nw_Seq *)
-    destruct (IHno_whilesR1 st) as `st' IH'`.
-    destruct (IHno_whilesR2 st') as `st'' IH''`.
-    exists st''. apply ESeq with st'; assumption.
-  - (* nw_If *)
-    destruct (⟦ b ⟧ᵇ ste) eqn:Heqbv.
-    + (* bv = true *)
-      destruct (IHno_whilesR1 st) as `st' IH'`.
-      exists st'. apply EIfTrue. rewrite Heqbv. reflexivity. assumption.
-    + (* bv = false *)
-      destruct (IHno_whilesR2 st) as `st' IH'`.
-      exists st'. apply EIfFalse. rewrite Heqbv. reflexivity. assumption.
-Qed.
+There are four clauses related to `while` loops, mirroring the four
+clauses for `if` blocks: two are applicable to real situations, and
+two are absurd.  The real cases implement the two possibilities of the
+loop condition evaluating to either `true` or `false`.
 
-(* And here is an alternative solution by induction on c: *)
-Theorem no_whiles_terminating' : forall c st1,
-  no_whiles c = true ->
-  exists st2, st1 =[ c ]=> st2.
-Proof.
-  induction c; intros st1 Hb.
+```
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ .st₂ st₁≡st₂
+                (EWhileF x₁) (EWhileF x₂) = st₁≡st₂
+```
 
-  - (* skip *)
-    exists st1. apply ESkip.
+Note the pattern for the argument command in the `true` case:
 
-  - (* := *)
-    exists (x ↦ aeval st1 a ; st1). apply EAsgn. reflexivity.
+    cmd@(while x loop c end)
 
-  - (* ; *)
-    simpl in Hb.
-    rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    apply (IHc1 st1) in Hb1. destruct Hb1 as `st1' ceH1`.
-    apply (IHc2 st1') in Hb2. destruct Hb2 as `st1'' ceH2`.
-    exists st1''.
-    apply ESeq with (st' := st1'); assumption.
+This construction is called an _as-pattern_.  It allows us both to
+refer to the argument as a whole through the name `cmd`, and to give
+names to the components inside the argument.
 
-  - (* if *)
-    simpl in Hb. rewrite andb_true_iff in Hb.
-    destruct Hb as `Hb1 Hb2`.
-    destruct (beval st1 b) eqn:Heqbv.
-    + (* EIfTrue *)
-      apply (IHc1 st1) in Hb1.
-      destruct Hb1 as `st2 Hce1`. exists st2.
-      apply EIfTrue.
-      * (* b is true *)
-        rewrite <- Heqbv. reflexivity.
-      * (* true branch eval *)
-        assumption.
-    + (* EIfFalse *)
-      apply (IHc2 st1) in Hb2.
-      destruct Hb2 as `st2 Hce2`. exists st2.
-      apply EIfFalse.
-      * (* b is false *)
-        rewrite <- Heqbv. reflexivity.
-      * (* false branch eval *)
-        assumption.
+```
+cevalPreserves≡ cmd@(while x loop c end) st₁ st₂ st₁' st₂' st₁≡st₂
+                (EWhileT {st₁*} _ st₁⇒st₁* st₁*⇒st₁')
+                (EWhileT {st₂*} _ st₂⇒st₂* st₂*⇒st₂') = 
+ cevalPreserves≡ cmd st₁* st₂* st₁' st₂' intermediates st₁*⇒st₁' st₂*⇒st₂'
+ where intermediates : st₁* ≡ st₂*
+       intermediates = cevalPreserves≡ c st₁ st₂ st₁* st₂* st₁≡st₂
+                                        st₁⇒st₁* st₂⇒st₂*
+```
 
-  - (* while *)
-    discriminate Hb.  Qed.
-(* /SOLUTION *)
+Finally, these last two clauses address the absurd cases of different
+results arising from the same boolean condition.
 
-(* GRADE_MANUAL 6: no_whiles_terminating *)
-(** `` *)
-(* /FULL *)
+```
+cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂
+                (EWhileF xIsFalse) (EWhileT xIsTrue _ _) = 
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂
+                (EWhileT xIsTrue _ _) (EWhileF xIsFalse) = 
+  case (begin
+          false
+        ≡⟨ sym xIsFalse ⟩
+          ⟦ x ⟧ᵇ st₂
+        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
+          ⟦ x ⟧ᵇ st₁
+        ≡⟨ xIsTrue ⟩
+          true
+        ∎) of λ ()
+```
 
-(* LATER: The following section always gets skipped over when I (BCP)
-   teach the course, because there isn't time to go through all the
-   details and we're going to see the right way to do the same thing
-   in a later chapter, so I am hiding it for now.  I wouldn't mind
-   reinstating it for the use of advanced / self-study readers if
-   somebody wants to write some text to really explain it, but what's
-   there is a bit too telegraphic, so I'm removing it for now. *)
-(* HIDE *)
-(* ####################################################### *)
-(** * Case Study (Optional) *)
+The determinism result we originally imagined is somewhat simpler than
+the `cevalPreserves≡` lemma:
 
-(** Recall the factorial program (broken up into smaller pieces this
-    time, for convenience of proving things about it).  *)
+                st
+               /  \
+    =[ c ]=>  /    \  =[ c ]=>
+             /      \
+           st₁ - - - st₂
+                 ≡
+                 
+But the proof determinism is immediate from the `cevalPreserves≡`
+lemma, since every starting state is equal to itself.
 
-fact_body : Command
-  <{ Y := Y * Z ;
-     Z := Z - 1 }>.
+```
+cevalDeterministic : ∀ (c : Command) (st st₁ st₂ : State)
+                       → st =[ c ]=> st₁  
+                         → st =[ c ]=> st₂
+                           -> st₁ ≡ st₂
+cevalDeterministic c st st₁ st₂ = cevalPreserves≡ c st st st₁ st₂ refl
+```
 
-fact_loop : Command
-  <{ while ~(Z = 0) do
-       fact_body
-     end }>.
+#### Exercise `cevalDeterministicRefl` (starting) {#cevalDeterministicRefl}
 
-fact_com : Command
-  <{ Z := X ;
-     Y := 1 ;
-     fact_loop }>.
+Why do we use `refl` as an argument in the body of `cevalDeterministic`?
 
-(** Here is an alternative "mathematical" definition of the factorial
-    function: *)
+#### Exercise `cevalDeterministicInformal` (starting) {#cevalDeterministicInformal}
 
-Fixpoint real_fact (n:nat) : nat :=
-  match n with
-  | O => 1
-  | S n' => n * (real_fact n')
-  end.
+To better understand the `cevalPreserves≡` and `cevalDeterministic`
+proofs, write out the informal proofs of these results.
 
-(** We would like to show that they agree — if we start `fact_com` in
-    a state where variable `X` contains some number `n`, then it will
-    terminate in a state where variable `Y` contains the factorial of
-    `n`.
+## Reasoning about Imp programs
 
-    To show this, we rely on the critical idea of a _loop
-    invariant_. *)
+{::comment}
 
-fact_invariant (n:nat) (st:state) : Prop :=
-  (st Y) * (real_fact (st Z)) = real_fact n.
+LATER: This section doesn't seem very useful — to anybody!  It
+takes too much time to go through it in class, and even for
+advanced students it's too low-level and grubby to be a very
+convincing motivation for what follows — i.e., to feel motivated
+by its grubbiness, you have to understand it, but this takes more
+time than it's worth.  Better to cut the whole rest of the
+file (except the further exercises at the very end), or at least
+make it optional.
 
-(** We show that the body of the factorial loop preserves the invariant: *)
+(BCP 10/18: However, this removes quite a few exercises. Is the
+homework assignment still meaty enough?  I'm going to leave it
+as-is for now, but we should reconsider this later.) *)
 
-(* LATER: Needs an informal proof! *)
-Theorem fact_body_preserves_invariant: forall st st' n,
-     fact_invariant n st ->
-     st Z <> 0 ->
-     st =[ fact_body ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  unfold fact_invariant, fact_body.
-  intros st st' n Hm HZnz He.
-  inversion He; subst; clear He.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  unfold t_update. simpl.
-  (* Show that st Z = S z' for some z' *)
-  destruct (st Z) as `| z'`.
-    exfalso. apply HZnz. reflexivity.
-  rewrite <- Hm. rewrite <- mult_assoc.
-  replace (S z' - 1) with z' by lia.
-  reflexivity.  Qed.
-(* /FOLD *)
+{:/comment}
 
-(** From this, we can show that the whole loop also preserves the
-invariant: *)
+We'll get deeper into more systematic and powerful techniques for
+reasoning about Imp programs in the next sections, but we can get some
+distance just working with the bare definitions.  This section
+explores some examples.
 
-Theorem fact_loop_preserves_invariant : forall st st' n,
-     fact_invariant n st ->
-     st =[ fact_loop ]=> st' ->
-     fact_invariant n st'.
-(* FOLD *)
-Proof.
-  intros st st' n H Hce.
-  remember fact_loop as c.
-  induction Hce; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    (* trivial when the loop doesn't run... *)
-    assumption.
-  - (* EWhileTrue *)
-    (* if the loop does run, we know that fact_body preserves
-       fact_invariant — we just need to assemble the pieces *)
-    apply IHHce2.
-      apply fact_body_preserves_invariant with st;
-            try assumption.
-      intros Contra. simpl in H0; subst.
-      rewrite Contra in H0. inversion H0.
-      reflexivity.  Qed.
-(* /FOLD *)
+```
+addingTwo : ∀ (st st' : State) (n : ℕ)
+              → st X ≡ n
+                → st =[ plus2 ]=> st'
+                  → st' X ≡ n Data.Nat.+ 2
+addingTwo st .( X ↦ n2 , st ) n xBoundToN
+             (E:= {.st} {.X} .(id X + # 2) n2 aEvalN) = 
+  begin
+    ("X" ↦ n2 , st) X
+  ≡⟨ cong (λ z → ("X" ↦ z , st) X) (sym aEvalN) ⟩
+    ("X" ↦ (st X Data.Nat.+ 2) , st) X
+  ≡⟨ tUpdateEq st X (st X Data.Nat.+ 2) ⟩
+    st X Data.Nat.+ 2
+  ≡⟨ cong (Data.Nat._+ 2) xBoundToN ⟩
+    n Data.Nat.+ 2
+  ∎
+```
 
-(** Next, we show that, for any loop, if the loop terminates, then the
-    condition guarding the loop must be false at the end: *)
+#### Exercise `XtimesYinZSpec` (practice) {#XtimesYinZSpec}
 
-Theorem guard_false_after_loop: forall b c st st',
-     st =[ while b do c end ]=> st' ->
-     beval st' b = false.
-(* FOLD *)
-Proof.
-  intros b c st st' Hce.
-  remember <{ while b do c end }> as cloop.
-  induction Hce; inversion Heqcloop; subst; clear Heqcloop.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHce2. reflexivity.  Qed.
-(* /FOLD *)
+State and prove a similar specification of `XtimesYinZ`.
 
-(** Finally, we can patching it all together... *)
+#### Exercise `loopNeverStops` (practice) {#loopNeverStops}
 
-Theorem fact_com_correct : forall st st' n,
-     st X = n ->
-     st =[ fact_com ]=> st' ->
-     st' Y = real_fact n.
-(* FOLD *)
-Proof.
-  intros st st' n HX Hce.
-  inversion Hce; subst; clear Hce.
-  inversion H1; subst; clear H1.
-  inversion H4; subst; clear H4.
-  inversion H1; subst; clear H1.
-  rename st' into st''. simpl in H5.
-  (* The invariant is true before the loop runs... *)
-  remember (Y ↦ 1 ; Z ↦ st X ; st) as st' eqn:Heqst'.
-  assert (fact_invariant (st X) st').
-    subst. unfold fact_invariant, t_update. simpl. lia.
-  (* ...so when the loop is done running, the invariant
-     is maintained *)
-  assert (fact_invariant (st X) st'').
-    apply fact_loop_preserves_invariant with st'; assumption.
-  unfold fact_invariant in H0.
-  (* Finally, if the loop terminated, then Z is 0; so Y must be
-     factorial of X *)
-  apply guard_false_after_loop in H5. simpl in H5.
-  destruct (st'' Z) eqn:E.
-  - (* st'' Z = 0 *) simpl in H0. lia.
-  - (* st'' Z > 0 (impossible) *) inversion H5.
-Qed.
-(* /FOLD *)
+Prove this theorem about a nonterminating program:
 
-(** One might wonder whether all this work with poking at states and
-    unfolding definitions could be ameliorated with some more powerful
-    lemmas and/or more uniform reasoning principles... Indeed, this is
-    exactly the topic of the coming chapter \CHAP{Hoare} in _Programming
-    Language Foundations_! *)
+```
+postulate loopNeverStops : ∀ (st st' : State) → ¬ (st =[ forever ]=> st')
+-- Remove the "postulate" keyword and add your proof code here
+```
 
-(* FULL *)
-(* EX4? (subtractSlowly_spec) *)
-(** Prove a specification for `subtractSlowly`, using the above
-    specification of `fact_com` and the invariant below as
-    guides. *)
+#### Exercise `noWhiles` (practice) {#noWhiles}
 
-ss_invariant (n:nat) (z:nat) (st:state) : Prop :=
-  ((st Z) - st X) = (z - n).
+Consider the following function:
 
-(* SOLUTION *)
-Theorem ss_body_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st X <> 0 ->
-     st =[ subtractSlowlyBody ]=> st' ->
-     ss_invariant n z st'.
-Proof.
-  unfold ss_invariant.
-  intros st n z st' H Hnz He.
-  inversion He; subst; clear He.
-  inversion H2; subst; clear H2.
-  inversion H5; subst; clear H5.
-  unfold t_update. simpl.
-  lia.   (* Interestingly, this is all we need here  — although only after a perceptible delay! *)
-Qed.
+```
+noWhiles : Command → Bool
+noWhiles skip = true
+noWhiles (x := x₁) = true
+noWhiles (c , c₁) = noWhiles c ∧ noWhiles c₁
+noWhiles if x then c else c₁ end = noWhiles c ∧ noWhiles c₁
+noWhiles while x loop c end = false
+```
 
-Theorem ss_preserves_invariant : forall st n z st',
-     ss_invariant n z st ->
-     st =[ subtractSlowly ]=> st'  ->
-     ss_invariant n z st'.
-Proof.
-  intros st n z st' H He.
-  remember subtractSlowly as c.
-  induction He; inversion Heqc; subst; clear Heqc.
-  - (* EWhileFalse *)
-    assumption.
-  - (* EWhileTrue *)
-    apply IHHe2; try reflexivity.
-    apply ss_body_preserves_invariant with st; try assumption.
-    intros Contra. simpl in H0. rewrite Contra in H0. inversion H0.  Qed.
+This predicate yields `true` just on programs that have no while
+loops.  Write a property `noWhilesR (c : Command) : Set` such that
+`no_whilesR c` is provable exactly when `c` is a program with no while
+loops.  Then prove its equivalence with `no_whiles`. 
 
-Theorem ss_correct : forall st n z st',
-     st X = n ->
-     st Z = z ->
-     st =[ subtractSlowly ]=> st' ->
-     st' Z = (z - n).
-Proof.
-  intros st n z st' HX HZ He.
-  assert (ss_invariant n z st).
-    unfold ss_invariant.
-    subst.
-    reflexivity.
-  assert (ss_invariant n z st').
-    apply ss_preserves_invariant with st; assumption.
-  unfold ss_invariant in H0.
-  apply guard_false_after_loop in He. simpl in He.
-  destruct (st' X) eqn:E.
-  - (* st' X = 0 *) lia.
-  - (* st' X > 0 (impossible) *) inversion He.
-Qed.
-(* /SOLUTION *)
-(** `` *)
-(* /HIDE *)
+#### Exercise `noWhilesTerminating` (stretch) {#noWhilesTerminating}
 
-(* TERSE: HIDEFROMHTML *)
-(* HIDE: N.b.: No "FULL" here because this exercise is needed for the
-   TERSE version of the Smallstep chapter. *)
-(* ####################################################### *)
-(** * Additional Exercises *)
+Imp programs that don't involve while loops always terminate.  State
+and prove a theorem `noWhilesTerminating` that says this.
+
+{::comment}
+
+TODO --- Convert and un-comment
+
+## Additional exercises 
 
 (* EX3 (stack_compiler) *)
 (** Old HP Calculators, programming languages like Forth and Postscript,
@@ -2638,11 +1505,12 @@ End ThrowImp.
 (* mode: outline-minor *)
 (* /HIDE *)
 
+{:/comment}
+
 ## Unicode
 
 This section uses the following Unicode symbols:
 
-{::comment}
     ×  U+00D7  MULTIPLICATION SIGN (\x)
     →  U+2192  RIGHTWARDS ARROW (\to, \r, \->)
     ⇓  U+21D3  DOWNWARDS DOUBLE ARROW (\d=)
@@ -2655,10 +1523,9 @@ This section uses the following Unicode symbols:
     ᵇ    (\^b)
     ÷    (\div)
     ′'    (\'')
-{:/comment}
 
 ---
 
-*This page is derived from Pierce et al. with some additional material
-by Maraist; for more information see the [sources and authorship]({{
-site.baseurl }}/Sources/) page.*
+*This page is derived from Pierce et al. with additional explanations
+and exercises by Maraist; for more information see the [sources and
+authorship]({{ site.baseurl }}/Sources/) page.*

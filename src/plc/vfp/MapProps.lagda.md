@@ -1,9 +1,9 @@
 ---
 title     : "MapProps: Properties of total and partial maps"
 layout    : page
-prev      : /DataProp/
+prev      : /Logic/
 permalink : /MapProps/
-next      : /Relations/
+next      : /ImpExprs/
 ---
 
 ```
@@ -26,12 +26,13 @@ proof.
 ## Imports
 
 ```
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl; cong)
+open Eq.≡-Reasoning
 open import Data.Bool
 open import Data.Maybe
-open import Data.Nat
 open import Data.String
 open import plc.fp.Maps
-
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 ```
@@ -46,13 +47,15 @@ to build maps.
 
 We will see some payoff from that choice in this section, since this
 design simplifies some of the proofs we will construct.
+To discuss the idea that two functions are equal, we will need the
+notion of extensionality for most of these exercises.
 
 #### Exercise `tApplyEmpty` (recommended)
 
 Show that the empty map returns its default element for all keys:
 
 ```
-postulate tApplyEmpty : ∀ (A : Set) (x : String) (v : A) → (↪ v) x ≡ v
+postulate tApplyEmpty : ∀ {A : Set} (x : String) (v : A) → (↪ v) x ≡ v
 -- Remove the keyword postulate, and fill in your proof here
 ```
     
@@ -63,7 +66,7 @@ then look up `x` in the map resulting from the `update`, we get back
 `v`.
 
 ```
-postulate tUpdateEq : ∀ (A : Set) (m : TotalMap A) x (v : A)
+postulate  tUpdateEq : ∀ {A : Set} (m : TotalMap A) x (v : A)
                         → (x ↦ v , m) x ≡ v
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -75,7 +78,7 @@ then look up a _different_ key `x2` in the resulting map, we get the
 same result that `m` would have given.
 
 ```
-postulate tUpdateNeq : ∀ (A : Set) (m : TotalMap A) x1 x2 v
+postulate tUpdateNeq : ∀ {A : Set} (m : TotalMap A) x1 x2 v
                          → T (not (x1 == x2))
                            → (x1 ↦ v , m) x2 ≡ m x2
 -- Remove the keyword postulate, and fill in your proof here
@@ -90,7 +93,7 @@ any key) as the simpler map obtained by performing just the *second*
 `update` on `m`:
 
 ```
-postulate tUpdateShadow : ∀ (A : Set) (m : TotalMap A) x v1 v2
+postulate tUpdateShadow : ∀ {A : Set} (m : TotalMap A) x v1 v2
                             → (x ↦ v2 , x ↦ v1 , m) ≡ (x ↦ v2 , m)
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -120,7 +123,7 @@ Show that if we update a map to assign key `x` the same value as it
 already has in `m`, then the result is equal to `m`:
 
 ```
-postulate tUpdateSame : ∀ (A : Set) (m : TotalMap A) x → (x ↦ m x , m) ≡ m
+postulate tUpdateSame : ∀ {A : Set} (m : TotalMap A) x → (x ↦ m x , m) ≡ m
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
@@ -130,10 +133,36 @@ Show that if we update a map `m` at two distinct keys, it doesn't
 matter in which order we do the updates.
 
 ```
-postulate tUpdatePermute : ∀ (A : Set) (m : TotalMap A) v1 v2 x1 x2
+postulate tUpdatePermute : ∀ {A : Set} (m : TotalMap A) v1 v2 x1 x2
                              → T (not (x2 == x1))
                                 → (x1 ↦ v1 , x2 ↦ v2 , m)
                                     ≡ (x2 ↦ v2 , x1 ↦ v1 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
+
+#### Exercise `tUpdateSinglePointUpdates` (recommended)
+
+Show that if we update a map `m` at one point in two
+possibly-different ways, then the resulting maps are the same if the
+two update values are the same.
+
+```
+postulate tSinglePointUpdates : ∀ {A : Set} (m : TotalMap A) x v1 v2
+                                  → (v1 ≡ v2)
+                                    → (x ↦ v1 , m) ≡ (x ↦ v2 , m)
+-- Remove the keyword postulate, and fill in your proof here
+```
+
+#### Exercise `tUpdateSinglePoint≡Updates` (recommended)
+
+Show that if we update a map `m` at one point in two
+possibly-different ways, then the resulting maps are the same if the
+two update values are the same.
+
+```
+postulate tSinglePoint≡Updates : ∀ {A : Set} (m1 m2 : TotalMap A) x v1 v2
+                                  → (m1 ≡ m2) → (v1 ≡ v2)
+                                    → (x ↦ v1 , m1) ≡ (x ↦ v2 , m2)
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
@@ -145,14 +174,14 @@ to partial maps.
 #### Exercise `applyEmpty` (recommended)
 
 ```
-postulate applyEmpty : ∀ (A : Set) (x : String) → ∅ {A} x ≡ nothing
+postulate applyEmpty : ∀ {A : Set} (x : String) → ∅ {A} x ≡ nothing
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
 #### Exercise `updateEq` (recommended)
 
 ```
-postulate updateEq : ∀ (A : Set) (m : PartialMap A) x v
+postulate updateEq : ∀ {A : Set} (m : PartialMap A) x v
                        → (x ↦ₚ v , m) x ≡ just v
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -160,7 +189,7 @@ postulate updateEq : ∀ (A : Set) (m : PartialMap A) x v
 #### Exercise `updateNeq` (recommended)
 
 ```
-postulate updateNeq : ∀ (A : Set) (m : PartialMap A) x1 x2 v
+postulate updateNeq : ∀ {A : Set} (m : PartialMap A) x1 x2 v
                         → T (not (x2 == x1))
                           → (x2 ↦ₚ v , m) x1 ≡ m x1
 -- Remove the keyword postulate, and fill in your proof here
@@ -169,7 +198,7 @@ postulate updateNeq : ∀ (A : Set) (m : PartialMap A) x1 x2 v
 #### Exercise `updateShadow` (recommended)
 
 ```
-postulate updateShadow : ∀ (A : Set) (m : PartialMap A) x v1 v2
+postulate updateShadow : ∀ {A : Set} (m : PartialMap A) x v1 v2
                            → (x ↦ₚ v2 , x ↦ₚ v1 , m) ≡ (x ↦ₚ v2 , m)
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -177,7 +206,7 @@ postulate updateShadow : ∀ (A : Set) (m : PartialMap A) x v1 v2
 #### Exercise `updateSame` (recommended)
 
 ```
-postulate updateSame : ∀ (A : Set) (m : PartialMap A) x v
+postulate updateSame : ∀ {A : Set} (m : PartialMap A) x v
                          → m x ≡ just v
                            → (x ↦ₚ v , m) ≡ m
 -- Remove the keyword postulate, and fill in your proof here
@@ -186,7 +215,7 @@ postulate updateSame : ∀ (A : Set) (m : PartialMap A) x v
 #### Exercise `updatePermute` (recommended)
 
 ```
-postulate updatePermute : ∀ (A : Set) (m : PartialMap A) x1 x2 v1 v2
+postulate updatePermute : ∀ {A : Set} (m : PartialMap A) x1 x2 v1 v2
                             → T (not (x2 == x1))
                               → (x1 ↦ₚ v1 , x2 ↦ₚ v2 , m)
                                   ≡ (x2 ↦ₚ v2 , x1 ↦ₚ v1 , m)

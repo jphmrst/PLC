@@ -22,7 +22,7 @@ open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import plc.vfp.Relations using (_≃_)
-open import plc.lc.Isomorphism using (extensionality)
+open import plc.vfp.Logic using (extensionality)
 ```
 
 
@@ -99,7 +99,7 @@ postulate
     (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
 ```
 Compare this with the result (`→-distrib-×`) in
-the [Connectives]({{ site.baseurl }}/Connectives/) section.
+the [Connectives]({{ site.baseurl }}/LogicRedux/) section.
 
 #### Exercise `⊎∀-implies-∀⊎` (practice)
 
@@ -244,7 +244,7 @@ Indeed, the converse also holds, and the two together form an isomorphism:
 ```
 The result can be viewed as a generalisation of currying.  Indeed, the code to
 establish the isomorphism is identical to what we wrote when discussing
-[implication]({{ site.baseurl }}/Connectives/#implication).
+[implication]({{ site.baseurl }}/LogicRedux/#implication).
 
 #### Exercise `∃-distrib-⊎` (recommended)
 

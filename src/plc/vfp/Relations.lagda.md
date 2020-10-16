@@ -1,7 +1,7 @@
 ---
 title     : "Relations: Inductive definition of relations"
 layout    : page
-prev      : /MapProps/
+prev      : /DataProp/
 permalink : /Relations/
 next      : /DataRel/
 ---
@@ -10,8 +10,15 @@ next      : /DataRel/
 module plc.vfp.Relations where
 ```
 
-After having defined operations such as addition and multiplication,
-the next step is to define relations, such as _less than or equal_.
+So far we have used and proven statements about equality.  The
+premises and conclusions of the lemmas and statements have been of the
+form `A ≣ B`.  The proposition of equality is built into Agda's
+library: since the first section we have imported it from module `Eq`.
+But there is nothing unique or special about the equality relation.
+We can define other relations in the same way that the standard
+library defines equality.  We will continue our pattern of looking
+first at relations involving natural numbers, and in the next section
+exploring relations on data structures such as linked lists.
 
 ## Imports
 
@@ -62,11 +69,13 @@ data _≤_ : ℕ → ℕ → Set where
 ```
 Here `z≤n` and `s≤s` (with no spaces) are constructor names, while
 `zero ≤ n`, and `m ≤ n` and `suc m ≤ suc n` (with spaces) are types.
-This is our first use of an _indexed_ datatype, where the type `m ≤ n`
-is indexed by two naturals, `m` and `n`.  In Agda any line beginning
+In the same way as `_≡_`, `_≤_` is an _indexed_ datatype,
+where the type `m ≤ n` is indexed by two natural numbers,
+`m` and `n`.  In Agda any line beginning
 with two or more dashes is a comment, and here we have exploited that
 convention to write our Agda code in a form that resembles the
-corresponding inference rules, a trick we will use often from now on.
+corresponding proof tree inference rules,
+a trick we will use often from now on.
 
 Both definitions above tell us the same two things:
 
@@ -98,53 +107,20 @@ _ : 2 ≤ 4
 _ = s≤s (s≤s z≤n)
 ```
 
-
-
-
-## Implicit arguments
-
-Note that we are using implicit arguments to the constructors for
-`_≤_`,
-
-    z≤n : ∀ {n : ℕ} → -- ...
-    s≤s : ∀ {m n : ℕ} → -- ...
-
-in contrast to the explicit arguments we used for theorems like
-`+-comm`,
-
-    +-comm : ∀ (m n : ℕ) → m + n ≡ n + m
-
-So we wrote `+-comm m n` for the proof that `m + n ≡ n + m`, but need
-to write only `z≤n` for the proof that `zero ≤ n`: we can leave `n`
-implicit.  Similarly, if `m≤n` is evidence that `m ≤ n`, we write `s≤s
-m≤n` for evidence that `suc m ≤ suc n`, leaving both `m` and `n`
-implicit.
-
-As in our previous ses of implicit arguments, it is possible to
-provide implicit arguments explicitly by writing the arguments inside
-curly braces if we wish to do so.  For instance, here again is an Agda
-proof that `2 ≤ 4`, with the implicit arguments made explicit:
-
-```
-_ : 2 ≤ 4
-_ = s≤s {1} {3} (s≤s {0} {2} (z≤n {2}))
-```
-One may also identify implicit arguments by name:
-```
-_ : 2 ≤ 4
-_ = s≤s {m = 1} {n = 3} (s≤s {m = 0} {n = 2} (z≤n {n = 2}))
-```
-In the latter format, you may only supply some implicit arguments:
-```
-_ : 2 ≤ 4
-_ = s≤s {n = 3} (s≤s {n = 2} z≤n)
-```
-
-However it is not permitted to swap implicit arguments, even when
-named.
-
-
-## Precedence
+When we prove a formula built with the `_≤_` relation, the evidence we
+supply will _always_ be constructed with either the `z≤n` or the `s≤s`
+constructor.  Our definition for `_≤_` includes only these
+constructors.  This is the same sort of observation as the idea that
+all natural numbers are built using either the `zero` or `suc`
+constructors.  There is no other way to construct a number, and there
+is no other way to construct evidence for `_≤_`.  When we use a
+function call to return a natural number, we may be hiding away the
+part of the program that uses one of the `ℕ` constructors, but the
+result is nonetheless based one one of the `ℕ` constructors.  The same
+is true for the evidence of `_≤_` formulas: even when we use some
+other proof function to produce evidence for a `_≤_` formula, that
+evidence value can always be associated with one of the two
+constructors `z≤n` or `s≤s`.
 
 We declare the precedence for comparison as follows:
 
@@ -158,36 +134,66 @@ either the left or right, as it makes no sense to parse `1 ≤ 2 ≤ 3` as
 either `(1 ≤ 2) ≤ 3` or `1 ≤ (2 ≤ 3)`.
 
 
-## Decidability
+## Inversion on evidence
 
-Given two numbers, it is straightforward to compute whether or not the
-first is less than or equal to the second.  We don't give the code for
-doing so here, but will return to this point in
-the [Decidable]({{ site.baseurl }}/Decidable/) section.
+{::comment}
 
+TODO FUTURE --- If we do the "Logic" section first, then we can use
+Pierce's example `ev n → (n = 0) ∨ (∃ n', n = S (S n') ∧ ev n')`.
+Maybe more exercises available as well?
 
-## Inversion
+{:/comment}
 
-In our definitions, we go from smaller things to larger things.
-For instance, from `m ≤ n` we can conclude `suc m ≤ suc n`,
-where `suc m` is bigger than `m` (that is, the former contains
-the latter), and `suc n` is bigger than `n`. But sometimes we
-want to go from bigger things to smaller things.
+Suppose we are proving some fact involving a number `n`, and we are
+given `n ≤ n₁` as a hypothesis.  We already know how to perform case
+analysis on `n`, generating separate subgoals for the case where `n`
+is `zero` and the case where `n = suc n'` for some `n'`.  But for some
+proofs we may instead want to analyze the _evidence_ that `n ≤ n₁`
+directly.  When this evidence is a premise, we can apply pattern
+matching to base our reasoning on the form of evidence we have.  We
+can also rely on Agda to rule our clauses which are absurd.
 
 There is only one way to prove that `suc m ≤ suc n`, for any `m`
-and `n`.  This lets us invert our previous rule.
+and `n`.  Let's say that we want to prove this formula:
+
 ```
 inv-s≤s : ∀ {m n : ℕ}
   → suc m ≤ suc n
     -------------
   → m ≤ n
-inv-s≤s (s≤s m≤n) = m≤n
 ```
-Here `m≤n` (with no spaces) is a variable name while
-`m ≤ n` (with spaces) is a type, and the latter
-is the type of the former.  It is a common convention
-in Agda to derive a variable name by removing
-spaces from its type.
+
+This lemma is the opposite of the constructor: the constructor maps
+evidence that `m ≤ n` to evidence that `suc m ≤ suc n`.  This lemma
+goes the opposite way.  So we can begin with
+
+    inv-s≤s m≤n = ?
+
+Here `m≤n` (a single three-character identifier, with no spaces) is a
+variable name while `m ≤ n` (three one-character identifiers,
+separated by spaces) is a type, and the latter is the type of the
+former.  It is a common convention in Agda to derive a variable name
+by removing spaces from its type.
+
+We can ask Agda to split the `m≤n` parameter into cases, and there is
+in fact only one relevant case:
+
+    inv-s≤s (s≤s m≤n₀) = {  }0
+
+The type of the premise is `suc m ≤ suc n`, which is inconsistent with
+the type resulting from the constructor `z≤n`, so therefore there is
+no clause with the `z≤n` constructor.  Now we have available evidence
+that `m ≤ n`, bound to the name `m≤n₀`:
+
+```
+inv-s≤s (s≤s m≤n₀) = m≤n₀
+```
+
+In our definitions, we go from smaller things to larger things.  For
+instance, from `m ≤ n` we can conclude `suc m ≤ suc n`, where `suc m`
+is bigger than `m` (that is, the former contains the latter), and
+`suc n` is bigger than `n`. Inversion on evidence allows us to go
+from bigger things to smaller things.
 
 Not every rule is invertible; indeed, the rule for `z≤n` has
 no non-implicit hypotheses, so there is nothing to invert.
@@ -391,7 +397,7 @@ evidence of `m ≤ n` and `n ≤ m` respectively.
 
 (For those familiar with logic, the above definition
 could also be written as a disjunction. Disjunctions will
-be introduced in the [Connectives]({{ site.baseurl }}/Connectives/) section.)
+be introduced in the [Logic]({{ site.baseurl }}/Logic/) section.)
 
 This is our first use of a datatype with _parameters_,
 in this case `m` and `n`.  It is equivalent to the following
@@ -649,12 +655,16 @@ the fact that inequality is transitive.
 
 ## Even and odd
 
-As a further example, let's specify even and odd numbers.  Inequality
-and strict inequality are _binary relations_, while even and odd are
-_unary relations_, sometimes called _predicates_:
+As a further example, let's specify even and odd numbers.  In the
+previous chapter, we defined `even` and `odd` as functions each
+mapping a natural number to a boolean value.  In the same way that we
+can have both a comparison function and a comparison relation.
+Inequality and strict inequality are _binary relations_, while even
+and odd are _unary relations_, sometimes called _predicates_:
+
 ```
 data even : ℕ → Set
-data odd  : ℕ → Set
+data odd : ℕ → Set
 
 data even where
 
@@ -674,10 +684,11 @@ data odd where
       -----------
     → odd (suc n)
 ```
-A number is even if it is zero or the successor of an odd number,
-and odd if it is the successor of an even number.
 
-This is our first use of a mutually recursive datatype declaration.
+A number is even either if it is zero, or if it is the successor of an
+odd number.  A number is odd if it is the successor of an even number.
+
+This is our first use of _mutually recursive_ declarations.
 Since each identifier must be defined before it is used, we first
 declare the indexed types `even` and `odd` (omitting the `where`
 keyword and the declarations of the constructors) and then
@@ -706,7 +717,8 @@ but does allow overloading of constructors.  It is recommended that
 one restrict overloading to related meanings, as we have done here,
 but it is not required.
 
-We show that the sum of two even numbers is even:
+We can show that the sum of two even numbers is even:
+
 ```
 e+e≡e : ∀ {m n : ℕ}
   → even m
@@ -725,6 +737,7 @@ e+e≡e (suc om) en  =  suc (o+e≡o om en)
 
 o+e≡o (suc em) en  =  suc (e+e≡e em en)
 ```
+
 Corresponding to the mutually recursive types, we use two mutually recursive
 functions, one to show that the sum of two even numbers is even, and the other
 to show that the sum of an odd and an even number is odd.
@@ -1015,6 +1028,7 @@ record _⇔_ (A B : Set) : Set where
   field
     to   : A → B
     from : B → A
+infix 3 _⇔_
 ```
 
 Show that equivalence is reflexive, symmetric, and transitive.
@@ -1033,7 +1047,7 @@ import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-antisym; ≤-total;
 ```
 In the standard library, `≤-total` is formalised in terms of
 disjunction (which we define in
-the [Connectives]({{ site.baseurl }}/Connectives/) section),
+the [Logic]({{ site.baseurl }}/Logic/) section),
 and `+-monoʳ-≤`, `+-monoˡ-≤`, `+-mono-≤` are proved differently than here,
 and more arguments are implicit.
 
@@ -1053,4 +1067,7 @@ leftward and rightward arrows in addition to superscript letters `l` and `r`.
 
 ---
 
-*This page is derived from Wadler et al.; for more information see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived primarily from Wadler et al., with additional
+material by Maraist.  The introduction to inversion on evidence is
+adapted from Pierce et a.  For more information see the [sources and
+authorship]({{ site.baseurl }}/Sources/) page.*
