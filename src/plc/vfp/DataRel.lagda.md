@@ -198,13 +198,10 @@ satisfies `P`, while the second provides evidence that some element of
 the tail of the list satisfies `P`.  For example, we can define list
 membership as follows:
 ```
-infix 4 _∈_ _∉_
+infix 4 _∈_
 
 _∈_ : ∀ {A : Set} (x : A) (xs : List A) → Set
 x ∈ xs = Any (x ≡_) xs
-
-_∉_ : ∀ {A : Set} (x : A) (xs : List A) → Set
-x ∉ xs = ¬ (x ∈ xs)
 ```
 For example, zero is an element of the list `(0 ∷ 1 ∷ 0 ∷ 2 ∷ [])`.  Indeed, we can demonstrate
 this fact in two different ways, corresponding to the two different
@@ -216,19 +213,6 @@ _ = here refl
 _ : 0 ∈ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
 _ = there (there (here refl))
 ```
-Further, we can demonstrate that three is not in the list, because
-any possible proof that it is in the list leads to contradiction:
-```
-not-in : 3 ∉ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
-not-in (here ())
-not-in (there (here ()))
-not-in (there (there (here ())))
-not-in (there (there (there (here ()))))
-not-in (there (there (there (there ()))))
-```
-The five occurrences of `()` attest to the fact that there is no
-possible evidence for `3 ≡ 0`, `3 ≡ 1`, `3 ≡ 0`, `3 ≡ 2`, and
-`3 ∈ []`, respectively.
 
 ## All and append
 

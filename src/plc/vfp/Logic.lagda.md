@@ -492,12 +492,41 @@ id₂ : ⊥ → ⊥
 id₂ ()
 ```
 
+### Non-inclusion
+
+In the DataRel section we built a predicate `_∈_` to test whether a
+list contains a particular element.  With negation we can define a
+non-inclusion predicate `_∉_`,
+
+```
+infix 4 _∉_
+
+_∉_ : ∀ {A : Set} (x : A) (xs : List A) → Set
+x ∉ xs = ¬ (x ∈ xs)
+```
+
+Extending the example list `(0 ∷ 1 ∷ 0 ∷ 2 ∷ [])` of that predicate we
+can demonstrate that three is not in the list, because any possible
+proof that it is in the list leads to contradiction:
+
+```
+not-in : 3 ∉ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
+not-in (here ())
+not-in (there (here ()))
+not-in (there (there (here ())))
+not-in (there (there (there (here ()))))
+not-in (there (there (there (there ()))))
+```
+
+The five occurrences of `()` attest to the fact that there is no
+possible evidence for `3 ≡ 0`, `3 ≡ 1`, `3 ≡ 0`, `3 ≡ 2`, and
+`3 ∈ []`, respectively.
+
 ## Implication
 
 Given two propositions `A` and `B`, the implication `A → B` holds if
-whenever `A` holds then `B` must also hold.  We formalise implication
-using Agda's built-in function type, the same that you have used
-throughout this book.
+whenever `A` holds then `B` must also hold.  We have used implication
+throughout this chapter, using Agda's built-in function type.
 
 Evidence that `A → B` holds is of the form
 
