@@ -25,6 +25,7 @@ open import Function using (_∘_)
 open import Data.Bool
 open import Data.Nat
 open import Data.List using (List; _∷_; []; _++_; map)
+open import Data.String using (String)
 open import plc.fp.Poly using (Prod; pair; fst; snd; swapPair;
                                Maybe; nothing; just)
 ```
@@ -441,14 +442,40 @@ Prove the following relationship between map and append:
 
 #### Exercise `map-Tree` (practice)
 
-Define a type of trees with leaves of type `A` and internal
-nodes of type `B`:
+Consider a type of trees with leaves each containing a value of type
+`A`, and internal branch nodes each containing a node of type `B`:
+
 ```
 data Tree (A B : Set) : Set where
   leaf : A → Tree A B
   node : Tree A B → B → Tree A B → Tree A B
 ```
-Define a suitable map operator over trees:
+
+This representation is a bit more general than you may be used to.
+The `leaf` constructor is like a sentinel node where in a language
+like C or Java we might be tempted to use `null`.  The values
+associated with each branch internal to the tree are all of type `B`,
+and these internal branches are assembled with the `node` constructor.
+So a tree which we might draw on paper as
+
+               4
+              / \
+             /   \
+            9   "Gamma"
+           / \
+          /   \
+     "Alpha" "Beta"
+
+would be formalized as
+
+```
+_ : Tree String ℕ
+_ = node (node (leaf "Alpha") 9 (leaf "Beta")) 4 (leaf "Gamma")
+```
+
+Define a suitable map operator over trees.  Since there can be two
+different types of value within the tree, we need two different
+mapping functions which we lift into a map on trees.
 
     map-Tree : ∀ {A B C D : Set} → (A → C) → (B → D) → Tree A B → Tree C D
 
