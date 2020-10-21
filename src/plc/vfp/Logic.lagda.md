@@ -32,6 +32,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Function using (_∘_)
 open import plc.vfp.Induction using (+-comm)
 open import plc.vfp.Relations using (_≃_; _⇔_)
+open import plc.vfp.DataRel using (_∈_; here; there)
 open _⇔_
 ```
 
