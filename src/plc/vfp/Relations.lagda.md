@@ -1056,11 +1056,12 @@ and more arguments are implicit.
 
 This section uses the following Unicode symbols:
 
+    ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
+    ˡ  U+02E1  MODIFIER LETTER SMALL L (\^l)
     ∘  U+2218  RING OPERATOR (\o, \circ, \comp)
+    ≃  U+2243  ASYMPTOTICALLY EQUAL TO (\~- or \simeq)
     ≤  U+2264  LESS-THAN OR EQUAL TO (\<=, \le)
     ≥  U+2265  GREATER-THAN OR EQUAL TO (\>=, \ge)
-    ˡ  U+02E1  MODIFIER LETTER SMALL L (\^l)
-    ʳ  U+02B3  MODIFIER LETTER SMALL R (\^r)
 
 The commands `\^l` and `\^r` give access to a variety of superscript
 leftward and rightward arrows in addition to superscript letters `l` and `r`.
