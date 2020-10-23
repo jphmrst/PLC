@@ -95,135 +95,41 @@ proof to the key step of applying the lemma,
 ≡ᴬ-example st = n∸n≡0 (st X)
 ```
 
+We can state a similar result for boolean evaluation.
 
-Theorem bequiv_example: bequiv <{ X - X = 0 }> <{ true }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros st. unfold beval.
-  rewrite ≡ᴬ-example. reflexivity.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
+```
+≡ᴮ-example : ((id X - id X) == # 0) ≡ᴮ T 
+≡ᴮ-example st = cong (_≡ᵇ 0) (n∸n≡0 (st X))
+```
 
-(** TERSE: *** *)
+For commands, the situation is a little more subtle.  We can't simply
+say "two commands are behaviorally equivalent if they evaluate to the
+same ending state whenever they are started in the same initial
+state," because some commands, when run in some starting states, don't
+terminate in any final state at all!  What we need instead is this:
+two commands are behaviorally equivalent if, for any given starting
+state, they either
 
-(** FULL: For commands, the situation is a little more subtle.  We can't
-    simply say "two commands are behaviorally equivalent if they
-    evaluate to the same ending state whenever they are started in the
-    same initial state," because some commands, when run in some
-    starting states, don't terminate in any final state at all!  What
-    we need instead is this: two commands are behaviorally equivalent
-    if, for any given starting state, they either (1) both diverge
-    or (2) both terminate in the same final state.  A compact way to
-    express this is "if the first one terminates in a particular state
-    then so does the second, and vice versa." *)
-(** TERSE: For commands, we need to deal with the possibility of
-    nontermination.
+ - Both diverge, or
 
-    We do this by defining command equivalence as "if the first one
-    terminates in a particular state then so does the second, and vice
-    versa": *)
+ - Both terminate in the same final state.
 
-Definition cequiv (c1 c2 : com) : Prop :=
-  forall (st st' : state),
-    (st =[ c1 ]=> st') <-> (st =[ c2 ]=> st').
+A compact way to express this is "if the first one terminates in a
+particular state then so does the second, and vice versa."  We do this
+by defining command equivalence as "if the first one terminates in a
+particular state then so does the second, and vice versa":
 
-(* TERSE *)
-(* QUIZ *)
-(** Are these two programs equivalent?
-[[
-    X := 1;
-    Y := 2
-]]
-    and
-[[
-    Y := 2;
-    X := 1
-]]
+```
+_≡ᶜ_ : Command → Command → Set
+c₁ ≡ᶜ c₂ = ∀ (st st' : State) → (st =[ c₁ ]=> st') ⇔ (st =[ c₂ ]=> st')
+```
 
-    (1) Yes
+#### Exercise `≡ᴮ-example-verbose` (starting) {#bequiv-example-verbose}
 
-    (2) No
+Write a longer `begin ... ∎` version of the proof of `≡ᴮ-example`, in
+the manner of the longer version of `≡ᴬ-example`.
 
-    (3) Not sure
-*)
-(* /QUIZ *)
-
-(* QUIZ *)
-(** What about these?
-
-[[
-    X := 1;
-    Y := 2
-]]
-    and
-[[
-    X := 2;
-    Y := 1
-]]
-
-    (1) Yes
-
-    (2) No
-
-    (3) Not sure
-*)
-(* /QUIZ *)
-
-(* QUIZ *)
-(** What about these?
-
-[[
-    while 1 <= X do
-      X := X + 1
-    end
-]]
-    and
-[[
-    while 2 <= X do
-      X := X + 1
-    end
-]]
-
-    (1) Yes
-
-    (2) No
-
-    (3) Not sure
-
-*)
-(* INSTRUCTORS: No. (When started in a state where variable X has value 1,
-    the first program diverges while the second one halts.) *)
-(* /QUIZ *)
-
-(* QUIZ *)
-(** These?
-[[
-    while true do
-      while false do X := X + 1 end
-    end
-]]
-    and
-[[
-    while false do
-      while true do X := X + 1 end
-    end
-]]
-
-    (1) Yes
-
-    (2) No
-
-    (3) Not sure
-*)
-(* INSTRUCTORS: No. (The first program always diverges; the second
-   always halts.) *)
-(* /QUIZ *)
-(* /TERSE *)
-
-(* ####################################################### *)
-(** ** Simple Examples *)
+### Simple examples
 
 (** For examples of command equivalence, let's start by looking at
     some trivial program transformations involving `skip`: *)
