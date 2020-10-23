@@ -16,10 +16,11 @@ open import Data.String using (String) renaming (_==_ to _string=_)
 open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
+open import plc.vfp.Induction
 open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
 open import plc.vfp.Logic
-open import plc.imp.ImpExprs public
+open import plc.imp.Imp
 ```
 
 The proofs we'll do in this section are sufficiently complicated that
@@ -34,62 +35,73 @@ is true; then try to formalize your explanation.
 
 ## Behavioral equivalence
 
-Earlier we investigated the correctness of a very
-    simple program transformation: the `optimize_0plus` function.  The
-    programming language we were considering was the first version of
-    the language of arithmetic expressions -- with no variables -- so
-    in that setting it was very easy to define what it means for a
-    program transformation to be correct: it should always yield a
-    program that evaluates to the same number as the original.
+Earlier we investigated the correctness of a very simple program
+transformation: the `optimize0plus` function.  The programming
+language we were considering was the first version of the language of
+arithmetic expressions — with no variables — so in that setting it was
+very easy to define what it means for a program transformation to be
+correct: it should always yield a program that evaluates to the same
+number as the original.
 
-    To talk about the correctness of program transformations for the
-    full Imp language, in particular assignment, we need to consider
-    the role of variables and state. *)
+To talk about the correctness of program transformations for the full
+Imp language, in particular assignment, we need to consider the role
+of variables and state.  In the last chapter, we studied a simple
+transformation on arithmetic expressions and showed that it was
+correct in the sense that it preserved the value of the expressions.
+To play a similar game with programs involving mutable state, we need
+a more sophisticated notion of correctness, called _behavioral
+equivalence_.
 
+### Definitions
 
-(* TERSE *)
-(** In the last chapter, we studied a simple transformation on
-    arithmetic expressions and showed that it was correct in the sense
-    that it preserved the value of the expressions.
+For `aexp`s and `bexp`s with variables, the definition we want is
+clear: Two `aexp`s or `bexp`s are _behaviorally equivalent_ if they
+evaluate to the same result in every state.
 
-    To play a similar game with programs involving mutable state,
-    we need a more sophisticated notion of correctness, called
-    _behavioral equivalence_. *)
-(* /TERSE *)
+```
+_≡ᴬ_ : AExp → AExp → Set
+a₁ ≡ᴬ a₂ = ∀ (st : State) → ⟦ a₁ ⟧ᴬ st ≡ ⟦ a₂ ⟧ᴬ st
 
-(* ####################################################### *)
-(** ** Definitions *)
+_≡ᴮ_ : BExp → BExp → Set
+a₁ ≡ᴮ a₂ = ∀ (st : State) → ⟦ a₁ ⟧ᴮ st ≡ ⟦ a₂ ⟧ᴮ st
+```
 
-(** For `aexp`s and `bexp`s with variables, the definition we want is
-    clear: Two `aexp`s or `bexp`s are _behaviorally equivalent_ if
-    they evaluate to the same result in every state. *)
+Here are some simple examples of equivalences of arithmetic and
+boolean expressions.
 
-Definition aequiv (a1 a2 : aexp) : Prop :=
-  forall (st : state),
-    aeval st a1 = aeval st a2.
+```
+≡ᴬ-example : (id X - id X) ≡ᴬ (# 0)
+```
 
-Definition bequiv (b1 b2 : bexp) : Prop :=
-  forall (st : state),
-    beval st b1 = beval st b2.
+The proof of this formula relies on the `n∸n≡0` lemma from the
+Induction section.
 
-(** FULL: Here are some simple examples of equivalences of arithmetic
-    and boolean expressions. *)
+    ≡ᴬ-example st = 
+      begin
+        ⟦ id X - id X ⟧ᴬ st
+      ≡⟨⟩
+        st X ∸ st X
+      ≡⟨ n∸n≡0 (st X) ⟩
+        0
+      ≡⟨⟩
+        (⟦ # 0 ⟧ᴬ st)
+      ∎
 
-Theorem aequiv_example: aequiv <{ X - X }> <{ 0 }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros st. simpl. lia.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
+Since the steps before and after the application of the `n∸n≡0` lemma
+are just expansions of the definition of `⟦_⟧ᴬ_`, we can simplify the
+proof to the key step of applying the lemma,
+
+```
+≡ᴬ-example st = n∸n≡0 (st X)
+```
+
 
 Theorem bequiv_example: bequiv <{ X - X = 0 }> <{ true }>.
 (* TERSE: HIDEFROMHTML *)
 (* FOLD *)
 Proof.
   intros st. unfold beval.
-  rewrite aequiv_example. reflexivity.
+  rewrite ≡ᴬ-example. reflexivity.
 Qed.
 (* /FOLD *)
 (* TERSE: /HIDEFROMHTML *)
@@ -536,7 +548,7 @@ Proof.
   (* Most rules don't apply; we rule them out by inversion: *)
   inversion Heqcw; subst; clear Heqcw.
   (* The two interesting cases are the ones for while loops: *)
-  - (* E_WhileFalse *) (* contradictory -- b is always true! *)
+  - (* E_WhileFalse *) (* contradictory — b is always true! *)
     unfold bequiv in Hb.
     (* `rewrite` is able to instantiate the quantifier in `st` *)
     rewrite Hb in H. discriminate.
@@ -883,7 +895,7 @@ Definition check_equiv_classes : list (list com) -> bool :=
 (** ** Behavioral Equivalence Is an Equivalence *)
 
 (** First, we verify that the equivalences on `aexps`, `bexps`, and
-    `com`s really are _equivalences_ -- i.e., that they are reflexive,
+    `com`s really are _equivalences_ — i.e., that they are reflexive,
     symmetric, and transitive.  The proofs are all easy. *)
 
 Lemma refl_aequiv : forall (a : aexp), aequiv a a.
@@ -1050,7 +1062,7 @@ Proof.
 (** FULL: The congruence property for loops is a little more interesting,
     since it requires induction.
 
-    _Theorem_: Equivalence is a congruence for `while` -- that is, if
+    _Theorem_: Equivalence is a congruence for `while` — that is, if
     `b` is equivalent to `b'` and `c` is equivalent to `c'`, then
     `while b do c end` is equivalent to `while b' do c' end`.
 
@@ -1305,7 +1317,7 @@ Proof. reflexivity. Qed.
 (* TERSE: /HIDEFROMHTML *)
 
 (** Note that this version of constant folding doesn't eliminate
-    trivial additions, etc. -- we are focusing attention on a single
+    trivial additions, etc. — we are focusing attention on a single
     optimization for the sake of simplicity.  It is not hard to
     incorporate other ways of simplifying expressions; the definitions
     and proofs just get longer. *)
@@ -1682,22 +1694,22 @@ Proof.
 (* ########################################################## *)
 (** *** Soundness of (0 + n) Elimination, Redux *)
 
-(* EX4A? (optimize_0plus) *)
-(** Recall the definition `optimize_0plus` from the \CHAPV1{Imp} chapter
+(* EX4A? (optimize0plus) *)
+(** Recall the definition `optimize0plus` from the \CHAPV1{Imp} chapter
     of _Logical Foundations_:
 [[
-    Fixpoint optimize_0plus (a:aexp) : aexp :=
+    Fixpoint optimize0plus (a:aexp) : aexp :=
       match a with
       | ANum n =>
           ANum n
       | <{ 0 + a2 }> =>
-          optimize_0plus a2
+          optimize0plus a2
       | <{ a1 + a2 }> =>
-          <{ (optimize_0plus a1) + (optimize_0plus a2) }>
+          <{ (optimize0plus a1) + (optimize0plus a2) }>
       | <{ a1 - a2 }> =>
-          <{ (optimize_0plus a1) - (optimize_0plus a2) }>
+          <{ (optimize0plus a1) - (optimize0plus a2) }>
       | <{ a1 * a2 }> =>
-          <{ (optimize_0plus a1) * (optimize_0plus a2) }>
+          <{ (optimize0plus a1) * (optimize0plus a2) }>
       end.
 ]]
    Note that this function is defined over the old `aexp`s,
@@ -1706,17 +1718,17 @@ Proof.
    Write a new version of this function that accounts for variables,
    plus analogous ones for `bexp`s and commands:
 [[
-     optimize_0plus_aexp
-     optimize_0plus_bexp
-     optimize_0plus_com
+     optimize0plus_aexp
+     optimize0plus_bexp
+     optimize0plus_com
 ]]
    Prove that these three functions are sound, as we did for
    `fold_constants_*`.  Make sure you use the congruence lemmas in
-   the proof of `optimize_0plus_com` -- otherwise it will be _long_!
+   the proof of `optimize0plus_com` — otherwise it will be _long_!
 
    Then define an optimizer on commands that first folds
    constants (using `fold_constants_com`) and then eliminates `0 + n`
-   terms (using `optimize_0plus_com`).
+   terms (using `optimize0plus_com`).
 
    - Give a meaningful example of this optimizer's output.
 
@@ -1725,44 +1737,44 @@ Proof.
 
 (* SOLUTION *)
 
-Fixpoint optimize_0plus_aexp (a : aexp) : aexp :=
+Fixpoint optimize0plus_aexp (a : aexp) : aexp :=
   match a with
   | ANum n => ANum n
   | AId x => AId x
-  | <{ 0 + a2 }> => optimize_0plus_aexp a2
-  | <{ a1 + a2 }> => <{ (optimize_0plus_aexp a1) + (optimize_0plus_aexp a2) }>
-  | <{ a1 - a2 }> => <{ (optimize_0plus_aexp a1) - (optimize_0plus_aexp a2) }>
-  | <{ a1 * a2 }> => <{ (optimize_0plus_aexp a1) * (optimize_0plus_aexp a2) }>
+  | <{ 0 + a2 }> => optimize0plus_aexp a2
+  | <{ a1 + a2 }> => <{ (optimize0plus_aexp a1) + (optimize0plus_aexp a2) }>
+  | <{ a1 - a2 }> => <{ (optimize0plus_aexp a1) - (optimize0plus_aexp a2) }>
+  | <{ a1 * a2 }> => <{ (optimize0plus_aexp a1) * (optimize0plus_aexp a2) }>
   end.
 
-Fixpoint optimize_0plus_bexp (b : bexp) : bexp :=
+Fixpoint optimize0plus_bexp (b : bexp) : bexp :=
   match b with
   | <{true}>       => <{true}>
   | <{false}>      => <{false}>
-  | <{ a1 = a2 }>  => <{ (optimize_0plus_aexp a1) = (optimize_0plus_aexp a2) }>
-  | <{ a1 <= a2 }> => <{ (optimize_0plus_aexp a1) <= (optimize_0plus_aexp a2) }>
-  | <{ ~ b1 }>     => <{ ~ (optimize_0plus_bexp b1) }>
-  | <{ b1 && b2 }> => <{ (optimize_0plus_bexp b1) && (optimize_0plus_bexp b2) }>
+  | <{ a1 = a2 }>  => <{ (optimize0plus_aexp a1) = (optimize0plus_aexp a2) }>
+  | <{ a1 <= a2 }> => <{ (optimize0plus_aexp a1) <= (optimize0plus_aexp a2) }>
+  | <{ ~ b1 }>     => <{ ~ (optimize0plus_bexp b1) }>
+  | <{ b1 && b2 }> => <{ (optimize0plus_bexp b1) && (optimize0plus_bexp b2) }>
   end.
 
-Fixpoint optimize_0plus_com (c : com) : com :=
+Fixpoint optimize0plus_com (c : com) : com :=
   match c with
   | <{ skip }>                     => <{ skip }>
-  | <{ x := a }>                   => <{ x := optimize_0plus_aexp a }>
-  | <{ c1 ; c2 }>                  => <{ optimize_0plus_com c1 ;
-                                         optimize_0plus_com c2 }>
+  | <{ x := a }>                   => <{ x := optimize0plus_aexp a }>
+  | <{ c1 ; c2 }>                  => <{ optimize0plus_com c1 ;
+                                         optimize0plus_com c2 }>
   | <{ if b then c1 else c2 end }> =>
-     <{ if (optimize_0plus_bexp b)
-        then (optimize_0plus_com c1)
-        else (optimize_0plus_com c2)
+     <{ if (optimize0plus_bexp b)
+        then (optimize0plus_com c1)
+        else (optimize0plus_com c2)
         end }>
-  | <{ while b do c1 end }>         => <{ while (optimize_0plus_bexp b) do
-                                          (optimize_0plus_com c1)
+  | <{ while b do c1 end }>         => <{ while (optimize0plus_bexp b) do
+                                          (optimize0plus_com c1)
                                          end }>
   end.
 
-Theorem optimize_0plus_aexp_sound:
-  atrans_sound optimize_0plus_aexp.
+Theorem optimize0plus_aexp_sound:
+  atrans_sound optimize0plus_aexp.
 Proof.
   unfold atrans_sound, aequiv.
   intros a st.
@@ -1785,21 +1797,21 @@ Proof.
     + (* AId *)
       simpl. rewrite IHa2. reflexivity.  Qed.
 
-Theorem optimize_0plus_bexp_sound :
-  btrans_sound optimize_0plus_bexp.
+Theorem optimize0plus_bexp_sound :
+  btrans_sound optimize0plus_bexp.
 Proof.
   unfold btrans_sound, bequiv.
   intros b st. induction b; simpl;
                try reflexivity;
                try (rewrite IHb1; rewrite IHb2; reflexivity);
-               try (rewrite <- optimize_0plus_aexp_sound;
-                    rewrite <- optimize_0plus_aexp_sound;
+               try (rewrite <- optimize0plus_aexp_sound;
+                    rewrite <- optimize0plus_aexp_sound;
                     reflexivity).
   - (* BNot *)
     rewrite IHb. reflexivity.  Qed.
 
-Theorem optimize_0plus_com_sound :
-  ctrans_sound optimize_0plus_com.
+Theorem optimize0plus_com_sound :
+  ctrans_sound optimize0plus_com.
 Proof.
   unfold ctrans_sound, cequiv.
   intros c.
@@ -1809,20 +1821,20 @@ Proof.
     apply refl_cequiv.
   - (* := *)
     apply CAss_congruence.
-    apply optimize_0plus_aexp_sound.
+    apply optimize0plus_aexp_sound.
   - (* ; *)
     apply CSeq_congruence; unfold cequiv.
     apply IHc1. apply IHc2.
   - (* if *)
     apply CIf_congruence; unfold cequiv.
-    apply optimize_0plus_bexp_sound.
+    apply optimize0plus_bexp_sound.
     apply IHc1. apply IHc2.
   - (* while *)
     apply CWhile_congruence; unfold cequiv.
-    apply optimize_0plus_bexp_sound.
+    apply optimize0plus_bexp_sound.
     apply IHc.  Qed.
 
-Definition optimizer (c : com) := optimize_0plus_com (fold_constants_com c).
+Definition optimizer (c : com) := optimize0plus_com (fold_constants_com c).
 
 Theorem optimizer_sound :
   ctrans_sound optimizer.
@@ -1831,7 +1843,7 @@ Proof.
   intros c.
   apply trans_cequiv with (fold_constants_com c).
   apply fold_constants_com_sound.
-  apply optimize_0plus_com_sound.  Qed.
+  apply optimize0plus_com_sound.  Qed.
 (* /SOLUTION *)
 
 
@@ -1910,7 +1922,7 @@ Definition subst_equiv_property := forall x1 x2 a1 a2,
     which clearly isn't equivalent to the original program. [] *)
 (* HIDE: An earlier, more tedious proof:
 
-      Sadly, the property does _not_ always hold -- i.e., it is not the
+      Sadly, the property does _not_ always hold — i.e., it is not the
           case that, for all `x1`, `x2`, `a1`, and `a2`,
       [[
             cequiv (x1 ::= a1;; x2 ::= a2)
@@ -2143,7 +2155,7 @@ Proof.
 ]]
     the value of `Y` can be any number, while the value of `Z` is
     twice that of `Y` (so `Z` is always even). Note that we are not
-    saying anything about the _probabilities_ of the outcomes -- just
+    saying anything about the _probabilities_ of the outcomes — just
     that there are (infinitely) many different outcomes that can
     possibly happen after executing this nondeterministic code.
 
@@ -3096,7 +3108,7 @@ Proof.
   apply H0. apply H.
 Qed.
 
-(** `zprop4` is similar to `zprop3` -- observe that `capprox`
+(** `zprop4` is similar to `zprop3` — observe that `capprox`
     is transitive. *)
 
 Definition zprop4 (c : com) : Prop :=
