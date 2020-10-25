@@ -32,6 +32,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Function using (_∘_)
 open import plc.vfp.Induction using (+-comm)
 open import plc.vfp.Relations using (_≃_; _⇔_)
+open import plc.vfp.DataRel using (_∈_; All; []; _∷_; Any; here; there)
 open _⇔_
 ```
 
@@ -492,12 +493,41 @@ id₂ : ⊥ → ⊥
 id₂ ()
 ```
 
+### Non-inclusion
+
+In the DataRel section we built a predicate `_∈_` to test whether a
+list contains a particular element.  With negation we can define a
+non-inclusion predicate `_∉_`,
+
+```
+infix 4 _∉_
+
+_∉_ : ∀ {A : Set} (x : A) (xs : List A) → Set
+x ∉ xs = ¬ (x ∈ xs)
+```
+
+Extending the example list `(0 ∷ 1 ∷ 0 ∷ 2 ∷ [])` of that predicate we
+can demonstrate that three is not in the list, because any possible
+proof that it is in the list leads to contradiction:
+
+```
+not-in : 3 ∉ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
+not-in (here ())
+not-in (there (here ()))
+not-in (there (there (here ())))
+not-in (there (there (there (here ()))))
+not-in (there (there (there (there ()))))
+```
+
+The five occurrences of `()` attest to the fact that there is no
+possible evidence for `3 ≡ 0`, `3 ≡ 1`, `3 ≡ 0`, `3 ≡ 2`, and
+`3 ∈ []`, respectively.
+
 ## Implication
 
 Given two propositions `A` and `B`, the implication `A → B` holds if
-whenever `A` holds then `B` must also hold.  We formalise implication
-using Agda's built-in function type, the same that you have used
-throughout this book.
+whenever `A` holds then `B` must also hold.  We have used implication
+throughout this chapter, using Agda's built-in function type.
 
 Evidence that `A → B` holds is of the form
 
@@ -586,6 +616,97 @@ De Morgan laws, and the disributivity laws.  For example:
   { to = λ AB×BA → ⟨ proj₂ AB×BA , proj₁ AB×BA ⟩
   ; from = λ BA×AB → ⟨ proj₂ BA×AB , proj₁ BA×AB ⟩
   }
+```
+
+### All and append
+
+A predicate holds for every element of one list appended to another if and
+only if it holds for every element of both lists:
+```
+All-++-⇔ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
+  All P (xs ++ ys) ⇔ (All P xs × All P ys)
+All-++-⇔ xs ys =
+  record
+    { to       =  to' xs ys
+    ; from     =  from' xs ys
+    }
+  where
+
+  to' : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
+    All P (xs ++ ys) → (All P xs × All P ys)
+  to' [] ys Pys = ⟨ [] , Pys ⟩
+  to' (x ∷ xs) ys (Px ∷ Pxs++ys) with to' xs ys Pxs++ys
+  ... | ⟨ Pxs , Pys ⟩ = ⟨ Px ∷ Pxs , Pys ⟩
+
+  from' : ∀ { A : Set} {P : A → Set} (xs ys : List A) →
+    All P xs × All P ys → All P (xs ++ ys)
+  from' [] ys ⟨ [] , Pys ⟩ = Pys
+  from' (x ∷ xs) ys ⟨ Px ∷ Pxs , Pys ⟩ =  Px ∷ from' xs ys ⟨ Pxs , Pys ⟩
+```
+
+#### Exercise `Any-++-⇔` (recommended)
+
+Prove a result similar to `All-++-⇔`, but with `Any` in place of `All`, and a suitable
+replacement for `_×_`.  As a consequence, demonstrate an equivalence relating
+`_∈_` and `_++_`.
+
+```
+-- Your code goes here
+```
+
+#### Exercise `All-++-≃` (stretch)
+
+Show that the equivalence `All-++-⇔` can be extended to an isomorphism.
+
+```
+-- Your code goes here
+```
+
+#### Exercise `¬Any⇔All¬` (recommended)
+
+Show that `Any` and `All` satisfy a version of De Morgan's Law:
+
+    (¬_ ∘ Any P) xs ⇔ All (¬_ ∘ P) xs
+
+(Can you see why it is important that here `_∘_` is generalised
+to arbitrary levels, as described in the section on
+[universe polymorphism]({{ site.baseurl }}/Equality/#unipoly)?)
+
+Do we also have the following?
+
+    (¬_ ∘ All P) xs ⇔ Any (¬_ ∘ P) xs
+
+If so, prove; if not, explain why.
+
+
+```
+-- Your code goes here
+```
+
+#### Exercise `¬Any≃All¬` (stretch)
+
+Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
+You will need to use extensionality.
+
+```
+-- Your code goes here
+```
+
+#### Exercise `All-∀` (practice)
+
+Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
+
+```
+-- You code goes here
+```
+
+
+#### Exercise `Any-∃` (practice)
+
+Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
+
+```
+-- You code goes here
 ```
 
 ## Extensionality {#extensionality}

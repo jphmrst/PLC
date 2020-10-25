@@ -198,13 +198,10 @@ satisfies `P`, while the second provides evidence that some element of
 the tail of the list satisfies `P`.  For example, we can define list
 membership as follows:
 ```
-infix 4 _∈_ _∉_
+infix 4 _∈_
 
 _∈_ : ∀ {A : Set} (x : A) (xs : List A) → Set
 x ∈ xs = Any (x ≡_) xs
-
-_∉_ : ∀ {A : Set} (x : A) (xs : List A) → Set
-x ∉ xs = ¬ (x ∈ xs)
 ```
 For example, zero is an element of the list `(0 ∷ 1 ∷ 0 ∷ 2 ∷ [])`.  Indeed, we can demonstrate
 this fact in two different ways, corresponding to the two different
@@ -216,111 +213,6 @@ _ = here refl
 _ : 0 ∈ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
 _ = there (there (here refl))
 ```
-Further, we can demonstrate that three is not in the list, because
-any possible proof that it is in the list leads to contradiction:
-```
-not-in : 3 ∉ (0 ∷ 1 ∷ 0 ∷ 2 ∷ [])
-not-in (here ())
-not-in (there (here ()))
-not-in (there (there (here ())))
-not-in (there (there (there (here ()))))
-not-in (there (there (there (there ()))))
-```
-The five occurrences of `()` attest to the fact that there is no
-possible evidence for `3 ≡ 0`, `3 ≡ 1`, `3 ≡ 0`, `3 ≡ 2`, and
-`3 ∈ []`, respectively.
-
-## All and append
-
-A predicate holds for every element of one list appended to another if and
-only if it holds for every element of both lists:
-```
-All-++-⇔ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
-  All P (xs ++ ys) ⇔ (All P xs × All P ys)
-All-++-⇔ xs ys =
-  record
-    { to       =  to xs ys
-    ; from     =  from xs ys
-    }
-  where
-
-  to : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
-    All P (xs ++ ys) → (All P xs × All P ys)
-  to [] ys Pys = ⟨ [] , Pys ⟩
-  to (x ∷ xs) ys (Px ∷ Pxs++ys) with to xs ys Pxs++ys
-  ... | ⟨ Pxs , Pys ⟩ = ⟨ Px ∷ Pxs , Pys ⟩
-
-  from : ∀ { A : Set} {P : A → Set} (xs ys : List A) →
-    All P xs × All P ys → All P (xs ++ ys)
-  from [] ys ⟨ [] , Pys ⟩ = Pys
-  from (x ∷ xs) ys ⟨ Px ∷ Pxs , Pys ⟩ =  Px ∷ from xs ys ⟨ Pxs , Pys ⟩
-```
-
-#### Exercise `Any-++-⇔` (recommended)
-
-Prove a result similar to `All-++-⇔`, but with `Any` in place of `All`, and a suitable
-replacement for `_×_`.  As a consequence, demonstrate an equivalence relating
-`_∈_` and `_++_`.
-
-```
--- Your code goes here
-```
-
-#### Exercise `All-++-≃` (stretch)
-
-Show that the equivalence `All-++-⇔` can be extended to an isomorphism.
-
-```
--- Your code goes here
-```
-
-#### Exercise `¬Any⇔All¬` (recommended)
-
-Show that `Any` and `All` satisfy a version of De Morgan's Law:
-
-    (¬_ ∘ Any P) xs ⇔ All (¬_ ∘ P) xs
-
-(Can you see why it is important that here `_∘_` is generalised
-to arbitrary levels, as described in the section on
-[universe polymorphism]({{ site.baseurl }}/Equality/#unipoly)?)
-
-Do we also have the following?
-
-    (¬_ ∘ All P) xs ⇔ Any (¬_ ∘ P) xs
-
-If so, prove; if not, explain why.
-
-
-```
--- Your code goes here
-```
-
-#### Exercise `¬Any≃All¬` (stretch)
-
-Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
-You will need to use extensionality.
-
-```
--- Your code goes here
-```
-
-#### Exercise `All-∀` (practice)
-
-Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
-
-```
--- You code goes here
-```
-
-
-#### Exercise `Any-∃` (practice)
-
-Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
-
-```
--- You code goes here
-```
-
 
 ## Decidability of All
 

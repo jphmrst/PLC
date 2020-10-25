@@ -26,7 +26,7 @@ familiar mathematical function written in Imp.
 
     Z := X ,
     Y := # 1 ,
-    while ~(Z = # 0) do
+    while ~(Z == # 0) do
       Y := Y * Z ,
       Z := Z - # 1
     end
@@ -195,11 +195,11 @@ infix operations, where we use the underscore to stand in the argument
 position in the signature.
 
 ```
-  ⟦_⟧ᵃ : AExp → ℕ
-  ⟦ # n ⟧ᵃ = n
-  ⟦ ae1 + ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ Data.Nat.+ ⟦ ae2 ⟧ᵃ
-  ⟦ ae1 - ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ ∸ ⟦ ae2 ⟧ᵃ
-  ⟦ ae1 * ae2 ⟧ᵃ = ⟦ ae1 ⟧ᵃ Data.Nat.* ⟦ ae2 ⟧ᵃ
+  ⟦_⟧ᴬ : AExp → ℕ
+  ⟦ # n ⟧ᴬ = n
+  ⟦ ae1 + ae2 ⟧ᴬ = ⟦ ae1 ⟧ᴬ Data.Nat.+ ⟦ ae2 ⟧ᴬ
+  ⟦ ae1 - ae2 ⟧ᴬ = ⟦ ae1 ⟧ᴬ ∸ ⟦ ae2 ⟧ᴬ
+  ⟦ ae1 * ae2 ⟧ᴬ = ⟦ ae1 ⟧ᴬ Data.Nat.* ⟦ ae2 ⟧ᴬ
 ```
 
 Note that since we have defined our own version of `+` and `*` for
@@ -211,18 +211,18 @@ prefix.
 Similarly, evaluating a boolean expression yields a boolean.
 
 ```
-  ⟦_⟧ᵇ : BExp → Bool
-  ⟦ T ⟧ᵇ = true
-  ⟦ F ⟧ᵇ = false
-  ⟦ (ae1 == ae2) ⟧ᵇ = ⟦ ae1 ⟧ᵃ ≡ᵇ ⟦ ae2 ⟧ᵃ
-  ⟦ (ae1 <= ae2) ⟧ᵇ = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
+  ⟦_⟧ᴮ : BExp → Bool
+  ⟦ T ⟧ᴮ = true
+  ⟦ F ⟧ᴮ = false
+  ⟦ (ae1 == ae2) ⟧ᴮ = ⟦ ae1 ⟧ᴬ ≡ᵇ ⟦ ae2 ⟧ᴬ
+  ⟦ (ae1 <= ae2) ⟧ᴮ = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
                        where v1 : ℕ
-                             v1 = ⟦ ae1 ⟧ᵃ
+                             v1 = ⟦ ae1 ⟧ᴬ
                              v2 : ℕ
-                             v2 = ⟦ ae2 ⟧ᵃ
-  ⟦ ! be ⟧ᵇ = not ⟦ be ⟧ᵇ
-  ⟦ be1 && be2 ⟧ᵇ = ⟦ be1 ⟧ᵇ ∧ ⟦ be2 ⟧ᵇ
-  ⟦ be1 || be2 ⟧ᵇ = ⟦ be1 ⟧ᵇ ∨ ⟦ be2 ⟧ᵇ
+                             v2 = ⟦ ae2 ⟧ᴬ
+  ⟦ ! be ⟧ᴮ = not ⟦ be ⟧ᴮ
+  ⟦ be1 && be2 ⟧ᴮ = ⟦ be1 ⟧ᴮ ∧ ⟦ be2 ⟧ᴮ
+  ⟦ be1 || be2 ⟧ᴮ = ⟦ be1 ⟧ᴮ ∨ ⟦ be2 ⟧ᴮ
 ```
 
 Notice that the boolean evaluator calls the arithmetic evaluator for
@@ -274,92 +274,92 @@ original — we should prove it.
 
 {::comment}
   s1 : (x : AExp) → (y : AExp) →
-         ⟦ optimize0plus (x * y) ⟧ᵃ ≡
-           ⟦ optimize0plus x * optimize0plus y ⟧ᵃ
+         ⟦ optimize0plus (x * y) ⟧ᴬ ≡
+           ⟦ optimize0plus x * optimize0plus y ⟧ᴬ
   s1 x y =
     begin
-      ⟦ optimize0plus (x * y) ⟧ᵃ
+      ⟦ optimize0plus (x * y) ⟧ᴬ
     ≡⟨ refl ⟩
-      ⟦ optimize0plus x * optimize0plus y ⟧ᵃ
+      ⟦ optimize0plus x * optimize0plus y ⟧ᴬ
     ∎
       
 
   o0pS_op : ∀ { x y : AExp } →
               (k : AExp → AExp → AExp) → (f : ℕ → ℕ → ℕ) →
                 opt0+safe x → opt0+safe y →
-                  (∀ { m n : AExp } → ⟦ k m n ⟧ᵃ ≡ f ⟦ m ⟧ᵃ ⟦ n ⟧ᵃ) → 
+                  (∀ { m n : AExp } → ⟦ k m n ⟧ᴬ ≡ f ⟦ m ⟧ᴬ ⟦ n ⟧ᴬ) → 
                     (optimize0plus (k x y) ≡ k (optimize0plus x) (optimize0plus y)) →
                       opt0+safe (k x y)
   o0pS_op {x} {y} k f sx sy kf kdown = 
     begin
-      ⟦ optimize0plus (k x y) ⟧ᵃ
+      ⟦ optimize0plus (k x y) ⟧ᴬ
     ≡⟨ cong aeval kdown ⟩
-      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᵃ
+      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᴬ
     ≡⟨ kf ⟩
-      f ⟦ optimize0plus x ⟧ᵃ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (λ x → f x ⟦ optimize0plus y ⟧ᵃ) sx ⟩
-      f ⟦ x ⟧ᵃ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (f ⟦ x ⟧ᵃ) sy ⟩
-      f ⟦ x ⟧ᵃ ⟦ y ⟧ᵃ
+      f ⟦ optimize0plus x ⟧ᴬ ⟦ optimize0plus y ⟧ᴬ
+    ≡⟨ cong (λ x → f x ⟦ optimize0plus y ⟧ᴬ) sx ⟩
+      f ⟦ x ⟧ᴬ ⟦ optimize0plus y ⟧ᴬ
+    ≡⟨ cong (f ⟦ x ⟧ᴬ) sy ⟩
+      f ⟦ x ⟧ᴬ ⟦ y ⟧ᴬ
     ≡⟨ sym kf ⟩
-      ⟦ k x y ⟧ᵃ
+      ⟦ k x y ⟧ᴬ
     ∎
 {:/comment}
 
 ```
   opt0+safe : AExp → Set
-  opt0+safe m = ⟦ optimize0plus m ⟧ᵃ ≡ ⟦ m ⟧ᵃ
+  opt0+safe m = ⟦ optimize0plus m ⟧ᴬ ≡ ⟦ m ⟧ᴬ
 
   plusHelper : (m n : AExp) →
                  opt0+safe m → opt0+safe n →
                    (optimize0plus (m + n) ≡ optimize0plus m + optimize0plus n) →
                      opt0+safe (m + n)
   plusHelper m n sm sn nonz = begin
-      ⟦ optimize0plus (m + n) ⟧ᵃ
-    ≡⟨ cong ⟦_⟧ᵃ nonz ⟩
-      ⟦ optimize0plus m + optimize0plus n ⟧ᵃ
+      ⟦ optimize0plus (m + n) ⟧ᴬ
+    ≡⟨ cong ⟦_⟧ᴬ nonz ⟩
+      ⟦ optimize0plus m + optimize0plus n ⟧ᴬ
     ≡⟨⟩
-      ⟦ optimize0plus m ⟧ᵃ Data.Nat.+ ⟦ optimize0plus n ⟧ᵃ
-    ≡⟨ cong (Data.Nat._+ ⟦ optimize0plus n ⟧ᵃ) sm ⟩
-      ⟦ m ⟧ᵃ Data.Nat.+ ⟦ optimize0plus n ⟧ᵃ
-    ≡⟨ cong (⟦ m ⟧ᵃ Data.Nat.+_) sn ⟩
-      ⟦ m ⟧ᵃ Data.Nat.+ ⟦ n ⟧ᵃ
+      ⟦ optimize0plus m ⟧ᴬ Data.Nat.+ ⟦ optimize0plus n ⟧ᴬ
+    ≡⟨ cong (Data.Nat._+ ⟦ optimize0plus n ⟧ᴬ) sm ⟩
+      ⟦ m ⟧ᴬ Data.Nat.+ ⟦ optimize0plus n ⟧ᴬ
+    ≡⟨ cong (⟦ m ⟧ᴬ Data.Nat.+_) sn ⟩
+      ⟦ m ⟧ᴬ Data.Nat.+ ⟦ n ⟧ᴬ
     ≡⟨⟩
-      ⟦ m + n ⟧ᵃ
+      ⟦ m + n ⟧ᴬ
     ∎
 
   opHelper : (x y : AExp) →
                (k : AExp → AExp → AExp) →
                  (f : ℕ → ℕ → ℕ) →
-                   (∀ { m n : AExp } → ⟦ k m n ⟧ᵃ ≡ f ⟦ m ⟧ᵃ ⟦ n ⟧ᵃ) →
+                   (∀ { m n : AExp } → ⟦ k m n ⟧ᴬ ≡ f ⟦ m ⟧ᴬ ⟦ n ⟧ᴬ) →
                      (optimize0plus (k x y) ≡ k (optimize0plus x) (optimize0plus y)) →
                        opt0+safe x → opt0+safe y →
                          opt0+safe (k x y)
   opHelper x y k f fk kpush sx sy = begin
-      ⟦ optimize0plus (k x y) ⟧ᵃ
-    ≡⟨ cong ⟦_⟧ᵃ kpush ⟩
-      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᵃ
+      ⟦ optimize0plus (k x y) ⟧ᴬ
+    ≡⟨ cong ⟦_⟧ᴬ kpush ⟩
+      ⟦ k (optimize0plus x) (optimize0plus y) ⟧ᴬ
     ≡⟨ fk ⟩
-      f (⟦ optimize0plus x ⟧ᵃ) (⟦ optimize0plus y ⟧ᵃ)
-    ≡⟨ cong (λ m → f m (⟦ optimize0plus y ⟧ᵃ)) sx ⟩
-      f ⟦ x ⟧ᵃ (⟦ optimize0plus y ⟧ᵃ)
-    ≡⟨ cong (f ⟦ x ⟧ᵃ) sy ⟩
-      f ⟦ x ⟧ᵃ ⟦ y ⟧ᵃ
+      f (⟦ optimize0plus x ⟧ᴬ) (⟦ optimize0plus y ⟧ᴬ)
+    ≡⟨ cong (λ m → f m (⟦ optimize0plus y ⟧ᴬ)) sx ⟩
+      f ⟦ x ⟧ᴬ (⟦ optimize0plus y ⟧ᴬ)
+    ≡⟨ cong (f ⟦ x ⟧ᴬ) sy ⟩
+      f ⟦ x ⟧ᴬ ⟦ y ⟧ᴬ
     ≡⟨ sym fk ⟩
-      ⟦ k x y ⟧ᵃ
+      ⟦ k x y ⟧ᴬ
     ∎
 
   optimize0plusSound : ∀ (a : AExp) → opt0+safe a
   optimize0plusSound (# n) = refl
   optimize0plusSound (# zero + y) = optimize0plusSound y
   optimize0plusSound (# (suc n) + y) = begin
-      ⟦ optimize0plus (# (suc n) + y) ⟧ᵃ
+      ⟦ optimize0plus (# (suc n) + y) ⟧ᴬ
     ≡⟨⟩
-      ⟦ # (suc n) + optimize0plus y ⟧ᵃ
+      ⟦ # (suc n) + optimize0plus y ⟧ᴬ
     ≡⟨⟩
-      ⟦ # (suc n) ⟧ᵃ Data.Nat.+ ⟦ optimize0plus y ⟧ᵃ
-    ≡⟨ cong (⟦ # (suc n) ⟧ᵃ Data.Nat.+_) (optimize0plusSound y) ⟩
-      ⟦ # (suc n) + y ⟧ᵃ
+      ⟦ # (suc n) ⟧ᴬ Data.Nat.+ ⟦ optimize0plus y ⟧ᴬ
+    ≡⟨ cong (⟦ # (suc n) ⟧ᴬ Data.Nat.+_) (optimize0plusSound y) ⟩
+      ⟦ # (suc n) + y ⟧ᴬ
     ∎
   optimize0plusSound (x + z + y) = plusHelper (x + z) y (optimize0plusSound (x + z)) (optimize0plusSound y) refl
   optimize0plusSound (x - z + y) = plusHelper (x - z) y (optimize0plusSound (x - z)) (optimize0plusSound y) refl
@@ -529,7 +529,7 @@ and as formal proofs,
 
 #### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
 
-In a similar way, convert the `⟦ ... ⟧ᵇ` evaluator into a relation
+In a similar way, convert the `⟦ ... ⟧ᴮ` evaluator into a relation
 `_⇓ᵇ_`.
 
 ### Equivalence of the evaluators
@@ -538,7 +538,7 @@ It is straightforward to prove that the relational and functional
 definitions of evaluation agree, but we will need some new tools in
 Agda to communicate the result.
 
-    aevalFnRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n ↔ a ⇓ᵃ n
+    aevalFnRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᴬ ≡ n ↔ a ⇓ᵃ n
 
 The theorem says that for any program `a` and number `n`, applying the
 evaluation function to `a` returns `n` exactly when the evaluation
@@ -549,7 +549,7 @@ We consider one direction at a time: first, that the evaluation
 function implies the relation.
 
 ```
-  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n → a ⇓ᵃ n
+  aevalFnThenRel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᴬ ≡ n → a ⇓ᵃ n
 ```
 
 We start the proof in the usual way: the quantifications and premises
@@ -590,10 +590,10 @@ are possible in a clause.  Let's think through what this clause says:
    form `# m`.
 
  - The third clause tells us that the term and the value `n` have the
-   relationship `⟦ a ⟧ᵃ ≡ n`; putting that together with knowing that
-   `a` is `# m`, we have that `⟦ # m ⟧ᵃ ≡ n`.
+   relationship `⟦ a ⟧ᴬ ≡ n`; putting that together with knowing that
+   `a` is `# m`, we have that `⟦ # m ⟧ᴬ ≡ n`.
 
- - The definition of `⟦_⟧ᵃ` tells us that `⟦ # m ⟧ᵃ` is `m`.
+ - The definition of `⟦_⟧ᴬ` tells us that `⟦ # m ⟧ᴬ` is `m`.
 
  - So Agda can figure out that the only valid possibility for the
    second argument is that it is the same as the number under the `#`.
@@ -613,17 +613,17 @@ form `Eᵃℕ` is the evidence for the first clause.
 
 We proceed similarly in each of the other cases.  For each of the
 other three forms of arithmetic expressions — addition, subtraction
-(monus), multiplication — only one clause of `⟦_⟧ᵃ` can return a value
+(monus), multiplication — only one clause of `⟦_⟧ᴬ` can return a value
 for that form of expression.  Agda recognizes this, and recognizes
 that a dot-pattern for the corresponding value is appropriate.
 
 ```
-  aevalFnThenRel (a₁ + a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.+ ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ+ (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
-  aevalFnThenRel (a₁ - a₂) .(⟦ a₁ ⟧ᵃ ∸ ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ- (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
-  aevalFnThenRel (a₁ * a₂) .(⟦ a₁ ⟧ᵃ Data.Nat.* ⟦ a₂ ⟧ᵃ) refl =
-    Eᵃ* (aevalFnThenRel a₁ ⟦ a₁ ⟧ᵃ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᵃ refl)
+  aevalFnThenRel (a₁ + a₂) .(⟦ a₁ ⟧ᴬ Data.Nat.+ ⟦ a₂ ⟧ᴬ) refl =
+    Eᵃ+ (aevalFnThenRel a₁ ⟦ a₁ ⟧ᴬ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᴬ refl)
+  aevalFnThenRel (a₁ - a₂) .(⟦ a₁ ⟧ᴬ ∸ ⟦ a₂ ⟧ᴬ) refl =
+    Eᵃ- (aevalFnThenRel a₁ ⟦ a₁ ⟧ᴬ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᴬ refl)
+  aevalFnThenRel (a₁ * a₂) .(⟦ a₁ ⟧ᴬ Data.Nat.* ⟦ a₂ ⟧ᴬ) refl =
+    Eᵃ* (aevalFnThenRel a₁ ⟦ a₁ ⟧ᴬ refl) (aevalFnThenRel a₂ ⟦ a₂ ⟧ᴬ refl)
 ```
 
 This should one direction of implication, that the evaluation function
@@ -631,7 +631,7 @@ implies the relation.  The other direction is that the evaluation
 relation implies the function.
 
 ```
-  aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᵃ ≡ n
+  aevalRelThenFn : ∀ (a : AExp) (n : ℕ) → a ⇓ᵃ n → ⟦ a ⟧ᴬ ≡ n
 ```
 
 We begin with the usual starting clause
@@ -681,17 +681,17 @@ in.
 
     aevalRelThenFn .(e1 + e2) .(n1 Data.Nat.+ n2) (Eᵃ+ {e1} {n1} {e2} {n2} an₁ an₂) = ?
 
-We need to prove that `⟦ e1 + e2 ⟧ᵃ` and `n1 Data.Nat.+ n2` have the
+We need to prove that `⟦ e1 + e2 ⟧ᴬ` and `n1 Data.Nat.+ n2` have the
 same value, and it is easest to use a chain of equations,
 
 ```
   aevalRelThenFn .(e1 + e2) .(n1 Data.Nat.+ n2) (Eᵃ+ {e1} {n1} {e2} {n2} aRn aRn₁) = 
     begin
-      ⟦ e1 + e2 ⟧ᵃ
+      ⟦ e1 + e2 ⟧ᴬ
     ≡⟨⟩
-      ⟦ e1 ⟧ᵃ Data.Nat.+ ⟦ e2 ⟧ᵃ
-    ≡⟨ cong (Data.Nat._+ ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
-      n1 Data.Nat.+ ⟦ e2 ⟧ᵃ
+      ⟦ e1 ⟧ᴬ Data.Nat.+ ⟦ e2 ⟧ᴬ
+    ≡⟨ cong (Data.Nat._+ ⟦ e2 ⟧ᴬ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 Data.Nat.+ ⟦ e2 ⟧ᴬ
     ≡⟨ cong (n1 Data.Nat.+_) (aevalRelThenFn e2 n2 aRn₁) ⟩
       n1 Data.Nat.+ n2
     ∎  
@@ -703,21 +703,21 @@ correspond directly to built-in arithmetic operators.
 ```
   aevalRelThenFn .(e1 - e2) .(n1 ∸ n2) (Eᵃ- {e1} {n1} {e2} {n2} aRn aRn₁) = 
     begin
-      ⟦ e1 - e2 ⟧ᵃ
+      ⟦ e1 - e2 ⟧ᴬ
     ≡⟨⟩
-      ⟦ e1 ⟧ᵃ ∸ ⟦ e2 ⟧ᵃ
-    ≡⟨ cong (_∸ ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
-      n1 ∸ ⟦ e2 ⟧ᵃ
+      ⟦ e1 ⟧ᴬ ∸ ⟦ e2 ⟧ᴬ
+    ≡⟨ cong (_∸ ⟦ e2 ⟧ᴬ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 ∸ ⟦ e2 ⟧ᴬ
     ≡⟨ cong (n1 ∸_) (aevalRelThenFn e2 n2 aRn₁) ⟩
       n1 ∸ n2
     ∎
   aevalRelThenFn .(e1 * e2) .(n1 Data.Nat.* n2) (Eᵃ* {e1} {n1} {e2} {n2} aRn aRn₁) = 
     begin
-      ⟦ e1 * e2 ⟧ᵃ
+      ⟦ e1 * e2 ⟧ᴬ
     ≡⟨⟩
-      ⟦ e1 ⟧ᵃ Data.Nat.* ⟦ e2 ⟧ᵃ
-    ≡⟨ cong (Data.Nat._* ⟦ e2 ⟧ᵃ) (aevalRelThenFn e1 n1 aRn) ⟩
-      n1 Data.Nat.* ⟦ e2 ⟧ᵃ
+      ⟦ e1 ⟧ᴬ Data.Nat.* ⟦ e2 ⟧ᴬ
+    ≡⟨ cong (Data.Nat._* ⟦ e2 ⟧ᴬ) (aevalRelThenFn e1 n1 aRn) ⟩
+      n1 Data.Nat.* ⟦ e2 ⟧ᴬ
     ≡⟨ cong (n1 Data.Nat.*_) (aevalRelThenFn e2 n2 aRn₁) ⟩
       n1 Data.Nat.* n2
     ∎
@@ -726,7 +726,7 @@ correspond directly to built-in arithmetic operators.
 With these two lemmas we can state an equivalence theorem.
 
 ```
-  aevalFn⇔Rel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᵃ ≡ n ⇔ a ⇓ᵃ n
+  aevalFn⇔Rel : ∀ (a : AExp) (n : ℕ) → ⟦ a ⟧ᴬ ≡ n ⇔ a ⇓ᵃ n
   aevalFn⇔Rel a n = record
     { to   = λ aFn -> aevalFnThenRel a n aFn
     ; from = λ aRn -> aevalRelThenFn a n aRn
@@ -735,7 +735,7 @@ With these two lemmas we can state an equivalence theorem.
 
 #### Exercise `bevalRelationIffEval` (recommended) {#bevalRelationIffEval}
 
-Prove that your evaluation function `⟦ ... ⟧ᵇ` and relation `_⇓ᵇ_` are
+Prove that your evaluation function `⟦ ... ⟧ᴮ` and relation `_⇓ᵇ_` are
 equivalent.
 
 ### Computational vs. relational definitions
@@ -919,27 +919,26 @@ state as an extra argument.  Following tradition, we write the state
 immediately after the double-brackets.  Otherwise, the way we extend
 the two evaluators is straightforward.
 
-
 ```
-⟦_⟧ᵃ_ : AExp → State → ℕ
-⟦ # n ⟧ᵃ st = n
-⟦ id name ⟧ᵃ st = st name
-⟦ ae1 + ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.+ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 - ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st ∸ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 * ae2 ⟧ᵃ st = ⟦ ae1 ⟧ᵃ st Data.Nat.* ⟦ ae2 ⟧ᵃ st
+⟦_⟧ᴬ_ : AExp → State → ℕ
+⟦ # n ⟧ᴬ st = n
+⟦ id name ⟧ᴬ st = st name
+⟦ ae1 + ae2 ⟧ᴬ st = ⟦ ae1 ⟧ᴬ st Data.Nat.+ ⟦ ae2 ⟧ᴬ st
+⟦ ae1 - ae2 ⟧ᴬ st = ⟦ ae1 ⟧ᴬ st ∸ ⟦ ae2 ⟧ᴬ st
+⟦ ae1 * ae2 ⟧ᴬ st = ⟦ ae1 ⟧ᴬ st Data.Nat.* ⟦ ae2 ⟧ᴬ st
 
-⟦_⟧ᵇ_ : BExp → State → Bool
-⟦ T ⟧ᵇ st = true
-⟦ F ⟧ᵇ st = false
-⟦ ae1 == ae2 ⟧ᵇ st = ⟦ ae1 ⟧ᵃ st ≡ᵇ ⟦ ae2 ⟧ᵃ st
-⟦ ae1 <= ae2 ⟧ᵇ st = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
+⟦_⟧ᴮ_ : BExp → State → Bool
+⟦ T ⟧ᴮ st = true
+⟦ F ⟧ᴮ st = false
+⟦ ae1 == ae2 ⟧ᴮ st = ⟦ ae1 ⟧ᴬ st ≡ᵇ ⟦ ae2 ⟧ᴬ st
+⟦ ae1 <= ae2 ⟧ᴮ st = (v1 ≡ᵇ v2) ∨ (v1 <ᵇ v2)
                     where v1 : ℕ
-                          v1 = ⟦ ae1 ⟧ᵃ st
+                          v1 = ⟦ ae1 ⟧ᴬ st
                           v2 : ℕ
-                          v2 = ⟦ ae2 ⟧ᵃ st
-⟦ ! be ⟧ᵇ st = not (⟦ be ⟧ᵇ st)
-⟦ be1 && be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∧ ⟦ be2 ⟧ᵇ st
-⟦ be1 || be2 ⟧ᵇ st = ⟦ be1 ⟧ᵇ st ∨ ⟦ be2 ⟧ᵇ st
+                          v2 = ⟦ ae2 ⟧ᴬ st
+⟦ ! be ⟧ᴮ st = not (⟦ be ⟧ᴮ st)
+⟦ be1 && be2 ⟧ᴮ st = ⟦ be1 ⟧ᴮ st ∧ ⟦ be2 ⟧ᴮ st
+⟦ be1 || be2 ⟧ᴮ st = ⟦ be1 ⟧ᴮ st ∨ ⟦ be2 ⟧ᴮ st
 ```
 
 Since the default value for Imp variable not otherwise set in zero, we
@@ -954,10 +953,10 @@ For example, we can evaluate the expression `3+X*2` in an environment
 where `Z` is bound to 5.
 
 ```
-_ : ⟦ # 3 + id X * # 2 ⟧ᵃ (X ↦ 5 , emptyState) ≡ 13
+_ : ⟦ # 3 + id X * # 2 ⟧ᴬ (X ↦ 5 , emptyState) ≡ 13
 _ = refl
 
-_ : ⟦ T && ! (id X <= # 4) ⟧ᵇ (X ↦ 5 , emptyState) ≡ true
+_ : ⟦ T && ! (id X <= # 4) ⟧ᴮ (X ↦ 5 , emptyState) ≡ true
 _ = refl
 ```
 
