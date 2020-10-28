@@ -26,6 +26,8 @@ exploring relations on data structures such as linked lists.
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
+open import Data.String hiding (_<_)
+open import Data.Char hiding (_<_)
 open import Data.Nat using (ℕ; zero; suc; _+_)
 open import Data.Nat.Properties using (+-comm)
 open import Function using (_∘_)
@@ -834,6 +836,224 @@ if `One b` then `1` is less or equal to the result of `from b`.)
 -- Your code goes here
 ```
 
+## Regular expressions
+
+The `even` and `odd` properties provide a simple example for
+illustrating inductive definitions and the basic techniques for
+reasoning about them, but it is not terribly exciting — it is hard to
+see much difference between those inductive relations and the
+corresponding recursive functions.
+
+To give a better sense of the power of inductive relations, we now
+show how to use them to model a classic concept in computer science:
+_regular expressions_ (REs).  REs are a notation for describing a set
+of strings which match a particular pattern.  The application of an RE
+is determining whether a particular string _matches_ that RE.
+
+There are several forms of RE, and each form has different rules which
+match various strings.
+
+```
+data RegEx : Set where
+  ∅ : RegEx
+  ε : RegEx
+  [_] : Char → RegEx
+  _>>_ : RegEx → RegEx → RegEx
+  _||_ : RegEx → RegEx → RegEx
+  _* : RegEx → RegEx
+```
+
+ - The RE `∅` does not match any strings.
+
+ - The RE `ε` matches the empty string `""`.
+
+ - The literal RE for any character `c`, `[ c ]` matches the
+   one-character string containing `c`.
+
+ - If `re₁` matches `s₁`, and `re₂` matches `s₂`, then the PR `re1 >> re2`
+   matches the concatentation `s₁ ++ s₂`.
+
+ - If at least one of `re₁` and `re₂` matches `s`, then `re₁ || re₂`
+   also matches `s`.
+
+ - Finally, if we can write some string `s` as the concatenation of a
+   sequence of strings `s ≡ s₁ ++ ... ++ sₖ`, and the RE `re` matches
+   each one of the strings `sᵢ`, then `re *` matches `s`.
+
+   In particular, the sequence of strings may be empty, so `re *`
+   always matches the empty string `""` no matter what `re` is.
+
+   This notation is called the _Kleene star_, named after the
+   scientist who first used it to specify repetition in syntax.
+
+Here are some examples of regular expressions:
+
+
+```
+re1 : RegEx
+re1 = [ 'e' ]
+re2 : RegEx
+re2 = [ 'c' ] >> [ 'd' ]
+re3 : RegEx
+re3 = re1 || re2
+re4 : RegEx
+re4 = (re3 *) >> [ 'z' ]
+```
+
+ - The regular expression `re1` for the literal character `e` matches
+   only one string `"e"`.
+   
+ - The concatenation RE `re2` matches first the literal character `c`,
+   and then the literal character `d`.  So `re2` also matches exactly
+   one string `"cd"`.
+   
+ - `re3` places `re1` and `re2` in alternation, and matches both `"e"`
+   and `"cd"`.
+   
+ - Finally `re4` adds the Kleene star, and matches strings like
+   `"eecdz"`, `"cdecdez"` and `"eeeecdcdecdecdeeecdcdcdz"`.  It also
+   matches `"z"`, since there could be zero repetitions matching
+   `re3`.
+
+Now we can translate the informal descriptions of how each form of RE
+matches strings into a formal Agda definition.  We use the operator
+`_=~_` to associate a regular expression and a string which the RE
+matches.
+
+```
+data _=~_ : RegEx → String → Set where
+```
+
+We define forms of evidence which explain how each form of RE matches
+its strings.  The `ε` RE can match only the empty string:
+
+```
+  ε=~Empty : ε =~ ""
+```
+
+For any character, the literal RE `[ c ]` matches exactly one string.
+The `fromChar` function converts a character to the length-one string
+containing that character.
+
+```
+  =~char : ∀ {c : Char} → [ c ] =~ fromChar c
+```
+
+The `=~>>` constructor builds evidence for the concatenation of two
+REs, given evidence of how the two component REs match two substrings.
+
+```
+  =~>> : ∀ {r₁ r₂ : RegEx} {s₁ s₂ : String}
+           → r₁ =~ s₁ → r₂ =~ s₂
+             → (r₁ >> r₂) =~ (s₁ ++ s₂)
+```
+
+We have two ways of forming evidence for what a RE built with `_||_`
+matches.  One rule applies when the left sub-RE matches the string;
+the other rule, when the right sub-RE matches.
+
+```
+  =~||₁ : ∀ {r₁ r₂ : RegEx} {s₁ : String} → r₁ =~ s₁ → (r₁ || r₂) =~ s₁
+  =~||₂ : ∀ {r₁ r₂ : RegEx} {s₂ : String} → r₂ =~ s₂ → (r₁ || r₂) =~ s₂
+```
+
+There are two rules for the Kleene star.  The Kleene star can match
+zero uses of the underlying RE, which means that it must match the
+empty string.
+
+```
+  =~*Empty : ∀ {r : RegEx} → (r *) =~ ""
+```
+
+The other rule for the Kleene star uses recursion to describe the
+first of several uses of the underlying RE `r`.  We identify two
+substrings `s₁` and `s₂`: the `=~*One` rule requires evidence first
+that `r` matches `s₁`, and then that all further applications of `r`
+match `s₂`.
+
+```
+  =~*One : ∀ {r : RegEx} {s₁ s₂ : String}
+             → r =~ s₁ → (r *) =~ s₂
+               → (r *) =~ (s₁ ++ s₂)
+```
+
+To prove a formula using the `_=~_` connective, we use combinations of
+the contructors for `_=~_`.  This is consistent with the proofs we
+have written so far.  The constructor for the `_≡_` relation is
+`refl`, so if we want to prove a formula built with `_≡_` then our
+evidence is based on `refl`.  The constructors for the `even` relation
+are `zero` and `suc`, and when we wrote proofs for formulas built with
+`even` we built evidence with one of those constructors.  And here,
+when we wish to prove a `_=~_` relation, we use its constructors.
+
+When a regular expression forms is not recursive, the proofs of
+matching for those REs are very simple:
+
+```
+_ : ε =~ ""
+_ = ε=~Empty
+
+_ : [ 'e' ] =~ "e"
+_ = =~char
+```
+
+Here are two ways of writing the proof that the RE of two literals
+`[ 'e' ] >> [ 'f' ]` matches the string `"ef"`.  We could begin
+with the proofs that each of the REs `[ 'e' ]` and `[ 'f' ]` match
+the length-one strings `"e"` and `"f"`:
+
+    e : [ 'e' ] =~ "e"
+    e = =~char
+
+    f : [ 'f' ] =~ "f"
+    f = =~char
+
+Then we can combine these proofs with the `=~>>` constructor for the
+overall RE,
+
+```
+_ : ([ 'e' ] >> [ 'f' ]) =~ "ef"
+_ = =~>> e f
+    where e : [ 'e' ] =~ "e"
+          e = =~char
+
+          f : [ 'f' ] =~ "f"
+          f = =~char
+```
+
+Alternatively, we could simply write the subproofs directly as
+arguments of the `=~>>` constructor,
+
+```
+_ : ([ 'e' ] >> [ 'f' ]) =~ "ef"
+_ = =~>> =~char =~char
+```
+
+#### Exercise `match-simple-alt` (recommended)
+
+Show that the regular expression `[ 'c' ] || [ 'd' ]` matches the
+string `"d"`.
+
+#### Exercise `match-simple-star` (recommended)
+
+Show that the regular expression `([ 'c' ] || [ 'd' ]) *` matches the
+string `"cdc"`.
+
+#### Exercise `match4-z` (recommended)
+
+Show that the regular expression `re4` above matches the string
+`"z"`.
+
+#### Exercise `match3-cd` (practice)
+
+Show that the regular expression `re3` above matches the string
+`"cd"`.
+
+#### Exercise `match-cdecdz` (practice)
+
+Show that the regular expression `re4` above matches the string
+`"cdecdz"`.
+
 ## Records
 
 One common case of using relations has a single constructor, and
@@ -1069,6 +1289,7 @@ leftward and rightward arrows in addition to superscript letters `l` and `r`.
 ---
 
 *This page is derived primarily from Wadler et al., with additional
-material by Maraist.  The introduction to inversion on evidence is
-adapted from Pierce et a.  For more information see the [sources and
-authorship]({{ site.baseurl }}/Sources/) page.*
+material by Maraist.  The introduction to inversion on evidence, and
+the regular expressions example, are adapted from Pierce et al.  For
+more information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*
