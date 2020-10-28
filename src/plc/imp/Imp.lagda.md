@@ -166,9 +166,9 @@ state_ to an _ending state_.
 ```
 cmdEvalFn : State → Command → State
 cmdEvalFn st skip = st
-cmdEvalFn st (x := x₁) = x ↦ ⟦ x₁ ⟧ᵃ st , st
+cmdEvalFn st (x := x₁) = x ↦ ⟦ x₁ ⟧ᴬ st , st
 cmdEvalFn st (c₁ , c₂) = cmdEvalFn (cmdEvalFn st c₁) c₂
-cmdEvalFn st (if x then c₁ else c₂ end) with ⟦ x ⟧ᵇ st
+cmdEvalFn st (if x then c₁ else c₂ end) with ⟦ x ⟧ᴮ st
 ...                                    | true = cmdEvalFn st c₁
 ...                                    | false = cmdEvalFn st c₂
 cmdEvalFn st (while x loop c end) = st
@@ -179,7 +179,7 @@ we could add the `while` case as follows:
 
     cmdEvalFn : State → Command → State
     -- ...other cases unchanged...
-    cmdEvalFn st (while x loop c end) with ⟦ x ⟧ᵇ st
+    cmdEvalFn st (while x loop c end) with ⟦ x ⟧ᴮ st
     ...                                | true = cmdEvalFn (cmdEvalFn st c)
                                                           (while x loop c end)
     ...                                | false = st
@@ -249,25 +249,25 @@ corresponds to the inference rules.
 data _=[_]=>_ : State → Command → State → Set where
   Eskip : ∀ { st : State } → st =[ skip ]=> st
   E:= : ∀ { st : State } { x : String } ( a : AExp ) ( n : ℕ ) →
-           ⟦ a ⟧ᵃ st ≡ n →
+           ⟦ a ⟧ᴬ st ≡ n →
              st =[ x := a ]=> ( x ↦ n , st )
   E, : ∀ { st' : State } { st st′' : State } { c₁ c₂ : Command } →
           st  =[ c₁ ]=> st'  ->
             st' =[ c₂ ]=> st′' ->
               st  =[ c₁ , c₂ ]=> st′'
   EIfT : ∀ { st st' : State } { b : BExp } { c1 c2 : Command } →
-            ⟦ b ⟧ᵇ st ≡ true →
+            ⟦ b ⟧ᴮ st ≡ true →
               st =[ c1 ]=> st' →
                 st =[ if b then c1 else c2 end ]=> st'
   EIfF : ∀ { st st' : State } { b : BExp } { c1 c2 : Command } →
-            ⟦ b ⟧ᵇ st ≡ false →
+            ⟦ b ⟧ᴮ st ≡ false →
               st =[ c2 ]=> st' →
                 st =[ if b then c1 else c2 end ]=> st'
   EWhileF : ∀ { st : State } { b : BExp } { c : Command } →
-               ⟦ b ⟧ᵇ st ≡ false →
+               ⟦ b ⟧ᴮ st ≡ false →
                  st =[ while b loop c end ]=> st
   EWhileT : ∀ { st' st st′' : State } { b : BExp } { c : Command } →
-               ⟦ b ⟧ᵇ st ≡ true →
+               ⟦ b ⟧ᴮ st ≡ true →
                  st =[ c ]=> st' →
                    st' =[ while b loop c end ]=> st′' →
                      st =[ while b loop c end ]=> st′'
@@ -479,9 +479,9 @@ cevalPreserves≡ (x := a) st₁ st₂ .( x ↦ n₁ , st₁ ) .( x ↦ n₂ , s
                         n₁≡n₂ = begin
                                   n₁
                                 ≡⟨ sym aEvalsToN₁ ⟩ 
-                                  (⟦ a ⟧ᵃ st₁)
-                                ≡⟨ cong (⟦ a ⟧ᵃ_) st₁≡st₂ ⟩ 
-                                  (⟦ a ⟧ᵃ st₂)
+                                  (⟦ a ⟧ᴬ st₁)
+                                ≡⟨ cong (⟦ a ⟧ᴬ_) st₁≡st₂ ⟩ 
+                                  (⟦ a ⟧ᴬ st₂)
                                 ≡⟨ aEvalsToN₂ ⟩
                                   n₂
                                 ∎
@@ -531,7 +531,7 @@ clauses — literally — do not make sense!  The clauses cover the
 situations where the two evaluations of the condition `b`, one by
 `st₁` and the other by `st₂`, give different results.  The reason we
 say that there clauses do not make sense is that since `st₁ ≡ st₂`, as
-we are given, we should also have that `⟦ b ⟧ᵇ st₁ ≡ ⟦ b ⟧ᵇ st₂`.  The
+we are given, we should also have that `⟦ b ⟧ᴮ st₁ ≡ ⟦ b ⟧ᴮ st₂`.  The
 fact that we do not is a contradiction.  Since there is a
 contradiction _in the setup_ of these clauses, we can use a technique
 which tells Agda to disregard these clauses — that they are _absurd_.
@@ -551,9 +551,9 @@ that Agda can tell is impossible.  Here we use this construction:
     begin
       false
     ≡⟨ sym bIsFalse ⟩
-      ⟦ b ⟧ᵇ st₂
-    ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
-      ⟦ b ⟧ᵇ st₁
+      ⟦ b ⟧ᴮ st₂
+    ≡⟨ cong (⟦ b ⟧ᴮ_) (sym st₁≡st₂) ⟩
+      ⟦ b ⟧ᴮ st₁
     ≡⟨ bIsTrue ⟩
       true
     ∎
@@ -578,9 +578,9 @@ cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
   case (begin
           false
         ≡⟨ sym bIsFalse ⟩
-          ⟦ b ⟧ᵇ st₂
-        ≡⟨ cong (⟦ b ⟧ᵇ_) (sym st₁≡st₂) ⟩
-          ⟦ b ⟧ᵇ st₁
+          ⟦ b ⟧ᴮ st₂
+        ≡⟨ cong (⟦ b ⟧ᴮ_) (sym st₁≡st₂) ⟩
+          ⟦ b ⟧ᴮ st₁
         ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
@@ -589,9 +589,9 @@ cevalPreserves≡ (if b then c else c₁ end) st₁ st₂ _ _ st₁≡st₂
   case (begin
           false
         ≡⟨ sym bIsFalse ⟩
-          ⟦ b ⟧ᵇ st₁
-        ≡⟨ cong (⟦ b ⟧ᵇ_) st₁≡st₂ ⟩
-          ⟦ b ⟧ᵇ st₂
+          ⟦ b ⟧ᴮ st₁
+        ≡⟨ cong (⟦ b ⟧ᴮ_) st₁≡st₂ ⟩
+          ⟦ b ⟧ᴮ st₂
         ≡⟨ bIsTrue ⟩
           true
         ∎) of λ ()
@@ -634,9 +634,9 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ .st₁ st₂' st₁≡st₂
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₁
-        ≡⟨ cong (⟦ x ⟧ᵇ_) st₁≡st₂ ⟩
-          ⟦ x ⟧ᵇ st₂
+          ⟦ x ⟧ᴮ st₁
+        ≡⟨ cong (⟦ x ⟧ᴮ_) st₁≡st₂ ⟩
+          ⟦ x ⟧ᴮ st₂
         ≡⟨ xIsTrue ⟩
           true
         ∎) of λ ()
@@ -645,9 +645,9 @@ cevalPreserves≡ (while x loop c end) st₁ st₂ _ _ st₁≡st₂
   case (begin
           false
         ≡⟨ sym xIsFalse ⟩
-          ⟦ x ⟧ᵇ st₂
-        ≡⟨ cong (⟦ x ⟧ᵇ_) (sym st₁≡st₂) ⟩
-          ⟦ x ⟧ᵇ st₁
+          ⟦ x ⟧ᴮ st₂
+        ≡⟨ cong (⟦ x ⟧ᴮ_) (sym st₁≡st₂) ⟩
+          ⟦ x ⟧ᴮ st₁
         ≡⟨ xIsTrue ⟩
           true
         ∎) of λ ()
@@ -1148,18 +1148,18 @@ Inductive ceval : com -> state -> result -> state -> Prop :=
       st =[ c1 ]=> st' / SBreak ->
       st =[ c1 ; c2 ]=> st' / SBreak
   | EIf : forall c1 c2 b st st' s,
-      st =[ if_then_else (⟦ b ⟧ᵇ st) c1 c2 ]=> st' / s ->
+      st =[ if_then_else (⟦ b ⟧ᴮ st) c1 c2 ]=> st' / s ->
       st =[ if b then c1 else c2 end ]=> st' / s
   | EWhileFalse : forall c b st,
-      ⟦ b ⟧ᵇ st = false ->
+      ⟦ b ⟧ᴮ st = false ->
       st =[ while b do c end ]=> st / SContinue
   | EWhileContinue : forall c b st st' st'',
-      ⟦ b ⟧ᵇ st = true ->
+      ⟦ b ⟧ᴮ st = true ->
       st  =[ c ]=> st' / SContinue ->
       st' =[ while b do c end ]=> st'' / SContinue ->
       st  =[ while b do c end ]=> st'' / SContinue
   | EWhileBreak : forall c b st st',
-      ⟦ b ⟧ᵇ st = true ->
+      ⟦ b ⟧ᴮ st = true ->
       st =[ c ]=> st' / SBreak ->
       st =[ while b do c end ]=> st' / SContinue
   (* /SOLUTION *)
@@ -1192,7 +1192,7 @@ Qed.
 (* GRADE_THEOREM 1.5: while_continue *)
 
 Theorem while_stops_on_break : forall b c st st',
-  ⟦ b ⟧ᵇ st = true ->
+  ⟦ b ⟧ᴮ st = true ->
   st =[ c ]=> st' / SBreak ->
   st =[ while b do c end ]=> st' / SContinue.
 Proof.
@@ -1410,25 +1410,25 @@ Inductive ceval : com -> state -> status -> state -> Prop :=
       st =[ c1 ]=> st' / SThrow ->
       st =[ c1 ; c2 ]=> st' / SThrow
   | EIf : forall c1 c2 b st st' s,
-      st =[ if_then_else (⟦ b ⟧ᵇ st) c1 c2 ]=> st' / s ->
+      st =[ if_then_else (⟦ b ⟧ᴮ st) c1 c2 ]=> st' / s ->
       st =[ if b then c1 else c2 end ]=> st' / s
   | EWhileFalse : forall c b st,
-      ⟦ b ⟧ᵇ st = false ->
+      ⟦ b ⟧ᴮ st = false ->
       st =[ while b do c end ]=> st / SNormal
   | EWhileContinue : forall c b st st' st'',
-      ⟦ b ⟧ᵇ st = true ->
+      ⟦ b ⟧ᴮ st = true ->
       st  =[ c ]=> st' / SNormal ->
       st' =[ while b do c end ]=> st'' / SNormal ->
       st  =[ while b do c end ]=> st'' / SNormal
 (* HIDE: BETTER version!
   | EWhileContinue : forall c b st st' st'' s,
-      ⟦ b ⟧ᵇ st = true ->
+      ⟦ b ⟧ᴮ st = true ->
       c / st ==> SNormal / st' ->
       (while b do c end) / st' ==> s / st'' ->
       (while b do cend) / st ==> s / st''
 *)
   | EWhileThrow : forall c b st st',
-      ⟦ b ⟧ᵇ st = true ->
+      ⟦ b ⟧ᴮ st = true ->
       st =[ c ]=> st' / SThrow ->
       st =[ while b do c end ]=> st' / SThrow
   (* /SOLUTION *)

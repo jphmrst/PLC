@@ -1176,6 +1176,27 @@ for all naturals `n`. Did your proof require induction?
 ```
 
 
+#### Exercise `n∸n≡0` (practice) {#n-monus-n}
+
+Show
+
+    n ∸ n ≡ zero
+
+for all naturals `n`.
+
+```
+postulate n∸n≡0 : ∀ (n : ℕ) → n ∸ n ≡ zero
+-- Remove the keyword postulate, and fill in your proof here
+```
+
+This exercise is written a little differently than the other
+exercises.  The `postulate` keyword allows us to use this lemma in
+later sections, even if you are not able to complete all of the
+exercises, or complete them in a different file.  When you work the
+exercises, be sure to remove the `postulate` keyword when you add your
+proof.
+
+
 #### Exercise `∸-+-assoc` (practice) {#monus-plus-assoc}
 
 Show that monus associates with addition, that is,

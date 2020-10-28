@@ -15,13 +15,11 @@ map types we defined earlier, and use the techniques of the previous
 sections to establish their properties.
 
 Most of the exercises in this section are written a little differently
-than the exercises in earlier sections.  We use `postulate` keyword,
-which we saw earlier in the [Equality]({{ site.baseurl }}/Equality/)
-section.  Here, the `postulate` keyword allows us to use these lemmas
-in later sections, even if you are not able to complete all of the
-exercises, or complete them in a different file.  When you work the
-exercises, be sure to remove the `postulate` keyword when you add your
-proof.
+than the exercises in earlier sections.  We use `postulate` keyword.
+It allows us to use these lemmas in later sections, even if you are
+not able to complete all of the exercises, or complete them in a
+different file.  When you work the exercises, be sure to remove the
+`postulate` keyword when you add your proof.
 
 ## Imports
 
