@@ -76,16 +76,47 @@ back them up.
 
 ## CS lab macs {#CSMAC}
 
-This installation is in progress, and this section will be updated
-with instructions when it is ready.
+To run Agda on Macs in the CS lab:
+
+ 1. Make sure that your `PATH` variable contains the directories
+    `/usr/local/agda/bin` and `/use/local/bin`.
+
+    The best way to do this is to add this line to your `.bashrc` file:
+
+        export PATH=/usr/local/agda/bin:/usr/local/bin:$PATH
+
+    If you use some other way, make sure that `/usr/local/bin` is
+    checked before `/usr/bin`.
+
+ 2. Create the directory `~/.agda` (if it does not already exist).
+
+ 3. Create a file `~/.agda/libraries` containing the single line
+
+        /usr/local/agda/agda-stdlib/standard-library.agda-lib
+
+ 4. Create a file `~/.agda/defaults` containing the single line
+
+        standard-library
+
+Note also the additional directions on the
+[Getting started]({{ site.baseurl }}/Setup/)
+page for loading the Course Pack libraries from Agda.
 
 ### Remote access to the CS lab Macs {#CSREMOTE}
 
-Information forthcoming.
+Use SSH to connect to lab Macs.  The IP addresses of the lab iMacs are
+from 138.49.29.209 to 138.49.29.232 --- change the last number within
+that range, while leaving the first three numbers the same.
+
+Note that sometimes lab machines crash, and that sometimes students
+will power a lab Mac down.  When this happens, you may need to try a
+different machine.
 
 ---
 
 *This page is edited by Maraist with contributions from [Justin
- Bolstad](https://www.uwlax.edu/profile/jbolstad/); for further
- information see the [sources and authorship]({{ site.baseurl
- }}/Sources/) page.*
+Bolstad](https://www.uwlax.edu/profile/jbolstad/), [Milo
+Velimirovich](https://www.uwlax.edu/profile/mvelimirovic/), [Kenny
+Hunt](https://charity.cs.uwlax.edu/#/) and Steven Senger; for further
+information see the [sources and authorship]({{ site.baseurl
+}}/Sources/) page.*
