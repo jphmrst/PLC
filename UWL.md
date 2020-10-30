@@ -106,7 +106,9 @@ page for loading the Course Pack libraries from Agda.
 
 Use SSH to connect to lab Macs.  The IP addresses of the lab iMacs are
 from 138.49.29.209 to 138.49.29.232 --- change the last number within
-that range, while leaving the first three numbers the same.
+that range, while leaving the first three numbers the same.  These
+machines are behind the UWL firewall, so make sure that you are logged
+in to the UWL VPN before trying to access them from off-campus.
 
 Note that sometimes lab machines crash, and that sometimes students
 will power a lab Mac down.  When this happens, you may need to try a
