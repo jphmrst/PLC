@@ -31,8 +31,6 @@ open import Data.Bool
 open import Data.Maybe
 open import Data.String
 open import plc.fp.Maps
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl)
 ```
 
 ## Properties of total maps

@@ -36,7 +36,6 @@ open import plc.vfp.DataRel using (_∈_; All; []; _∷_; Any; here; there)
 open _⇔_
 ```
 
-
 ## Conjunction
 
 Given two propositions `A` and `B`, the conjunction `A × B` holds
@@ -327,7 +326,7 @@ This is our first use of the _absurd pattern_ `()`.
 Here since `⊥` is a type with no members, we indicate that it is
 _never_ possible to match against a value of this type by using
 the pattern `()`.  Since we are claiming that the pattern never
-matches, we do not giv it a right-hand side.
+matches, we do not give it a right-hand side.
 
 The nullary case of `case-⊎` is `⊥-elim`.  By analogy,
 we might have called it `case-⊥`, but chose to stick with the name
@@ -608,7 +607,7 @@ both direction, where either proposition defines the other.
 
 We can use this logical equivalence to state and prove familiar laws
 such as the commutativity and associativity of various operators, the
-De Morgan laws, and the disributivity laws.  For example:
+De Morgan laws, and the distributivity laws.  For example:
 
 ```
 ×-comm : ∀ (A B : Set) → (A × B) ⇔ (B × A)
@@ -789,7 +788,7 @@ postulate ⊎-comm : ∀ (A B : Set) → A ⊎ B ⇔ B ⊎ A
 -- Remove the "postulate" keyword and add your proof code here
 ```
 
-#### Exercise `×-assoc` (starting) {#or-assoc}
+#### Exercise `×-assoc` (starting) {#prod-assoc}
 
 Show that `×` is associative under `⇔`:
 
