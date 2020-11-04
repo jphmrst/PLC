@@ -682,15 +682,6 @@ If so, prove; if not, explain why.
 -- Your code goes here
 ```
 
-#### Exercise `¬Any≃All¬` (stretch)
-
-Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
-You will need to use extensionality.
-
-```
--- Your code goes here
-```
-
 #### Exercise `All-∀` (practice)
 
 Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
@@ -707,75 +698,6 @@ Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
 ```
 -- You code goes here
 ```
-
-## Extensionality {#extensionality}
-
-Extensionality asserts that the only way to distinguish functions is
-by applying them; if two functions applied to the same argument always
-yield the same result, then they are the same function.
-
-Agda does not presume extensionality, but we can postulate that it holds:
-```
-postulate
-  extensionality : ∀ {A B : Set} {f g : A → B}
-    → (∀ (x : A) → f x ≡ g x)
-      -----------------------
-    → f ≡ g
-```
-Postulating extensionality does not lead to difficulties, as it is
-known to be consistent with the theory that underlies Agda.
-
-Note that the ∀-quantification in the first premise of
-`extensionality` is local: the scope of the `x` is only in that
-premise.  The evidence supplied for this premise is a function which
-maps any `x` of suitable type to the evidence that `f x` and `g x` are
-equal.
-
-As an example, consider that we need results from two libraries,
-one where addition is defined, as in
-Chapter [Naturals]({{ site.baseurl }}/Naturals/),
-and one where it is defined the other way around.
-```
-_+′_ : ℕ → ℕ → ℕ
-m +′ zero  = m
-m +′ suc n = suc (m +′ n)
-```
-Applying commutativity, it is easy to show that both operators always
-return the same result given the same arguments:
-```
-same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
-same-app m n rewrite +-comm m n = helper m n
-  where
-  helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
-  helper m zero    = refl
-  helper m (suc n) = cong suc (helper m n)
-```
-However, it might be convenient to assert that the two operators are
-actually indistinguishable. This we can do via two applications of
-extensionality:
-```
-same : _+′_ ≡ _+_
-same = extensionality (λ m → extensionality (λ n → same-app m n))
-```
-
-#### Exercise `extDouble` (starting) {#extDouble}
-
-Use extensionality to show that `λ x → x * x` and `2 *_` are equal.
-
-    _ : (λ x → x * x) ≡ (2 *_)
-    _ = -- Your proof code goes here
-
-#### Exercise `map-compose-ext` (practice)
-
-Use extensionality to prove a more minimal version of Exercise
-`map-compose` from the DataProps section:
-
-    map-compose : map (g ∘ f) ≡ (map g ∘ map f)
-
-```
--- Your code goes here
-```
-
 
 ## More exercises
 
@@ -1021,6 +943,74 @@ postulate
 Does the converse hold? If so, prove; if not, explain why.
 
 
+## Extensionality {#extensionality}
+
+Extensionality asserts that the only way to distinguish functions is
+by applying them; if two functions applied to the same argument always
+yield the same result, then they are the same function.
+
+Agda does not presume extensionality, but we can postulate that it holds:
+```
+postulate
+  extensionality : ∀ {A B : Set} {f g : A → B}
+    → (∀ (x : A) → f x ≡ g x)
+      -----------------------
+    → f ≡ g
+```
+Postulating extensionality does not lead to difficulties, as it is
+known to be consistent with the theory that underlies Agda.
+
+Note that the ∀-quantification in the first premise of
+`extensionality` is local: the scope of the `x` is only in that
+premise.  The evidence supplied for this premise is a function which
+maps any `x` of suitable type to the evidence that `f x` and `g x` are
+equal.
+
+As an example, consider that we need results from two libraries,
+one where addition is defined, as in
+Chapter [Naturals]({{ site.baseurl }}/Naturals/),
+and one where it is defined the other way around.
+```
+_+′_ : ℕ → ℕ → ℕ
+m +′ zero  = m
+m +′ suc n = suc (m +′ n)
+```
+Applying commutativity, it is easy to show that both operators always
+return the same result given the same arguments:
+```
+same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
+same-app m n rewrite +-comm m n = helper m n
+  where
+  helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
+  helper m zero    = refl
+  helper m (suc n) = cong suc (helper m n)
+```
+However, it might be convenient to assert that the two operators are
+actually indistinguishable. This we can do via two applications of
+extensionality:
+```
+same : _+′_ ≡ _+_
+same = extensionality (λ m → extensionality (λ n → same-app m n))
+```
+
+#### Exercise `extDouble` (starting) {#extDouble}
+
+Use extensionality to show that `λ x → x * x` and `2 *_` are equal.
+
+    _ : (λ x → x * x) ≡ (2 *_)
+    _ = -- Your proof code goes here
+
+#### Exercise `map-compose-ext` (practice)
+
+Use extensionality to prove a more minimal version of Exercise
+`map-compose` from the DataProps section:
+
+    map-compose : map (g ∘ f) ≡ (map g ∘ map f)
+
+```
+-- Your code goes here
+```
+
 #### Exercise `∀-×` (stretch)
 
 Recall the `Tri` datatype from the Conjunction section above.
@@ -1028,6 +1018,15 @@ Let `B` be a type indexed by `Tri`, that is `B : Tri → Set`.
 Show that `∀ (x : Tri) → B x` is isomorphic to `B aa × B bb × B cc`.
 Hint: you will need to postulate a version of extensionality that
 works for dependent functions.
+
+#### Exercise `¬Any≃All¬` (stretch)
+
+Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
+You will need to use extensionality.
+
+```
+-- Your code goes here
+```
 
 
 ## Existential quantification
