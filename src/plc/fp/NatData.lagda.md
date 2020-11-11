@@ -564,7 +564,7 @@ optionElim d (just n) = n
     _ : hdError (5 ∷ 6 ∷ []) ≡ just 5
     _ = refl
     
-## Partial Maps
+## Partial Maps {#partialMaps}
 
 As a final illustration of how data structures can be defined in Agda
 here is a simple *partial map* data type, analogous to the map or

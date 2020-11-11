@@ -639,6 +639,63 @@ equal to `n * (n ∸ 1) / 2`:
 
     sum (downFrom n) * 2 ≡ n * (n ∸ 1)
 
+## The `inspect` idiom {#inspect}
+
+We have occasionally used the `with` keyword to refine our pattern
+matching, such as in
+[the `find` function for partial maps]({{ site.baseurl }}/NatData/).
+One common difficulty in using a `with` clause for proofs is that
+Agda keeps no link between the expression in the `with` clause and
+the names or expressions associated with the results of evaluating it.
+We work around this problem by applying `with` to a datatype which
+returns the result value along with evidence
+that the expression and the value are related.
+The _design_ of this datatype uses advanced Agda techniques
+which we will not discuss in detail,
+but it is straightforward to _use_ this datatype in practice.
+
+```
+module Inspect where
+```
+
+Note that we are again naming these utilities inside a sub-module, so
+to use them later we would write
+
+    open import plc.vfp.DataProp as DP
+    open DP.Inspect
+
+The technical code behind `inspect` idiom is:
+
+```
+  data Inspection {a} {A : Set a} (x : A) : Set a where
+    resultEvidence : (y : A) → x ≡ y → Inspection x
+
+  inspect : ∀ {a} {A : Set a} (x : A) → Inspection x
+  inspect x = resultEvidence x refl
+  -- End of module Inspect
+```
+
+Consider this excerpt from the `find` function:
+
+    find key (entry k v pm) with key ≡idᵇ k
+    ...                        | true = ...
+    ...                        | false = ...
+
+If we needed evidence in the body of the first branch that
+`key ≡idᵇ k ≡ true`, or in the second branch that
+`key ≡idᵇ k ≡ false`, none is available.  However we can use `inspect`
+to capture that evidence for later use:
+
+    find key (entry k v pm) with inspect (key ≡idᵇ k)
+    ...                        | resultEvidence true kkIsT = ...
+    ...                        | resultEvidence false kkIsF = ...
+
+In the first branch, the value of `kkIsT` will be evidence for
+`key ≡idᵇ k ≡ true`; and in the second branch, the value of
+`kkIsF` will be evidence for `key ≡idᵇ k ≡ false`.
+
+We will apply this technique in the
+[MapProps]({{ site.baseurl }}/MapProps/) section.
 
 ## Standard Library
 
@@ -650,6 +707,11 @@ import Data.List.Properties
   using (reverse-++-commute; map-compose; map-++-commute; foldr-++)
   renaming (mapIsFold to map-is-foldr)
 ```
+
+A more complicated version of the inspect idiom is available in the
+`Relation.Binary.PropositionalEquality` standard library module.  In
+subsequent sections of these pages, we will continue to use the
+simpler module developed here.
 
 ## Unicode
 
@@ -670,6 +732,9 @@ This section uses the following Unicode symbols:
 
 ---
 
-*This page is derived from Wadler et al., with some exercises from
-Pierce et al., and some additional text by Maraist; for more information
-see the [sources and authorship]({{ site.baseurl }}/Sources/) page.*
+*This page is derived from Wadler et al.  The section on the inspect
+idiom is adapted from the [Agda
+manual](https://agda.readthedocs.io/en/v2.5.2/language/with-abstraction.html#the-inspect-idiom).
+Some exercises are from Pierce et al.; and some additional text is by
+Maraist.  For more information see the [sources and authorship]({{
+site.baseurl }}/Sources/) page.*
