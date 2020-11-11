@@ -31,9 +31,10 @@ open import Data.Bool
 open import Data.Maybe
 open import Data.String
 open import plc.fp.Maps
-open import plc.vfp.Logic
+import plc.vfp.Logic as LL
+open LL
+open LL.String
 import plc.vfp.DataProp as DP
-open DP.String
 open DP.Inspect
 ```
 
@@ -107,7 +108,7 @@ solution should look something like
       where point : (y : String) → (x ↦ v2 , x ↦ v1 , m) y ≡ (x ↦ v2 , m) y
 
 The conclusion of the lemma `(x ↦ v2 , x ↦ v1 , m) ≡ (x ↦ v2 , m)`
-relates two _functions_ — remember that `TotalMap` is just an
+relates two _functions_ — remember again that `TotalMap` is just an
 abbreviation for a particular function type.  Starting your solution
 like the two lines above introduces a helping result `point` which
 demonstrates the desired relationship at a particular name to which
