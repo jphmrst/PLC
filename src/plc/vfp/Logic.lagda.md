@@ -1312,6 +1312,56 @@ postulate
 Does the converse hold? If so, prove; if not, explain why.
 
 
+## Properties in the standard library {#strProps}
+
+The Agda standard library contains many pre-proven properties of the
+data structures it defines, although they can be tricky to access.
+The library has evolved a number of idioms which provide a framework
+for storing properties.  The idioms give a high degree of consistency,
+so that it is predictable where properties will be stored, and make
+extensive use of records to bundle properties together.  However, the
+structures can be daunting to approach for new Agda programmers.  This
+section identifies a number of useful properties of `String` values
+which will be useful in later sections.  To simplify this
+presentation, we will postulate the results rather than delve into the
+mechanics of Agda's more complicated proof features.
+
+```
+module String where
+  open import Data.String using (String; _==_)
+```
+
+Note that we are naming these results inside a sub-module, so to use
+these properties later we would write
+
+    open import plc.vfp.DataProp as LL
+    open LL.String
+
+We compare strings with the operator `_==_`.  It is useful to know
+that, as we would expect from any equality relationship, `_==_` forms
+an equivalence relation, that is, it is reflexive, symmetric and
+transitive:
+
+```
+  postulate ==-refl : ∀ {s : String} → (s == s) ≡ true
+  postulate ==-sym : ∀ {b : Bool} {s₁ s₂ : String}
+                       → (s₁ == s₂) ≡ b → (s₂ == s₁) ≡ b
+  postulate ==-trans : ∀ {s₁ s₂ s₃ : String}
+                         → (s₁ == s₂) ≡ true → (s₂ == s₃) ≡ true
+                           → (s₁ == s₃) ≡ true
+```
+
+It will also be useful to capture the links between the string
+comparison _function_ `==` and the equality formula `≡`:
+
+```
+  postulate ==-≡ : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ true → s₁ ≡ s₂
+  postulate ≡-== : ∀ {s₁ s₂ : String} → s₁ ≡ s₂ → (s₁ == s₂) ≡ true
+  postulate ==n≡ : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ false → s₁ ≢ s₂
+  postulate ≡n== : ∀ {s₁ s₂ : String} → s₁ ≢ s₂ → (s₁ == s₂) ≡ false
+  -- End of module String
+```
+
 ## Standard library
 
 Definitions similar to those in this section can be found in the standard

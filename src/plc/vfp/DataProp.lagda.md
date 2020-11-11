@@ -639,45 +639,6 @@ equal to `n * (n ∸ 1) / 2`:
 
     sum (downFrom n) * 2 ≡ n * (n ∸ 1)
 
-## Properties in the standard library {#strProps}
-
-The Agda standard library contains many pre-proven properties of the
-data structures it defines, although they can be tricky to access.
-The library has evolved a number of idioms which provide a framework
-for storing properties.  The idioms give a high degree of consistency,
-so that it is predictable where properties will be stored, and make
-extensive use of records to bundle properties together.  However, the
-structures can be daunting to approach for the first time.  This
-section identifies a number of useful properties of `String` values
-which will be useful in later sections.  To simplify this
-presentation, we will postulate the results rather than delve into the
-mechanics of Agda's more complicated proof features.
-
-```
-module String where
-  open import Data.String using (_==_)
-```
-
-Note that we are naming these results inside a sub-module, so to use
-these properties later we would write
-
-    open import plc.vfp.DataProp as DP
-    open DP.String
-
-We compare strings with the operator `_==_`.  It is useful to know
-that, as we would expect from any equality relationship, `_==_` forms
-an equivalence relation, that is, it is reflexive, symmetric and
-transitive:
-
-```
-  postulate ==-refl : ∀ {s : String} → (s == s) ≡ true
-  postulate ==-sym : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ (s₂ == s₁)
-  postulate ==-trans : ∀ {s₁ s₂ s₃ : String}
-                         → (s₁ == s₂) ≡ true → (s₂ == s₃) ≡ true
-                           → (s₁ == s₃) ≡ true
-  -- End of module String
-```
-
 ## The `inspect` idiom {#inspect}
 
 We have occasionally used the `with` keyword to refine our pattern

@@ -67,7 +67,7 @@ then look up `x` in the map resulting from the `update`, we get back
 
 ```
 postulate  tUpdateEq : ∀ {A : Set} (m : TotalMap A) x (v : A)
-                        → (x ↦ v , m) x ≡ v
+                         → (x ↦ v , m) x ≡ v
 -- Remove the keyword postulate, and fill in your proof here
 ```
     
@@ -79,7 +79,7 @@ same result that `m` would have given.
 
 ```
 postulate tUpdateNeq : ∀ {A : Set} (m : TotalMap A) x1 x2 v
-                         → ((x1 == x2) ≡ false)
+                         → (x1 ≢ x2)
                            → (x1 ↦ v , m) x2 ≡ m x2
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -98,26 +98,48 @@ postulate tUpdateShadow : ∀ {A : Set} (m : TotalMap A) x v1 v2
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
-Note that you will need to use both functional extensionality and the
-inspection idiom for this exercise.
+You will need to use both [functional extensionality]({{ site.baseurl
+}}/Logic/#extensionality) and the [inspection idiom]({{ site.baseurl
+}}/DataProp/#inspect) for this exercise.  The top-level of your
+solution should look something like
 
-{::comment}
--- #### Exercise `tUpdateShadow` (recommended)
+    tUpdateShadow m x v1 v2 = extensionality point
+      where point : (y : String) → (x ↦ v2 , x ↦ v1 , m) y ≡ (x ↦ v2 , m) y
 
--- For this and the next lemma, it is convenient to use the reflection
--- idioms introduced in chapter \CHAP{IndProp}.  We begin by proving a
--- fundamental _reflection lemma_ relating the equality proposition on
--- strings with the boolean function `eqb_string`.
+The conclusion of the lemma `(x ↦ v2 , x ↦ v1 , m) ≡ (x ↦ v2 , m)`
+relates two _functions_ — remember that `TotalMap` is just an
+abbreviation for a particular function type.  Starting your solution
+like the two lines above introduces a helping result `point` which
+demonstrates the desired relationship at a particular name to which
+the two maps can be applied.  Then since there are no restrictions on
+what names may be passed to `point`, extensionality allows that helper
+result to be lifted to the whole of the functions themselves.
 
--- postulate eqbStringP : ∀ (x y : String) → x ≡ y ⇔ x == y
--- -- Remove the keyword postulate, and fill in your proof here
--- 
--- Now, given `string`s `x1` and `x2`, we can use the tactic
---     `destruct (eqb_stringP x1 x2)` to simultaneously perform case
---     analysis on the result of `eqb_string x1 x2` and generate
---     hypotheses about the equality (in the sense of `=`) of `x1`
---     and `x2`. *)
-{:/comment}
+Inside of point, your reasoning will vary according to whether `x` and
+`y` are the same string, or more specifically, whether `x == y` is
+`true` or `false`.  The most natural way to divide up these cases is
+by using a `with` clause.  A first approach would extend the two lines
+above with something like this:
+
+    point y with x == y
+
+and then two cases, one for each of the possible outcomes.  However,
+starting in this way you would quickly see that simply knowing the
+value of `x == y` is not enough: you will also need to use _evidence_
+that `(x == y) ≡ true` or `(x == y) ≡ false` (you are encouraged to
+try the proof with this first `with` clause, to see how the evidence
+is insufficient).  Filling this gap is what the inspection idiom
+provides.  We can refine the `with` clause as
+
+    point y with inspect (x == y)
+
+to have both the value result, and the evidence of the relationship
+between the value result and `x == y`.
+
+You will need to set up a similar structure for some — but not all —
+of the exercises below.  Take the time to think about what makes these
+techniques necessary here, so that you can recognize those signs
+later.
 
 #### Exercise `tUpdateSame` (recommended)
 
@@ -136,9 +158,9 @@ matter in which order we do the updates.
 
 ```
 postulate tUpdatePermute : ∀ {A : Set} (m : TotalMap A) v1 v2 x1 x2
-                             → ((x2 == x1) ≡ false)
-                                → (x1 ↦ v1 , x2 ↦ v2 , m)
-                                    ≡ (x2 ↦ v2 , x1 ↦ v1 , m)
+                             → x1 ≢ x2
+                               → (x1 ↦ v1 , x2 ↦ v2 , m)
+                                 ≡ (x2 ↦ v2 , x1 ↦ v1 , m)
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
@@ -163,8 +185,8 @@ two update values are the same.
 
 ```
 postulate tSinglePoint≡Updates : ∀ {A : Set} (m1 m2 : TotalMap A) x v1 v2
-                                  → (m1 ≡ m2) → (v1 ≡ v2)
-                                    → (x ↦ v1 , m1) ≡ (x ↦ v2 , m2)
+                                   → (m1 ≡ m2) → (v1 ≡ v2)
+                                     → (x ↦ v1 , m1) ≡ (x ↦ v2 , m2)
 -- Remove the keyword postulate, and fill in your proof here
 ```
 
@@ -192,7 +214,7 @@ postulate updateEq : ∀ {A : Set} (m : PartialMap A) x v
 
 ```
 postulate updateNeq : ∀ {A : Set} (m : PartialMap A) x1 x2 v
-                        → ((x2 == x1) ≡ false)
+                        → x1 ≢ x2
                           → (x2 ↦ₚ v , m) x1 ≡ m x1
 -- Remove the keyword postulate, and fill in your proof here
 ```
@@ -218,7 +240,7 @@ postulate updateSame : ∀ {A : Set} (m : PartialMap A) x v
 
 ```
 postulate updatePermute : ∀ {A : Set} (m : PartialMap A) x1 x2 v1 v2
-                            → ((x2 == x1) ≡ false)
+                            → x1 ≢ x2
                               → (x1 ↦ₚ v1 , x2 ↦ₚ v2 , m)
                                   ≡ (x2 ↦ₚ v2 , x1 ↦ₚ v1 , m)
 -- Remove the keyword postulate, and fill in your proof here
