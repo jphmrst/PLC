@@ -639,6 +639,102 @@ equal to `n * (n ∸ 1) / 2`:
 
     sum (downFrom n) * 2 ≡ n * (n ∸ 1)
 
+## Properties in the standard library {#strProps}
+
+The Agda standard library contains many pre-proven properties of the
+data structures it defines, although they can be tricky to access.
+The library has evolved a number of idioms which provide a framework
+for storing properties.  The idioms give a high degree of consistency,
+so that it is predictable where properties will be stored, and make
+extensive use of records to bundle properties together.  However, the
+structures can be daunting to approach for the first time.  This
+section identifies a number of useful properties of `String` values
+which will be useful in later sections.  To simplify this
+presentation, we will postulate the results rather than delve into the
+mechanics of Agda's more complicated proof features.
+
+```
+module String where
+  open import Data.String using (_==_)
+```
+
+Note that we are naming these results inside a sub-module, so to use
+these properties later we would write
+
+    open import plc.vfp.DataProp as DP
+    open DP.String
+
+We compare strings with the operator `_==_`.  It is useful to know
+that, as we would expect from any equality relationship, `_==_` forms
+an equivalence relation, that is, it is reflexive, symmetric and
+transitive:
+
+```
+  postulate ==-refl : ∀ {s : String} → (s == s) ≡ true
+  postulate ==-sym : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ (s₂ == s₁)
+  postulate ==-trans : ∀ {s₁ s₂ s₃ : String}
+                         → (s₁ == s₂) ≡ true → (s₂ == s₃) ≡ true
+                           → (s₁ == s₃) ≡ true
+  -- End of module String
+```
+
+## The `inspect` idiom {#inspect}
+
+We have occasionally used the `with` keyword to refine our pattern
+matching, such as in
+[the `find` function for partial maps]({{ site.baseurl }}/NatData/).
+One common difficulty in using a `with` clause for proofs is that
+Agda keeps no link between the expression in the `with` clause and
+the names or expressions associated with the results of evaluating it.
+We work around this problem by applying `with` to a datatype which
+returns the result value along with evidence
+that the expression and the value are related.
+The _design_ of this datatype uses advanced Agda techniques
+which we will not discuss in detail,
+but it is straightforward to _use_ this datatype in practice.
+
+```
+module Inspect where
+```
+
+Note that we are again naming these utilities inside a sub-module, so
+to use them later we would write
+
+    open import plc.vfp.DataProp as DP
+    open DP.Inspect
+
+The technical code behind `inspect` idiom is:
+
+```
+  data Inspection {a} {A : Set a} (x : A) : Set a where
+    resultEvidence : (y : A) → x ≡ y → Inspection x
+
+  inspect : ∀ {a} {A : Set a} (x : A) → Inspection x
+  inspect x = resultEvidence x refl
+  -- End of module Inspect
+```
+
+Consider this excerpt from the `find` function:
+
+    find key (entry k v pm) with key ≡idᵇ k
+    ...                        | true = ...
+    ...                        | false = ...
+
+If we needed evidence in the body of the first branch that
+`key ≡idᵇ k ≡ true`, or in the second branch that
+`key ≡idᵇ k ≡ false`, none is available.  However we can use `inspect`
+to capture that evidence for later use:
+
+    find key (entry k v pm) with inspect (key ≡idᵇ k)
+    ...                        | resultEvidence true kkIsT = ...
+    ...                        | resultEvidence false kkIsF = ...
+
+In the first branch, the value of `kkIsT` will be evidence for
+`key ≡idᵇ k ≡ true`; and in the second branch, the value of
+`kkIsF` will be evidence for `key ≡idᵇ k ≡ false`.
+
+We will apply this technique in the
+[MapProps]({{ site.baseurl }}/MapProps/) section.
 
 ## Standard Library
 
