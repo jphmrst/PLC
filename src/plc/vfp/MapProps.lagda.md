@@ -101,8 +101,8 @@ postulate tUpdateShadow : ∀ {A : Set} (m : TotalMap A) x v1 v2
 
 You will need to use both [functional extensionality]({{ site.baseurl
 }}/Logic/#extensionality) and the [inspection idiom]({{ site.baseurl
-}}/DataProp/#inspect) for this exercise.  The top-level of your
-solution should look something like
+}}/DataProp/#inspect) for Exercise `tUpdateShadow`.  The top-level of
+your solution should look something like
 
     tUpdateShadow m x v1 v2 = extensionality point
       where point : (y : String) → (x ↦ v2 , x ↦ v1 , m) y ≡ (x ↦ v2 , m) y
