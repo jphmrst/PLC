@@ -978,13 +978,24 @@ m +′ suc n = suc (m +′ n)
 Applying commutativity, it is easy to show that both operators always
 return the same result given the same arguments:
 ```
+
 same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
-same-app m n rewrite +-comm m n = helper m n
-  where
-  helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
-  helper m zero    = refl
-  helper m (suc n) = cong suc (helper m n)
+same-app m n = begin
+                 m +′ n
+               ≡⟨ helper m n ⟩
+                 n + m
+               ≡⟨ +-comm n m ⟩
+                 m + n
+               ∎
+  where helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
+        helper m zero    = refl
+        helper m (suc n) = begin
+                             suc (m +′ n)
+                           ≡⟨ cong suc (helper m n) ⟩
+                             suc (n + m)
+                           ∎
 ```
+
 However, it might be convenient to assert that the two operators are
 actually indistinguishable. This we can do via two applications of
 extensionality:
@@ -999,6 +1010,15 @@ Use extensionality to show that `λ x → x * x` and `2 *_` are equal.
 
     _ : (λ x → x * x) ≡ (2 *_)
     _ = -- Your proof code goes here
+
+#### Exercise `halfAltPlus` (starting) {#halfAltPlus}
+
+What happens in the `_+_`/`_+′_` example if we apply `extensionality`
+only once?  Write a signature for these two definitions on paper
+first, before checking your result in Agda.
+
+    half1 n = extensionality (λ m → same-app m n)
+    half2 m = extensionality (λ n → same-app m n)
 
 #### Exercise `map-compose-ext` (practice)
 
@@ -1083,8 +1103,20 @@ notation for the case where the domain of the bound variable is left implicit:
 ∃-syntax = ∃
 syntax ∃-syntax (λ x → B) = ∃[ x ] B
 ```
-The special syntax is available only when the identifier `∃-syntax` is imported.
-We will tend to use this syntax, since it is shorter and more familiar.
+
+The special syntax is available only when the identifier `∃-syntax` is
+imported.  We will tend to use this syntax, since it is shorter and
+more familiar.  Note that there may be no space between the `∃` and
+`[`, and that we will usually need to parenthesize `B`.
+
+For example, we can show that there is a number whose successor is 2.
+The proof the witness, together with the evidence that when we replace
+`x` with the witness, the resulting formula holds.
+
+```
+_ : ∃[ x ] (suc (x) ≡ 2)
+_ = ⟨ 1 , refl ⟩
+```
 
 Given evidence that `∀ x → B x → C` holds, where `C` does not contain
 `x` as a free variable, and given evidence that `∃[ x ] B x` holds, we
@@ -1242,8 +1274,6 @@ desired result follows by `even-suc`.
 - In the odd case, we must show `1 + m * 2` is odd.  The inductive
 hypothesis tell us that `m * 2` is even, from which the desired result
 follows by `odd-suc`.
-
-This completes the proof in the backward direction.
 
 #### Exercise `∃-even-odd` (practice)
 

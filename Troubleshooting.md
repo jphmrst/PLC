@@ -89,12 +89,40 @@ understand whether the situation (as opposed to just the error) you
 find is really the same as your situation, and make sure that they are
 applicable to the same platform/version as you are running.
 
+<<<<<<< HEAD
 You probably know that, like most faculty, I take plagiarism very
 seriously.  However, there is a world of difference between getting
 outside help to *install tools*, and getting help to avoid learning
 the course material.  This is not a class in installing software!  It
 is fine to get help either online or from your colleagues to install
 and configure the basic tools we will use.
+=======
+## Failures installing the Agda core system
+
+### Stack fails to install the `zlib` (or other) library when installing Agda
+
+Try installing the library from the normal installer for your system
+(for example, `apt` on Debian or Ubuntu), before running `stack`.
+
+### Stack reports that the file `user-manual.pdf` cannot be located
+
+Remove the line containing `doc/user-manual.pdf` from the `Agda.cabal`
+file in the `agda` directory which you cloned via Git.
+
+### Stack reports an invalid byte sequence in a program called `happy.exe`
+
+If you see an error message like this one
+
+    happy.exe: src/Language/JavaScript/Parser/Grammar7.y: hGetContents: invalid argument (invalid byte sequence)
+
+(possibly with a different file), then try setting the locale of your
+machine to US English with the UTF-8 character set.  For example, on
+Debian/Ubuntu linux, you would use
+
+    apt-get install -y locales locales-all
+    update-locale LANG=en_US.utf8
+    LANG="en_US.utf8"
+>>>>>>> 9d1b8ddf0091a3cf6b64b2fb94ae1fb39a3184de
 
 ## Problems installing the standard libraries {#stdlib}
 
