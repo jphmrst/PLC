@@ -402,7 +402,7 @@ function each using a specific given example.
 {::options parse_block_html="true" /}
 <div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
 
-### Remember! {boolean-summary}
+### Remember! {#boolean-summary}
 
 Agda uses different symbols for boolean operators than what many other
 languages use.  They use Unicode symbols, and are traditional symbols
