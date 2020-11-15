@@ -1294,7 +1294,7 @@ Show that `y ≤ z` holds if and only if there exists a `x` such that
 -- Your code goes here
 ```
 
-## Existentials, Universals, and Negation
+## Existentials, universals, and negation
 
 Negation of an existential is isomorphic to the universal
 of a negation.  Considering that existentials are generalised
@@ -1341,6 +1341,31 @@ postulate
 ```
 Does the converse hold? If so, prove; if not, explain why.
 
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Summary: Formulas and their evidence
+
+Each of the formulas we have seen requires particular forms of
+evidence to serve as their proofs.  Agda will reject a proof that uses
+the wrong form of evidence, for example using `refl` for a
+conjunction.
+
+| Main connective | Evidence |
+|:----------:|:------|
+| Equality `≡`    | `refl` <br/> `begin⋯∎` |
+| A relation defined in our program | Use that relation's constructors |
+| Conjunction `×` | A pair `⟨_,_⟩` with evidence for both conjuncts |
+| Disjunction `⊎` | Use `inj₁` or `inj₂` to wtap evidence of one disjunct |
+| False `⊥`      | None |
+| Unit `⊤`        | `tt` |
+| Negation `¬`    | A function mapping evidence of the negated formula to evidence for `⊥` |
+| Implication `→` | A function mapping evidence of the premise to evidence of the conclusion ` |
+| Logical equivelence `⇔` | A record with fields `to` and `from` |
+| Universal quantification `∀` | Quantified variable becomes a (possibly implicit) parameter |
+| Existential quantification `∃` | A pair `⟨_,_⟩` of the witness and a function |
+
+</div>
 
 ## Properties in the standard library {#strProps}
 
