@@ -385,7 +385,6 @@ proof of associativity.
       ∎
 ```
 
-
 ## Terminology and notation
 
 The symbol `∀` appears in the statement of associativity to indicate that
@@ -865,6 +864,68 @@ Use Emacs to find the error in this Agda proof:
 What expression does Agda highlight as the source of the error?  What
 type does it expect for the expression, and wha does it find?
 
+{::options parse_block_html="true" /}
+<div style="background-color: #fffff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Debugging tip: fix a smaller chain of qualities {#debugsmall}
+
+Let's say that you want to prove that M1 ≡ Mn, and that you have
+written a long proof
+
+    begin
+      M1
+    ≡⟨⟩
+      M2
+    ≡⟨⟩
+      ...
+    ≡⟨⟩
+      M{n-1}
+    ≡⟨⟩
+      Mn
+    ∎
+
+but you have an error and are not sure where it is. (Some of the ≡⟨⟩'s
+could be ≡⟨ evidence ⟩'s — this tip applies either way either way)
+It's always a good idea to choose to debug less at a time instead of
+more, to get one part compiling before moving on to the next.  But how
+do you pare down a block like this one?
+
+You can't really pare it down if you are rushing to prove all of M1 ≡
+Mn at once — but you can instead try to prove that M1 is equal to
+something earlier in the chain. You could try first
+
+    _ : M1 ≡ M2
+    _ = begin
+          M1
+        ≡⟨⟩
+          M2
+        ∎
+
+Note that we are not simply chopping off the bottom of the proof!  We
+have also changed what we are saying that M1 is equal to: M2 instead
+of Mn.
+
+Does this first step of the proof work? if not, you now have a much
+smaller thing to debug, with less to distract you from the error. If
+so, then you can move on to M3,
+
+    _ : M1 ≡ M3
+    _ = begin
+          M1
+        ≡⟨⟩
+          M2
+        ≡⟨⟩
+          M3
+        ∎
+
+And so one, until you work out all the bugs on the way to Mn — or
+decide to reconsider your original idea for how to get to Mn.  Debug
+one step at a time, verifying that each step in the chain works,
+before moving on to the next step.
+
+</div>
+
+
 ## Creation, one last time
 
 Returning to the proof of associativity, it may be helpful to view the inductive
@@ -1085,7 +1146,11 @@ move on to the next hole.  There is a
 to Agda mode with a summary of Emacs key bindings in the online
 Agda documentation.
 
-#### General hint: aim for the induction hypothesis {#useTheIH}
+
+{::options parse_block_html="true" /}
+<div style="background-color: #fffff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### General hint: aim for the induction hypothesis {#useTheIH}
 
 As a general rule, the key step in the inductive case of a proof is
 the use of the induction hypothesis.  In `+-assoc`, the induction
@@ -1107,6 +1172,9 @@ instances tend not to be simpler.  When your search for a proof
 instead seems to go down a rabbit hole of more and more complicated
 lemmas, each depending on the next, one strategy is to re-focus on
 finding the inductive case in the original result.
+
+</div>
+
 
 #### Exercise `+-swap` (recommended) {#plus-swap}
 

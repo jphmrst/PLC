@@ -28,7 +28,7 @@ open Eq using (_≡_; refl; cong)
 open Eq.≡-Reasoning
 open import Data.Bool
 open import Data.List
-open import Data.Nat using (ℕ; zero; suc; _+_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Function using (_∘_)
 open import plc.vfp.Induction using (+-comm)
 open import plc.vfp.Relations using (_≃_; _⇔_)
@@ -36,8 +36,7 @@ open import plc.vfp.DataRel using (_∈_; All; []; _∷_; Any; here; there)
 open _⇔_
 ```
 
-
-## Conjunction
+## Conjunction {#conj}
 
 Given two propositions `A` and `B`, the conjunction `A × B` holds
 if both `A` holds and `B` holds.  We formalise this idea by
@@ -327,7 +326,7 @@ This is our first use of the _absurd pattern_ `()`.
 Here since `⊥` is a type with no members, we indicate that it is
 _never_ possible to match against a value of this type by using
 the pattern `()`.  Since we are claiming that the pattern never
-matches, we do not giv it a right-hand side.
+matches, we do not give it a right-hand side.
 
 The nullary case of `case-⊎` is `⊥-elim`.  By analogy,
 we might have called it `case-⊥`, but chose to stick with the name
@@ -608,7 +607,7 @@ both direction, where either proposition defines the other.
 
 We can use this logical equivalence to state and prove familiar laws
 such as the commutativity and associativity of various operators, the
-De Morgan laws, and the disributivity laws.  For example:
+De Morgan laws, and the distributivity laws.  For example:
 
 ```
 ×-comm : ∀ (A B : Set) → (A × B) ⇔ (B × A)
@@ -683,15 +682,6 @@ If so, prove; if not, explain why.
 -- Your code goes here
 ```
 
-#### Exercise `¬Any≃All¬` (stretch)
-
-Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
-You will need to use extensionality.
-
-```
--- Your code goes here
-```
-
 #### Exercise `All-∀` (practice)
 
 Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
@@ -709,75 +699,6 @@ Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
 -- You code goes here
 ```
 
-## Extensionality {#extensionality}
-
-Extensionality asserts that the only way to distinguish functions is
-by applying them; if two functions applied to the same argument always
-yield the same result, then they are the same function.
-
-Agda does not presume extensionality, but we can postulate that it holds:
-```
-postulate
-  extensionality : ∀ {A B : Set} {f g : A → B}
-    → (∀ (x : A) → f x ≡ g x)
-      -----------------------
-    → f ≡ g
-```
-Postulating extensionality does not lead to difficulties, as it is
-known to be consistent with the theory that underlies Agda.
-
-Note that the ∀-quantification in the first premise of
-`extensionality` is local: the scope of the `x` is only in that
-premise.  The evidence supplied for this premise is a function which
-maps any `x` of suitable type to the evidence that `f x` and `g x` are
-equal.
-
-As an example, consider that we need results from two libraries,
-one where addition is defined, as in
-Chapter [Naturals]({{ site.baseurl }}/Naturals/),
-and one where it is defined the other way around.
-```
-_+′_ : ℕ → ℕ → ℕ
-m +′ zero  = m
-m +′ suc n = suc (m +′ n)
-```
-Applying commutativity, it is easy to show that both operators always
-return the same result given the same arguments:
-```
-same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
-same-app m n rewrite +-comm m n = helper m n
-  where
-  helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
-  helper m zero    = refl
-  helper m (suc n) = cong suc (helper m n)
-```
-However, it might be convenient to assert that the two operators are
-actually indistinguishable. This we can do via two applications of
-extensionality:
-```
-same : _+′_ ≡ _+_
-same = extensionality (λ m → extensionality (λ n → same-app m n))
-```
-
-#### Exercise `extDouble` (starting) {#extDouble}
-
-Use extensionality to show that `λ x → x * x` and `2 *_` are equal.
-
-    _ : (λ x → x * x) ≡ (2 *_)
-    _ = -- Your proof code goes here
-
-#### Exercise `map-compose-ext` (practice)
-
-Use extensionality to prove a more minimal version of Exercise
-`map-compose` from the DataProps section:
-
-    map-compose : map (g ∘ f) ≡ (map g ∘ map f)
-
-```
--- Your code goes here
-```
-
-
 ## More exercises
 
 #### Exercise `⊎-comm` (starting) {#or-comm}
@@ -789,7 +710,7 @@ postulate ⊎-comm : ∀ (A B : Set) → A ⊎ B ⇔ B ⊎ A
 -- Remove the "postulate" keyword and add your proof code here
 ```
 
-#### Exercise `×-assoc` (starting) {#or-assoc}
+#### Exercise `×-assoc` (starting) {#prod-assoc}
 
 Show that `×` is associative under `⇔`:
 
@@ -936,12 +857,573 @@ of two stable formulas is stable.
 -- Your code goes here
 ```
 
+## Universal quantification
+
+_Quantifiers_ are structures in the language of formulas which define
+a scope for a name.  The name is available for use within that scope,
+but is not available outside of that scope.
+
+We have made very frequent use already of one quantifier: universal
+quantification `∀`.  The quantifier is pronounced "for all," and means
+exactly what we pronounce.  In a formula `∀ (x: A) → B`, the name `x`
+may occur within `B`.  If this quantification holds, then the formula
+we obtain by replacing `x` in `B` with any elements of `A` will also
+hold.  Like the evidence for an implication, evidence for the
+quantification is a function.  Given evidence for `A`, a function
+serving as evidence for `∀ (x: A) → B` produces evidence for `B`.
+
+Despite our frequent use of universals, so far we have really only
+used them in one way: at the very top level of a signature,
+
+    name : ∀ (binding₁) (binding₂) ... (bindingₙ) → ...
+
+In fact, we can use universals _anywhere_ in a formula that we could
+use any other formula.  For example, we could prove
+
+    ∀ {A : Set} {B : A → Set}
+      → (∀ (x : A) → B x)
+      → (M : A)
+        ----------------------
+      → B M
+
+There is a top-level universal as usual, but notice that there is a
+second universal inside the first premise.  The scope of the name `x`
+is restricted to that premise, from the right side of the quantifier's
+arrow, to the closing parenthesis on that line:
+
+    ∀ (x : A) → B x
+
+It would be meaningless to, for example, declare `M : x` instead of `M
+: A` — the name `x` is simply not visible from that line.
+
+The formula above serves as an elimination rule for `∀`, telling us
+how we can use a formula headed by a universal to conclude evidence
+for another formula:
+
+```
+∀-elim : ∀ {A : Set} {B : A → Set}
+  → (∀ (x : A) → B x)
+  → (M : A)
+    -----------------
+  → B M
+```
+
+`B` is a predicate which takes a single argument of type `A`, and
+returns a formula.  The evidence provided for the first premise `∀ (x
+: A) → B x` will be a function which takes evidence for `A` named `x`,
+and returns evidence for the formula obtained by passing `x` to `B`.
+Since the second premise of `∀-elim` is `A` has evidence `M`, we can
+simply pass its evidence to that function to obtain evidence of `B M`.
+
+```
+∀-elim L M = L M
+```
+
+
+#### Exercise `∀-distrib-×` (recommended)
+
+Show that universals distribute over conjunction:
+```
+postulate
+  ∀-distrib-× : ∀ {A : Set} {B C : A → Set} →
+    (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
+```
+Compare this with the result (`→-distrib-×`) in
+the [Connectives]({{ site.baseurl }}/LogicRedux/) section.
+
+
+#### Exercise `⊎∀-implies-∀⊎` (practice)
+
+Show that a disjunction of universals implies a universal of disjunctions:
+```
+postulate
+  ⊎∀-implies-∀⊎ : ∀ {A : Set} {B C : A → Set} →
+    (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x)  →  ∀ (x : A) → B x ⊎ C x
+```
+Does the converse hold? If so, prove; if not, explain why.
+
+
+## Extensionality {#extensionality}
+
+Extensionality asserts that the only way to distinguish functions is
+by applying them; if two functions applied to the same argument always
+yield the same result, then they are the same function.
+
+Agda does not presume extensionality, but we can postulate that it holds:
+```
+postulate
+  extensionality : ∀ {A B : Set} {f g : A → B}
+    → (∀ (x : A) → f x ≡ g x)
+      -----------------------
+    → f ≡ g
+```
+Postulating extensionality does not lead to difficulties, as it is
+known to be consistent with the theory that underlies Agda.
+
+Note that the ∀-quantification in the first premise of
+`extensionality` is local: the scope of the `x` is only in that
+premise.  The evidence supplied for this premise is a function which
+maps any `x` of suitable type to the evidence that `f x` and `g x` are
+equal.
+
+As an example, consider that we need results from two libraries,
+one where addition is defined, as in
+Chapter [Naturals]({{ site.baseurl }}/Naturals/),
+and one where it is defined the other way around.
+```
+_+′_ : ℕ → ℕ → ℕ
+m +′ zero  = m
+m +′ suc n = suc (m +′ n)
+```
+Applying commutativity, it is easy to show that both operators always
+return the same result given the same arguments:
+```
+
+same-app : ∀ (m n : ℕ) → m +′ n ≡ m + n
+same-app m n = begin
+                 m +′ n
+               ≡⟨ helper m n ⟩
+                 n + m
+               ≡⟨ +-comm n m ⟩
+                 m + n
+               ∎
+  where helper : ∀ (m n : ℕ) → m +′ n ≡ n + m
+        helper m zero    = refl
+        helper m (suc n) = begin
+                             suc (m +′ n)
+                           ≡⟨ cong suc (helper m n) ⟩
+                             suc (n + m)
+                           ∎
+```
+
+However, it might be convenient to assert that the two operators are
+actually indistinguishable. This we can do via two applications of
+extensionality:
+```
+same : _+′_ ≡ _+_
+same = extensionality (λ m → extensionality (λ n → same-app m n))
+```
+
+#### Exercise `extDouble` (starting) {#extDouble}
+
+Use extensionality to show that `λ x → x * x` and `2 *_` are equal.
+
+    _ : (λ x → x * x) ≡ (2 *_)
+    _ = -- Your proof code goes here
+
+#### Exercise `halfAltPlus` (starting) {#halfAltPlus}
+
+What happens in the `_+_`/`_+′_` example if we apply `extensionality`
+only once?  Write a signature for these two definitions on paper
+first, before checking your result in Agda.
+
+    half1 n = extensionality (λ m → same-app m n)
+    half2 m = extensionality (λ n → same-app m n)
+
+#### Exercise `map-compose-ext` (practice)
+
+Use extensionality to prove a more minimal version of Exercise
+`map-compose` from the DataProps section:
+
+    map-compose : map (g ∘ f) ≡ (map g ∘ map f)
+
+```
+-- Your code goes here
+```
+
+#### Exercise `∀-×` (stretch)
+
+Recall the `Tri` datatype from the Conjunction section above.
+Let `B` be a type indexed by `Tri`, that is `B : Tri → Set`.
+Show that `∀ (x : Tri) → B x` is isomorphic to `B aa × B bb × B cc`.
+Hint: you will need to postulate a version of extensionality that
+works for dependent functions.
+
+#### Exercise `¬Any≃All¬` (stretch)
+
+Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
+You will need to use extensionality.
+
+```
+-- Your code goes here
+```
+
+
+## Existential quantification
+
+Existentials are less common and more subtle than universals.  Rather
+than requiring that the body hold for _all_ values of the quantified
+variable, we require evidence that the body holds for _at least one_
+value of the quantified variable.  What is the form of such evidence?
+For one thing, we must identify the value which satisfies the body.
+This value is called a _witness_.  Along with the witness, we must
+provide evidence for the version of the formula using the witness.  So
+the evidence for an existential is a pair.
+
+Given a variable `x` of type `A` and a proposition `B x` which
+contains `x` as a free variable, the existentially quantified
+proposition `Σ[ x ∈ A ] B x` holds if for some term `M` of type
+`A` the proposition `B M` holds.  Here `B M` stands for
+the proposition `B x` with each free occurrence of `x` replaced by
+`M`.  Variable `x` appears free in `B x` but bound in
+`Σ[ x ∈ A ] B x`.
+
+To formalize this idea, we begin with the inductive type:
+
+```
+data Σ (A : Set) (B : A → Set) : Set where
+  ⟨_,_⟩ : (x : A) → B x → Σ A B
+```
+
+We define a convenient syntax for existentials as follows:
+
+```
+Σ-syntax = Σ
+infix 2 Σ-syntax
+syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
+```
+
+This is our first use of a `syntax` declaration, which specifies that
+the term on the left may be written with the syntax on the right.  The
+special syntax is available only when the identifier `Σ-syntax` is
+imported.  Agda will apply the rewriting associated with this
+declaration before it checks the scope of names: after rewriting
+according to `syntax`, `B` becomes the body of a lambda expression
+whose parameter is `x`.  So this means that in the expression `Σ[ x ∈
+A ] B`, we can use `x` in `B` — the rewriting will bring the uses of
+`x` in `B` into the scope of `x`.
+
+A common notation for existentials is `∃` (analogous to `∀` for universals).
+We follow the convention of the Agda standard library, and reserve this
+notation for the case where the domain of the bound variable is left implicit:
+```
+∃ : ∀ {A : Set} (B : A → Set) → Set
+∃ {A} B = Σ A B
+
+∃-syntax = ∃
+syntax ∃-syntax (λ x → B) = ∃[ x ] B
+```
+
+The special syntax is available only when the identifier `∃-syntax` is
+imported.  We will tend to use this syntax, since it is shorter and
+more familiar.  Note that there may be no space between the `∃` and
+`[`, and that we will usually need to parenthesize `B`.
+
+For example, we can show that there is a number whose successor is 2.
+The proof the witness, together with the evidence that when we replace
+`x` with the witness, the resulting formula holds.
+
+```
+_ : ∃[ x ] (suc (x) ≡ 2)
+_ = ⟨ 1 , refl ⟩
+```
+
+Given evidence that `∀ x → B x → C` holds, where `C` does not contain
+`x` as a free variable, and given evidence that `∃[ x ] B x` holds, we
+may conclude that `C` holds:
+```
+∃-elim : ∀ {A : Set} {B : A → Set} {C : Set}
+  → (∀ x → B x → C)
+  → ∃[ x ] B x
+    ---------------
+  → C
+∃-elim f ⟨ x , y ⟩ = f x y
+```
+In other words, if we know for every `x` of type `A` that `B x`
+implies `C`, and we know for some `x` of type `A` that `B x` holds,
+then we may conclude that `C` holds.  This is because we may
+instantiate that proof that `∀ x → B x → C` to any value `x` of type
+`A` and any `y` of type `B x`, and exactly such values are provided by
+the evidence for `∃[ x ] B x`.
+
+Indeed, the converse also holds, and the two together form an isomorphism:
+```
+∀∃-currying : ∀ {A : Set} {B : A → Set} {C : Set}
+  → (∀ x → B x → C) ≃ (∃[ x ] B x → C)
+∀∃-currying =
+  record
+    { to      =  λ{ f → λ{ ⟨ x , y ⟩ → f x y }}
+    ; from    =  λ{ g → λ{ x → λ{ y → g ⟨ x , y ⟩ }}}
+    ; from∘to =  λ{ f → refl }
+    ; to∘from =  λ{ g → extensionality λ{ ⟨ x , y ⟩ → refl }}
+    }
+```
+The result can be viewed as a generalisation of currying.  Indeed, the code to
+establish the isomorphism is identical to what we wrote when discussing
+[implication]({{ site.baseurl }}/LogicRedux/#implication).
+
+#### Exercise `∃-distrib-⊎` (recommended)
+
+Show that existentials distribute over disjunction:
+```
+postulate
+  ∃-distrib-⊎ : ∀ {A : Set} {B C : A → Set} →
+    ∃[ x ] (B x ⊎ C x) ≃ (∃[ x ] B x) ⊎ (∃[ x ] C x)
+```
+
+#### Exercise `∃×-implies-×∃` (practice)
+
+Show that an existential of conjunctions implies a conjunction of existentials:
+```
+postulate
+  ∃×-implies-×∃ : ∀ {A : Set} {B C : A → Set} →
+    ∃[ x ] (B x × C x) → (∃[ x ] B x) × (∃[ x ] C x)
+```
+Does the converse hold? If so, prove; if not, explain why.
+
+#### Exercise `∃-⊎` (practice)
+
+Let `Tri` and `B` be as in Exercise `∀-×`.
+Show that `∃[ x ] B x` is isomorphic to `B aa ⊎ B bb ⊎ B cc`.
+
+## An existential example
+
+Recall the definitions of `even` and `odd` from
+the [Relations]({{ site.baseurl }}/Relations/) section:
+```
+data even : ℕ → Set
+data odd  : ℕ → Set
+
+data even where
+
+  even-zero : even zero
+
+  even-suc : ∀ {n : ℕ}
+    → odd n
+      ------------
+    → even (suc n)
+
+data odd where
+  odd-suc : ∀ {n : ℕ}
+    → even n
+      -----------
+    → odd (suc n)
+```
+A number is even if it is zero or the successor of an odd number, and
+odd if it is the successor of an even number.
+
+We will show that a number is even if and only if it is twice some
+other number, and odd if and only if it is one more than twice
+some other number.  In other words, we will show:
+
+`even n`   iff   `∃[ m ] (    m * 2 ≡ n)`
+
+`odd  n`   iff   `∃[ m ] (1 + m * 2 ≡ n)`
+
+By convention, one tends to write constant factors first and to put
+the constant term in a sum last. Here we've reversed each of those
+conventions, because doing so eases the proof.
+
+Here is the proof in the forward direction:
+```
+even-∃ : ∀ {n : ℕ} → even n → ∃[ m ] (    m * 2 ≡ n)
+odd-∃  : ∀ {n : ℕ} →  odd n → ∃[ m ] (1 + m * 2 ≡ n)
+
+even-∃ even-zero                       =  ⟨ zero , refl ⟩
+even-∃ (even-suc o) with odd-∃ o
+...                    | ⟨ m , refl ⟩  =  ⟨ suc m , refl ⟩
+
+odd-∃  (odd-suc e)  with even-∃ e
+...                    | ⟨ m , refl ⟩  =  ⟨ m , refl ⟩
+```
+We define two mutually recursive functions. Given
+evidence that `n` is even or odd, we return a
+number `m` and evidence that `m * 2 ≡ n` or `1 + m * 2 ≡ n`.
+We induct over the evidence that `n` is even or odd:
+
+* If the number is even because it is zero, then we return a pair
+consisting of zero and the evidence that twice zero is zero.
+
+* If the number is even because it is one more than an odd number,
+then we apply the induction hypothesis to give a number `m` and
+evidence that `1 + m * 2 ≡ n`. We return a pair consisting of `suc m`
+and evidence that `suc m * 2 ≡ suc n`, which is immediate after
+substituting for `n`.
+
+* If the number is odd because it is the successor of an even number,
+then we apply the induction hypothesis to give a number `m` and
+evidence that `m * 2 ≡ n`. We return a pair consisting of `suc m` and
+evidence that `1 + m * 2 ≡ suc n`, which is immediate after
+substituting for `n`.
+
+This completes the proof in the forward direction.
+
+Here is the proof in the reverse direction:
+```
+∃-even : ∀ {n : ℕ} → ∃[ m ] (    m * 2 ≡ n) → even n
+∃-odd  : ∀ {n : ℕ} → ∃[ m ] (1 + m * 2 ≡ n) →  odd n
+
+∃-even ⟨  zero , refl ⟩  =  even-zero
+∃-even ⟨ suc m , refl ⟩  =  even-suc (∃-odd ⟨ m , refl ⟩)
+
+∃-odd  ⟨     m , refl ⟩  =  odd-suc (∃-even ⟨ m , refl ⟩)
+```
+Given a number that is twice some other number we must show it is
+even, and a number that is one more than twice some other number we
+must show it is odd.  We induct over the evidence of the existential,
+and in the even case consider the two possibilities for the number
+that is doubled:
+
+- In the even case for `zero`, we must show `zero * 2` is even, which
+follows by `even-zero`.
+
+- In the even case for `suc n`, we must show `suc m * 2` is even.  The
+inductive hypothesis tells us that `1 + m * 2` is odd, from which the
+desired result follows by `even-suc`.
+
+- In the odd case, we must show `1 + m * 2` is odd.  The inductive
+hypothesis tell us that `m * 2` is even, from which the desired result
+follows by `odd-suc`.
+
+#### Exercise `∃-even-odd` (practice)
+
+How do the proofs become more difficult if we replace `m * 2` and `1 + m * 2`
+by `2 * m` and `2 * m + 1`?  Rewrite the proofs of `∃-even` and `∃-odd` when
+restated in this way.
+
+```
+-- Your code goes here
+```
+
+#### Exercise `∃-+-≤` (practice)
+
+Show that `y ≤ z` holds if and only if there exists a `x` such that
+`x + y ≡ z`.
+
+```
+-- Your code goes here
+```
+
+## Existentials, universals, and negation
+
+Negation of an existential is isomorphic to the universal
+of a negation.  Considering that existentials are generalised
+disjunction and universals are generalised conjunction, this
+result is analogous to the one which tells us that negation
+of a disjunction is isomorphic to a conjunction of negations:
+```
+¬∃≃∀¬ : ∀ {A : Set} {B : A → Set}
+  → (¬ ∃[ x ] B x) ≃ ∀ x → ¬ B x
+¬∃≃∀¬ =
+  record
+    { to      =  λ{ ¬∃xy x y → ¬∃xy ⟨ x , y ⟩ }
+    ; from    =  λ{ ∀¬xy ⟨ x , y ⟩ → ∀¬xy x y }
+    ; from∘to =  λ{ ¬∃xy → extensionality λ{ ⟨ x , y ⟩ → refl } }
+    ; to∘from =  λ{ ∀¬xy → refl }
+    }
+```
+In the `to` direction, we are given a value `¬∃xy` of type
+`¬ ∃[ x ] B x`, and need to show that given a value
+`x` that `¬ B x` follows, in other words, from
+a value `y` of type `B x` we can derive false.  Combining
+`x` and `y` gives us a value `⟨ x , y ⟩` of type `∃[ x ] B x`,
+and applying `¬∃xy` to that yields a contradiction.
+
+In the `from` direction, we are given a value `∀¬xy` of type
+`∀ x → ¬ B x`, and need to show that from a value `⟨ x , y ⟩`
+of type `∃[ x ] B x` we can derive false.  Applying `∀¬xy`
+to `x` gives a value of type `¬ B x`, and applying that to `y` yields
+a contradiction.
+
+The two inverse proofs are straightforward, where one direction
+requires extensionality.
+
+
+#### Exercise `∃¬-implies-¬∀` (recommended)
+
+Show that existential of a negation implies negation of a universal:
+```
+postulate
+  ∃¬-implies-¬∀ : ∀ {A : Set} {B : A → Set}
+    → ∃[ x ] (¬ B x)
+      --------------
+    → ¬ (∀ x → B x)
+```
+Does the converse hold? If so, prove; if not, explain why.
+
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Summary: Formulas and their evidence
+
+Each of the formulas we have seen requires particular forms of
+evidence to serve as their proofs.  Agda will reject a proof that uses
+the wrong form of evidence, for example using `refl` for a
+conjunction.
+
+| Main connective | Evidence |
+|:----------:|:------|
+| Equality `≡`    | `refl` <br/> `begin⋯∎` |
+| A relation defined in our program | Use that relation's constructors |
+| Conjunction `×` | A pair `⟨_,_⟩` with evidence for both conjuncts |
+| Disjunction `⊎` | Use `inj₁` or `inj₂` to wtap evidence of one disjunct |
+| False `⊥`      | None |
+| Unit `⊤`        | `tt` |
+| Negation `¬`    | A function mapping evidence of the negated formula to evidence for `⊥` |
+| Implication `→` | A function mapping evidence of the premise to evidence of the conclusion ` |
+| Logical equivelence `⇔` | A record with fields `to` and `from` |
+| Universal quantification `∀` | Quantified variable becomes a (possibly implicit) parameter |
+| Existential quantification `∃` | A pair `⟨_,_⟩` of the witness and a function |
+
+</div>
+
+## Properties in the standard library {#strProps}
+
+The Agda standard library contains many pre-proven properties of the
+data structures it defines, although they can be tricky to access.
+The library has evolved a number of idioms which provide a framework
+for storing properties.  The idioms give a high degree of consistency,
+so that it is predictable where properties will be stored, and make
+extensive use of records to bundle properties together.  However, the
+structures can be daunting to approach for new Agda programmers.  This
+section identifies a number of useful properties of `String` values
+which will be useful in later sections.  To simplify this
+presentation, we will postulate the results rather than delve into the
+mechanics of Agda's more complicated proof features.
+
+```
+module String where
+  open import Data.String using (String; _==_)
+```
+
+Note that we are naming these results inside a sub-module, so to use
+these properties later we would write
+
+    open import plc.vfp.DataProp as LL
+    open LL.String
+
+We compare strings with the operator `_==_`.  It is useful to know
+that, as we would expect from any equality relationship, `_==_` forms
+an equivalence relation, that is, it is reflexive, symmetric and
+transitive:
+
+```
+  postulate ==-refl : ∀ {s : String} → (s == s) ≡ true
+  postulate ==-sym : ∀ {b : Bool} {s₁ s₂ : String}
+                       → (s₁ == s₂) ≡ b → (s₂ == s₁) ≡ b
+  postulate ==-trans : ∀ {s₁ s₂ s₃ : String}
+                         → (s₁ == s₂) ≡ true → (s₂ == s₃) ≡ true
+                           → (s₁ == s₃) ≡ true
+```
+
+It will also be useful to capture the links between the string
+comparison _function_ `==` and the equality formula `≡`:
+
+```
+  postulate ==-≡ : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ true → s₁ ≡ s₂
+  postulate ≡-== : ∀ {s₁ s₂ : String} → s₁ ≡ s₂ → (s₁ == s₂) ≡ true
+  postulate ==n≡ : ∀ {s₁ s₂ : String} → (s₁ == s₂) ≡ false → s₁ ≢ s₂
+  postulate ≡n== : ∀ {s₁ s₂ : String} → s₁ ≢ s₂ → (s₁ == s₂) ≡ false
+  -- End of module String
+```
+
 ## Standard library
 
 Definitions similar to those in this section can be found in the standard
 library: 
 ```
-import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+import Data.Product using (_×_; proj₁; proj₂; Σ; ∃; Σ-syntax; ∃-syntax)
+  renaming (_,_ to ⟨_,_⟩)
 import Data.Unit using (⊤; tt)
 import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 import Data.Empty using (⊥; ⊥-elim)
