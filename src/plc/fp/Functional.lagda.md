@@ -42,10 +42,9 @@ minusTwo x = x ∸ 2
 
 _ : doIt3Times minusTwo 9 ≡ 3
 _ = refl
-
+      
 _ : doIt3Times not true ≡ false
 _ = refl
-
 ```
 
 #### Exercise `typesFunctional` (practice) {typesFunctional}
@@ -55,7 +54,7 @@ Write Agda definitions which have the following types:
  - `ℕ → (ℕ → ℕ) → ℕ`
  - `(ℕ → ℕ) → (ℕ → ℕ) → (ℕ → ℕ)`
 
-   Hint: which of the three pairs of parentheses are unnecessary?
+   Which of the three pairs of parentheses are unnecessary?
 
 #### Exercise `isPalendromePoly` (practice) {#isPalendromePoly}
 
@@ -95,7 +94,7 @@ functions' definitions is a very valuable technique for understanding
 these subtle calculations!  For example, with the `minusTwo` example
 above, we would have
 
-      doIt3Times minusTwo 9 3
+      doIt3Times minusTwo 9
     → minusTwo (minusTwo (minusTwo 9))
     → minusTwo (minusTwo (9 ∸ 2))
     → minusTwo (minusTwo (8 ∸ 1))
@@ -228,15 +227,81 @@ give each of these functions a name would be tedious.
 Fortunately, there is a better way.  We can construct a function "on
 the fly" without declaring it at the top level or giving it a name.
 These functions are called *anonymous* functions, and we use a *lambda
-abstraction* to write them down.
+abstraction* to write them down.  A lambda expression has an argument
+and body just like any function, but the function itself has no name.
+A simple lambda expression has the form
+
+    λ { argument → BODY }
+
+or
+
+    λ argument → BODY
+
+where `argument` is the name of the argument, and `BODY` is any
+expression.  We can also specify a type for the argument,
+
+    λ (argument : TYPE) → BODY
+
+Sometime Agda will require us to specify the type when it cannot work
+it out itself.  A lambda expression can be used anyplace a named
+function can be used.  For example,
 
 ```
-_ : doIt3Times (λ { n → n * n }) 2 ≡ 256
-_ = refl
+_ : (λ x → x + 6) 10 ≡ 16
+_ = begin
+      (λ x → x + 6) 10
+    ≡⟨⟩   -- Expand the function application
+      10 + 6
+    ≡⟨⟩   -- Simplify the result
+      16
+    ∎
 ```
 
 The expression `λ { n → n * n }` can be read as "the function that,
 given a number `n`, yields `n * n`.
+
+For example, without lambda expressions we might name a small function
+which squares a natural number argument, and then we could pass this
+function to `doIt3Times`,
+
+```
+square : ℕ → ℕ
+square n = n * n
+
+_ : doIt3Times square 2 ≡ 256
+_ = begin
+      square (square (square 2))
+    ≡⟨⟩
+      square (square 4)
+    ≡⟨⟩
+      square 16
+    ≡⟨⟩
+      256      
+    ∎
+```
+
+With lambda expressions we no longer need to define a separate name,
+
+```
+_ : doIt3Times (λ n → n * n) 2 ≡ 256
+_ = begin
+      doIt3Times (λ n → n * n) 2
+    ≡⟨⟩    -- Expand call to doIt3Times
+      (λ n → n * n) ((λ n → n * n) ((λ n → n * n) 2))
+    ≡⟨⟩    -- Expand call to (λ (n : ℕ) → n * n) with argument 2
+      (λ n → n * n) ((λ n → n * n) (2 * 2))
+    ≡⟨⟩    -- Simplify multiplication
+      (λ n → n * n) ((λ n → n * n) 4)
+    ≡⟨⟩    -- Expand call to (λ (n : ℕ) → n * n) with argument 4
+      (λ n → n * n) (4 * 4)
+    ≡⟨⟩    -- Simplify multiplication
+      (λ n → n * n) 16
+    ≡⟨⟩    -- Expand call to (λ (n : ℕ) → n * n) with argument 16
+      16 * 16
+    ≡⟨⟩    -- Simplify multiplication
+      256
+    ∎
+```
 
 Here is the `filter` example, rewritten to use an anonymous function.
 
@@ -245,11 +310,38 @@ _ : filter (λ l → (length l) ≡ᵇ 1)
            ((1 ∷ 2 ∷ []) ∷ (3 ∷ []) ∷ (4 ∷ [])
               ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
       ≡ ((3 ∷ []) ∷ (4 ∷ []) ∷ (8 ∷ []) ∷ [])
-_ = refl
+_ = begin
+      filter (λ l → (length l) ≡ᵇ 1)
+             ((1 ∷ 2 ∷ []) ∷ (3 ∷ []) ∷ (4 ∷ [])
+               ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) (1 ∷ 2 ∷ [])) ≡ false
+      filter (λ l → (length l) ≡ᵇ 1)
+             ((3 ∷ []) ∷ (4 ∷ [])
+               ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) (3 ∷ [])) ≡ true
+      (3 ∷ []) ∷ filter (λ l → (length l) ≡ᵇ 1)
+                        ((4 ∷ [])
+                          ∷ (5 ∷ 6 ∷ 7 ∷ []) ∷ [] ∷ (8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) (4 ∷ [])) ≡ true
+      (3 ∷ []) ∷ (4 ∷ []) ∷ filter (λ l → (length l) ≡ᵇ 1)
+                                   ((5 ∷ 6 ∷ 7 ∷ []) ∷ []
+                                     ∷ (8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) (5 ∷ 6 ∷ 7 ∷ [])) ≡ false
+      (3 ∷ []) ∷ (4 ∷ []) ∷ filter (λ l → (length l) ≡ᵇ 1)
+                                   ([] ∷ (8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) []) ≡ false
+      (3 ∷ []) ∷ (4 ∷ []) ∷ filter (λ l → (length l) ≡ᵇ 1)
+                                   ((8 ∷ []) ∷ [])
+    ≡⟨⟩   -- Because ((λ l → (length l) ≡ᵇ 1) (8 ∷ [])) ≡ true
+      (3 ∷ []) ∷ (4 ∷ []) ∷ (8 ∷ []) ∷ filter (λ l → (length l) ≡ᵇ 1)
+                                              []
+    ≡⟨⟩   -- Base case of filter
+      (3 ∷ []) ∷ (4 ∷ []) ∷ (8 ∷ []) ∷ []
+    ∎
 ```
 
-We can give multiple before the arrow as a shorthand for multiple
-nested λs.  For example, instead of
+We can give multiple parameters before the arrow as a shorthand for
+multiple nested λs.  For example, instead of
 
     λ { x → λ { y → (2 * x) + y }}
 
@@ -275,29 +367,11 @@ This expression is equivalent to a function `f` defined by the equations
 where the `Pₙ` are patterns (left-hand sides of an equation) and the
 `Nₙ` are expressions (right-hand side of an equation).
 
-In the case that there is one equation and the pattern is a variable,
-we may also use the syntax
-
-    λ x → N
-
-or
-
-    λ (x : A) → N
-
-both of which are equivalent to `λ{x → N}`. The latter allows one to
-specify the domain of the function.
-
 Often using an anonymous lambda expression is more convenient than
 using a named function: it avoids a lengthy type declaration; and the
 definition appears exactly where the function is used, so there is no
 need for the writer to remember to declare it in advance, or for the
 reader to search for the definition in the code.
-
-#### Exercise `anonFnStepByStep` (starting) {#anonFnStepByStep}
-
-In the `filter` example with `λ` above, replace the use of `refl` with
-a `begin...≡⟨⟩...∎` form showing the step-by-step derivation of the
-result.
 
 #### Exercise `filterEvenGt7` (starting) {#filterEvenGt7}
 
@@ -809,6 +883,25 @@ Continue with a definition of multiplication:
 
 
     -- End of module Church
+
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Takeaways
+
+ - The main insight of this section is that functions can be passed as
+   arguments, or returned as a result, just as any other value.
+
+ - Lambda expressions let us write functions without binding them to a
+   name.
+
+ - The `filter` and `map` functions, and two fold functions, capture
+   some very common patterns of recursion by using function arguments,
+   and they come up very frequently.  You should be able to use them
+   to define other functions, and you should either memorize their
+   definitions or be able to re-derive them.
+
+</div>
 
 ## Unicode
 

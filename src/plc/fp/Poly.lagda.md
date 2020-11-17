@@ -236,6 +236,28 @@ type annotations (which can clutter and distract) and too few (which
 can sometimes require readers to perform complex type inference in
 their heads in order to understand your code).
 
+{::options parse_block_html="true" /}
+<div style="background-color: #fffff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Tip: step-by-step is always an option!
+
+In the past sections, some of the exercises encouraged you to spell
+out the step-by-step evaluation of expressions to help you
+
+ 1. See how those definitions worked as Agda rewrites an expression
+    one step at a time, and
+
+ 2. Realize that this step-by-step rewriting is how Agda performs its
+    calculations.
+
+As we move on past the basics, there may not always be exercises which
+_require_ you to make this step-by-step clarification.  But when you
+encounter a function which you do not understand, constructing the
+step-by-step block is a good way to make sure you understand the
+functions you encounter.
+
+</div>
+
 #### Exercise `mumblegrumble` (starting) {#mumblegrumble}
 
 Consider the following two inductively defined types.

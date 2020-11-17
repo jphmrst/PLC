@@ -213,6 +213,26 @@ season,
       summer : Season
       fall : Season
 
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Remember! {#basics-summary}
+
+ - In functional programming, we describe computation as a mapping
+   from inputs to outputs.  There are no side-effects, or variables
+   whose values can be rebound within one call to a function.
+
+ - Functions consist of a _signature_ followed by one or more
+   _defining clauses_.
+
+ - We can give multiple defining clauses to correspond to different
+   cases of possible argument values.
+
+ - Agda functions must be _total_, so the defining clauses must
+   address any possible combination of inputs.
+
+</div>
+
 
 ### Booleans
 
@@ -279,6 +299,24 @@ difference to the result: we do not need to divide this clause into
 separate clauses for each value of the second argument, when there is
 no difference to the result.
 
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Remember! {#underscore-summary}
+
+The underscore is a special character in Agda with multiple uses.
+
+ - As a parameter by itself, it denotes a value which we will not use,
+   and do not name.
+
+ - As part of the name in a signature, it shows where the arguments
+   can go when an operator is written in between its argument.
+
+Do not try to use an underscore in your function or argument names.
+
+</div>
+
+
 #### Imports
 
 It is useful for us to see how we can define the boolean type and its
@@ -318,7 +356,7 @@ Define the following function to represent the `nand` logic operator,
 given by the following truth table:
 
   | `A`   | `B`   | `nand A B` |
-  | ---   | ---   | ---------- |
+  |:-----:|:-----:|:----------:|
   | false | false | true       |
   | false | true  | true       | 
   | true  | false | true       |
@@ -360,6 +398,17 @@ The two uses of `refl` above tell Agda can it can use evaluation to
 show that the two expressions on either side of the `≡` actually are
 equal.  We are using `refl` to write _unit tests_, tests for a
 function each using a specific given example.
+
+{::options parse_block_html="true" /}
+<div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
+
+### Remember! {#boolean-summary}
+
+Agda uses different symbols for boolean operators than what many other
+languages use.  They use Unicode symbols, and are traditional symbols
+for these operations.
+
+</div>
 
 ## Standard library
 

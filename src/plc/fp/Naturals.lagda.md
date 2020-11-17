@@ -139,10 +139,9 @@ Write out `7` in longhand.
 
 #### Exercise `try-nat-defs` (practice) {#try-nat-defs}
 
-This exercise will help you step through the use of `agda-mode` to
-examine and evaluate expressions.  When we load a source file into an
-Agda process, we can use the constructors, values, and other names
-which that file defines.
+This exercise essentially repeats the [`try-days` exercise of the
+previous chapter]({{ site.baseurl }}/Basics/#try-days) for practicing
+the use of `agda-mode` to examine and evaluate expressions.
 
  - First, open this source file `Naturals.lagda.md` in Emacs, and load
    it into an Agda process with `C-c C-l`.
@@ -621,15 +620,15 @@ _ : 3 ∸ 2 ≡ 1
 _ =
   begin
     3 ∸ 2
-  ≡⟨⟩
+  ≡⟨⟩    -- Expand definitions of 3 and 2
     suc (suc (suc zero)) ∸ suc (suc zero)
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the third clause of monus
     suc (suc zero) ∸ suc zero
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the third clause of monus again
     suc zero ∸ zero
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the first clause of monus
     suc zero
-  ≡⟨⟩
+  ≡⟨⟩    -- Has shorthand
     1
   ∎
 ```
@@ -640,11 +639,11 @@ _ : 2 ∸ 3 ≡ 0
 _ =
   begin
     suc (suc zero) ∸ suc (suc (suc zero))
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the third clause of monus
     suc zero ∸ suc (suc zero)
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the third clause of monus again
     zero ∸ suc zero
-  ≡⟨⟩
+  ≡⟨⟩    -- Apply the second clause of monus
     0
   ∎
 ```
