@@ -65,6 +65,13 @@ understand whether the situation (as opposed to just the error) you
 find is really the same as your situation, and make sure that they are
 applicable to the same platform/version as you are running.
 
+You probably know that, like most faculty, I take plagiarism very
+seriously.  However, there is a world of difference between getting
+outside help to *install tools*, and getting help to avoid learning
+the course material.  This is not a class in installing software!  It
+is fine to get help either online or from your colleagues to install
+and configure the basic tools we will use.
+
 ## Failures installing the Agda core system
 
 ### Stack fails to install the `zlib` (or other) library when installing Agda
