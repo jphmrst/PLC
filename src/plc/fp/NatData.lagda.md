@@ -13,6 +13,7 @@ open import Data.Nat
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
 ```
 
 ## Pairs of numbers
@@ -74,6 +75,31 @@ swapPair : NatProd → NatProd
 swapPair (pair x y) = pair y x
 ```
 
+We can use the `begin⋯∎` equation blocks to enumerate the steps of
+calculating an expression using these functions on pairs just as we
+did with number sin the previous chapter.
+
+```
+_ : fst (swapPair (pair 5 (6 + 3))) ≡ 9
+_ = begin
+      fst (swapPair (pair 5 (6 + 3)))
+    ≡⟨⟩
+      fst (swapPair (pair 5 9))
+    ≡⟨⟩
+      fst (pair 9 5)
+    ≡⟨⟩
+      9
+    ∎
+```      
+
+Alternatively we can compress all of the steps into a single
+reference to `refl`, again just as before.
+
+```
+_ : fst (swapPair (pair 5 (6 + 3))) ≡ 9
+_ = refl
+```
+
 ## Lists of numbers
 
 Pairs have only one possible form.  But to represent singly-linked
@@ -95,7 +121,7 @@ valid names just as `pair` is a valid name.  The name `[]`, often
 pronounced _nil_, represents the empty list.  It is a constructor, but
 needs no arguments to construct the value.  The constructor `∷` is
 often pronounced _cons_.  The first argument to a `∷` constructor is
-what we call the _head_ or a list, and the second argument is what we
+what we call the _head_ of a list, and the second argument is what we
 call the _tail_.
 
 The underscores `_` _are_ special characters, and are not part of the
@@ -144,6 +170,25 @@ length [] = 0
 length (x ∷ xs) = 1 + length xs
 ```
 
+Just as with the functions on natural numbers, we can write out the
+recursive steps in an example to make them clearer to us:
+
+```
+_ : length (9 ∷ 8 ∷ 7 ∷ []) ≡ 3
+_ = begin
+      length (9 ∷ 8 ∷ 7 ∷ [])
+    ≡⟨⟩    -- Recursive clause of length
+      1 + length (8 ∷ 7 ∷ [])
+    ≡⟨⟩    -- Recursive clause of length
+      1 + 1 + length (7 ∷ [])
+    ≡⟨⟩    -- Recursive clause of length
+      1 + 1 + 1 + length []
+    ≡⟨⟩    -- Base clause of length
+      1 + 1 + 1 + 0
+    ≡⟨⟩    -- Apply _+_
+      3
+    ∎
+      
 The `++` function (pronounced "append") concatenates two lists.
 
 ```
@@ -165,6 +210,9 @@ the number 5, or a list of length 5 containing the number 3?  Work out
 your answer from the definition before using a call to Agda to check
 your idea.  What happens if either the first or last argument is an
 empty list?  Both?
+
+Write out the individual steps of this call to `repeat` in a `begin⋯∎`
+equation block to check your work.  Do not skip any steps!
 
 #### Exercise `nonzeros` (practice) {#nonzeros}
 
@@ -234,6 +282,9 @@ another list with the same elements in the reverse order.
 
     _ : reverse [] = []
     _ = refl
+
+Replace the call to `refl` in the second test above a `begin⋯∎`
+equation block, and write all all of the steps.
 
 #### Exercise `removeOddMembers` (practice) {#removeOddMembers}
 
