@@ -24,7 +24,7 @@ can use them in proofs in Agda.
 
 ```
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong)
+open Eq using (_≡_; refl; sym; trans; cong)
 open Eq.≡-Reasoning
 open import Data.Bool
 open import Data.List
@@ -350,6 +350,25 @@ enumerates all possible arguments of type `⊥`:
 ```
 Here again the absurd pattern `()` indicates that no value can match
 type `⊥`.
+
+This lemma will be useful when we work with boolean values: it is
+impossible for a boolean value to be both `true` and `false`.
+
+```
+trueNotFalse : ∀ {b : Bool} → b ≡ true → b ≡ false → ⊥
+trueNotFalse bTrue bFalse with (trans (sym bTrue) bFalse)
+...                          | ()
+```
+
+Just as `refl` refers to the reflexive property of equality, `trans`
+refers to the transitive property of equality, and `sym` to the
+symmetric property.  Since `bTrue` is evidence of `b ≡ true`, `(sym
+bTrue)` is evidence of `true ≡ b`.  Then `trans` combines this
+evidence of `true ≡ b` with the premise that `b ≡ false`, to describe
+evidence of `true ≡ false`.  Of course no such evidence can exist, so
+when we tell Agda that we wish to enumerate the possible forms of this
+evidence using the `with` clause, Agda agrees with our use of the
+absurd pattern, that there are no such possible forms.
 
 ## Negation
 
