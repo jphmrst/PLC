@@ -188,7 +188,8 @@ _ = begin
     ≡⟨⟩    -- Apply _+_
       3
     ∎
-      
+```
+
 The `++` function (pronounced "append") concatenates two lists.
 
 ```
