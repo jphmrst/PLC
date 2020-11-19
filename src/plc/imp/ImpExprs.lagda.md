@@ -333,21 +333,23 @@ When our expression is only a number, there is nothing immediately
 present to simplify, and no subexpressions into which we might make a
 recursive call.  So this is our base case; the evidence is just `refl`
 because the optimization function will return its argument unchanged.
-
 The second clause is the case which motivates this optimization: when
 we find an addition of zero, we remove it.  We do not remove it only
 in the present top-level term, but recursively search for other
-simplification within the body of the subexpression `y` before
+simplifications within the body of the subexpression `y` before
 returning it.
 
-So we define two helper functions which will help
-us assemble
+So we define two helper functions which will help us assemble the
+overall proof.  The first, `plusHelper`, helps us assemble evidence
+for the cases of an addition term which does _not_ have a zero to its
+left.
 
 ```
-  plusHelper : (m n : AExp) →
-                 opt0+safe m → opt0+safe n →
-                   (optimize0plus (m + n) ≡ optimize0plus m + optimize0plus n) →
-                     opt0+safe (m + n)
+  plusHelper : (m n : AExp) 
+                 → opt0+safe m → opt0+safe n
+                   → (optimize0plus (m + n)
+                        ≡ optimize0plus m + optimize0plus n)
+                     → opt0+safe (m + n)
   plusHelper m n sm sn nonz = begin
       ⟦ optimize0plus (m + n) ⟧ᴬ
     ≡⟨ cong ⟦_⟧ᴬ nonz ⟩
@@ -361,7 +363,12 @@ us assemble
     ≡⟨⟩
       ⟦ m + n ⟧ᴬ
     ∎
+```
 
+The second helper function `opHelper` assembles evidence for
+the cases of binary operators terms other than top-level addition.
+
+```
   opHelper : (x y : AExp) →
                (k : AExp → AExp → AExp) →
                  (f : ℕ → ℕ → ℕ) →
@@ -382,7 +389,12 @@ us assemble
     ≡⟨ sym fk ⟩
       ⟦ k x y ⟧ᴬ
     ∎
+```
 
+Finally we can assemble the overall proof using these helper
+functions,
+
+```
   optimize0plusSound : ∀ (a : AExp) → opt0+safe a
   optimize0plusSound (# n) = refl
   optimize0plusSound (# zero + y) = optimize0plusSound y
@@ -401,6 +413,13 @@ us assemble
   optimize0plusSound (x - y) = opHelper x y _-_ Data.Nat._∸_ refl refl (optimize0plusSound x) (optimize0plusSound y)
   optimize0plusSound (x * y) = opHelper x y _*_ Data.Nat._*_ refl refl (optimize0plusSound x) (optimize0plusSound y)
 ```
+
+#### Exercise `expandHelpers` (starting) {#expandHelpers}
+
+Rewrite the proof of `optimize0plusSound` without using the helper
+functions, expanding out those function calls manually and using the
+results in place.  Rename the proof so that you do not need to comment
+out or delete the original.
 
 ## Evaluation as a relation
 
