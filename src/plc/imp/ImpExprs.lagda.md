@@ -181,7 +181,7 @@ notations like BNF for communicating between humans, and formal
 notations like `data` declarations for carrying out implementations
 and proofs.
 
-### Evaluating expressions
+## Evaluating expressions
 
 _Evaluating_ an arithmetic expression produces a number.  Evaluation
 is, of course, a function from arithmetic expressions to natural
@@ -368,6 +368,62 @@ original — we should prove it.
   optimize0plusSound (x * y) = opHelper x y _*_ Data.Nat._*_ refl refl (optimize0plusSound x) (optimize0plusSound y)
 ```
 
+## Evaluation as a relation
+
+We have presented `aeval` and `beval` as functions.  Another way to
+think about evaluation — one that we will see is often more flexible —
+is as a _relation_ between expressions and their values.  This leads
+naturally to inductive definitions like the following one for
+arithmetic expressions.
+
+```
+  data _⇓ᵃ_ : AExp → ℕ → Set where
+    Eᵃℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
+    Eᵃ+ : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
+    Eᵃ- : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → e1 - e2 ⇓ᵃ n1 ∸ n2
+    Eᵃ* : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
+             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
+             → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
+  infix 4 _⇓ᵃ_
+```
+
+Just as evaluation functions are traditionally written as surrounding
+double-brackets, evaluation relations are traditionally written as a
+downward double-arrow.
+
+We can use the evaluation relation in the same way that we use the `≡`
+relation: by stating a relationship, and proving it.  For example, as
+an informal proof tree we might have
+
+     -------- Eᵃℕ     -------- Eᵃℕ
+     # 5 ⇓ᵃ 5           # 6 ⇓ᵃ 6
+     ---------------------------- Eᵃ+     -------- Eᵃℕ
+           # 5 + # 6 ⇓ᵃ 11                 # 2 ⇓ᵃ 2
+          ------------------------------------------ Eᵃ*
+                   (# 5 + # 6) * # 2 ⇓ᵃ 22
+
+and as formal proofs,
+
+```
+  _ : # 2 ⇓ᵃ 2
+  _ = Eᵃℕ
+
+  _ : (# 5 + # 6) ⇓ᵃ 11
+  _ = Eᵃ+ Eᵃℕ Eᵃℕ
+
+  _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
+  _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
+```
+
+#### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
+
+In a similar way, convert the `⟦ ... ⟧ᴮ` evaluator into a relation
+`_⇓ᵇ_`.
+
 ### Inference Rule Notation
 
 In informal discussions, it is convenient to write the rules for
@@ -475,64 +531,7 @@ For example, it is convenient for writing more more complicated theorems in a cl
 
 {:/comment}
 
-
-### Evaluation as a relation
-
-We have presented `aeval` and `beval` as functions.  Another way to
-think about evaluation — one that we will see is often more flexible —
-is as a _relation_ between expressions and their values.  This leads
-naturally to inductive definitions like the following one for
-arithmetic expressions.
-
-```
-  data _⇓ᵃ_ : AExp → ℕ → Set where
-    Eᵃℕ : ∀ {n : ℕ} → (# n) ⇓ᵃ n
-    Eᵃ+ : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 + e2 ⇓ᵃ n1 Data.Nat.+ n2
-    Eᵃ- : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 - e2 ⇓ᵃ n1 ∸ n2
-    Eᵃ* : ∀ {e1 : AExp} {n1 : ℕ} {e2 : AExp} {n2 : ℕ}
-             → e1 ⇓ᵃ n1 → e2 ⇓ᵃ n2
-             → e1 * e2 ⇓ᵃ n1 Data.Nat.* n2
-  infix 4 _⇓ᵃ_
-```
-
-Just as evaluation functions are traditionally written as surrounding
-double-brackets, evaluation relations are traditionally written as a
-downward double-arrow.
-
-We can use the evaluation relation in the same way that we use the `≡`
-relation: by stating a relationship, and proving it.  For example, as
-an informal proof tree we might have
-
-     -------- Eᵃℕ     -------- Eᵃℕ
-     # 5 ⇓ᵃ 5           # 6 ⇓ᵃ 6
-     ---------------------------- Eᵃ+     -------- Eᵃℕ
-           # 5 + # 6 ⇓ᵃ 11                 # 2 ⇓ᵃ 2
-          ------------------------------------------ Eᵃ*
-                   (# 5 + # 6) * # 2 ⇓ᵃ 22
-
-and as formal proofs,
-
-```
-  _ : # 2 ⇓ᵃ 2
-  _ = Eᵃℕ
-
-  _ : (# 5 + # 6) ⇓ᵃ 11
-  _ = Eᵃ+ Eᵃℕ Eᵃℕ
-
-  _ : ((# 5 + # 6) * # 2) ⇓ᵃ 22
-  _ = Eᵃ* (Eᵃ+ Eᵃℕ Eᵃℕ) Eᵃℕ
-```
-
-#### Exercise `bevalRelation1` (recommended) {#bevalRelation1}
-
-In a similar way, convert the `⟦ ... ⟧ᴮ` evaluator into a relation
-`_⇓ᵇ_`.
-
-### Equivalence of the evaluators
+## Equivalence of the evaluators
 
 It is straightforward to prove that the relational and functional
 definitions of evaluation agree, but we will need some new tools in

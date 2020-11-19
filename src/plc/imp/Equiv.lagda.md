@@ -508,24 +508,25 @@ postulate seqAssoc : ∀ c₁ c₂ c₃ → ((c₁ , c₂) , c₃) ≡ᶜ (c₁ 
 ☙ ☙ ❧ ❧
 </div>
 
+
+
 Proving program properties involving assignments is one place where
 the fact that program states are treated extensionally (e.g.,
 `x ↦ m x , m` and `m` are equal maps) comes in handy.
 
-```
-identityFwd : ∀ x st → st =[ x := id x ]=> st
-identityFwd x st = {!!}
+    identityFwd : ∀ x st → st =[ x := id x ]=> st
+    identityFwd x st = {!!}
+    
+    
+    identityAssignment : ∀ x → (x := id x) ≡ᶜ skip
+    identityAssignment x s₁ s₂ =
+      record { to = fwd; from = bkw }
+        where fwd : (s₁ =[ x := id x ]=> s₂) → (s₁ =[ skip ]=> s₂) 
+              fwd (E:= .(id x) n getX) rewrite sym getX = {!!}
+    
+              bkw : (s₁ =[ skip ]=> s₂) → (s₁ =[ x := id x ]=> s₂)
+              bkw Eskip rewrite sym (tUpdateSame s₁ x) = {!!}
 
-
-identityAssignment : ∀ x → (x := id x) ≡ᶜ skip
-identityAssignment x s₁ s₂ =
-  record { to = fwd; from = bkw }
-    where fwd : (s₁ =[ x := id x ]=> s₂) → (s₁ =[ skip ]=> s₂) 
-          fwd (E:= .(id x) n getX) rewrite sym getX = {!!}
-
-          bkw : (s₁ =[ skip ]=> s₂) → (s₁ =[ x := id x ]=> s₂)
-          bkw Eskip rewrite sym (tUpdateSame s₁ x) = {!!}
-```
 
 Proof.
   intros.
@@ -723,21 +724,21 @@ expression.
 The congruence property for loops is a little more interesting, since
 it requires induction.
 
-```
-while-congruence : ∀ (b b′ : BExp) (c c′ : Command)
-                     → b ≡ᴮ b′ -> c ≡ᶜ c′
-                       → while b loop c end ≡ᶜ while b′ loop c′ end
-while-congruence b b′ c c′ bEqb′ cEqc′ s₁ s₂ =
-  record { to = fwd; from = bkw }
-    where fwd : s₁ =[ while b loop c end ]=> s₂
-                  → s₁ =[ while b′ loop c′ end ]=> s₂
-          fwd (EWhileF bEvalsF) = EWhileF (trans (sym (bEqb′ s₁)) bEvalsF)
-          fwd (EWhileT {st′} bEvalsT firstPass otherPasses) = {!!}
 
-          bkw : s₁ =[ while b′ loop c′ end ]=> s₂
-                 → s₁ =[ while b loop c end ]=> s₂
-          bkw e = {!!}
-```
+    while-congruence : ∀ (b b′ : BExp) (c c′ : Command)
+                         → b ≡ᴮ b′ -> c ≡ᶜ c′
+                           → while b loop c end ≡ᶜ while b′ loop c′ end
+    while-congruence b b′ c c′ bEqb′ cEqc′ s₁ s₂ =
+      record { to = fwd; from = bkw }
+        where fwd : s₁ =[ while b loop c end ]=> s₂
+                      → s₁ =[ while b′ loop c′ end ]=> s₂
+              fwd (EWhileF bEvalsF) = EWhileF (trans (sym (bEqb′ s₁)) bEvalsF)
+              fwd (EWhileT {st′} bEvalsT firstPass otherPasses) = {!!}
+    
+              bkw : s₁ =[ while b′ loop c′ end ]=> s₂
+                     → s₁ =[ while b loop c end ]=> s₂
+              bkw e = {!!}
+
 
 _Theorem_: Equivalence is a congruence for `while` — that is, if
     `b` is equivalent to `b′` and `c` is equivalent to `c′`, then
