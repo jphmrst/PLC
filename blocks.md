@@ -25,6 +25,9 @@ Something that stays right and is not wrapped in a para.
 
 </div>
 
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
 
 {::options parse_block_html="true" /}
 <div style="background-color: #fffff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">

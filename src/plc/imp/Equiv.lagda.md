@@ -19,6 +19,7 @@ open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 open import plc.vfp.Induction
 open import plc.vfp.MapProps
 open import plc.vfp.Relations using (_⇔_)
+open _⇔_
 open import plc.vfp.Logic
 open import plc.imp.Imp
 ```
@@ -102,6 +103,15 @@ We can state a similar result for boolean evaluation.
 ≡ᴮ-example st = cong (_≡ᵇ 0) (n∸n≡0 (st X))
 ```
 
+#### Exercise `≡ᴮ-example-verbose` (starting) {#bequiv-example-verbose}
+
+Write a longer `begin ... ∎` version of the proof of `≡ᴮ-example`, in
+the manner of the longer version of `≡ᴬ-example`.
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
 For commands, the situation is a little more subtle.  We can't simply
 say "two commands are behaviorally equivalent if they evaluate to the
 same ending state whenever they are started in the same initial
@@ -121,456 +131,403 @@ particular state then so does the second, and vice versa":
 
 ```
 _≡ᶜ_ : Command → Command → Set
-c₁ ≡ᶜ c₂ = ∀ (st st' : State) → (st =[ c₁ ]=> st') ⇔ (st =[ c₂ ]=> st')
+c₁ ≡ᶜ c₂ = ∀ (s₁ s₂ : State) → (s₁ =[ c₁ ]=> s₂) ⇔ (s₁ =[ c₂ ]=> s₂)
 ```
-
-#### Exercise `≡ᴮ-example-verbose` (starting) {#bequiv-example-verbose}
-
-Write a longer `begin ... ∎` version of the proof of `≡ᴮ-example`, in
-the manner of the longer version of `≡ᴬ-example`.
 
 ### Simple examples
 
-(** For examples of command equivalence, let's start by looking at
-    some trivial program transformations involving `skip`: *)
-
-Theorem skip_left : forall c,
-  cequiv
-    <{ skip; c }>
-    c.
-Proof.
-  (* WORKINCLASS *)
-  intros c st st'.
-  split; intros H.
-  - (* -> *)
-    inversion H. subst.
-    inversion H2. subst.
-    assumption.
-  - (* <- *)
-    apply E_Seq with st.
-    apply E_Skip.
-    assumption.
-Qed.
-(* /WORKINCLASS *)
-
-
-(* EX2 (skip_right) *)
-(** Prove that adding a `skip` after a command results in an
-    equivalent program *)
-
-Theorem skip_right : forall c,
-  cequiv
-    <{ c ; skip }>
-    c.
-Proof.
-  (* ADMITTED *)
-  intros c st st'.
-  split; intros H.
-  - (* -> *)
-    inversion H. subst.
-    inversion H5. subst.
-    assumption.
-  - (* <- *)
-    apply E_Seq with st'.
-    assumption. apply E_Skip.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 2: skip_right *)
-
-
-(** TERSE: *** *)
-
-(** Similarly, here is a simple transformation that optimizes `if`
-    commands: *)
-
-Theorem if_true_simple : forall c1 c2,
-  cequiv
-    <{ if true then c1 else c2 end }>
-    c1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros c1 c2.
-  split; intros H.
-  - (* -> *)
-    inversion H; subst. assumption. discriminate.
-  - (* <- *)
-    apply E_IfTrue. reflexivity. assumption.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-(** TERSE: *** *)
-
-(** Of course, no (human) programmer would write a conditional whose
-    guard is literally `true`.  But they might write one whose guard
-    is _equivalent_ to true: *)
-
-(** _Theorem_: If `b` is equivalent to `true`, then `if b then c1
-    else c2 end` is equivalent to `c1`. *)
-(**
-   _Proof_:
-
-     - (`→`) We must show, for all `st` and `st'`, that if
-       `st =[ if b then c1 else c2 end ]=> st'` then
-       `st =[ c1 ]=> st'`.
-
-       Proceed by cases on the rules that could possibly have been
-       used to show `st =[ if b then c1 else c2 end ]=> st'a, namely
-       `E_IfTrue` and `E_IfFalse`.
-
-       - Suppose the final rule in the derivation of
-         `st =[ if b then c1 else c2 end ]=> st'`
-         was `E_IfTrue`.  We then have,
-         by the premises of `E_IfTrue`, that `st =[ c1 ]=> st'`.
-         This is exactly what we set out to prove.
-
-       - On the other hand, suppose the final rule in the derivation
-         of `st =[ if b then c1 else c2 end ]=> st'` was `E_IfFalse`.
-         We then know that `beval st b = false` and `st =[ c2 ]=> st'`.
-
-         Recall that `b` is equivalent to `true`, i.e., forall `st`,
-         `beval st b = beval st <{true}>`.  In particular, this means
-         that `beval st b = true`, since `beval st <{true}> = true`.  But
-         this is a contradiction, since `E_IfFalse` requires that
-         `beval st b = false`.  Thus, the final rule could not have
-         been `E_IfFalse`.
-
-     - (`←`) We must show, for all `st` and `st'`, that if
-       `st =[ c1 ]=> st'` then
-       `st =[ if b then c1 else c2 end ]=> st'`.
-
-       Since `b` is equivalent to `true`, we know that `beval st b` =
-       `beval st <{true}>` = `true`.  Together with the assumption that
-       `st =[ c1 ]=> st'`, we can apply `E_IfTrue` to derive
-       `st =[ if b then c1 else c2 end ]=> st'`. 
-
-   Here is the formal version of this proof:
-
-
-Theorem if_true: forall b c1 c2,
-  bequiv b <{true}>  ->
-  cequiv
-    <{ if b then c1 else c2 end }>
-    c1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros b c1 c2 Hb.
-  split; intros H.
-  - (* -> *)
-    inversion H; subst.
-    + (* b evaluates to true *)
-      assumption.
-    + (* b evaluates to false (contradiction) *)
-      unfold bequiv in Hb. simpl in Hb.
-      rewrite Hb in H5.
-      discriminate.
-  - (* <- *)
-    apply E_IfTrue; try assumption.
-    unfold bequiv in Hb. simpl in Hb.
-    apply Hb. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-(** TERSE: Similarly: *)
-
-(* FULL: EX2! (if_false) *)
-Theorem if_false : forall b c1 c2,
-  bequiv b <{false}> ->
-  cequiv
-    <{ if b then c1 else c2 end }>
-    c2.
-(* TERSE: HIDEFROMHTML *)
-Proof.
-  (* ADMITTED *)
-  intros b c1 c2 Hb.
-  split; intros H.
-  - (* -> *)
-    inversion H; subst.
-    + (* b evaluates to true (contradiction) *)
-      rewrite Hb in H5.
-      discriminate.
-    + (* b evaluates to false *)
-      assumption.
-  - (* <- *)
-    apply E_IfFalse; try assumption.
-    apply Hb. Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 2: if_false *)
-(** FULL: [] *)
-(* TERSE: /HIDEFROMHTML *)
-
-
-(* EX3 (swap_if_branches) *)
-(** Show that we can swap the branches of an `if` if we also negate its
-    guard. *)
-
-Theorem swap_if_branches : forall b c1 c2,
-  cequiv
-    <{ if b then c1 else c2 end }>
-    <{ if ~ b then c2 else c1 end }>.
-Proof.
-  (* ADMITTED *)
-  intros b c1 c2 st st'.
-  split; intros Hce.
-  - (* -> *)
-    inversion Hce; subst.
-    + (* b is true *)
-      apply E_IfFalse; try assumption.
-      simpl. rewrite H4. reflexivity.
-    + (* b is false *)
-      apply E_IfTrue; try assumption.
-      simpl. rewrite H4. reflexivity.
-  - (* <- *)
-    inversion Hce; subst.
-    + (* b is false *)
-      simpl in H4. symmetry in H4; apply negb_sym in H4. simpl in H4.
-      apply E_IfFalse; assumption.
-    + (* b is true *)
-      simpl in H4. symmetry in H4; apply negb_sym in H4. simpl in H4.
-      apply E_IfTrue; assumption.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 3: swap_if_branches *)
-
-
-(** TERSE: *** *)
-
-(** For `while` loops, we can give a similar pair of theorems.  A loop
-    whose guard is equivalent to `false` is equivalent to `skip`,
-    while a loop whose guard is equivalent to `true` is equivalent to
-    `while true do skip end` (or any other non-terminating program).
-    The first of these facts is easy. *)
-
-Theorem while_false : forall b c,
-  bequiv b <{false}> ->
-  cequiv
-    <{ while b do c end }>
-    <{ skip }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros b c Hb. split; intros H.
-  - (* -> *)
-    inversion H; subst.
-    + (* E_WhileFalse *)
-      apply E_Skip.
-    + (* E_WhileTrue *)
-      rewrite Hb in H2. discriminate.
-  - (* <- *)
-    inversion H; subst.
-    apply E_WhileFalse.
-    apply Hb.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-
-(* EX2A? (while_false_informal) *)
-(** Write an informal proof of `while_false`.
-
-(* LATER: (BCP 10/17) Not that happy with the wording of this... *)
-(* SOLUTION *)
-   Theorem: forall `b` `c`, if `b` is equivalent to `false`,
-   then `while b do c end` is equivalent to `skip`.
-
-   Proof:
-
-   - (`→`) We know that `b` is equivalent to `false`.  We must
-     show, for all `st` and `st'`, that if
-     `st =[ while b do c end ]=> st'` then `st =[ skip ]=> st'`.
-
-     There are only two ways we can have
-     `st =[ while b do c end ]=> st'`: using
-     `E_WhileFalse` and `E_WhileTrue`.
-
-     - Suppose the final rule used to show
-       `st =[ while b do c end ]=> st'` was `E_WhileFalse`.  We then
-       know that `st = st'`; by `E_Skip`, we know that
-       `st =[ skip ]=> st`.
-
-     - Suppose the final rule used to show
-       `st =[ while b do c end ]=> st'` was `E_WhileTrue`.  But this
-       rule only applies when `beval st b = true`.  However, we are
-       assuming that that `b` is equivalent to `false`, i.e., forall
-       `st`, `beval st b = beval st <{false}> = false`. So we have a
-       contradiction, and the final rule could not have been
-       `E_WhileTrue` after all.
-
-   - (<-) We know that `b` is equivalent to `false`.  We must
-     show, for all `st` and `st'`, that if `st =[ skip ]=> st'`
-     then `st =[ while b do c end ]=> st'`.
-
-     `E_Skip` is the only rule that could have proven
-     `st =[ skip ]=> st'`, so we know that `st' = st`.  We must show
-     that `st =[ while b do c LOOP ]=> st`.
-
-     Since `b` is equivalent to `false`, we know that
-     `beval st b = false`.  By `E_WhileFalse`, then, we can derive that
-     `st =[ while b do c end ]=> st`, and we are done.
-(* /SOLUTION *)
-*)
-
-
-(** TERSE: *** *)
-
-(** To prove the second fact, we need an auxiliary lemma stating that
-    `while` loops whose guards are equivalent to `true` never
-    terminate. *)
-
-(* LATER: This proof is quite subtle. In particular, it's not
-   easy to explain how the induction hypothesis comes about. *)
-(** FULL: _Lemma_: If `b` is equivalent to `true`, then it cannot be
-    the case that `st =[ while b do c end ]=> st'`.
-
-    _Proof_: Suppose that `st =[ while b do c end ]=> st'`.  We show,
-    by induction on a derivation of `st =[ while b do c end ]=> st'`,
-    that this assumption leads to a contradiction. The only two cases
-    to consider are `E_WhileFalse` and `E_WhileTrue`, the others
-    are contradictory.
-
-    - Suppose `st =[ while b do c end ]=> st'` is proved using rule
-      `E_WhileFalse`.  Then by assumption `beval st b = false`.  But
-      this contradicts the assumption that `b` is equivalent to
-      `true`.
-
-    - Suppose `st =[ while b do c end ]=> st'` is proved using rule
-      `E_WhileTrue`.  We must have that:
-
-      1. `beval st b = true`,
-      2. there is some `st0` such that `st =[ c ]=> st0` and
-         `st0 =[ while b do c end ]=> st'`,
-      3. and we are given the induction hypothesis that
-         `st0 =[ while b do c end ]=> st'` leads to a contradiction,
-
-      We obtain a contradiction by 2 and 3. [] *)
-
-Lemma while_true_nonterm : forall b c st st',
-  bequiv b <{true}> ->
-  ~( st =[ while b do c end ]=> st' ).
-Proof.
-  (* WORKINCLASS *)
-  intros b c st st' Hb.
-  intros H.
-  remember <{ while b do c end }> as cw eqn:Heqcw.
-  induction H;
-  (* Most rules don't apply; we rule them out by inversion: *)
-  inversion Heqcw; subst; clear Heqcw.
-  (* The two interesting cases are the ones for while loops: *)
-  - (* E_WhileFalse *) (* contradictory — b is always true! *)
-    unfold bequiv in Hb.
-    (* `rewrite` is able to instantiate the quantifier in `st` *)
-    rewrite Hb in H. discriminate.
-  - (* E_WhileTrue *) (* immediate from the IH *)
-    apply IHceval2. reflexivity.  Qed.
-(* /WORKINCLASS *)
-
-
-(* EX2? (while_true_nonterm_informal) *)
-(** Explain what the lemma `while_true_nonterm` means in English.
-
-(* SOLUTION *) `while_true_nonterm` claims that if a `bexp` `b` is
-   equivalent to `true` (i.e., if `forall st, beval st b = true`),
-   then it is not possible to construct a derivation
-   `st =[ while b do c end ]=> st'` for any `st`, `st'`, or `c`.
-
-   We can understand this lack of a derivation as nontermination: the
-   reason a derivation can't be constructed is because the
-   `E_WhileTrue` rule would need to be applied infinitely many times,
-   but derivations are finite.
-(* /SOLUTION *)
-*)
-
-
-(* FULL: EX2! (while_true) *)
-(** FULL: Prove the following theorem. _Hint_: You'll want to use
-    `while_true_nonterm` here. *)
-
-Theorem while_true : forall b c,
-  bequiv b <{true}>  ->
-  cequiv
-    <{ while b do c end }>
-    <{ while true do skip end }>.
-(* TERSE: HIDEFROMHTML *)
-Proof.
-  (* ADMITTED *)
-  intros b c Hb.
-  split; intros H.
-  - (* -> *)
-    exfalso.
-    apply while_true_nonterm with b c st st'; assumption.
-  - (* <- *)
-    exfalso.
-    apply while_true_nonterm with <{ true }> <{ skip }> st st'.
-    unfold bequiv. reflexivity.
-    apply H.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 2: while_true *)
-(** FULL: [] *)
-(* TERSE: /HIDEFROMHTML *)
-
-(** TERSE: *** *)
-
-(** A more interesting fact about `while` commands is that any number
-    of copies of the body can be "unrolled" without changing meaning.
-    Loop unrolling is a common transformation in real compilers. *)
-
-Theorem loop_unrolling : forall b c,
-  cequiv
-    <{ while b do c end }>
-    <{ if b then c ; while b do c end else skip end }>.
-Proof.
-  (* WORKINCLASS *)
-(* FOLD *)
-  intros b c st st'.
-  split; intros Hce.
-  - (* -> *)
-    inversion Hce; subst.
-    + (* loop doesn't run *)
-      apply E_IfFalse. assumption. apply E_Skip.
-    + (* loop runs *)
-      apply E_IfTrue. assumption.
-      apply E_Seq with (st' := st'0). assumption. assumption.
-  - (* <- *)
-    inversion Hce; subst.
-    + (* loop runs *)
-      inversion H5; subst.
-      apply E_WhileTrue with (st' := st'0).
-      assumption. assumption. assumption.
-    + (* loop doesn't run *)
-      inversion H5; subst. apply E_WhileFalse. assumption.  Qed.
-(* /FOLD *)
-(* /WORKINCLASS *)
-
-
-(* EX2? (seq_assoc) *)
-(** _Note: Coq 8.12.0 has a printing bug that makes both sides of this
-    theorem look the same in the Goals buffer. This should be fixed in
-    8.12.1_. *)
-Theorem seq_assoc : forall c1 c2 c3,
-  cequiv <{(c1;c2);c3}> <{c1;(c2;c3)}>.
-Proof. (* SOONER: Parens were missing here!! Recheck when 8.12.1 comes out! *)
-  (* ADMITTED *)
-  intros c1 c2 c3 st st'.
-  split; intros Hce.
-  - (* -> *)
-    inversion Hce. subst. inversion H1. subst.
-    apply E_Seq with (st' := st'1); try assumption.
-    apply E_Seq with (st' := st'0); try assumption.
-  - (* <- *)
-    inversion Hce. subst. inversion H4. subst.
-    apply E_Seq with (st' := st'1); try assumption.
-    apply E_Seq with (st' := st'0); try assumption.  Qed.
-(* /ADMITTED *)
-
-(** Proving program properties involving assignments is one place
-    where the fact that program states are treated
-    extensionally (e.g., `x !-> m x ; m` and `m` are equal maps) comes
-    in handy. *)
-
-(* LATER: This proof could be streamlined if we had
-   `rewrite ... at ...`. *)
-Theorem identity_assignment : forall x,
-  cequiv
-    <{ x := x }>
-    <{ skip }>.
+For examples of command equivalence, let's start by looking at
+some very simple program transformations involving `skip`.
+
+The first example says that when we append `skip` before any command, the
+result is equivalent.
+
+```
+skip_left : ∀ (c : Command) → (skip , c) ≡ᶜ c
+```
+
+Our conclusion is a `≡ᶜ`-formula, which means we must show a universal
+quantification over the possible beginning- and ending states of
+executing these commands.  These quantified values then appear as
+additional arguments to the proof function.
+
+    skip_left c s₁ s₂ = ?
+
+Within the quantification the conclusion is a bi-implication, so we
+will consider the forward and backward directions separately, and bind
+those two results into the single record defined as evidence for `⇔`.
+
+```
+skip_left c s₁ s₂ = record { to = fwd; from = bkw }
+```
+
+We will define the `fwd` and `bkw` directions in a `where` clause.
+
+In the forward direction we rely on the fact only certain forms of
+evidence are possible: evaluation of a command `c, c′` can be
+explained only with the `C,` constructor, so the only clause for `fwd`
+is for that form of evidence.  Moreover, the evaluation of `skip` is
+only by `Eskip`.  Since `Eskip` requires that its starting and ending
+state are the same, the evidence for the evaluation of the `c`
+subcommand in the premise serves as evidence for the conclusion as
+well.
+
+```
+                     where fwd : (s₁ =[ skip , c ]=> s₂) → (s₁ =[ c ]=> s₂)
+                           fwd (E, Eskip e) = e
+```
+
+In the backward direction, the evidence for the premise serves as the
+evidence for the second of the command steps for the conclusion.
+
+```
+                           bkw : (s₁ =[ c ]=> s₂) → (s₁ =[ skip , c ]=> s₂)
+                           bkw e = E, Eskip e
+```
+
+The second example simply swaps the two command in the first argument
+around: it says that when we append `skip` _after_ any command, the
+result is still equivalent.  The structure of these proofs is the same
+as for the first example, but with the positions of the subcommands
+reversed.
+
+```
+skip_right : ∀ (c : Command) → (c , skip) ≡ᶜ c
+skip_right c s₁ s₂ = record { to = fwd; from = bkw }
+                      where fwd : (s₁ =[ c , skip ]=> s₂) → (s₁ =[ c ]=> s₂)
+                            fwd (E, ec Eskip) = ec
+
+                            bkw : (s₁ =[ c ]=> s₂) → (s₁ =[ c , skip ]=> s₂)
+                            bkw e = E, e Eskip
+```
+
+#### Exercise `ifTrueSimplify` (starting) {#ifTrueSimplify}
+
+Show this similar equivalence for `if` expressions:
+
+```
+postulate ifTrueSimplify : ∀ (c₁ c₂ : Command) → 
+                             (if T then c₁ else c₂ end) ≡ᶜ c₁
+```
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
+Of course, no (human) programmer would write a conditional whose guard
+is literally `T`.  But they might write one whose guard can be shown
+to be _equivalent_ to true: So we will show that if `b` is equivalent
+to `T` then `if b then c₁ else c₂ end` is equivalent to `c₁`.
+
+```
+ifTrue : ∀ (b : BExp) (c₁ c₂ : Command)
+           → b ≡ᴮ T
+             → if b then c₁ else c₂ end ≡ᶜ c₁
+```
+
+As usual when showing `≡ᶜ`-formulas, we must show a universal
+quantification over a bi-implication.  So its beginning- and
+ending-states become additional parameters, and we define the two
+directions in a `where` clause.
+
+```
+ifTrue b c₁ c₂ bIsT s₁ s₂ = record { to = fwd; from = bkw }
+```
+
+In the forward direction we must show that if the full `if`-statement
+links the starting and ending state, then so does the affirmative
+subcommand,
+
+```
+                           where fwd : s₁ =[ if b then c₁ else c₂ end ]=> s₂
+                                         → s₁ =[ c₁ ]=> s₂
+```
+
+We can proceed by cases on the forms of evidence which justify the
+premise, namely evidence constructed with either `EIfT` or
+`EIfF`.
+
+    fwd (EIfT bIsT₀ e) = ?
+    fwd (EIfF bIsF₀ e) = ?
+
+Suppose the final rule in the derivation of
+
+    s₁ =[ if b then c₁ else c₂ end ]=> s₂
+
+was `EIfT`.  Then the premises of `EIfT` would hold — in order words,
+`s₁ =[ c₁ ]=> s₂`, which is what we set out to prove, would hold.
+
+```
+                                 fwd (EIfT bIsT₀ e) = e
+```
+
+On the other hand, suppose the final rule in the derivation of
+
+    s₁ =[ if b then c₁ else c₂ end ]=> s₂
+
+was `EIfF`.  We then know that `⟦ b ⟧ᴮ s₁ = false` and `s₁ =[ c₂ ]=>
+s₂`.
+
+Recall that our premise is that `b` is equivalent to `T`, that is, for
+all states `s`, `⟦ b ⟧ᴮ s = ⟦ T ⟧ᴮ s`.  In particular, this means that
+`⟦ b ⟧ᴮ s₁ = T`, since `⟦ T ⟧ᴮ s₁ = T`.  But this contradicts the
+evidence associated with `EIfF`, which requires that `⟦ b ⟧ᴮ s₁ = F`.
+Thus, the final rule could not have been `EIfF`.  In Agda, we can
+compose the two pieces of evidence `bIsT` and `bIsF₀` to the formula
+`true ≡ false`, which Agda sees can have no evidence.
+
+```
+                                 fwd (EIfF bIsF₀ e) with trueNotFalse (bIsT s₁) bIsF₀
+                                 ...                  | ()
+```
+
+In the reverse direction, we must show for all `s₁` and `s₂` that if
+`s₁ =[ c₁ ]=> s₂` then `s₁ =[ if b then c₁ else c₂ end ]=> s₂`.
+
+Since `b` is equivalent to `true`, we know that `⟦ b ⟧ᴮ s₁` =
+`⟦ T ⟧ᴮ s₁` = `true`.  Together with the assumption that
+`s₁ =[ c₁ ]=> s₂`, we can apply `EIfT` to derive evidence that
+`s₁ =[ if b then c₁ else c₂ end ]=> s₂`.
+
+```
+                                 bkw : s₁ =[ c₁ ]=> s₂
+                                         → s₁ =[ if b then c₁ else c₂ end ]=> s₂
+                                 bkw e = EIfT (bIsT s₁) e
+```
+
+#### Exercise `ifFalse` (starting) {#ifFalse}
+
+Show the similar result for a condition which is equivalent to `F`,
+
+```
+postulate ifFalse : ∀ (b : BExp) (c₁ c₂ : Command)
+           → b ≡ᴮ F
+             → if b then c₁ else c₂ end ≡ᶜ c₂
+```
+
+#### Exercise `swapIfBranches` (recommended) {#swapIfBranches}
+
+Show that we can swap the branches of an `if` if we also negate its
+guard.
+
+```
+postulate swapIfBranches : ∀ (b : BExp) (c₁ c₂ : Command)
+                             → if b then c₁ else c₂ end
+                                  ≡ᶜ if ! b then c₂ else c₁ end
+```
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
+For `while` loops, we can give a similar pair of theorems.  A loop
+whose guard is equivalent to false is equivalent to `skip`.  A loop
+whose guard is equivalent to true will not terminate, so it is
+equivalent to `while T loop skip end`, or to any other non-terminating
+program.  The first of these facts is easy, but the second is tricky.
+
+#### Exercise `whileFalse` (recommended) {#whileFalse}
+
+Show that a loop whose guard is equivalent to `F` is equivalent to
+`skip`.
+
+```
+postulate whileFalse : ∀ (b : BExp) (c : Command)
+                         → b ≡ᴮ F
+                           → while b loop c end ≡ᶜ skip
+```
+
+#### Exercise `whileTrue` (stretch) {#whileTrue}
+
+Show that a loop whose guard is equivalent to true is equivalent to
+the nonterminating loop `while T loop skip end`.
+
+For this result you will need an auxiliary lemma stating that `while`
+loops whose guards are equivalent to `true` never terminate.  This
+proof is quite subtle — in particular in its use of the unduction
+hypothesis — but it is worth the time to study as you complete this
+exercise.  The postulated statement of `whileTrue` follows the proof
+of this helper result.
+
+```
+whileTrueNonterm : ∀ (b : BExp) (c : Command) (s₁ s₂ : State)
+                     → b ≡ᴮ T
+                       →  ¬ (s₁ =[ while b loop c end ]=> s₂)
+```
+
+We are proving a negated formula, which is defined to mean that the
+assumption of that formula allows us to conclude `⊥`.  So we have the
+affirmative form of the conclusion as a premise:
+
+    whileTrueNonterm b c s₁ s₂ bIsT converges = ?
+
+We proceed by induction on the evidence of
+`s₁ =[ while b loop c end ]=> s₂`, and we must show that this
+premise leads to a contradiction.
+
+    while b true c nonterm s .s bIsT (EWhileF bEvalsFalse) = ?
+    while b true c nonterm s₁ s₂ bIsT (EWhileT bEvalsTrue evalFirst evalRest) = ?
+
+Notice that we again see the dot pattern in the first clause: since a
+while loop with `F` as its condition is equivalent to `skip`, the
+state and ending state in that clause must be the same.  Moreover the
+only two cases that we must consider are `EWhileF` and `EWhileT`: the
+others are contradictory.
+
+In the first case, where `s₁ =[ while b loop c end ]=> s₂` is proved
+using rule `EWhileF`, the premise `bEvalsFalse` carries evidence that
+`⟦ b ⟧ᴮ s₁ = false`.  But this contradicts the assumption that `b` is
+equivalent to `true`.
+
+```
+whileTrueNonterm b c s .s bIsT (EWhileF bEvalsFalse) =
+  trueNotFalse (bIsT s) bEvalsFalse
+```
+
+In the second case, where `s₁ =[ while b loop c end ]=> s₂` is proved
+using rule `EWhileT`, we will use the induction hypothesis, but there
+are some preliminaries.  First, we note that the premise `bIsT`
+carries evidence that `⟦ b ⟧ᴮ s₁ = true`.  Next, when we use `EWhileT`
+there is an implicit intermediate state which arises after running the
+loop body once, but before running it for the rest of its iterations.
+In the definition of `_=[_]=>_` we listed that quantified variable
+_first_, so we can easily expose it here:
+      
+    whileTrueNonterm b c s₁ s₂ bIsT (EWhileT {s₁′} bEvalsTrue evalFirst evalRest) = ?
+
+Now we can see how we can derive `⊥` from the induction hypothesis:
+the evidence `evalRest`, like the original argument `converges`,
+supports the formula `s₁ =[ while b loop c end ]=> s₂` — but since
+this is a strictly smaller piece of evidence, Agda will accept that we
+pass it to a recursive call to `whileTrueNonterm`:
+
+```
+whileTrueNonterm b c _ s₂ bIsT (EWhileT {s₁′} _ _ evalRest) =
+  whileTrueNonterm b c s₁′ s₂ bIsT evalRest
+```
+
+Notice that in the recursive call, we pass `s₁′` rather than `s₁`
+(which we no longer need to name): `s₁` was the starting state for the
+_entire_ execution of the loop, but with our recursive call we are
+considering what happens _after_ the first pass through the body.  So
+we update the starting state to be this milestone.
+
+```
+postulate whileTrue : ∀ (b : BExp) (c : Command)
+                        → b ≡ᴮ T
+                          → while b loop c end ≡ᶜ while T loop skip end
+```
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
+A more interesting fact about `while` commands is that any number of
+copies of the body can be "unrolled" without changing meaning.  Loop
+unrolling is a common transformation in real compilers.
+
+```
+loopUnrolling : ∀ (b : BExp) (c : Command)
+                  → while b loop c end
+                      ≡ᶜ if b then (c , while b loop c end) else skip end
+```
+
+We are concluding a `≡ᶜ`-formula, which is defined as a shorthand for
+a universal quantification over the starting and ending states of
+command execution.  We see these quantified values as additional
+parameters to the proof function.
+
+    loopUnrolling b c s₁ s₂ = ?
+
+Within the quantification there is a bi-implication, so we have the
+usual record with one field for each direction of the implication.
+
+```
+loopUnrolling b c s₁ s₂ =
+  record { to = fwd; from = bkw }
+```
+
+and the signatures of the two directions are
+
+```
+    where fwd : (s₁ =[ while b loop c end ]=> s₂)
+                  → (s₁ =[ if b then (c , while b loop c end)
+                                else skip end ]=> s₂)
+```
+
+    bkw : (s₁ =[ if b then (c , while b loop c end) else skip end ]=> s₂)
+            → (s₁ =[ while b loop c end ]=> s₂)
+
+In each direction we will perform a case analysis of the possible
+forms of evidence for the premise.  In the forward direction the
+premise concerns a loop, so the possible forms of evidence will have
+one of the `EWhileT` or `EWhileF` constructors.
+
+    fwd (EWhileF bIsFalse) = ?
+    fwd (EWhileT bIsTrue firstPass otherPasses) = ?
+
+In each case we are constructing evidence about an if-statement, so we
+will assemble the overall evidence for each of these two clauses with
+either the `EIfT` or `EIfF` constructor.  In the first clause, we have
+evidence that `b` evaluates to `F`, so use need the `EIfF` constructor
+
+```
+          fwd (EWhileF bIsFalse) = EIfF bIsFalse Eskip
+```
+
+In the second clause we have evidence that `b` is true.  For evidence
+of the then-branch we use the `E,` constructor to use evidence for one
+pass of the body, and for the remaining passes.
+
+```
+          fwd (EWhileT {s₁′} bIsTrue firstPass otherPasses) = 
+            EIfT bIsTrue (E, firstPass otherPasses)
+```
+
+In the reverse direction the premise concerns an if-statement, with a
+loop in its affirmative branch and `skip` in its negative branch.  We
+will use the evidence of the evaluation of these elements in
+describing the evaluation of the loop of the conclusion.
+
+```
+          bkw : (s₁ =[ if b then (c , while b loop c end) else skip end ]=> s₂)
+                    → (s₁ =[ while b loop c end ]=> s₂)
+          bkw (EIfT bIsTrue (E, e e₁)) = EWhileT bIsTrue e e₁
+          bkw (EIfF bIsFalse Eskip) = EWhileF bIsFalse
+```
+
+#### Exercise `seqAssoc` (recommended) {#seqAssoc}
+
+Show the following result:
+
+```
+postulate seqAssoc : ∀ c₁ c₂ c₃ → ((c₁ , c₂) , c₃) ≡ᶜ (c₁ , (c₂ , c₃))
+```
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
+
+
+Proving program properties involving assignments is one place where
+the fact that program states are treated extensionally (e.g.,
+`x ↦ m x , m` and `m` are equal maps) comes in handy.
+
+    identityFwd : ∀ x st → st =[ x := id x ]=> st
+    identityFwd x st = {!!}
+    
+    
+    identityAssignment : ∀ x → (x := id x) ≡ᶜ skip
+    identityAssignment x s₁ s₂ =
+      record { to = fwd; from = bkw }
+        where fwd : (s₁ =[ x := id x ]=> s₂) → (s₁ =[ skip ]=> s₂) 
+              fwd (E:= .(id x) n getX) rewrite sym getX = {!!}
+    
+              bkw : (s₁ =[ skip ]=> s₂) → (s₁ =[ x := id x ]=> s₂)
+              bkw Eskip rewrite sym (tUpdateSame s₁ x) = {!!}
+
+
 Proof.
   intros.
   split; intro H; inversion H; subst; clear H.
@@ -578,449 +535,261 @@ Proof.
     rewrite t_update_same.
     apply E_Skip.
   - (* <- *)
-    assert (Hx : st' =[ x := x ]=> (x !-> st' x ; st')).
+    assert (Hx : s₂ =[ x := x ]=> (x !-> s₂ x ; s₂.).
     { apply E_Ass. reflexivity. }
     rewrite t_update_same in Hx.
     apply Hx.
 Qed.
 
-(* EX2! (assign_aequiv) *)
-Theorem assign_aequiv : forall (x : string) a,
-  aequiv x a ->
-  cequiv <{ skip }> <{ x := a }>.
-Proof.
-  (* ADMITTED *)
-  intros x a Ha st st'. split; intros H.
-  - (* -> *)
-    rewrite <- (t_update_same _ st' x).
-    inversion H. subst. constructor. rewrite <- Ha. reflexivity.
-  - (* <- *)
-    inversion H. subst. rewrite <- Ha. simpl.
-    rewrite t_update_same. constructor.
-Qed.
-  (* /ADMITTED *)
-(* GRADE_THEOREM 2: assign_aequiv *)
+#### Exercise `:=-≡ᴬ` (recommended) {#assign-aequiv}
 
-(* EX2M (equiv_classes) *)
-(* HIDE: taken from 2012 midterm 2 *)
-(* HIDE: Sampsa: I feel that the exercise `equiv_classes` would
-   benefit from being proven or checked somehow.  Such exercises are
-   difficult to evaluate alone.
-   BCP: There's some (hidden) infrastructure here for doing that, but
-   it's not clear how to incorporate it into the current grading tools. *)
+Prove this result:
 
-(** Given the following programs, group together those that are
-    equivalent in Imp. Your answer should be given as a list of lists,
-    where each sub-list represents a group of equivalent programs. For
-    example, if you think programs (a) through (h) are all equivalent
-    to each other, but not to (i), your answer should look like this:
-[[
-       [ [prog_a;prog_b;prog_c;prog_d;prog_e;prog_f;prog_g;prog_h] ;
-         [prog_i] ]
-]]
-    Write down your answer below in the definition of
-    `equiv_classes`. *)
+```
+postulate
+  :=-≡ᴬ : forall (x : String) (a : AExp) → (id x) ≡ᴬ a -> skip ≡ᶜ (x := a)
+```
 
-Definition prog_a : com :=
-  <{ while ~(X <= 0) do
-       X := X + 1
-     end }>.
+#### Exercise `≡-classes` (recommended) {#equiv-classes}
 
-Definition prog_b : com :=
-  <{ if (X = 0) then
-       X := X + 1;
-       Y := 1
-     else
-       Y := 0
-     end;
-     X := X - Y;
-     Y := 0 }>.
+Given the following programs, group together those that are equivalent
+in Imp. Your answer should be given as a list of lists, where each
+sub-list represents a group of equivalent programs. For example, if
+you think programs (a) through (h) are all equivalent to each other,
+but not to (i), your answer should look like this:
 
-Definition prog_c : com :=
-  <{ skip }> .
+```
+progA : Command
+progA = while ! (id X <= # 0) loop X := id X + # 1 end
 
-Definition prog_d : com :=
-  <{ while ~(X = 0) do
-       X := (X * Y) + 1
-     end }>.
+progB : Command
+progB = if (id X == # 0)
+        then X := id X + # 1 , Y := # 1
+        else Y := # 0
+        end ,
+        X := id X - id Y ,
+        Y := # 0 
 
-Definition prog_e : com :=
-  <{ Y := 0 }>.
+progC : Command
+progC = skip
 
-Definition prog_f : com :=
-  <{ Y := X + 1;
-     while ~(X = Y) do
-       Y := X + 1
-     end }>.
+progD : Command
+progD = while ! (id X == # 0) loop
+          X := (id X * id Y) + # 1
+        end
 
-Definition prog_g : com :=
-  <{ while true do
-       skip
-     end }>.
+progE : Command
+progE = Y := # 0
 
-Definition prog_h : com :=
-  <{ while ~(X = X) do
-       X := X + 1
-     end }>.
+progF : Command
+progF = Y := id X + # 1 ,
+        while ! (id X == id Y) loop
+          Y := id X + # 1
+        end
 
-Definition prog_i : com :=
-  <{ while ~(X = Y) do
-       X := Y + 1
-     end }>.
+progG : Command
+progG = while T loop
+          skip
+        end
 
-Definition equiv_classes : list (list com)
-  (* ADMITDEF *) :=
-  [ [prog_a; prog_d] ;
-    [prog_b; prog_e] ;
-    [prog_c; prog_h] ;
-    [prog_f; prog_g] ;
-    [prog_i] ].
-(* /ADMITDEF *)
-(* HIDE *)
+progH : Command
+progH = while ! (id X == id X) loop
+          X := id X + # 1
+        end
 
-Fixpoint eqb_aexp (a1 a2 : aexp) : bool :=
-  match a1, a2 with
-  | ANum n1, ANum n2 => n1 =? n2
-  | AId x1, AId x2 => eqb_string x1 x2
-  | <{ a11 + a12 }>, <{ a21 + a22 }> =>
-    eqb_aexp a11 a21 && eqb_aexp a12 a22
-  | <{ a11 - a12 }>, <{ a21 - a22 }> =>
-    eqb_aexp a11 a21 && eqb_aexp a12 a22
-  | <{ a11 * a12 }>, <{ a21 * a22 }> =>
-    eqb_aexp a11 a21 && eqb_aexp a12 a22
-  | _, _ => false
-  end.
+progI : Command
+progI = while ! (id X == id Y) loop
+          X := id Y + # 1
+        end
+```
 
-Lemma eqb_aexp_true_iff :
-  forall a1 a2, eqb_aexp a1 a2 = true <-> a1 = a2.
-Proof.
-  intros a1.
-  induction a1 as [n1|x1|a11 IH1 a12 IH2|a11 IH1 a12 IH2|a11 IH1 a12 IH2];
-  intros [n2|x2|a21 a22|a21 a22|a21 a22];
-  simpl;
-  try solve [ intuition congruence
-            | rewrite andb_true_iff, IH1, IH2; intuition congruence ].
-  - rewrite eqb_eq. intuition congruence.
-  - rewrite eqb_string_true_iff. intuition congruence.
-Qed.
+## Properties of behavioral equivalence
 
-Fixpoint eqb_bexp (b1 b2 : bexp) : bool :=
-  match b1, b2 with
-  | <{true}>, <{true}> => true
-  | <{false}>, <{false}> => true
-  | <{ a11 = a12 }>, <{ a21 = a22 }> =>
-    eqb_aexp a11 a21 && eqb_aexp a12 a22
-  | <{ a11 <= a12 }>, <{ a21 <= a22 }> =>
-    eqb_aexp a11 a21 && eqb_aexp a12 a22
-  | <{ ~ b11 }>, <{ ~ b21 }> => eqb_bexp b11 b21
-  | <{ b11 && b12 }>, <{ b21 && b22 }> =>
-    eqb_bexp b11 b21 && eqb_bexp b12 b22
-  | _, _ => false
-  end.
+We now consider some fundamental properties of program equivalence.
 
-Lemma eqb_bexp_true_iff :
-  forall b1 b2, eqb_bexp b1 b2 = true <-> b1 = b2.
-Proof.
-  intros b1.
-  induction b1 as [| |b11 b12|b11 b12|b11 IH|b11 IH1 b12 IH2];
-  intros [| |b21 b22|b21 b22|b21|b21 b22];
-  simpl;
-  try solve [ intuition congruence
-            | rewrite andb_true_iff, eqb_aexp_true_iff, eqb_aexp_true_iff;
-              intuition congruence ].
-  - rewrite IH. intuition congruence.
-  - rewrite andb_true_iff, IH1, IH2. intuition congruence.
-Qed.
+### Behavioral equivalence is an equivalence 
 
-Fixpoint eqb_com (c1 c2 : com) : bool :=
-  match c1, c2 with
-  | CSkip, CSkip => true
-  | CAss x1 a1, CAss x2 a2 =>
-    eqb_string x1 x2 && eqb_aexp a1 a2
-  | CSeq c11 c12, CSeq c21 c22 =>
-    eqb_com c11 c21 && eqb_com c12 c22
-  | CIf b1 c11 c12, CIf b2 c21 c22 =>
-    eqb_bexp b1 b2 && eqb_com c11 c21 && eqb_com c12 c22
-  | CWhile b1 c11, CWhile b2 c21 =>
-    eqb_bexp b1 b2 && eqb_com c11 c21
-  | _, _ => false
-  end.
+First, we verify that the equivalences on `AExp`s, `BExp`s, and
+`Command`s really are _equivalences_ — i.e., that they are reflexive,
+symmetric, and transitive.  The proofs all rely directly on the
+evidence of the premises, and are quite short (and contrasting `≡ᴬ`
+and `≡ᴮ`, repetitive).  Recall that the `≡ᴬ` and `≡ᴮ` relationships
+are quantified over a single variable, so where we have a `≡ᴬ`- or
+`≡ᴮ`-formula in a conclusion, we see that quantified variable as an
+additional parameter to the proof function.  When concluding a
+`≡ᶜ`-formula, we see two such parameters corresponding to its two
+quantifications.
 
-Lemma eqb_com_true_iff :
-  forall c1 c2, eqb_com c1 c2 = true <-> c1 = c2.
-Proof.
-  intros c1.
-  induction c1 as [|x1 e1|c11 IH1 c12 IH2|e1 c11 IH1 c12 IH2|e1 c1 IH];
-  intros [|x2 e2|c21 c22|e2 c21 c22|e2 c2];
-  simpl;
-  try solve [ intuition congruence ]; repeat rewrite andb_true_iff.
-  - rewrite eqb_string_true_iff. rewrite eqb_aexp_true_iff. intuition congruence.
-  - rewrite IH1, IH2. intuition congruence.
-  - rewrite eqb_bexp_true_iff, IH1, IH2. intuition congruence.
-  - rewrite eqb_bexp_true_iff, IH. intuition congruence.
-Qed.
+```
+refl-≡ᴬ : ∀ {a : AExp} → a ≡ᴬ a
+refl-≡ᴬ s = refl
 
-Fixpoint remove_if_unique {A} (p : A -> bool) (l : list A) : option (list A) :=
-  match l with
-  | nil => None
-  | a :: l => if p a then
-                match remove_if_unique p l with
-                | Some l' => None
-                | None => Some l
-                end
-              else
-                match remove_if_unique p l with
-                | Some l' => Some (a :: l')
-                | None => None
-                end
-  end.
+sym-≡ᴬ : ∀ {a₁ a₂ : AExp} → a₁ ≡ᴬ a₂ → a₂ ≡ᴬ a₁
+sym-≡ᴬ a1a2 s = sym (a1a2 s)
 
-Fixpoint list_equiv {A} (r : A -> A -> bool) (l1 l2 : list A) : bool :=
-  match l1 with
-  | nil => match l2 with | nil => true | _ => false end
-  | a :: l1 => match remove_if_unique (r a) l2 with
-               | Some l2 => list_equiv r l1 l2
-               | None => false
-               end
-  end.
+trans-≡ᴬ : ∀ {a₁ a₂ a₃ : AExp} → a₁ ≡ᴬ a₂ → a₂ ≡ᴬ a₃ → a₁ ≡ᴬ a₃
+trans-≡ᴬ a1a2 a2a3 s = trans (a1a2 s) (a2a3 s)
 
-Definition check_equiv_classes : list (list com) -> bool :=
-  list_equiv (list_equiv eqb_com) equiv_classes.
-(* /HIDE *)
+refl-≡ᴮ : ∀ {b : BExp} → b ≡ᴮ b
+refl-≡ᴮ s = refl
 
-(* GRADE_MANUAL 2: equiv_classes *)
+sym-≡ᴮ : ∀ {b₁ b₂ : BExp} → b₁ ≡ᴮ b₂ → b₂ ≡ᴮ b₁
+sym-≡ᴮ b1b2 s = sym (b1b2 s)
+
+trans-≡ᴮ : ∀ {b₁ b₂ b₃ : BExp} → b₁ ≡ᴮ b₂ → b₂ ≡ᴮ b₃ → b₁ ≡ᴮ b₃
+trans-≡ᴮ b1b2 b2b3 s = trans (b1b2 s) (b2b3 s)
+```
+
+`≡ᶜ` is defined as a bi-implication under its quantifications, so we
+construct the record of each reasoning direction.
+
+```
+refl-≡ᶜ : ∀ {c : Command} → c ≡ᶜ c
+refl-≡ᶜ s₁ s₂ = record { to = λ x → x; from = λ x → x }
+
+sym-≡ᶜ : ∀ {c₁ c₂ : Command} → c₁ ≡ᶜ c₂ → c₂ ≡ᶜ c₁
+sym-≡ᶜ c1c2 s₁ s₂ = record { to = from (c1c2 s₁ s₂); from = to (c1c2 s₁ s₂) }
+```
+
+The last of these results `trans-≡ᶜ` has a bit more plumbing to it
+than the others.
+
+```
+trans-≡ᶜ : ∀ {c₁ c₂ c₃ : Command} → c₁ ≡ᶜ c₂ → c₂ ≡ᶜ c₃ → c₁ ≡ᶜ c₃
+trans-≡ᶜ c1c2 c2c3 s₁ s₂ = record {
+  to = λ e₁ → to (c2c3 s₁ s₂) (to (c1c2 s₁ s₂) e₁) ;
+  from = λ e₃ → from (c1c2 s₁ s₂) (from (c2c3 s₁ s₂) e₃) }
+```
+
+### Behavioral equivalence is a congruence
+
+Less obviously, behavioral equivalence is also a _congruence_.  That
+is, the equivalence of two subprograms implies the equivalence of
+larger programs in which they are embedded:
+
+            aequiv a a'
+    -------------------------
+    cequiv (x := a) (x := a')
+
+         cequiv c₁ c1'
+         cequiv c₂ c2'
+    --------------------------
+    cequiv (c1;c2) (c1';c2')
+
+and so on for the other forms of commands.  (Note that we are using
+the inference rule notation here not as part of a definition, but
+simply to write down some valid implications in a readable format. We
+prove these implications below.)
+
+The value of these results is that they let us replace a small part of
+a large program with an equivalent small part and know that the whole
+large programs are equivalent _without_ doing an explicit proof about
+the non-varying parts.  In other words, the "proof burden" of a small
+change to a large program is proportional to the size of the change,
+not the program.
+
+These properties allow us to reason that a large program behaves the
+same when we replace a small part with something equivalent.
+
+```
+:=-congruence : ∀ (x : String) (a a′ : AExp) → a ≡ᴬ a′ → (x := a) ≡ᶜ (x := a′)
+:=-congruence x a a′ aIsA′ s₁ s₂ =
+  record { to = fwd; from = bkw }
+```
+
+In each direction we are given evidence of assignment with one of the
+expressions, and assemble evidence of the assignment with the other
+expression.
+
+```
+    where fwd : (s₁ =[ x := a ]=> s₂) → (s₁ =[ x := a′ ]=> s₂)
+          fwd (E:= .a n a≡n) = E:= a′ n (begin
+                                         ⟦ a′ ⟧ᴬ s₁
+                                       ≡⟨ sym (aIsA′ s₁) ⟩
+                                         ⟦ a ⟧ᴬ s₁
+                                       ≡⟨ a≡n ⟩
+                                         n
+                                       ∎) 
+
+          bkw : (s₁ =[ x := a′ ]=> s₂) → (s₁ =[ x := a ]=> s₂)
+          bkw (E:= .a′ n a′≡n) = E:= a n (begin
+                                         ⟦ a ⟧ᴬ s₁
+                                       ≡⟨ aIsA′ s₁ ⟩
+                                         ⟦ a′ ⟧ᴬ s₁
+                                       ≡⟨ a′≡n ⟩
+                                         n
+                                       ∎)
+```
+
+The congruence property for loops is a little more interesting, since
+it requires induction.
 
 
-(* ####################################################### *)
-(** * Properties of Behavioral Equivalence *)
+    while-congruence : ∀ (b b′ : BExp) (c c′ : Command)
+                         → b ≡ᴮ b′ -> c ≡ᶜ c′
+                           → while b loop c end ≡ᶜ while b′ loop c′ end
+    while-congruence b b′ c c′ bEqb′ cEqc′ s₁ s₂ =
+      record { to = fwd; from = bkw }
+        where fwd : s₁ =[ while b loop c end ]=> s₂
+                      → s₁ =[ while b′ loop c′ end ]=> s₂
+              fwd (EWhileF bEvalsF) = EWhileF (trans (sym (bEqb′ s₁)) bEvalsF)
+              fwd (EWhileT {st′} bEvalsT firstPass otherPasses) = {!!}
+    
+              bkw : s₁ =[ while b′ loop c′ end ]=> s₂
+                     → s₁ =[ while b loop c end ]=> s₂
+              bkw e = {!!}
 
-(** We next consider some fundamental properties of program
-    equivalence. *)
 
-(* ####################################################### *)
-(** ** Behavioral Equivalence Is an Equivalence *)
+_Theorem_: Equivalence is a congruence for `while` — that is, if
+    `b` is equivalent to `b′` and `c` is equivalent to `c′`, then
+    `while b loop c end` is equivalent to `while b′ loop c′ end`.
 
-(** First, we verify that the equivalences on `aexps`, `bexps`, and
-    `com`s really are _equivalences_ — i.e., that they are reflexive,
-    symmetric, and transitive.  The proofs are all easy. *)
+    _Proof_: Suppose `b` is equivalent to `b′` and `c` is
+    equivalent to `c′`.  We must show, for every `st` and `st'`, that
+    `s₁ =[ while b loop c end ]=> s₂` iff `s₁ =[ while b′ loop c′ end ]=> s₂`.  We consider the two directions separately.
 
-Lemma refl_aequiv : forall (a : aexp), aequiv a a.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros a st. reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma sym_aequiv : forall (a1 a2 : aexp),
-  aequiv a1 a2 -> aequiv a2 a1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros a1 a2 H. intros st. symmetry. apply H.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma trans_aequiv : forall (a1 a2 a3 : aexp),
-  aequiv a1 a2 -> aequiv a2 a3 -> aequiv a1 a3.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold aequiv. intros a1 a2 a3 H12 H23 st.
-  rewrite (H12 st). rewrite (H23 st). reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma refl_bequiv : forall (b : bexp), bequiv b b.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold bequiv. intros b st. reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma sym_bequiv : forall (b1 b2 : bexp),
-  bequiv b1 b2 -> bequiv b2 b1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold bequiv. intros b1 b2 H. intros st. symmetry. apply H.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma trans_bequiv : forall (b1 b2 b3 : bexp),
-  bequiv b1 b2 -> bequiv b2 b3 -> bequiv b1 b3.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold bequiv. intros b1 b2 b3 H12 H23 st.
-  rewrite (H12 st). rewrite (H23 st). reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma refl_cequiv : forall (c : com), cequiv c c.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold cequiv. intros c st st'. reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma sym_cequiv : forall (c1 c2 : com),
-  cequiv c1 c2 -> cequiv c2 c1.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold cequiv. intros c1 c2 H st st'.
-  rewrite H. reflexivity.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-Lemma trans_cequiv : forall (c1 c2 c3 : com),
-  cequiv c1 c2 -> cequiv c2 c3 -> cequiv c1 c3.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold cequiv. intros c1 c2 c3 H12 H23 st st'.
-  rewrite H12. apply H23.
-Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-(* ######################################################## *)
-(** ** Behavioral Equivalence Is a Congruence *)
-
-(* SOONER: BCP 19: One question that comes up practically every year
-   is "What is an example of a program equivalence that is not a
-   congruence?"  This section should address that question.
-
-     - A simple but contrived example: If c = skip and d = skip;;skip,
-       then
-
-          E = { (c,c), (c,d), (d,c), (d,d) }
-
-       is certainly a congruence.  But
-
-          (skip;;c, skip;;d)
-
-       is not in E, so E is not a congruence.
-
-    - A more realistic and less contrived example: The relation
-
-          { (c,d) | d can be obtained from c by permuting the names of
-                    variables }
-
-      is an equivalence but not a congruence.
-
-   Put one or both of these in the text (and/or exercises).
-*)
-(** Less obviously, behavioral equivalence is also a _congruence_.
-    That is, the equivalence of two subprograms implies the
-    equivalence of the larger programs in which they are embedded:
-[[[
-                 aequiv a a'
-         -------------------------
-         cequiv (x := a) (x := a')
-
-              cequiv c1 c1'
-              cequiv c2 c2'
-         --------------------------
-         cequiv (c1;c2) (c1';c2')
-]]]
-    ... and so on for the other forms of commands. *)
-
-(** FULL: (Note that we are using the inference rule notation here not
-    as part of a definition, but simply to write down some valid
-    implications in a readable format. We prove these implications
-    below.) *)
-
-(** FULL: We will see a concrete example of why these congruence
-    properties are important in the following section (in the proof of
-    `fold_constants_com_sound`), but the main idea is that they allow
-    us to replace a small part of a large program with an equivalent
-    small part and know that the whole large programs are equivalent
-    _without_ doing an explicit proof about the non-varying parts --
-    i.e., the "proof burden" of a small change to a large program is
-    proportional to the size of the change, not the program. *)
-(** TERSE: *** *)
-(** TERSE: These properties allow us to reason that a large program
-    behaves the same when we replace a small part with something
-    equivalent. *)
-
-Theorem CAss_congruence : forall x a a',
-  aequiv a a' ->
-  cequiv <{x := a}> <{x := a'}>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  intros x a a' Heqv st st'.
-  split; intros Hceval.
-  - (* -> *)
-    inversion Hceval. subst. apply E_Ass.
-    rewrite Heqv. reflexivity.
-  - (* <- *)
-    inversion Hceval. subst. apply E_Ass.
-    rewrite Heqv. reflexivity.  Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
-
-(** FULL: The congruence property for loops is a little more interesting,
-    since it requires induction.
-
-    _Theorem_: Equivalence is a congruence for `while` — that is, if
-    `b` is equivalent to `b'` and `c` is equivalent to `c'`, then
-    `while b do c end` is equivalent to `while b' do c' end`.
-
-    _Proof_: Suppose `b` is equivalent to `b'` and `c` is
-    equivalent to `c'`.  We must show, for every `st` and `st'`, that
-    `st =[ while b do c end ]=> st'` iff `st =[ while b' do c' end ]=> st'`.  We consider the two directions separately.
-
-      - (`→`) We show that `st =[ while b do c end ]=> st'` implies
-        `st =[ while b' do c' end ]=> st'`, by induction on a
-        derivation of `st =[ while b do c end ]=> st'`.  The only
+      - (`→`) We show that `s₁ =[ while b loop c end ]=> s₂` implies
+        `s₁ =[ while b′ loop c′ end ]=> s₂`, by induction on a
+        derivation of `s₁ =[ while b loop c end ]=> s₂`.  The only
         nontrivial cases are when the final rule in the derivation is
-        `E_WhileFalse` or `E_WhileTrue`.
+        `EWhileF` or `EWhileT`.
 
-          - `E_WhileFalse`: In this case, the form of the rule gives us
-            `beval st b = false` and `st = st'`.  But then, since
-            `b` and `b'` are equivalent, we have `beval st b' = false`, and `E_WhileFalse` applies, giving us
-            `st =[ while b' do c' end ]=> st'`, as required.
+          - `EWhileF`: In this case, the form of the rule gives us
+            `⟦ b ⟧ᴮ s₁  = false` and `s₁ = s₂`.  But then, since
+            `b` and `b′` are equivalent, we have `⟦ b ⟧ᴮ s₁ ' = false`, and `EWhileF` applies, giving us
+            `s₁ =[ while b′ loop c′ end ]=> s₂`, as required.
 
-          - `E_WhileTrue`: The form of the rule now gives us `beval st b = true`, with `st =[ c ]=> st'0` and `st'0 =[ while b do c end ]=> st'` for some state `st'0`, with the
-            induction hypothesis `st'0 =[ while b' do c' end ]=> st'`.
+          - `EWhileT`: The form of the rule now gives us `⟦ b ⟧ᴮ s₁  = true`, with `s₁ =[ c ]=> s₂`` and `st'0 =[ while b loop c end ]=> s₂` for some state `st'0`, with the
+            induction hypothesis `st'0 =[ while b′ loop c′ end ]=> s₂`.
 
-            Since `c` and `c'` are equivalent, we know that `st =[ c' ]=> st'0`.  And since `b` and `b'` are equivalent,
-            we have `beval st b' = true`.  Now `E_WhileTrue` applies,
-            giving us `st =[ while b' do c' end ]=> st'`, as
+            Since `c` and `c′` are equivalent, we know that `s₁ =[ c′ ]=> s₂``.  And since `b` and `b′` are equivalent,
+            we have `⟦ b ⟧ᴮ s₁ ' = true`.  Now `EWhileT` applies,
+            giving us `s₁ =[ while b′ loop c′ end ]=> s₂`, as
             required.
 
       - (`←`) Similar. [] *)
 
-Theorem CWhile_congruence : forall b b' c c',
-  bequiv b b' -> cequiv c c' ->
-  cequiv <{ while b do c end }> <{ while b' do c' end }>.
 Proof.
   (* WORKINCLASS *)
 
   (* We will prove one direction in an "assert"
      in order to reuse it for the converse. *)
-  assert (A: forall (b b' : bexp) (c c' : com) (st st' : state),
-             bequiv b b' -> cequiv c c' ->
-             st =[ while b do c end ]=> st' ->
-             st =[ while b' do c' end ]=> st').
+  assert (A: forall (b b′ : bexp) (c c′ : com) (s₁ s₂ : state),
+             bequiv b b′ -> cequiv c c′ ->
+             s₁ =[ while b loop c end ]=> s₂ ->
+             s₁ =[ while b′ loop c′ end ]=> s₂`.
   { unfold bequiv,cequiv.
-    intros b b' c c' st st' Hbe Hc1e Hce.
-    remember <{ while b do c end }> as cwhile
+    intros b b′ c c′ s₁ s₂ Hbe Hc1e Hce.
+    remember <{ while b loop c end }> as cwhile
       eqn:Heqcwhile.
     induction Hce; inversion Heqcwhile; subst.
-    + (* E_WhileFalse *)
-      apply E_WhileFalse. rewrite <- Hbe. apply H.
-    + (* E_WhileTrue *)
-      apply E_WhileTrue with (st' := st').
+    + (* EWhileF *)
+      apply EWhileF. rewrite <- Hbe. apply H.
+    + (* EWhileT *)
+      apply EWhileT with (s₂ := s₂`.
       * (* show loop runs *) rewrite <- Hbe. apply H.
       * (* body execution *)
-        apply (Hc1e st st').  apply Hce1.
+        apply (Hc1e s₁ s₂..  apply Hce1.
       * (* subsequent loop execution *)
         apply IHHce2. reflexivity. }
 
@@ -1033,59 +802,59 @@ Qed.
 (* /WORKINCLASS *)
 
 (* FULL: EX3? (CSeq_congruence) *)
-Theorem CSeq_congruence : forall c1 c1' c2 c2',
-  cequiv c1 c1' -> cequiv c2 c2' ->
+Theorem CSeq_congruence : forall c₁ c1' c₂ c2',
+  cequiv c₁ c1' -> cequiv c₂ c2' ->
   cequiv <{ c1;c2 }> <{ c1';c2' }>.
 (* TERSE: HIDEFROMHTML *)
 (* FOLD *)
 Proof.
   (* ADMITTED *)
-  unfold cequiv. intros c1 c1' c2 c2' Hc1 Hc2 st st'.
+  unfold cequiv. intros c₁ c1' c₂ c2' Hc1 Hc2 s₁ s₂.
   split; intros Hc; inversion Hc; subst.
   - (* -> *)
-    apply E_Seq with (st' := st'0).
-    + (* c1 *)
-      apply (Hc1 st st'0). assumption.
-    + (* c2 *)
-      apply (Hc2 st'0 st'). assumption.
+    apply E_Seq with (s₂ := s₂.).
+    + (* c₁ *)
+      apply (Hc1 s₁ s₂.). assumption.
+    + (* c₂ *)
+      apply (Hc2 s₂. s₂.. assumption.
   - (* <- *)
-    apply E_Seq with (st' := st'0).
-    + (* c1 *)
-      apply (Hc1 st st'0). assumption.
-    + (* c2 *)
-      apply (Hc2 st'0 st').  assumption.  Qed.
+    apply E_Seq with (s₂ := s₂.).
+    + (* c₁ *)
+      apply (Hc1 s₁ s₂.). assumption.
+    + (* c₂ *)
+      apply (Hc2 s₂. s₂..  assumption.  Qed.
 (* /ADMITTED *)
 (** FULL: [] *)
 (* /FOLD *)
 (* TERSE: /HIDEFROMHTML *)
 
 (* FULL: EX3 (CIf_congruence) *)
-Theorem CIf_congruence : forall b b' c1 c1' c2 c2',
-  bequiv b b' -> cequiv c1 c1' -> cequiv c2 c2' ->
-  cequiv <{ if b then c1 else c2 end }>
-         <{ if b' then c1' else c2' end }>.
+Theorem CIf_congruence : forall b b′ c₁ c1' c₂ c2',
+  bequiv b b′ -> cequiv c₁ c1' -> cequiv c₂ c2' ->
+  cequiv <{ if b then c₁ else c₂ end }>
+         <{ if b′ then c1' else c2' end }>.
 (* TERSE: HIDEFROMHTML *)
 Proof.
   (* ADMITTED *)
   unfold bequiv,cequiv.
-  intros b b' c1 c1' c2 c2' Hbe Hc1e Hc2e st st'.
+  intros b b′ c₁ c1' c₂ c2' Hbe Hc1e Hc2e s₁ s₂.
   split; intros Hce.
   - (* -> *)
     inversion Hce; subst.
-    + (* E_IfTrue *)
+    + (* EIfT *)
       rewrite -> Hbe in H4. apply Hc1e in H5.
-      apply E_IfTrue; assumption.
-    + (* E_IfFalse *)
+      apply EIfT; assumption.
+    + (* EIfF *)
       rewrite -> Hbe in H4. apply Hc2e in H5.
-      apply E_IfFalse; assumption.
+      apply EIfF; assumption.
   - (* <- *)
     inversion Hce; subst.
-    + (* E_IfTrue *)
+    + (* EIfT *)
       rewrite <- Hbe in H4. apply Hc1e in H5.
-      apply E_IfTrue; assumption.
-    + (* E_IfFalse *)
+      apply EIfT; assumption.
+    + (* EIfF *)
       rewrite <- Hbe in H4. apply Hc2e in H5.
-      apply E_IfFalse; assumption.  Qed.
+      apply EIfF; assumption.  Qed.
 (* /ADMITTED *)
 (* GRADE_THEOREM 3: CIf_congruence *)
 (** FULL: [] *)
@@ -1119,11 +888,13 @@ Proof.
   - apply refl_cequiv.
   - apply CIf_congruence.
     + apply refl_bequiv.
-    + apply CAss_congruence. unfold aequiv. simpl.
+    + apply :=-congruence. unfold aequiv. simpl.
       symmetry. apply minus_diag.
     + apply refl_cequiv.
 Qed.
 
+
+#### Exercise `notCongruence` (practice) {#not-congruence}
 
 (* EX3A? (not_congr) *)
 (** We've shown that the `cequiv` relation is both an equivalence and
@@ -1137,23 +908,22 @@ Qed.
 Reserved Notation "c1 ~~~ c2" (at level 80).
 
 Inductive weirdrel : com -> com -> Prop :=
-| w_refl : forall c1, c1 ~~~ c1
-| w_symm : forall c1 c2, c1 ~~~ c2 -> c2 ~~~ c1
-| w_trans : forall c1 c2 c3, c1 ~~~ c2 -> c2 ~~~ c3 -> c1 ~~~ c3
+| w_refl : forall c1, c₁ ~~~ c1
+| w_symm : forall c₁ c2, c₁ ~~~ c₂ -> c₂ ~~~ c1
+| w_trans : forall c₁ c₂ c3, c₁ ~~~ c₂ -> c₂ ~~~ c3 -> c₁ ~~~ c3
 | w_weird : <{ skip }> ~~~ <{ X := X }>
 
-where "c1 ~~~ c2" := (weirdrel c1 c2).
+where "c1 ~~~ c2" := (weirdrel c₁ c2).
 
 (* /SOLUTION *)
 
 (* LATER: Ori: perhaps another (more meaningful?) solution:
-  c1 ~ c2 iff (both terminate) or (both do not terminate) ?
+  c₁ ~ c₂ iff (both terminate) or (both do not terminate) ?
 *)
 
 
 
-(* ####################################################### *)
-(** * Program Transformations *)
+## Program transformations 
 
 (** A _program transformation_ is a function that takes a program as
     input and produces some variant of the program as output.
@@ -1175,8 +945,7 @@ Definition ctrans_sound (ctrans : com -> com) : Prop :=
   forall (c : com),
     cequiv c (ctrans c).
 
-(* ######################################################## *)
-(** ** The Constant-Folding Transformation *)
+### The constant-folding transformation
 
 (** An expression is _constant_ when it contains no variable
     references.
@@ -1308,20 +1077,20 @@ Fixpoint fold_constants_com (c : com) : com :=
       <{ skip }>
   | <{ x := a }> =>
       <{ x := (fold_constants_aexp a) }>
-  | <{ c1 ; c2 }>  =>
-      <{ fold_constants_com c1 ; fold_constants_com c2 }>
-  | <{ if b then c1 else c2 end }> =>
+  | <{ c₁ ; c₂ }>  =>
+      <{ fold_constants_com c₁ ; fold_constants_com c₂ }>
+  | <{ if b then c₁ else c₂ end }> =>
       match fold_constants_bexp b with
       | <{true}>  => fold_constants_com c1
       | <{false}> => fold_constants_com c2
-      | b' => <{ if b' then fold_constants_com c1
-                       else fold_constants_com c2 end}>
+      | b′ => <{ if b′ then fold_constants_com c1
+                       else fold_constants_com c₂ end}>
       end
-  | <{ while b do c1 end }> =>
+  | <{ while b loop c₁ end }> =>
       match fold_constants_bexp b with
-      | <{true}> => <{ while true do skip end }>
+      | <{true}> => <{ while true loop skip end }>
       | <{false}> => <{ skip }>
-      | b' => <{ while b' do (fold_constants_com c1) end }>
+      | b′ => <{ while b′ loop (fold_constants_com c1) end }>
       end
   end.
 
@@ -1353,8 +1122,7 @@ Proof. reflexivity. Qed.
 (* /FOLD *)
 (* TERSE: /HIDEFROMHTML *)
 
-(* ################################################### *)
-(** ** Soundness of Constant Folding *)
+### Soundness of constant folding
 
 (** Now we need to show that what we've done is correct. *)
 
@@ -1371,9 +1139,9 @@ Proof.
     try reflexivity;
     (* APlus, AMinus, and AMult follow from the IH
        and the observation that
-              aeval st (<{ a1 + a2 }>)
-            = ANum ((aeval st a1) + (aeval st a2))
-            = aeval st (ANum ((aeval st a1) + (aeval st a2)))
+              aeval s₁ (<{ a1 + a2 }>)
+            = ANum ((aeval s₁ a1) + (aeval s₁ a2))
+            = aeval s₁ (ANum ((aeval s₁ a1) + (aeval s₁ a2)))
        (and similarly for AMinus/minus and AMult/mult) *)
     try (destruct (fold_constants_aexp a1);
          destruct (fold_constants_aexp a2);
@@ -1381,6 +1149,8 @@ Proof.
 (* /FOLD *)
 (* TERSE: /HIDEFROMHTML *)
 
+
+#### Exercise `foldBexpEqInformal` (practice) {#foldBexpEqInformal}
 
 (* EX3? (fold_bexp_Eq_informal) *)
 (** Here is an informal proof of the `BEq` case of the soundness
@@ -1398,8 +1168,8 @@ Proof.
 
    In this case, we must show
 {[
-       beval st <{ a1 = a2 }>
-     = beval st (fold_constants_bexp <{ a1 = a2 }>).
+       ⟦ <{ a1 = a2 }> ⟧ᴮ st
+     = ⟦ (fold_constants_bexp <{ a1 = a2 }>) ⟧ᴮ st.
 ]]
    There are two cases to consider:
 
@@ -1413,43 +1183,43 @@ Proof.
 ]]
        and
 [[
-           beval st <{a1 = a2}>
-         = (aeval st a1) =? (aeval st a2).
+           ⟦ <{a1 = a2}> ⟧ᴮ st
+         = (aeval s₁ a1) =? (aeval s₁ a2).
 ]]
        By the soundness of constant folding for arithmetic
        expressions (Lemma `fold_constants_aexp_sound`), we know
 [[
-           aeval st a1
-         = aeval st (fold_constants_aexp a1)
-         = aeval st (ANum n1)
+           aeval s₁ a1
+         = aeval s₁ (fold_constants_aexp a1)
+         = aeval s₁ (ANum n1)
          = n1
 ]]
        and
 [[
-           aeval st a2
-         = aeval st (fold_constants_aexp a2)
-         = aeval st (ANum n2)
+           aeval s₁ a2
+         = aeval s₁ (fold_constants_aexp a2)
+         = aeval s₁ (ANum n2)
          = n2,
 ]]
        so
 [[
-           beval st <{a1 = a2}>
+           ⟦ <{a1 = a2}> ⟧ᴮ st
          = (aeval a1) =? (aeval a2)
          = n1 =? n2.
 ]]
        Also, it is easy to see (by considering the cases `n1 = n2` and
        `n1 <> n2` separately) that
 [[
-           beval st (if n1 =? n2 then <{true}> else <{false}>)
-         = if n1 =? n2 then beval st <{true}> else beval st <{false}>
+           ⟦ if n1 =? n2 then T else F ⟧ᴮ st
+         = if n1 =? n2 then beval s₁ <{true}> else ⟦ <{false}> ⟧ᴮ st
          = if n1 =? n2 then true else false
          = n1 =? n2.
 ]]
        So
 [[
-           beval st (<{ a1 = a2 }>)
+           beval s₁ (<{ a1 = a2 }>)
          = n1 =? n2.
-         = beval st (if n1 =? n2 then <{true}> else <{false}>),
+         = ⟦ if n1 =? n2 then T else F ⟧ᴮ st,
 ]]
        as required.
 
@@ -1457,21 +1227,21 @@ Proof.
        `fold_constants_aexp a2` is not a constant.  In this case, we
        must show
 [[
-           beval st <{a1 = a2}>
-         = beval st (<{ (fold_constants_aexp a1) =
-                         (fold_constants_aexp a2) }>),
+           ⟦ <{a1 = a2}> ⟧ᴮ st
+         = ⟦ fold_constants_aexp a1 ⟧ᴮ s₁ =
+                         ⟦ fold_constants_aexp a2 ⟧ᴮ st,
 ]]
-       which, by the definition of `beval`, is the same as showing
+       which, by the definition of `⟦_⟧ᴮ_` is the same as showing
 [[
-           (aeval st a1) =? (aeval st a2)
-         = (aeval st (fold_constants_aexp a1)) =?
-                   (aeval st (fold_constants_aexp a2)).
+           (aeval s₁ a1) =? (aeval s₁ a2)
+         = (aeval s₁ (fold_constants_aexp a1)) =?
+                   (aeval s₁ (fold_constants_aexp a2)).
 ]]
        But the soundness of constant folding for arithmetic
        expressions (`fold_constants_aexp_sound`) gives us
 [[
-         aeval st a1 = aeval st (fold_constants_aexp a1)
-         aeval st a2 = aeval st (fold_constants_aexp a2),
+         aeval s₁ a1 = aeval s₁ (fold_constants_aexp a1)
+         aeval s₁ a2 = aeval s₁ (fold_constants_aexp a2),
 ]]
        completing the case.  [] *)
 
@@ -1488,9 +1258,9 @@ Proof.
     simpl.
     remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
     remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
-    replace (aeval st a1) with (aeval st a1') by
+    replace (aeval s₁ a1) with (aeval s₁ a1') by
        (subst a1'; rewrite <- fold_constants_aexp_sound; reflexivity).
-    replace (aeval st a2) with (aeval st a2') by
+    replace (aeval s₁ a2) with (aeval s₁ a2') by
        (subst a2'; rewrite <- fold_constants_aexp_sound; reflexivity).
     destruct a1'; destruct a2'; try reflexivity.
     (* The only interesting case is when both a1 and a2
@@ -1502,9 +1272,9 @@ Proof.
     remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
     remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
     (* a slightly alternative approach using asserts: *)
-    assert (aeval st a1 = aeval st a1') as H1. {
+    assert (aeval s₁ a1 = aeval s₁ a1') as H1. {
       subst a1'. apply fold_constants_aexp_sound. }
-    assert (aeval st a2 = aeval st a2') as H2. {
+    assert (aeval s₁ a2 = aeval s₁ a2') as H2. {
       subst a2'. apply fold_constants_aexp_sound. }
     rewrite H1. rewrite H2.
     destruct a1'; destruct a2'; try reflexivity.
@@ -1513,9 +1283,9 @@ Proof.
       simpl. destruct (n <=? n0); reflexivity.
     (* /ADMIT *)
   - (* BNot *)
-    simpl. remember (fold_constants_bexp b) as b' eqn:Heqb'.
+    simpl. remember (fold_constants_bexp b) as b′ eqn:Heqb′.
     rewrite IHb.
-    destruct b'; reflexivity.
+    destruct b′; reflexivity.
   - (* BAnd *)
     simpl.
     remember (fold_constants_bexp b1) as b1' eqn:Heqb1'.
@@ -1535,12 +1305,12 @@ Qed.
     try reflexivity;
     try
       (simpl;
-       remember (fold_constants_aexp a) as a';
+       remember (fold_constants_aexp a) as a′;
        remember (fold_constants_aexp a0) as a0';
-       assert (aeval st a = aeval st a') as Ha;
-       assert (aeval st a0 = aeval st a0') as Ha0;
+       assert (aeval s₁ a = aeval s₁ a′) as Ha;
+       assert (aeval s₁ a0 = aeval s₁ a0') as Ha0;
          try (subst; apply fold_constants_aexp_sound);
-       destruct a'; destruct a0'; rewrite Ha; rewrite Ha0;
+       destruct a′; destruct a0'; rewrite Ha; rewrite Ha0;
        simpl; (try destruct (n =? n0)); (try destruct (n <=? n0));
        reflexivity);
     try (simpl; destruct (fold_constants_bexp b); rewrite IHb; reflexivity);
@@ -1548,6 +1318,8 @@ Qed.
          destruct (fold_constants_bexp b2);
          rewrite IHb1; rewrite IHb2; reflexivity). *)
 
+
+#### Exercise `foldConstantsCmdSound` (practice) {#foldConstantsCmdSound}
 
 (* EX3 (fold_constants_com_sound) *)
 (** Complete the `while` case of the following proof. *)
@@ -1560,7 +1332,7 @@ Proof.
   unfold ctrans_sound. intros c.
   induction c; simpl.
   - (* skip *) apply refl_cequiv.
-  - (* := *) apply CAss_congruence.
+  - (* := *) apply :=-congruence.
               apply fold_constants_aexp_sound.
   - (* ; *) apply CSeq_congruence; assumption.
   - (* if *)
@@ -1597,8 +1369,9 @@ Proof.
 
 
 
-(* ########################################################## *)
-(** *** Soundness of (0 + n) Elimination, Redux *)
+### Soundness of (0 + n) elimination, redux 
+
+#### Exercise `optimize0+` (stretch) {#optimize-zero-plus}
 
 (* EX4A? (optimize0plus) *)
 (** Recall the definition `optimize0plus` from the \CHAPV1{Imp} chapter
@@ -1667,14 +1440,14 @@ Fixpoint optimize0plus_com (c : com) : com :=
   match c with
   | <{ skip }>                     => <{ skip }>
   | <{ x := a }>                   => <{ x := optimize0plus_aexp a }>
-  | <{ c1 ; c2 }>                  => <{ optimize0plus_com c1 ;
-                                         optimize0plus_com c2 }>
-  | <{ if b then c1 else c2 end }> =>
+  | <{ c₁ ; c₂ }>                  => <{ optimize0plus_com c₁ ;
+                                         optimize0plus_com c₂ }>
+  | <{ if b then c₁ else c₂ end }> =>
      <{ if (optimize0plus_bexp b)
         then (optimize0plus_com c1)
         else (optimize0plus_com c2)
         end }>
-  | <{ while b do c1 end }>         => <{ while (optimize0plus_bexp b) do
+  | <{ while b loop c₁ end }>         => <{ while (optimize0plus_bexp b) do
                                           (optimize0plus_com c1)
                                          end }>
   end.
@@ -1722,11 +1495,11 @@ Proof.
   unfold ctrans_sound, cequiv.
   intros c.
   induction c;
-  intros st st'; simpl.
+  intros s₁ s₂. simpl.
   - (* skip *)
     apply refl_cequiv.
   - (* := *)
-    apply CAss_congruence.
+    apply :=-congruence.
     apply optimize0plus_aexp_sound.
   - (* ; *)
     apply CSeq_congruence; unfold cequiv.
@@ -1753,17 +1526,16 @@ Proof.
 (* /SOLUTION *)
 
 
-(* ####################################################### *)
-(** * Proving Inequivalence *)
+### Proving inequivalence
 
 (** Suppose that `c1` is a command of the form `X := a1; Y := a2`
     and `c2` is the command `X := a1; Y := a2'`, where `a2'` is
     formed by substituting `a1` for all occurrences of `X` in `a2`.
     For example, `c1` and `c2` might be:
 [[
-       c1  =  (X := 42 + 53;
+       c₁  =  (X := 42 + 53;
                Y := Y + X)
-       c2  =  (X := 42 + 53;
+       c₂  =  (X := 42 + 53;
                Y := Y + (42 + 53))
 ]]
     Clearly, this _particular_ `c1` and `c2` are equivalent.  Is this
@@ -1886,7 +1658,7 @@ Proof.
   remember <{ X := X + 1;
               Y := X + 1 }>
       as c2.
-  assert (cequiv c1 c2) by (subst; apply Contra).
+  assert (cequiv c₁ c2) by (subst; apply Contra).
   clear Contra.
 
   (* ... allows us to show that the command `c2` can terminate
@@ -1895,10 +1667,10 @@ Proof.
         st2 = (Y !-> 2 ; X !-> 1). *)
   remember (Y !-> 1 ; X !-> 1) as st1.
   remember (Y !-> 2 ; X !-> 1) as st2.
-  assert (H1 : empty_st =[ c1 ]=> st1);
-  assert (H2 : empty_st =[ c2 ]=> st2);
+  assert (H1 : empty_st =[ c₁ ]=> st1);
+  assert (H2 : empty_st =[ c₂ ]=> st2);
   try (subst;
-       apply E_Seq with (st' := (X !-> 1));
+       apply E_Seq with (s₂ := (X !-> 1));
        apply E_Ass; reflexivity).
   clear Heqc1 Heqc2.
 
@@ -1908,15 +1680,17 @@ Proof.
   (* Finally, we use the fact that evaluation is deterministic
      to obtain a contradiction. *)
   assert (Hcontra : st1 = st2)
-    by (apply (ceval_deterministic c2 empty_st); assumption).
+    by (apply (ceval_deterministic c₂ empty_st); assumption).
   clear H1 H2.
 
-  assert (Hcontra' : st1 Y = st2 Y)
+  assert (Hcontra′ : st1 Y = st2 Y)
     by (rewrite Hcontra; reflexivity).
   subst. discriminate. Qed.
 (* /FOLD *)
 (* TERSE: /HIDEFROMHTML *)
 
+
+#### Exercise `betterSubst≡` (stretch) {#better-subst-equiv}
 
 (* EX4? (better_subst_equiv) *)
 (** The equivalence we had in mind above was not complete nonsense --
@@ -1940,12 +1714,12 @@ Inductive var_not_used_in_aexp (x : string) : aexp -> Prop :=
       var_not_used_in_aexp x a2 ->
       var_not_used_in_aexp x (<{ a1 * a2 }>).
 
-Lemma aeval_weakening : forall x st a ni,
+Lemma aeval_weakening : forall x s₁ a ni,
   var_not_used_in_aexp x a ->
-  aeval (x !-> ni ; st) a = aeval st a.
+  aeval (x !-> ni ; st) a = aeval s₁ a.
 Proof.
   (* ADMITTED *)
-  intros x st a.
+  intros x s₁ a.
   induction a; intros nx Hx;
     (* the binary operators follow from the IH *)
     try (simpl; inversion Hx; subst;
@@ -1963,12 +1737,12 @@ Proof.
     of `subst_equiv_property`. *)
 
 (* SOLUTION *)
-Lemma aeval_subst : forall x st a1 a2,
+Lemma aeval_subst : forall x s₁ a1 a2,
   var_not_used_in_aexp x a1 ->
-  aeval (x !-> aeval st a1 ; st) a2 =
-  aeval (x !-> aeval st a1 ; st) (subst_aexp x a1 a2).
+  aeval (x !-> aeval s₁ a1 ; st) a2 =
+  aeval (x !-> aeval s₁ a1 ; st) (subst_aexp x a1 a2).
 Proof.
-  intros x st a1 a2 Hi.
+  intros x s₁ a1 a2 Hi.
   generalize dependent st.
   induction a2 as [| x' | | | ]; intros st;
     (* operator cases follow from the IH *)
@@ -1994,28 +1768,30 @@ Proof.
   split; intros Hce.
   - (* -> *)
     inversion Hce; subst.
-    apply E_Seq with st'0; try assumption.
+    apply E_Seq with s₂.; try assumption.
     inversion H4; subst. apply E_Ass.
     inversion H1; subst. symmetry. apply aeval_subst.
     assumption.
   - (* <- *)
     inversion Hce; subst.
-    apply E_Seq with st'0.
+    apply E_Seq with s₂..
     assumption.
     inversion H4; subst. apply E_Ass.
     inversion H1; subst. apply aeval_subst.
     assumption.  Qed.
 (* /SOLUTION *)
 
+#### Exercise `≢-skip` (practice) {#inequiv-skip}
+
 (* EX3 (inequiv_exercise) *)
 (** Prove that an infinite loop is not equivalent to `skip` *)
 
 Theorem inequiv_exercise:
-  ~ cequiv <{ while true do skip end }> <{ skip }>.
+  ~ cequiv <{ while true loop skip end }> <{ skip }>.
 Proof.
   (* ADMITTED *)
   intros Contra.
-  assert (~(empty_st =[ while true do skip end ]=> empty_st)) as H.
+  assert (~(empty_st =[ while true loop skip end ]=> empty_st)) as H.
   { apply while_true_nonterm. apply refl_bequiv. }
   apply H.
   apply (Contra empty_st empty_st).
@@ -2024,8 +1800,7 @@ Proof.
 
 
 
-(* ################################################################## *)
-(** * Extended Exercise: Nondeterministic Imp *)
+#### Extended exercise: nondeterministic Imp
 
 (* HIDE: Mukund: This issue will need repetition when we introduce
    small-step semantics. There's also a nice exercise for Hoare.v in
@@ -2088,7 +1863,7 @@ Inductive com : Type :=
   | CWhile : bexp -> com -> com
   | CHavoc : string -> com.                (* <--- NEW *)
 
-Notation "'havoc' l" := (CHavoc l)
+Notation "'havoc′ l" := (CHavoc l)
                           (in custom com at level 60, l constr at level 0).
 (* INSTRUCTORS: Copy of template com *)
 Notation "'skip'"  :=
@@ -2108,6 +1883,8 @@ Notation "'while' x 'do' y 'end'" :=
          (CWhile x y)
             (in custom com at level 89, x at level 99, y at level 99).
 
+#### Exercise `himpCevel` (recommended) {#himp-ceval}
+
 (* EX2 (himp_ceval) *)
 (** Now, we must extend the operational semantics. We have provided
    a template for the `ceval` relation below, specifying the big-step
@@ -2115,42 +1892,42 @@ Notation "'while' x 'do' y 'end'" :=
    to formalize the behavior of the `HAVOC` command? *)
 
 (* INSTRUCTORS: Copy of template eval *)
-Reserved Notation "st '=[' c ']=>' st'"
-         (at level 40, c custom com at level 99, st constr,
-          st' constr at next level).
+Reserved Notation "st '=[' c ']=>' s₂.
+         (at level 40, c custom com at level 99, s₁ constr,
+          s₂ constr at next level).
 
 Inductive ceval : com -> state -> state -> Prop :=
   | E_Skip : forall st,
-      st =[ skip ]=> st
-  | E_Ass  : forall st a1 n x,
-      aeval st a1 = n ->
-      st =[ x := a1 ]=> (x !-> n ; st)
-  | E_Seq : forall c1 c2 st st' st'',
-      st  =[ c1 ]=> st'  ->
-      st' =[ c2 ]=> st'' ->
-      st  =[ c1 ; c2 ]=> st''
-  | E_IfTrue : forall st st' b c1 c2,
-      beval st b = true ->
-      st =[ c1 ]=> st' ->
-      st =[ if b then c1 else c2 end ]=> st'
-  | E_IfFalse : forall st st' b c1 c2,
-      beval st b = false ->
-      st =[ c2 ]=> st' ->
-      st =[ if b then c1 else c2 end ]=> st'
-  | E_WhileFalse : forall b st c,
-      beval st b = false ->
-      st =[ while b do c end ]=> st
-  | E_WhileTrue : forall st st' st'' b c,
-      beval st b = true ->
-      st  =[ c ]=> st' ->
-      st' =[ while b do c end ]=> st'' ->
-      st  =[ while b do c end ]=> st''
+      s₁ =[ skip ]=> st
+  | E_Ass  : forall s₁ a1 n x,
+      aeval s₁ a1 = n ->
+      s₁ =[ x := a1 ]=> (x !-> n ; st)
+  | E_Seq : forall c₁ c₂ s₁ s₂ s₂.,
+      s₁  =[ c₁ ]=> s₂  ->
+      s₂ =[ c₂ ]=> s₂. ->
+      s₁  =[ c₁ ; c₂ ]=> s₂.
+  | EIfT : forall s₁ s₂ b c₁ c2,
+      ⟦ b ⟧ᴮ s₁  = true ->
+      s₁ =[ c₁ ]=> s₂ ->
+      s₁ =[ if b then c₁ else c₂ end ]=> s₂
+  | EIfF : forall s₁ s₂ b c₁ c2,
+      ⟦ b ⟧ᴮ s₁  = false ->
+      s₁ =[ c₂ ]=> s₂ ->
+      s₁ =[ if b then c₁ else c₂ end ]=> s₂
+  | EWhileF : forall b s₁ c,
+      ⟦ b ⟧ᴮ s₁  = false ->
+      s₁ =[ while b loop c end ]=> st
+  | EWhileT : forall s₁ s₂ s₂. b c,
+      ⟦ b ⟧ᴮ s₁  = true ->
+      s₁  =[ c ]=> s₂ ->
+      s₂ =[ while b loop c end ]=> s₂. ->
+      s₁  =[ while b loop c end ]=> s₂.
 (* SOLUTION *)
-  | E_Havoc : forall (st : state) (X : string) (n : nat),
-      st =[ havoc X ]=> (X !-> n ; st)
+  | E_Havoc : forall (s₁ : state) (X : string) (n : nat),
+      s₁ =[ havoc X ]=> (X !-> n ; st)
 (* /SOLUTION *)
 
-  where "st =[ c ]=> st'" := (ceval c st st').
+  where "st =[ c ]=> s₂. := (ceval c s₁ s₂..
 
 (** As a sanity check, the following claims should be provable for
     your definition: *)
@@ -2172,11 +1949,13 @@ Proof.
 
 (** Finally, we repeat the definition of command equivalence from above: *)
 
-Definition cequiv (c1 c2 : com) : Prop := forall st st' : state,
-  st =[ c1 ]=> st' <-> st =[ c2 ]=> st'.
+Definition cequiv (c1 c₂ : com) : Prop := forall s₁ s₂ : state,
+  s₁ =[ c₁ ]=> s₂ <-> s₁ =[ c₂ ]=> s₂.
 
 (** Let's apply this definition to prove some nondeterministic
     programs equivalent / inequivalent. *)
+
+#### Exercise `havocSwap` (practice) {#havoc-swap}
 
 (* EX3 (havoc_swap) *)
 (** Are the following two programs equivalent? *)
@@ -2193,11 +1972,11 @@ Definition pYX :=
 (* QUIETSOLUTION *)
 
 Theorem pXY_approx_pYX :
-  forall X Y st st',
-    st =[ havoc X; havoc Y ]=> st' ->
-    st =[ havoc Y; havoc X ]=> st'.
+  forall X Y s₁ s₂.
+    s₁ =[ havoc X; havoc Y ]=> s₂ ->
+    s₁ =[ havoc Y; havoc X ]=> s₂.
 Proof.
-  intros X Y st st' H.
+  intros X Y s₁ s₂ H.
   destruct (eqb_stringP X Y) as [Hid | Hid].
   - (* X = Y *)
     subst.  assumption.
@@ -2205,7 +1984,7 @@ Proof.
     inversion H; subst; clear H.
     inversion H2; subst; clear H2.
     inversion H5; subst; clear H5.
-    apply E_Seq with (st' := (Y !-> n0 ; st)). constructor.
+    apply E_Seq with (s₂ := (Y !-> n0 ; st)). constructor.
     rewrite t_update_permute.
     constructor. assumption.
 Qed.
@@ -2214,11 +1993,13 @@ Qed.
 Theorem pXY_cequiv_pYX :
   cequiv pXY pYX \/ ~cequiv pXY pYX.
 Proof. (* ADMITTED *)
-  left. intros st st'.
+  left. intros s₁ s₂.
   split; apply pXY_approx_pYX; reflexivity.
 Qed.
 (* /ADMITTED *)
 (* GRADE_THEOREM 3: Himp.pXY_cequiv_pYX *)
+
+#### Exercise `havocCopy` (stretch) {#havoc-copy}
 
 (* EX4? (havoc_copy) *)
 (** Are the following two programs equivalent? *)
@@ -2245,10 +2026,10 @@ Proof. (* ADMITTED *)
      useful to process contradictory equalities on functions.
      See `p3_p4_inequiv` for a more drastic reduction in code. *)
   assert (H0 : n = 1).
-  { apply (f_equal (fun st => st Y)) in H13.
+  { apply (f_equal (fun s₁ => s₁ Y)) in H13.
     apply H13. }
   assert (H1 : n = 0).
-  { apply (f_equal (fun st => st X)) in H13.
+  { apply (f_equal (fun s₁ => s₁ X)) in H13.
     apply H13. }
   rewrite H0 in H1. discriminate.
 Qed.
@@ -2264,6 +2045,8 @@ Qed.
     others. The final part of the following exercise illustrates this
     phenomenon.
 *)
+
+#### Exercise `p1p2Term` (stretch) {#p1p2Term}
 
 (* EX4A (p1_p2_term) *)
 (** Consider the following commands: *)
@@ -2285,36 +2068,38 @@ Definition p2 : com :=
     `p2` individually with these lemmas: *)
 
 (* GRADE_THEOREM 3: Himp.p1_may_diverge *)
-Lemma p1_may_diverge : forall st st', st X <> 0 ->
-  ~ st =[ p1 ]=> st'.
+Lemma p1_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
+  ~ s₁ =[ p1 ]=> s₂.
 Proof. (* ADMITTED *)
   intros. intros Hcontra.
-  remember p1 as p1' eqn:Heqp1'. remember st' as st'' eqn:Heqst''.
+  remember p1 as p1' eqn:Heqp1'. remember s₂ as s₂. eqn:Heqst''.
   induction Hcontra; inversion Heqp1'.
-  - (* E_WhileFalse *) subst. simpl in H0.
+  - (* EWhileF *) subst. simpl in H0.
     apply negb_false_iff in H0. apply eqb_eq in H0.
     apply H in H0. assumption.
-  - (* E_WhileTrue *) subst. apply IHHcontra2; try reflexivity.
+  - (* EWhileT *) subst. apply IHHcontra2; try reflexivity.
     inversion Hcontra1. subst.
     inversion H3; subst. inversion H6; subst.
     rewrite t_update_eq. simpl. lia.
 Qed. (* /ADMITTED *)
 
 (* GRADE_THEOREM 3: Himp.p2_may_diverge *)
-Lemma p2_may_diverge : forall st st', st X <> 0 ->
-  ~ st =[ p2 ]=> st'.
+Lemma p2_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
+  ~ s₁ =[ p2 ]=> s₂.
 Proof.
 (* ADMITTED *)
   intros. intros Hcontra.
-  remember p2 as p2' eqn:Heqp2'. remember st' as st'' eqn:Heqst''.
+  remember p2 as p2' eqn:Heqp2'. remember s₂ as s₂. eqn:Heqst''.
   induction Hcontra; inversion Heqp2'.
-  - (* E_WhileFalse *) subst. simpl in H0.
+  - (* EWhileF *) subst. simpl in H0.
     apply negb_false_iff in H0. apply eqb_eq in H0.
     apply H in H0. assumption.
-  - (* E_WhileTrue *) subst. apply IHHcontra2; try reflexivity.
+  - (* EWhileT *) subst. apply IHHcontra2; try reflexivity.
     inversion Hcontra1. subst.
     assumption.
 Qed. (* /ADMITTED *)
+
+#### Exercise `p1p2Equiv` (stretch) {#p1p2Equiv}
 
 (* EX4A (p1_p2_equiv) *)
 (** Use these two lemmas to prove that `p1` and `p2` are actually
@@ -2325,21 +2110,23 @@ Proof. (* ADMITTED *)
   split; intros.
   - remember p1 as p1' eqn:Heqp1'.
     destruct H; inversion Heqp1'; subst.
-    + (* E_WhileFalse *) apply E_WhileFalse. assumption.
-    + (* E_WhileTrue *) apply p1_may_diverge in H1.
+    + (* EWhileF *) apply EWhileF. assumption.
+    + (* EWhileT *) apply p1_may_diverge in H1.
       inversion H1.
       simpl in H. apply negb_true_iff in H. apply eqb_neq in H.
       inversion H0; subst. inversion H4; subst. inversion H7; subst.
       rewrite t_update_eq. simpl. lia.
   - remember p2 as p2' eqn:Heqp2'.
     destruct H; inversion Heqp2'; subst.
-    + (* E_WhileFalse *) apply E_WhileFalse. assumption.
-    + (* E_WhileTrue *) apply p2_may_diverge in H1.
+    + (* EWhileF *) apply EWhileF. assumption.
+    + (* EWhileT *) apply p2_may_diverge in H1.
       inversion H1.
       simpl in H. apply negb_true_iff in H. apply eqb_neq in H.
       inversion H0; subst. assumption.
 Qed. (* /ADMITTED *)
 (* GRADE_THEOREM 6: Himp.p1_p2_equiv *)
+
+#### Exercise `p2p4Inequiv` (stretch) {#p2p4Inequiv}
 
 (* EX4A (p3_p4_inequiv) *)
 (** Prove that the following programs are _not_ equivalent.  (Hint:
@@ -2368,22 +2155,24 @@ Proof. (* ADMITTED *)
   intros Hcontra.
   unfold cequiv in Hcontra.
   remember (X !-> 1) as st.
-  assert (st =[ p3 ]=> (Z !-> 0 ; X !-> 0 ; Z !-> 1 ; st)).
+  assert (s₁ =[ p3 ]=> (Z !-> 0 ; X !-> 0 ; Z !-> 1 ; st)).
   - eapply E_Seq. constructor. reflexivity.
-    simpl. eapply E_WhileTrue.
+    simpl. eapply EWhileT.
     + subst. reflexivity.
     + eapply E_Seq; constructor.
-    + apply E_WhileFalse.
+    + apply EWhileF.
       reflexivity.
   - apply Hcontra in H.
     inversion H. subst.
     inversion H2. subst.
     inversion H5. subst.
     simpl in H6.
-    apply (f_equal (fun st => st Z)) in H6.
+    apply (f_equal (fun s₁ => s₁ Z)) in H6.
     discriminate H6.
 Qed. (* /ADMITTED *)
 (* GRADE_THEOREM 6: Himp.p3_p4_inequiv *)
+
+#### Exercise `p5p6Equiv` (stretch) {#p5p6Equiv}
 
 (* EX5A? (p5_p6_equiv) *)
 (** Prove that the following commands are equivalent.  (Hint: As
@@ -2415,11 +2204,11 @@ Definition p6 : com :=
     `→`: Observe that whenever `p5` terminates, it does so with `X`
     set to `1`, and no other variable changed. But this is exactly the
     behavior of `p6`. Thus given a pair of states `st` and `st'` and
-    that `st =[ p5 ]=> st'`, the answer to the question
-    "Does `st =[ p6 ]=> st'`?"  is "Yes".
+    that `s₁ =[ p5 ]=> s₂`, the answer to the question
+    "Does `s₁ =[ p6 ]=> s₂`?"  is "Yes".
 
-    `←` (and more controversially): Given that `st =[ p6 ]=> st'` for
-    some `st` and `st'`, can we show that `st =[ p5 ]=> st'`? Observe
+    `←` (and more controversially): Given that `s₁ =[ p6 ]=> s₂` for
+    some `st` and `st'`, can we show that `s₁ =[ p5 ]=> s₂`? Observe
     that we can use the hypothesis to conclude that
     `st' = (X !-> 1 ; st)`.
     Is there some execution of `p5` starting from `st` which also
@@ -2427,15 +2216,15 @@ Definition p6 : com :=
 
     Hence their equivalence. *)
 
-Lemma p5_summary : forall st st',
-    st =[ p5 ]=> st' -> st' = (X !-> 1 ; st).
+Lemma p5_summary : forall s₁ s₂.
+    s₁ =[ p5 ]=> s₂ -> s₂ = (X !-> 1 ; st).
 Proof.
   intros. remember p5 as p5' eqn:Heqp5'.
   induction H; inversion Heqp5'; subst.
-  - (* E_WhileFalse *)
+  - (* EWhileF *)
     simpl in H. apply negb_false_iff in H. apply eqb_eq in H.
     rewrite <- H. rewrite t_update_same. reflexivity.
-  - (* E_WhileTrue *)
+  - (* EWhileT *)
     apply IHceval2 in Heqp5'.
     inversion H0; subst.
     apply t_update_shadow.
@@ -2449,18 +2238,18 @@ Proof. (* ADMITTED *)
     apply p5_summary in H. subst. constructor. reflexivity.
   - (* <- *) inversion H. subst.
     simpl. simpl in H.
-    destruct ((st X) =? 1) eqn:Heqb.
+    destruct ((s₁ X) =? 1) eqn:Heqb.
     + (* X = 1 *)
       apply eqb_eq in Heqb.
       rewrite <- Heqb.
       rewrite t_update_same.
-      apply E_WhileFalse. simpl. rewrite -> Heqb.
+      apply EWhileF. simpl. rewrite -> Heqb.
       reflexivity.
     + (* X <> 1 *)
-      apply E_WhileTrue with (st' := (X !-> 1 ; st)).
+      apply EWhileT with (s₂ := (X !-> 1 ; st)).
       simpl. rewrite Heqb. reflexivity.
       constructor.
-      apply E_WhileFalse. reflexivity.
+      apply EWhileF. reflexivity.
 Qed. (* /ADMITTED *)
 
 End Himp.
@@ -2473,24 +2262,22 @@ End Himp.
    people prefer to keep it, I wonder whether we could move it to an
    optional chapter by itself... *)
 
-(* ####################################################### *)
-(** * Doing Without Extensionality (Optional) *)
+### Doing without extensionality (optional)
 
-(** Purists might object to using the `functional_extensionality`
-    axiom as we have here (e.g., in the proof of the `t_update_same`
-    lemma).  In general, it can be dangerous to add axioms willy
-    nilly, particularly several at once (as they may be mutually
-    inconsistent). In fact, it is known that
-    `functional_extensionality` and `excluded_middle` can both be
-    assumed without any problems; nevertheless, some Coq users prefer
-    to avoid such "heavyweight" general techniques and instead try to
-    craft solutions for specific problems that stay within Coq's
-    built-in logic.
+Purists might object to using the `functional_extensionality` axiom as
+we have here (e.g., in the proof of the `t_update_same` lemma).  In
+general, it can be dangerous to add axioms willy nilly, particularly
+several at once (as they may be mutually inconsistent). In fact, it is
+known that `functional_extensionality` and `excluded_middle` can both
+be assumed without any problems; nevertheless, some users prefer to
+avoid such "heavyweight" general techniques and instead try to craft
+solutions for specific problems that stay within a language's built-in
+logic.
 
-    For our particular problem here, rather than extending the
-    definition of equality to do what we want on functions
-    representing states, we could instead give an explicit notion of
-    _equivalence_ on states.  For example: *)
+For our particular problem here, rather than extending the definition
+of equality to do what we want on functions representing states, we
+could instead give an explicit notion of _equivalence_ on states.  For
+example:
 
 Definition stequiv (st1 st2 : state) : Prop :=
   forall (x : string), st1 x = st2 x.
@@ -2501,13 +2288,17 @@ Notation "st1 '~~' st2" := (stequiv st1 st2) (at level 30).
    is reflexive, symmetric, and transitive), so it partitions the set
    of all states into equivalence classes. *)
 
+#### Exercise `~~-refl` (starting) {#stequiv_refl}
+
 (* EX1? (stequiv_refl) *)
-Lemma stequiv_refl : forall (st : state),
-  st ~~ st.
+Lemma stequiv_refl : forall (s₁ : state),
+  s₁ ~~ st.
 Proof.
   (* ADMITTED *)
   unfold stequiv. intros. reflexivity. Qed.
   (* /ADMITTED *)
+
+#### Exercise `~~-sym` (starting) {#stequiv_sym}
 
 (* EX1? (stequiv_sym) *)
 Lemma stequiv_sym : forall (st1 st2 : state),
@@ -2517,6 +2308,8 @@ Proof.
   (* ADMITTED *)
   unfold stequiv. intros. rewrite H. reflexivity. Qed.
   (* /ADMITTED *)
+
+#### Exercise `~~-trans` (starting) {#stequiv_trans}
 
 (* EX1? (stequiv_trans) *)
 Lemma stequiv_trans : forall (st1 st2 st3 : state),
@@ -2529,6 +2322,9 @@ Proof.
   (* /ADMITTED *)
 
 (** Another useful fact... *)
+
+#### Exercise `` () {#}
+
 (* EX1? (stequiv_t_update) *)
 Lemma stequiv_t_update : forall (st1 st2 : state),
   st1 ~~ st2 ->
@@ -2544,8 +2340,10 @@ Proof.
     auto. Qed.
   (* /ADMITTED *)
 
-(** It is then straightforward to show that [aeval] and `beval` behave
+(** It is then straightforward to show that [aeval] and `⟦_⟧ᴮ_` behave
     uniformly on all members of an equivalence class: *)
+
+#### Exercise `` () {#}
 
 (* EX2? (stequiv_aeval) *)
 Lemma stequiv_aeval : forall (st1 st2 : state),
@@ -2557,10 +2355,12 @@ Proof.
   induction a; simpl; try rewrite IHa1; try rewrite IHa2; try reflexivity.
   apply H. Qed. (* /ADMITTED *)
 
+#### Exercise `` () {#}
+
 (* EX2? (stequiv_beval) *)
 Lemma stequiv_beval : forall (st1 st2 : state),
   st1 ~~ st2 ->
-  forall (b:bexp), beval st1 b = beval st2 b.
+  forall (b:bexp), ⟦ b ⟧ st1 = ⟦ b ⟧ st2.
 Proof.
   (* ADMITTED *)
   intros.
@@ -2605,22 +2405,22 @@ Proof.
   - (* IfTrue *)
     destruct (IHCEV1 st2 STEQV) as [st2' [P EQV] ].
     exists st2'.  split.
-      apply E_IfTrue.  rewrite <- H. symmetry. apply stequiv_beval.
+      apply EIfT.  rewrite <- H. symmetry. apply stequiv_beval.
       assumption. assumption. assumption.
   - (* IfFalse *)
     destruct (IHCEV1 st2 STEQV) as [st2' [P EQV] ].
     exists st2'. split.
-     apply E_IfFalse. rewrite <- H. symmetry. apply stequiv_beval.
+     apply EIfF. rewrite <- H. symmetry. apply stequiv_beval.
      assumption.  assumption. assumption.
   - (* WhileFalse *)
     exists st2. split.
-      apply E_WhileFalse. rewrite <- H. symmetry. apply stequiv_beval.
+      apply EWhileF. rewrite <- H. symmetry. apply stequiv_beval.
       assumption. assumption.
   - (* WhileTrue *)
     destruct (IHCEV1_1 st2 STEQV) as [st2' [P1 EQV1] ].
     destruct (IHCEV1_2 st2' EQV1) as [st2'' [P2 EQV2] ].
     exists st2''. split.
-      apply E_WhileTrue with st2'.  rewrite <- H. symmetry.
+      apply EWhileT with st2'.  rewrite <- H. symmetry.
       apply stequiv_beval. assumption. assumption. assumption.
       assumption.
 Qed.
@@ -2634,36 +2434,38 @@ Qed.
  *)
 
 (* INSTRUCTORS: Copy of template eval *)
-Reserved Notation "st '=[' c ']=>'' st'"
+Reserved Notation "st '=[' c ']=>'' s₂.
          (at level 40, c custom com at level 99,
-          st constr, st' constr at next level).
+          s₁ constr, s₂ constr at next level).
 
 Inductive ceval' : com -> state -> state -> Prop :=
-  | E_equiv : forall c st st' st'',
-    st =[ c ]=> st' ->
-    st' ~~ st'' ->
-    st =[ c ]=>' st''
-  where   "st '=[' c ']=>'' st'" := (ceval' c st st').
+  | E_equiv : forall c s₁ s₂ s₂.,
+    s₁ =[ c ]=> s₂ ->
+    s₂ ~~ s₂. ->
+    s₁ =[ c ]=>' s₂.
+  where   "st '=[' c ']=>'' s₂. := (ceval' c s₁ s₂..
 
 (** Now the revised definition of `cequiv'` looks familiar: *)
 
-Definition cequiv' (c1 c2 : com) : Prop :=
-  forall (st st' : state),
-    (st =[ c1 ]=>' st') <-> (st =[ c2 ]=>' st').
+Definition cequiv' (c1 c₂ : com) : Prop :=
+  forall (s₁ s₂ : state),
+    (s₁ =[ c₁ ]=>' s₂. <-> (s₁ =[ c₂ ]=>' s₂..
 
 (** A sanity check shows that the original notion of command
    equivalence is at least as strong as this new one.  (The converse
    is not true, naturally.) *)
 
 Lemma cequiv__cequiv' : forall (c1 c2: com),
-  cequiv c1 c2 -> cequiv' c1 c2.
+  cequiv c₁ c₂ -> cequiv' c₁ c2.
 Proof.
   unfold cequiv, cequiv'; split; intros.
-    inversion H0 ; subst.  apply E_equiv with st'0.
-    apply (H st st'0); assumption. assumption.
-    inversion H0 ; subst.  apply E_equiv with st'0.
-    apply (H st st'0). assumption. assumption.
+    inversion H0 ; subst.  apply E_equiv with s₂..
+    apply (H s₁ s₂.); assumption. assumption.
+    inversion H0 ; subst.  apply E_equiv with s₂..
+    apply (H s₁ s₂.). assumption. assumption.
 Qed.
+
+#### Exercise `` () {#}
 
 (* EX2? (identity_assignment') *)
 (** Finally, here is our example once more... Notice that we use the
@@ -2688,9 +2490,9 @@ Proof.
     unfold cequiv'.  intros.  split; intros.
     - (* -> *)
       inversion H; subst; clear H. inversion H0; subst.
-      apply E_equiv with (X !-> st'0 X ; st'0).
+      apply E_equiv with (X !-> s₂. X ; s₂.).
       constructor. { reflexivity. }
-      assert ((X !-> st'0 X ; st'0) ~~ st'0) as H.
+      assert ((X !-> s₂. X ; s₂.) ~~ s₂.) as H.
       { unfold stequiv. intros Y.
         apply t_update_same_no_ext. }
       apply (stequiv_trans _ _ _ H H1).
@@ -2698,8 +2500,8 @@ Proof.
       (* ADMITTED *)
       inversion H; subst; clear H. inversion H0; subst.
       simpl in H1.
-      apply (E_equiv _ st st). { constructor. }
-      apply (stequiv_trans _ (X !-> st X ; st)).
+      apply (E_equiv _ s₁ st). { constructor. }
+      apply (stequiv_trans _ (X !-> s₁ X ; st)).
       unfold stequiv. intros. rewrite t_update_same_no_ext; reflexivity.
       assumption. Qed. (* /ADMITTED *)
 
@@ -2715,121 +2517,10 @@ Proof.
     as binary search trees, we would need to use an explicit
     equivalence of this kind. *)
 
-(* ####################################### *)
 
-(* For the record, here's how we could use setoids here. I don't think
-   this is worth showing, though. *)
+## Additional exercises
 
-(* Require Import Setoid. *)
-
-(* Add Parametric Relation : state stequiv *)
-(*   reflexivity proved by stequiv_refl *)
-(*   symmetry proved by stequiv_sym *)
-(*   transitivity proved by stequiv_trans *)
-(*   as stequiv_rel. *)
-
-(* Add Parametric Morphism : t_update with *)
-(*   signature stequiv ==> @eq string ==> @eq nat ==> stequiv as t_update_mor. *)
-(* exact stequiv_t_update. *)
-(* Qed. *)
-
-(* Add Parametric Morphism : aeval with *)
-(*   signature stequiv ==> @eq aexp ==> @eq nat as aeval_mor. *)
-(* exact stequiv_aeval. *)
-(* Qed. *)
-
-(* (* We can redo this proof using setoid rewriting... *) *)
-(* Lemma stequiv_beval' : forall (st1 st2 : state), *)
-(*   st1 ~~ st2 -> *)
-(*   forall (b:bexp), beval st1 b = beval st2 b. *)
-(* Proof. *)
-(*   intros. induction b; simpl; try reflexivity. *)
-(*   rewrite H; reflexivity. *)
-(*   rewrite H; reflexivity. *)
-(*   rewrite IHb; reflexivity. *)
-(*   rewrite IHb1; rewrite IHb2; reflexivity. *)
-(* Qed. *)
-
-(* Add Parametric Morphism : beval with *)
-(*   signature stequiv ==> @eq bexp ==> @eq bool as beval_mor. *)
-(* exact stequiv_beval. *)
-(* Qed. *)
-
-(* (* And this one... *) *)
-(* Lemma stequiv_ceval': forall (st1 st2 : state), *)
-(*   st1 ~~ st2 -> *)
-(*   forall (c: com) (st1': state), *)
-(*     (st1 =[ c ]=> st1') -> *)
-(*     exists st2' : state, *)
-(*     ((st2 =[ c ]=> st2') /\  st1' ~~ st2'). *)
-(* Proof. *)
-(* intros st1 st2 STEQV c st1' CEV1. generalize dependent st2. induction CEV1; intros st2 STEQV. *)
-(*   - (* skip *) *)
-(*     exists st2. split.  constructor. assumption. *)
-(*   - (* := *) *)
-(*     exists (t_update st2 x n). split. constructor. *)
-(*     rewrite STEQV in H; assumption. rewrite STEQV; reflexivity. *)
-(*   - (* ; *) *)
-(*     destruct (IHCEV1_1 st2 STEQV) as [st2' [P1 EQV1]]. *)
-(*     destruct (IHCEV1_2 st2' EQV1) as [st2'' [P2 EQV2]]. *)
-(*     exists st2''.  split.  apply E_Seq with st2'; assumption. assumption. *)
-(*   - (* IfTrue *) *)
-(*     destruct (IHCEV1 st2 STEQV) as [st2' [P EQV]]. *)
-(*     exists st2'.  split. apply E_IfTrue. *)
-(*     rewrite STEQV in H; assumption. assumption. assumption. *)
-(*   - (* IfFalse *) *)
-(*     destruct (IHCEV1 st2 STEQV) as [st2' [P EQV]]. *)
-(*     exists st2'. split. apply E_IfFalse. *)
-(*     rewrite STEQV in H; assumption. assumption. assumption. *)
-(*   - (* WhileFalse *) *)
-(*     exists st2. split. apply E_WhileFalse. *)
-(*     rewrite STEQV in H; assumption. assumption. *)
-(*   - (* WhileTrue *) *)
-(*     destruct (IHCEV1_1 st2 STEQV) as [st2' [P1 EQV1]]. *)
-(*     destruct (IHCEV1_2 st2' EQV1) as [st2'' [P2 EQV2]]. *)
-(*     exists st2''. split. apply E_WhileTrue with st2'. *)
-(*     rewrite STEQV in H; assumption. assumption. assumption. assumption. *)
-(* Qed. *)
-
-(* Definition eqv (P1 P2 : Prop) := P1 <-> P2. *)
-
-(* Add Parametric Morphism : ceval' with *)
-(*    signature (@eq com) ==> stequiv ==> stequiv ==> eqv as ceval_mor. *)
-(* intros. split; intro. *)
-(*  inversion H1; subst. *)
-(*    destruct (stequiv_ceval' _ _ H y  _ H2) as [st [P1 P2]]. *)
-(*    apply E_equiv with st. assumption. apply stequiv_trans with st'. *)
-(*    symmetry. assumption. *)
-(*      apply stequiv_trans with x0;  assumption. *)
-(*  inversion H1; subst. *)
-(*    symmetry in H. *)
-(*    destruct (stequiv_ceval' _ _ H y  _ H2) as [st [P1 P2]]. *)
-(*    apply E_equiv with st. assumption. apply stequiv_trans with st'. *)
-(*    symmetry. assumption. *)
-(*      apply stequiv_trans with y1.   assumption. symmetry. assumption. *)
-(* Qed. *)
-
-(* (* The example gets slightly simpler too... *) *)
-(* Example identity_assignment'' : *)
-(*   cequiv' skip (X ::= X). *)
-(* Proof. *)
-(*     unfold cequiv'.  intros.  split; intros. *)
-(*     - (* -> *) *)
-(*       inversion H; subst; clear H. inversion H0; subst. *)
-(*       apply E_equiv with (t_update st'0 X (st'0 X)). *)
-(*       constructor. reflexivity.  rewrite <- H1.   unfold stequiv. *)
-(*       intro. apply t_update_same_no_ext. *)
-(*     - (* <- *) *)
-(*       inversion H; subst; clear H. inversion H0; subst. *)
-(*       simpl in H1.  apply E_equiv with st. *)
-(*       constructor.  rewrite <- H1.  unfold stequiv. *)
-(*       intro. rewrite t_update_same_no_ext; reflexivity. *)
-(* Qed. *)
-(* /HIDE *)
-
-
-(* ####################################################### *)
-(** * Additional Exercises *)
+#### Exercise `` () {#}
 
 (* EX4? (for_while_equiv) *)
 (** This exercise extends the optional `add_for_loop` exercise from
@@ -2854,6 +2545,8 @@ Proof.
 (* If you write a nice solution to this one, please send it to us! *)
 (* /SOLUTION *)
 
+#### Exercise `` () {#}
+
 (* EX3? (swap_noninterfering_assignments) *)
 (** (Hint: You'll need `functional_extensionality` for this one.) *)
 
@@ -2867,12 +2560,12 @@ Theorem swap_noninterfering_assignments: forall l1 l2 a1 a2,
 Proof.
 (* ADMITTED *)
 intros l1 l2 a1 a2 NEQ VNU1 VNU2.
-  unfold cequiv. intros st st'.
-  remember (l1 !-> aeval st a1 ; st) as st1.
-  remember (l2 !-> aeval st a2 ; st) as st2.
-  assert (aeval st a1 = aeval st2 a1) as AE1.
+  unfold cequiv. intros s₁ s₂.
+  remember (l1 !-> aeval s₁ a1 ; st) as st1.
+  remember (l2 !-> aeval s₁ a2 ; st) as st2.
+  assert (aeval s₁ a1 = aeval st2 a1) as AE1.
   { subst st2. rewrite aeval_weakening; try reflexivity; try assumption. }
-  assert (aeval st a2 = aeval st1 a2) as AE2.
+  assert (aeval s₁ a2 = aeval st1 a2) as AE2.
   { subst st1. rewrite aeval_weakening; try reflexivity; try assumption. }
   assert ((l2 !-> aeval st1 a2 ; st1) =
           (l1 !-> aeval st2 a1 ; st2)) as EQST.
@@ -2895,6 +2588,8 @@ intros l1 l2 a1 a2 NEQ VNU1 VNU2.
        rewrite <- EQST. apply E_Ass. reflexivity.  Qed.
 (* /ADMITTED *)
 
+#### Exercise `` () {#}
+
 (* EX4A? (capprox) *)
 (* HIDE: Question from 2012, UPenn Midterm 2. *)
 (* LATER: Sampsa: This exercise is easily breakable *)
@@ -2905,12 +2600,12 @@ intros l1 l2 a1 a2 NEQ VNU1 VNU2.
     and produces the same final state. Formally, program approximation
     is defined as follows: *)
 
-Definition capprox (c1 c2 : com) : Prop := forall (st st' : state),
-  st =[ c1 ]=> st' -> st =[ c2 ]=> st'.
+Definition capprox (c1 c₂ : com) : Prop := forall (s₁ s₂ : state),
+  s₁ =[ c₁ ]=> s₂ -> s₁ =[ c₂ ]=> s₂.
 
 (** For example, the program
 [[
-  c1 = while ~(X = 1) do
+  c₁ = while ~(X = 1) do
          X ::= X - 1
        end
 ]]
@@ -2953,7 +2648,7 @@ Qed. (* /ADMITTED *)
 (** Find a program `cmin` that approximates every other program. *)
 
 Definition cmin : com
-  (* ADMITDEF *) := <{ while true do skip end }>. (* /ADMITDEF *)
+  (* ADMITDEF *) := <{ while true loop skip end }>. (* /ADMITDEF *)
 
 Theorem cmin_minimal : forall c, capprox cmin c.
 Proof. (* ADMITTED *)
@@ -2966,19 +2661,19 @@ Qed. (* /ADMITTED *)
     program approximation (when going from left to right). *)
 
 Definition zprop (c : com) : Prop
-  (* ADMITDEF *) := forall st, exists st', st =[ c ]=> st'. (* /ADMITDEF *)
+  (* ADMITDEF *) := forall st, exists s₂. s₁ =[ c ]=> s₂. (* /ADMITDEF *)
 (* QUIETSOLUTION *)
 
 (** Intuitively, `zprop` holds of programs that terminate on all
     inputs. *)
 
 (* /QUIETSOLUTION *)
-Theorem zprop_preserving : forall c c',
-  zprop c -> capprox c c' -> zprop c'.
+Theorem zprop_preserving : forall c c′,
+  zprop c -> capprox c c′ -> zprop c′.
 Proof. (* ADMITTED *)
   unfold zprop, capprox. intros.
   specialize (H st). inversion H as `st'`.
-  apply H0 in H1. exists st'. assumption.
+  apply H0 in H1. exists s₂. assumption.
 Qed. (* /ADMITTED *)
 (* HIDE *)
 
@@ -2992,23 +2687,23 @@ Qed. (* /ADMITTED *)
     input. *)
 
 Definition zprop2 (c : com) : Prop :=
-  exists st st', st =[ c ]=> st'.
+  exists s₁ s₂. s₁ =[ c ]=> s₂.
 
-Theorem zprop2_preserving : forall c c',
-  zprop2 c -> capprox c c' -> zprop2 c'.
+Theorem zprop2_preserving : forall c c′,
+  zprop2 c -> capprox c c′ -> zprop2 c′.
 Proof.
   unfold zprop2, capprox. intros.
-  destruct H as [st `st'` ]. intros.
-  exists st, st'. apply H0. assumption.
+  destruct H as [s₁ `st'` ]. intros.
+  exists st, s₂. apply H0. assumption.
 Qed.
 
 (** `zprop3` holds of programs that behave like `skip`. *)
 
 Definition zprop3 (c : com) : Prop :=
-  forall st, st =[ c ]=> st.
+  forall st, s₁ =[ c ]=> st.
 
-Theorem zprop3_preserving : forall c c',
-  zprop3 c -> capprox c c' -> zprop3 c'.
+Theorem zprop3_preserving : forall c c′,
+  zprop3 c -> capprox c c′ -> zprop3 c′.
 Proof.
   unfold zprop3, capprox. intros.
   apply H0. apply H.
@@ -3020,8 +2715,8 @@ Qed.
 Definition zprop4 (c : com) : Prop :=
   capprox <{ skip }> c.
 
-Theorem zprop4_preserving : forall c c',
-  zprop4 c -> capprox c c' -> zprop4 c'.
+Theorem zprop4_preserving : forall c c′,
+  zprop4 c -> capprox c c′ -> zprop4 c′.
 Proof.
   unfold zprop4, capprox. intros.
   apply H0. apply H. assumption.
