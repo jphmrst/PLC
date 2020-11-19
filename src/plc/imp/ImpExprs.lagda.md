@@ -306,10 +306,44 @@ original — we should prove it.
     ∎
 {:/comment}
 
+It will be convenient to spell out what we mean by the transformation
+being correct.  This property says that removing additions of zero is
+correct for a _particular term_ `m`.  Our goal will be to show that it
+is correct for all possible expressions `m`.
+
 ```
   opt0+safe : AExp → Set
   opt0+safe m = ⟦ optimize0plus m ⟧ᴬ ≡ ⟦ m ⟧ᴬ
+```
 
+The proof for expressions is repetitive, with very similar evidence
+for several different branches.  Unfortunately, this duplication
+occurs frequently when we are working with ASTs.  ASTs often contain a
+number of different forms which differ only slightly, which is echoed
+in proofs about those forms.
+
+Looking ahead, there are two cases in the proof which are very
+unsurprising:
+
+    optimize0plusSound : ∀ (a : AExp) → opt0+safe a
+    optimize0plusSound (# n) = refl
+    optimize0plusSound (# zero + y) = optimize0plusSound y
+
+When our expression is only a number, there is nothing immediately
+present to simplify, and no subexpressions into which we might make a
+recursive call.  So this is our base case; the evidence is just `refl`
+because the optimization function will return its argument unchanged.
+
+The second clause is the case which motivates this optimization: when
+we find an addition of zero, we remove it.  We do not remove it only
+in the present top-level term, but recursively search for other
+simplification within the body of the subexpression `y` before
+returning it.
+
+So we define two helper functions which will help
+us assemble
+
+```
   plusHelper : (m n : AExp) →
                  opt0+safe m → opt0+safe n →
                    (optimize0plus (m + n) ≡ optimize0plus m + optimize0plus n) →
