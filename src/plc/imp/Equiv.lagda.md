@@ -805,60 +805,12 @@ Qed.
 Theorem CSeq_congruence : forall c₁ c1' c₂ c2',
   cequiv c₁ c1' -> cequiv c₂ c2' ->
   cequiv <{ c1;c2 }> <{ c1';c2' }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  (* ADMITTED *)
-  unfold cequiv. intros c₁ c1' c₂ c2' Hc1 Hc2 s₁ s₂.
-  split; intros Hc; inversion Hc; subst.
-  - (* -> *)
-    apply E_Seq with (s₂ := s₂.).
-    + (* c₁ *)
-      apply (Hc1 s₁ s₂.). assumption.
-    + (* c₂ *)
-      apply (Hc2 s₂. s₂.. assumption.
-  - (* <- *)
-    apply E_Seq with (s₂ := s₂.).
-    + (* c₁ *)
-      apply (Hc1 s₁ s₂.). assumption.
-    + (* c₂ *)
-      apply (Hc2 s₂. s₂..  assumption.  Qed.
-(* /ADMITTED *)
-(** FULL: [] *)
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 (* FULL: EX3 (CIf_congruence) *)
 Theorem CIf_congruence : forall b b′ c₁ c1' c₂ c2',
   bequiv b b′ -> cequiv c₁ c1' -> cequiv c₂ c2' ->
   cequiv <{ if b then c₁ else c₂ end }>
          <{ if b′ then c1' else c2' end }>.
-(* TERSE: HIDEFROMHTML *)
-Proof.
-  (* ADMITTED *)
-  unfold bequiv,cequiv.
-  intros b b′ c₁ c1' c₂ c2' Hbe Hc1e Hc2e s₁ s₂.
-  split; intros Hce.
-  - (* -> *)
-    inversion Hce; subst.
-    + (* EIfT *)
-      rewrite -> Hbe in H4. apply Hc1e in H5.
-      apply EIfT; assumption.
-    + (* EIfF *)
-      rewrite -> Hbe in H4. apply Hc2e in H5.
-      apply EIfF; assumption.
-  - (* <- *)
-    inversion Hce; subst.
-    + (* EIfT *)
-      rewrite <- Hbe in H4. apply Hc1e in H5.
-      apply EIfT; assumption.
-    + (* EIfF *)
-      rewrite <- Hbe in H4. apply Hc2e in H5.
-      apply EIfF; assumption.  Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 3: CIf_congruence *)
-(** FULL: [] *)
-(* TERSE: /HIDEFROMHTML *)
 
 (** TERSE: *** *)
 
@@ -985,11 +937,6 @@ Fixpoint fold_constants_aexp (a : aexp) : aexp :=
 Example fold_aexp_ex1 :
     fold_constants_aexp <{ (1 + 2) * X }>
   = <{ 3 * X }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 (** Note that this version of constant folding doesn't eliminate
     trivial additions, etc. — we are focusing attention on a single
@@ -999,11 +946,6 @@ Proof. reflexivity. Qed.
 
 Example fold_aexp_ex2 :
   fold_constants_aexp <{ X - ((0 * 6) + Y) }> = <{ X - (0 + Y) }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 (** TERSE: *** *)
 (** Not only can we lift `fold_constants_aexp` to `bexp`s (in the
@@ -1052,20 +994,10 @@ Fixpoint fold_constants_bexp (b : bexp) : bexp :=
 Example fold_bexp_ex1 :
   fold_constants_bexp <{ true && ~(false && true) }>
   = <{ true }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 Example fold_bexp_ex2 :
   fold_constants_bexp <{ (X = Y) && (0 = (2 - (1 + 1))) }>
   = <{ (X = Y) && true }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 (** TERSE: *** *)
 (** To fold constants in a command, we apply the appropriate folding
@@ -1116,11 +1048,6 @@ Example fold_com_ex1 :
        while (Y = 0) do
          X := X + 1
        end }>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. reflexivity. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 ### Soundness of constant folding
 
@@ -1130,24 +1057,6 @@ Proof. reflexivity. Qed.
 
 Theorem fold_constants_aexp_sound :
   atrans_sound fold_constants_aexp.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold atrans_sound. intros a. unfold aequiv. intros st.
-  induction a; simpl;
-    (* ANum and AId follow immediately *)
-    try reflexivity;
-    (* APlus, AMinus, and AMult follow from the IH
-       and the observation that
-              aeval s₁ (<{ a1 + a2 }>)
-            = ANum ((aeval s₁ a1) + (aeval s₁ a2))
-            = aeval s₁ (ANum ((aeval s₁ a1) + (aeval s₁ a2)))
-       (and similarly for AMinus/minus and AMult/mult) *)
-    try (destruct (fold_constants_aexp a1);
-         destruct (fold_constants_aexp a2);
-         rewrite IHa1; rewrite IHa2; reflexivity). Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 
 #### Exercise `foldBexpEqInformal` (practice) {#foldBexpEqInformal}
@@ -1248,54 +1157,6 @@ Proof.
 
 Theorem fold_constants_bexp_sound:
   btrans_sound fold_constants_bexp.
-(* TERSE: HIDEFROMHTML *)
-Proof.
-  unfold btrans_sound. intros b. unfold bequiv. intros st.
-  induction b;
-    (* true and false are immediate *)
-    try reflexivity.
-  - (* BEq *)
-    simpl.
-    remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
-    remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
-    replace (aeval s₁ a1) with (aeval s₁ a1') by
-       (subst a1'; rewrite <- fold_constants_aexp_sound; reflexivity).
-    replace (aeval s₁ a2) with (aeval s₁ a2') by
-       (subst a2'; rewrite <- fold_constants_aexp_sound; reflexivity).
-    destruct a1'; destruct a2'; try reflexivity.
-    (* The only interesting case is when both a1 and a2
-       become constants after folding *)
-      simpl. destruct (n =? n0); reflexivity.
-  - (* BLe *)
-    (* ADMIT *)
-    simpl.
-    remember (fold_constants_aexp a1) as a1' eqn:Heqa1'.
-    remember (fold_constants_aexp a2) as a2' eqn:Heqa2'.
-    (* a slightly alternative approach using asserts: *)
-    assert (aeval s₁ a1 = aeval s₁ a1') as H1. {
-      subst a1'. apply fold_constants_aexp_sound. }
-    assert (aeval s₁ a2 = aeval s₁ a2') as H2. {
-      subst a2'. apply fold_constants_aexp_sound. }
-    rewrite H1. rewrite H2.
-    destruct a1'; destruct a2'; try reflexivity.
-      (* Again, the only interesting case is when both a1 and a2
-          become constants after folding *)
-      simpl. destruct (n <=? n0); reflexivity.
-    (* /ADMIT *)
-  - (* BNot *)
-    simpl. remember (fold_constants_bexp b) as b′ eqn:Heqb′.
-    rewrite IHb.
-    destruct b′; reflexivity.
-  - (* BAnd *)
-    simpl.
-    remember (fold_constants_bexp b1) as b1' eqn:Heqb1'.
-    remember (fold_constants_bexp b2) as b2' eqn:Heqb2'.
-    rewrite IHb1. rewrite IHb2.
-    destruct b1'; destruct b2'; reflexivity.
-(* ADMITTED *)
-Qed.
-(* /ADMITTED *)
-(* TERSE: /HIDEFROMHTML *)
 
 
 (* HIDE: compressed version of above [is this useful? -BCP]
@@ -1327,45 +1188,7 @@ Qed.
 
 Theorem fold_constants_com_sound :
   ctrans_sound fold_constants_com.
-(* TERSE: HIDEFROMHTML *)
-Proof.
-  unfold ctrans_sound. intros c.
-  induction c; simpl.
-  - (* skip *) apply refl_cequiv.
-  - (* := *) apply :=-congruence.
-              apply fold_constants_aexp_sound.
-  - (* ; *) apply CSeq_congruence; assumption.
-  - (* if *)
-    assert (bequiv b (fold_constants_bexp b)). {
-      apply fold_constants_bexp_sound. }
-    destruct (fold_constants_bexp b) eqn:Heqb;
-      try (apply CIf_congruence; assumption).
-      (* (If the optimization doesn't eliminate the if, then the
-          result is easy to prove from the IH and
-          `fold_constants_bexp_sound`.) *)
-    + (* b always true *)
-      apply trans_cequiv with c1; try assumption.
-      apply if_true; assumption.
-    + (* b always false *)
-      apply trans_cequiv with c2; try assumption.
-      apply if_false; assumption.
-  - (* while *)
-    (* ADMITTED *)
-    assert (bequiv b (fold_constants_bexp b)).
-    { (* Pf of assertion *) apply fold_constants_bexp_sound. }
-    destruct (fold_constants_bexp b) eqn:Heqb;
-      (* Again, the cases where `fold_constants_com` doesn't change
-          the test or don't change the loop body follow from the IH
-          and `fold_constants_bexp_sound` *)
-      try (apply CWhile_congruence; assumption).
-    + (* b always true *)
-      apply while_true; assumption.
-    + (* b always false *)
-      apply while_false; assumption.  Qed.
-(* /ADMITTED *)
-(* TERSE: /HIDEFROMHTML *)
 
-(* GRADE_THEOREM 3: fold_constants_com_sound *)
 
 
 
@@ -1568,13 +1391,6 @@ Fixpoint subst_aexp (x : string) (u : aexp) (a : aexp) : aexp :=
 Example subst_aexp_ex :
   subst_aexp X (42 + 53) <{ Y + X}>
   = <{ Y + (42 + 53)}>.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof. simpl. (* KK: For some reason this fails... Is it an associativity issue? *)
-       Admitted.
-       (* reflexivity.  Qed. *)
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 (** TERSE: *** *)
 
@@ -1643,51 +1459,6 @@ Definition subst_equiv_property := forall x1 x2 a1 a2,
 
 Theorem subst_inequiv :
   ~ subst_equiv_property.
-(* TERSE: HIDEFROMHTML *)
-(* FOLD *)
-Proof.
-  unfold subst_equiv_property.
-  intros Contra.
-
-  (* Here is the counterexample: assuming that `subst_equiv_property`
-     holds allows us to prove that these two programs are
-     equivalent... *)
-  remember <{ X := X + 1;
-              Y := X }>
-      as c1.
-  remember <{ X := X + 1;
-              Y := X + 1 }>
-      as c2.
-  assert (cequiv c₁ c2) by (subst; apply Contra).
-  clear Contra.
-
-  (* ... allows us to show that the command `c2` can terminate
-     in two different final states:
-        st1 = (Y !-> 1 ; X !-> 1)
-        st2 = (Y !-> 2 ; X !-> 1). *)
-  remember (Y !-> 1 ; X !-> 1) as st1.
-  remember (Y !-> 2 ; X !-> 1) as st2.
-  assert (H1 : empty_st =[ c₁ ]=> st1);
-  assert (H2 : empty_st =[ c₂ ]=> st2);
-  try (subst;
-       apply E_Seq with (s₂ := (X !-> 1));
-       apply E_Ass; reflexivity).
-  clear Heqc1 Heqc2.
-
-  apply H in H1.
-  clear H.
-
-  (* Finally, we use the fact that evaluation is deterministic
-     to obtain a contradiction. *)
-  assert (Hcontra : st1 = st2)
-    by (apply (ceval_deterministic c₂ empty_st); assumption).
-  clear H1 H2.
-
-  assert (Hcontra′ : st1 Y = st2 Y)
-    by (rewrite Hcontra; reflexivity).
-  subst. discriminate. Qed.
-(* /FOLD *)
-(* TERSE: /HIDEFROMHTML *)
 
 
 #### Exercise `betterSubst≡` (stretch) {#better-subst-equiv}
@@ -1717,21 +1488,6 @@ Inductive var_not_used_in_aexp (x : string) : aexp -> Prop :=
 Lemma aeval_weakening : forall x s₁ a ni,
   var_not_used_in_aexp x a ->
   aeval (x !-> ni ; st) a = aeval s₁ a.
-Proof.
-  (* ADMITTED *)
-  intros x s₁ a.
-  induction a; intros nx Hx;
-    (* the binary operators follow from the IH *)
-    try (simpl; inversion Hx; subst;
-         rewrite IHa1; try assumption;
-         rewrite IHa2; try assumption;
-         reflexivity).
-  - (* ANum *)
-    reflexivity.
-  - (* AId *)
-    inversion Hx; subst. simpl.
-    apply t_update_neq. assumption. Qed.
-  (* /ADMITTED *)
 
 (** Using `var_not_used_in_aexp`, formalize and prove a correct version
     of `subst_equiv_property`. *)
@@ -1788,15 +1544,6 @@ Proof.
 
 Theorem inequiv_exercise:
   ~ cequiv <{ while true loop skip end }> <{ skip }>.
-Proof.
-  (* ADMITTED *)
-  intros Contra.
-  assert (~(empty_st =[ while true loop skip end ]=> empty_st)) as H.
-  { apply while_true_nonterm. apply refl_bequiv. }
-  apply H.
-  apply (Contra empty_st empty_st).
-  apply E_Skip. Qed.
-(* /ADMITTED *)
 
 
 
@@ -1933,19 +1680,10 @@ Inductive ceval : com -> state -> state -> Prop :=
     your definition: *)
 
 Example havoc_example1 : empty_st =[ havoc X ]=> (X !-> 0).
-Proof.
-(* ADMITTED *)
-  constructor. Qed.
-(* /ADMITTED *)
 
 Example havoc_example2 :
   empty_st =[ skip; havoc Z ]=> (Z !-> 42).
-Proof.
-(* ADMITTED *)
-  eapply E_Seq; constructor. Qed.
-(* /ADMITTED *)
 
-(* GRADE_MANUAL 2: Check_rule_for_HAVOC *)
 
 (** Finally, we repeat the definition of command equivalence from above: *)
 
@@ -1992,12 +1730,6 @@ Qed.
 
 Theorem pXY_cequiv_pYX :
   cequiv pXY pYX \/ ~cequiv pXY pYX.
-Proof. (* ADMITTED *)
-  left. intros s₁ s₂.
-  split; apply pXY_approx_pYX; reflexivity.
-Qed.
-(* /ADMITTED *)
-(* GRADE_THEOREM 3: Himp.pXY_cequiv_pYX *)
 
 #### Exercise `havocCopy` (stretch) {#havoc-copy}
 
@@ -2016,24 +1748,6 @@ Definition pcopy :=
 
 Theorem ptwice_cequiv_pcopy :
   cequiv ptwice pcopy \/ ~cequiv ptwice pcopy.
-Proof. (* ADMITTED *)
-  right. intro Hc. unfold cequiv in Hc.
-  assert (empty_st =[ ptwice ]=> (Y !-> 1 ; X !-> 0)).
-    apply E_Seq with (X !-> 0); constructor.
-  rewrite Hc in H. inversion H. inversion H2. inversion H5. subst.
-  simpl in H13. rewrite t_update_eq in H13.
-  (* LATER: This trick with `f_equal` is non-evident but highly
-     useful to process contradictory equalities on functions.
-     See `p3_p4_inequiv` for a more drastic reduction in code. *)
-  assert (H0 : n = 1).
-  { apply (f_equal (fun s₁ => s₁ Y)) in H13.
-    apply H13. }
-  assert (H1 : n = 0).
-  { apply (f_equal (fun s₁ => s₁ X)) in H13.
-    apply H13. }
-  rewrite H0 in H1. discriminate.
-Qed.
-(* /ADMITTED *)
 
 (** The definition of program equivalence we are using here has some
     subtle consequences on programs that may loop forever.  What
@@ -2067,37 +1781,11 @@ Definition p2 : com :=
     started in.  We can capture the termination behavior of `p1` and
     `p2` individually with these lemmas: *)
 
-(* GRADE_THEOREM 3: Himp.p1_may_diverge *)
 Lemma p1_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
   ~ s₁ =[ p1 ]=> s₂.
-Proof. (* ADMITTED *)
-  intros. intros Hcontra.
-  remember p1 as p1' eqn:Heqp1'. remember s₂ as s₂. eqn:Heqst''.
-  induction Hcontra; inversion Heqp1'.
-  - (* EWhileF *) subst. simpl in H0.
-    apply negb_false_iff in H0. apply eqb_eq in H0.
-    apply H in H0. assumption.
-  - (* EWhileT *) subst. apply IHHcontra2; try reflexivity.
-    inversion Hcontra1. subst.
-    inversion H3; subst. inversion H6; subst.
-    rewrite t_update_eq. simpl. lia.
-Qed. (* /ADMITTED *)
 
-(* GRADE_THEOREM 3: Himp.p2_may_diverge *)
 Lemma p2_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
   ~ s₁ =[ p2 ]=> s₂.
-Proof.
-(* ADMITTED *)
-  intros. intros Hcontra.
-  remember p2 as p2' eqn:Heqp2'. remember s₂ as s₂. eqn:Heqst''.
-  induction Hcontra; inversion Heqp2'.
-  - (* EWhileF *) subst. simpl in H0.
-    apply negb_false_iff in H0. apply eqb_eq in H0.
-    apply H in H0. assumption.
-  - (* EWhileT *) subst. apply IHHcontra2; try reflexivity.
-    inversion Hcontra1. subst.
-    assumption.
-Qed. (* /ADMITTED *)
 
 #### Exercise `p1p2Equiv` (stretch) {#p1p2Equiv}
 
@@ -2106,25 +1794,6 @@ Qed. (* /ADMITTED *)
     equivalent. *)
 
 Theorem p1_p2_equiv : cequiv p1 p2.
-Proof. (* ADMITTED *)
-  split; intros.
-  - remember p1 as p1' eqn:Heqp1'.
-    destruct H; inversion Heqp1'; subst.
-    + (* EWhileF *) apply EWhileF. assumption.
-    + (* EWhileT *) apply p1_may_diverge in H1.
-      inversion H1.
-      simpl in H. apply negb_true_iff in H. apply eqb_neq in H.
-      inversion H0; subst. inversion H4; subst. inversion H7; subst.
-      rewrite t_update_eq. simpl. lia.
-  - remember p2 as p2' eqn:Heqp2'.
-    destruct H; inversion Heqp2'; subst.
-    + (* EWhileF *) apply EWhileF. assumption.
-    + (* EWhileT *) apply p2_may_diverge in H1.
-      inversion H1.
-      simpl in H. apply negb_true_iff in H. apply eqb_neq in H.
-      inversion H0; subst. assumption.
-Qed. (* /ADMITTED *)
-(* GRADE_THEOREM 6: Himp.p1_p2_equiv *)
 
 #### Exercise `p2p4Inequiv` (stretch) {#p2p4Inequiv}
 
@@ -2151,26 +1820,6 @@ Definition p4 : com :=
 (* /QUIETSOLUTION *)
 
 Theorem p3_p4_inequiv : ~ cequiv p3 p4.
-Proof. (* ADMITTED *)
-  intros Hcontra.
-  unfold cequiv in Hcontra.
-  remember (X !-> 1) as st.
-  assert (s₁ =[ p3 ]=> (Z !-> 0 ; X !-> 0 ; Z !-> 1 ; st)).
-  - eapply E_Seq. constructor. reflexivity.
-    simpl. eapply EWhileT.
-    + subst. reflexivity.
-    + eapply E_Seq; constructor.
-    + apply EWhileF.
-      reflexivity.
-  - apply Hcontra in H.
-    inversion H. subst.
-    inversion H2. subst.
-    inversion H5. subst.
-    simpl in H6.
-    apply (f_equal (fun s₁ => s₁ Z)) in H6.
-    discriminate H6.
-Qed. (* /ADMITTED *)
-(* GRADE_THEOREM 6: Himp.p3_p4_inequiv *)
 
 #### Exercise `p5p6Equiv` (stretch) {#p5p6Equiv}
 
@@ -2232,25 +1881,6 @@ Qed.
 (* /QUIETSOLUTION *)
 
 Theorem p5_p6_equiv : cequiv p5 p6.
-Proof. (* ADMITTED *)
-  split; intros.
-  - (* -> *)
-    apply p5_summary in H. subst. constructor. reflexivity.
-  - (* <- *) inversion H. subst.
-    simpl. simpl in H.
-    destruct ((s₁ X) =? 1) eqn:Heqb.
-    + (* X = 1 *)
-      apply eqb_eq in Heqb.
-      rewrite <- Heqb.
-      rewrite t_update_same.
-      apply EWhileF. simpl. rewrite -> Heqb.
-      reflexivity.
-    + (* X <> 1 *)
-      apply EWhileT with (s₂ := (X !-> 1 ; st)).
-      simpl. rewrite Heqb. reflexivity.
-      constructor.
-      apply EWhileF. reflexivity.
-Qed. (* /ADMITTED *)
 
 End Himp.
 
@@ -2294,9 +1924,6 @@ Notation "st1 '~~' st2" := (stequiv st1 st2) (at level 30).
 Lemma stequiv_refl : forall (s₁ : state),
   s₁ ~~ st.
 Proof.
-  (* ADMITTED *)
-  unfold stequiv. intros. reflexivity. Qed.
-  (* /ADMITTED *)
 
 #### Exercise `~~-sym` (starting) {#stequiv_sym}
 
@@ -2305,9 +1932,6 @@ Lemma stequiv_sym : forall (st1 st2 : state),
   st1 ~~ st2 ->
   st2 ~~ st1.
 Proof.
-  (* ADMITTED *)
-  unfold stequiv. intros. rewrite H. reflexivity. Qed.
-  (* /ADMITTED *)
 
 #### Exercise `~~-trans` (starting) {#stequiv_trans}
 
@@ -2317,9 +1941,6 @@ Lemma stequiv_trans : forall (st1 st2 st3 : state),
   st2 ~~ st3 ->
   st1 ~~ st3.
 Proof.
-  (* ADMITTED *)
-  unfold stequiv. intros.  rewrite H. rewrite H0. reflexivity.  Qed.
-  (* /ADMITTED *)
 
 (** Another useful fact... *)
 
@@ -2331,14 +1952,6 @@ Lemma stequiv_t_update : forall (st1 st2 : state),
   forall (X:string) (n:nat),
   (X !-> n ; st1) ~~ (X !-> n ; st2).
 Proof.
-  (* ADMITTED *)
-  unfold stequiv. intros. 
-  destruct (eqb_stringP X x) as [Hid | Hid].
-  - subst. rewrite t_update_eq. rewrite t_update_eq. reflexivity.
-  - rewrite t_update_neq; [|assumption].
-    rewrite t_update_neq; [|assumption].
-    auto. Qed.
-  (* /ADMITTED *)
 
 (** It is then straightforward to show that [aeval] and `⟦_⟧ᴮ_` behave
     uniformly on all members of an equivalence class: *)
@@ -2350,10 +1963,6 @@ Lemma stequiv_aeval : forall (st1 st2 : state),
   st1 ~~ st2 ->
   forall (a:aexp), aeval st1 a = aeval st2 a.
 Proof.
-  (* ADMITTED *)
-  intros.
-  induction a; simpl; try rewrite IHa1; try rewrite IHa2; try reflexivity.
-  apply H. Qed. (* /ADMITTED *)
 
 #### Exercise `` () {#}
 
@@ -2362,18 +1971,6 @@ Lemma stequiv_beval : forall (st1 st2 : state),
   st1 ~~ st2 ->
   forall (b:bexp), ⟦ b ⟧ st1 = ⟦ b ⟧ st2.
 Proof.
-  (* ADMITTED *)
-  intros.
-  induction b; simpl; try reflexivity.
-  - (* BEq *)
-   repeat rewrite (stequiv_aeval _ _ H). reflexivity.
-  - (* BLe *)
-   repeat rewrite (stequiv_aeval _ _ H). reflexivity.
-  - (* BNot *)
-   rewrite IHb. reflexivity.
-  - (* BAnd *)
-   rewrite IHb1. rewrite IHb2. reflexivity. Qed.
-  (* /ADMITTED *)
 
 (** We can also characterize the behavior of `ceval` on equivalent
     states (this result is a bit more complicated to write down
@@ -2475,14 +2072,6 @@ Qed.
 Theorem t_update_same_no_ext : forall X x1 x2 (m : total_map X),
              (x1 !-> m x1 ; m) x2 = m x2.
 Proof.
-  (* ADMITTED *)
-  intros X x1 x2 m.
-  destruct (eqb_stringP x1 x2) as [H | H].
-  - (* x1 = x2 *)
-    subst. rewrite t_update_same. reflexivity.
-  - (* false *)
-    rewrite t_update_neq. reflexivity. assumption.  Qed.
-(* /ADMITTED *)
 
 Example identity_assignment' :
   cequiv' <{ skip }> <{ X := X }>.
@@ -2497,13 +2086,7 @@ Proof.
         apply t_update_same_no_ext. }
       apply (stequiv_trans _ _ _ H H1).
     - (* <- *)
-      (* ADMITTED *)
-      inversion H; subst; clear H. inversion H0; subst.
-      simpl in H1.
-      apply (E_equiv _ s₁ st). { constructor. }
-      apply (stequiv_trans _ (X !-> s₁ X ; st)).
-      unfold stequiv. intros. rewrite t_update_same_no_ext; reflexivity.
-      assumption. Qed. (* /ADMITTED *)
+      ?
 
 (** On the whole, this explicit equivalence approach is considerably
     harder to work with than relying on functional
@@ -2557,36 +2140,6 @@ Theorem swap_noninterfering_assignments: forall l1 l2 a1 a2,
   cequiv
     <{ l1 := a1; l2 := a2 }>
     <{ l2 := a2; l1 := a1 }>.
-Proof.
-(* ADMITTED *)
-intros l1 l2 a1 a2 NEQ VNU1 VNU2.
-  unfold cequiv. intros s₁ s₂.
-  remember (l1 !-> aeval s₁ a1 ; st) as st1.
-  remember (l2 !-> aeval s₁ a2 ; st) as st2.
-  assert (aeval s₁ a1 = aeval st2 a1) as AE1.
-  { subst st2. rewrite aeval_weakening; try reflexivity; try assumption. }
-  assert (aeval s₁ a2 = aeval st1 a2) as AE2.
-  { subst st1. rewrite aeval_weakening; try reflexivity; try assumption. }
-  assert ((l2 !-> aeval st1 a2 ; st1) =
-          (l1 !-> aeval st2 a1 ; st2)) as EQST.
-  { rewrite <- AE1.  rewrite <- AE2. subst st1 st2.
-    apply t_update_permute. assumption. }
-  split; intro.
-  - (* -> *)
-    inversion H.
-    inversion H2.
-    inversion H5.
-    apply E_Seq with st2; subst.
-       apply E_Ass. reflexivity.
-       rewrite EQST. apply E_Ass. reflexivity.
-  - (* <- *)
-    inversion H.
-    inversion H2.
-    inversion H5.
-    apply E_Seq with st1; subst.
-       apply E_Ass. reflexivity.
-       rewrite <- EQST. apply E_Ass. reflexivity.  Qed.
-(* /ADMITTED *)
 
 #### Exercise `` () {#}
 
@@ -2623,27 +2176,6 @@ Definition c4 : com
   (* ADMITDEF *) := <{ X := 2 }>. (* /ADMITDEF *)
 
 Theorem c3_c4_different : ~ capprox c3 c4 /\ ~ capprox c4 c3.
-Proof. (* ADMITTED *)
-  unfold not, capprox; split; intros.
-
-  assert (empty_st =[ c3 ]=> (X !-> 1)).
-    constructor. reflexivity.
-  apply H in H0. inversion H0; subst. simpl in H5.
-  assert ((X !-> 2) X = 2).
-    reflexivity.
-  assert ((X !-> 1) X = 1).
-    reflexivity.
-  rewrite -> H5 in H1. rewrite -> H2 in H1. inversion H1.
-
-  assert (empty_st =[ c4 ]=> (X !-> 2)).
-    constructor. reflexivity.
-  apply H in H0. inversion H0; subst. simpl in H5.
-  assert ((X !-> 2) X = 2).
-    reflexivity.
-  assert ((X !-> 1) X = 1).
-    reflexivity.
-  rewrite -> H5 in H2. rewrite -> H1 in H2. inversion H2.
-Qed. (* /ADMITTED *)
 
 (** Find a program `cmin` that approximates every other program. *)
 
@@ -2651,11 +2183,6 @@ Definition cmin : com
   (* ADMITDEF *) := <{ while true loop skip end }>. (* /ADMITDEF *)
 
 Theorem cmin_minimal : forall c, capprox cmin c.
-Proof. (* ADMITTED *)
-  unfold capprox. intros.
-  apply loop_never_stops in H.
-  inversion H.
-Qed. (* /ADMITTED *)
 
 (** Finally, find a non-trivial property which is preserved by
     program approximation (when going from left to right). *)
@@ -2670,11 +2197,6 @@ Definition zprop (c : com) : Prop
 (* /QUIETSOLUTION *)
 Theorem zprop_preserving : forall c c′,
   zprop c -> capprox c c′ -> zprop c′.
-Proof. (* ADMITTED *)
-  unfold zprop, capprox. intros.
-  specialize (H st). inversion H as `st'`.
-  apply H0 in H1. exists s₂. assumption.
-Qed. (* /ADMITTED *)
 (* HIDE *)
 
 (** INSTRUCTORS: Several other non-trivial properties are also
