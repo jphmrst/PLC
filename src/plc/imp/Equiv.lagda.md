@@ -3,7 +3,7 @@ title     : "Equiv: What does it mean for two programs to be equivalent?"
 layout    : page
 prev      : /Imp/
 permalink : /Equiv/
-next      : /
+next      : /Hoare/
 ---
 
 ```
