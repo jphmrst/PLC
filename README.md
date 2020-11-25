@@ -27,6 +27,13 @@ next :     /Troubleshooting/
 [gnuemacsDownload]: https://www.gnu.org/software/emacs/download.html
 
 [mononoki]: https://madmalik.github.io/mononoki/
+[debianMononoki]: https://packages.debian.org/sid/fonts/fonts-mononoki
+[virtualbox]: https://www.virtualbox.org/
+[applexcode]: https://developer.apple.com/xcode/
+[gitscm]: https://git-scm.com/downloads
+[stackAndWindows]: https://docs.haskellstack.org/en/v1.0.2/faq/#how-to-get-a-working-executable-on-windows
+[aquamacs]: http://aquamacs.org/
+[emacstour]: https://www.gnu.org/software/emacs/tour/
 
 [ruby]: https://www.ruby-lang.org/en/documentation/installation/
 [ruby-bundler]: https://bundler.io/#getting-started
@@ -79,8 +86,8 @@ Agda seems to be tricky to install on Windows, and students often
 report issues completing their installations.  If you are working on a
 Windows computer, you should consider running a linux system via a
 virtual machine within Windows, and install Agda there.  [Virtual
-Box](https://www.virtualbox.org/) is a fairly simple and open-source
-solution which runs on both Windows and Macintosh hosts.
+Box][virtualbox] is a fairly simple and open-source solution which
+runs on both Windows and Macintosh hosts.
 
 Note that on many computers, hardware virtualization is disabled by
 default.  If this is the case on your computer, the virtual machine
@@ -89,18 +96,18 @@ To allow hardware virtualization, you must activate it from BIOS when
 you first turn on your machine.  Check the documentation for your
 particular computer model for instructions on accessing its BIOS.
 
-## On Macs, install the [Xcode Developer Tools](https://developer.apple.com/xcode/)
+## On Macs, install the [Xcode Developer Tools][applexcode]
 
 Include at least the Developer Tools Essentials and UNIX Development
 Support modules.
 
-## Installing the Haskell Tool Stack {#stack}
+## Install the Haskell Tool Stack {#stack}
 
 Agda is built against the [Haskell Tool Stack][haskell-stack], and
 outputs code for the GHC compiler, so as a preliminary step you will
 need to install these systems.
 
- 1. **Installing Stack.**
+ 1. **Install Stack.**
 
     - *On Unix systems (including linux and Macs)*.  Your repository
        probably offers Stack as a pre-packaged software, and this
@@ -119,13 +126,13 @@ need to install these systems.
     - *On Windows*.  There is a 64-bit Windows installer on the [Stack
        site][haskell-stack].
 
- 2. **Updating Stack.** Stack is able to update itself.  So after you
+ 2. **Update Stack.** Stack is able to update itself.  So after you
     install it, run the command
     ```bash
     stack upgrade
     ```
 
-## Installing GHC and Cabal {#cabal}
+## Install GHC and Cabal {#cabal}
 
 These systems are used for installing Agda, and for its runtme
 environment.  
@@ -146,14 +153,14 @@ environment.
 
 You will need Git to access the specific version of Agda we use.  If
 you do not already have Git installed on your system, see the [git
-downloads page](https://git-scm.com/downloads).
+downloads page][gitscm].
 
-## Installing the core Agda system {#core}
+## Install the core Agda system {#core}
 
 To install the specific version of Agda we need, we will first
 download that version, and then ask Stack to install it for us.
 
- 1. *Downloading Agda*.  If you have installed Git, you can fetch a copy
+ 1. *Download Agda*.  If you have installed Git, you can fetch a copy
     of Agda with:
     ```bash
     git clone https://github.com/agda/agda.git
@@ -188,12 +195,11 @@ download that version, and then ask Stack to install it for us.
 
         export PATH=~/.local/bin:$PATH
 
-    For information about Stack
-    and Windows executables, see [the Stack
-    FAQ](https://docs.haskellstack.org/en/v1.0.2/faq/#how-to-get-a-working-executable-on-windows).
+    For information about Stack and Windows executables, see [the
+    Stack FAQ][stackAndWindows].
  
-*Verifying the base Agda system*.  After these three steps succeed,
-you should be able to load Agda files which do not use any external
+*Verify the base Agda system*.  After these three steps succeed, you
+should be able to load Agda files which do not use any external
 libraries:
 
  - Create a file `testdefs.agda` with these lines (keep the
@@ -221,9 +227,9 @@ libraries:
 
    but without any reported errors.
    
-## Installing the Agda standard libraries {#stdlib}
+## Install the Agda standard libraries {#stdlib}
 
- 1. *Downloading the standard libraries* is similar to downloading
+ 1. *Download the standard libraries*.  This is similar to downloading
     Agda itself:
     
     ```bash
@@ -274,7 +280,7 @@ libraries:
  from [the Library Management page][agda-docs-package-system] of the
  Agda documentation.
 
-*Verifying the Agda standard libraries installation*.  After the above
+*Verify the Agda standard libraries installation*.  After the above
 steps succeed, you should be able to load Agda files which use
 standard libraries:
 
@@ -323,17 +329,16 @@ To install Emacs:
     links to the most recent release on the [GNU Emacs downloads
     page][gnuemacsDownload].
 
- - *On MacOS*, [Aquamacs](http://aquamacs.org/) is the generally
-    preferred version of Emacs; the Agda wiki notes that people have
-    had success with agda-mode on Aquamacs.
+ - *On MacOS*, [Aquamacs][aquamacs] is the generally preferred version
+    of Emacs; the Agda wiki notes that people have had success with
+    agda-mode on Aquamacs.
 
  - *On Windows*.  See the [GNU Emacs downloads page][gnuemacsDownload]
     for instructions.
 
 Make sure that you are able to open, edit, and save text files with
-your installation.  The [tour of
-Emacs](https://www.gnu.org/software/emacs/tour/) page on the GNU Emacs
-site describes how to access the tutorial within your Emacs
+your installation.  The [tour of Emacs][emacstour] page on the GNU
+Emacs site describes how to access the tutorial within your Emacs
 installation.
 
 ### Install and configure agda-mode {#agdamode}
@@ -351,7 +356,7 @@ If you are already an Emacs user and have customized your setup, you
 may want to note the configuration which the `setup` appends to your
 `.emacs` file, and integrate it with your own preferred setup.
 
-*Verifying agda-mode*.  Open the `testnats.agda` file which you set up
+*Verify agda-mode*.  Open the `testnats.agda` file which you set up
 earlier.  Load and type-check the file by typing
 [`C-c C-l`][agda-docs-emacs-notation].
 
@@ -385,12 +390,12 @@ that the font which you use to view and edit Agda programs shows these
 symbols correctly.  So we recommend that you install the font
 [mononoki][mononoki] and direct Emacs to use it.
 
- 1. *Installing mononoki*.  You can install directly from a download
+ 1. *Install mononoki*.  You can install directly from a download
     from [mononoki's GitHub][mononoki], but it may be easier if your
     system repository provided a pre-packaged version.
 
     For example, on Debian and Ubuntu `apt` there is [a package
-    `fonts-mononoki`](https://packages.debian.org/sid/fonts/fonts-mononoki).
+    `fonts-mononoki`][debianMononoki].
 
  2. *Using mononoki from Emacs*.  Add the following to the end of your
     emacs configuration file `~/.emacs`:
@@ -491,7 +496,7 @@ seen.  Java, C and C++ are not whitespace-sensitive.  Pay attention to
 the indentation that you see in sample code, and use those same
 indentation patterns in the code that you write.
 
-## Installing this book's sources {#pack}
+## Install this book's sources {#pack}
 
 You can get the latest version of this book from GitHub,
 either by cloning the repository:
