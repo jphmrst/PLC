@@ -42,14 +42,7 @@ permalink: /
   - HoareLogic: A compositional semantics for imperative programs
   - Step: An alternative operational semantics
 
-## Logic and computation
-  - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
-  - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
-  - [LogicRedux]({{ site.baseurl }}/LogicRedux/): A deeper look at the basic connectives
-  - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
-  - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
-
-## Incomplete
+## Part II --- Incomplete/unedited
 
 ### Lambda calculus
 
@@ -60,6 +53,15 @@ permalink: /
 
 ### Objects and classes
   - Material to be posted
+
+## Part III --- Advanced material from _PLCA_
+
+### Advanced logic and computation
+  - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning
+  - [Isomorphism]({{ site.baseurl }}/Isomorphism/): Isomorphism and embedding
+  - [LogicRedux]({{ site.baseurl }}/LogicRedux/): A deeper look at the basic connectives
+  - [Quantifiers]({{ site.baseurl }}/Quantifiers/): Universals and existentials
+  - [Decidable]({{ site.baseurl }}/Decidable/): Booleans and decision procedures
 
 ### Advanced lambda calculus
 
