@@ -284,11 +284,11 @@ is `zero` or the successor of some other number — then we cannot apply
 either clause of the definition of `_+_` to simplify the left-hand
 expression.
 
-   plusOneNeq0 n =
-     begin
-       (n + 1) ≡ᵇ 0
-     ≡⟨⟩
-       ?
+    plusOneNeq0 n =
+      begin
+        (n + 1) ≡ᵇ 0
+      ≡⟨⟩
+        ?
 
 We may not know whether the structure of `n` is `zero` or the
 successor of some other number, but we _do_ know that `n` will have
@@ -371,6 +371,40 @@ Prove the following formula:
 
     zeroNotPlus1 : ∀ (n : ℕ) → (0 ≡ᵇ (n + 1)) ≡ false
     -- Your code goes here
+
+## In this chapter
+
+The purpose of this chapter is to expand our ability to give proofs
+for formulas about the functions and structures we create.
+
+The next few sections will introduce the technique of _proof by
+induction_.  Induction is like recursion, but for proofs instead of
+for programs: our creations of evidence will include a recursive
+reference to the way we create evidence.  But, since Agda requires us
+to write processes which are guaranteed to terminate, the evidence
+still makes sense because it is always finite.  You have already seen
+inductive proofs on numbers in your discrete mathematics coursework,
+and we will first consider induction on natural numbers.  Later, we
+will see how to use induction on other structures like lists.
+
+All of the proofs we have considered so far, and all of the proofs we
+will consider when we first look at induction, are all for formulas
+about equality — that, for `≡`-formulas.  But equalities are not the
+only formulas we will need to justify.  Inequalities and ordering
+relationships are important too.  There are several logical formulas —
+conjuction, disjunction, negation, quantifiers, etc. — which will
+often play a role in our arguments.  And we will need to define our
+own relationships on the data structures we write in the future.
+These different sorts of formula will all have their own forms of
+evidence which we will need to produce, forms which are different from
+the forms of evidence for equality, and different from the forms of
+evidence for other of these cases.
+
+With this and the previous chapter, we gain a foundation is how we
+program in Agda, and how we justify statements about our programs.  In
+later chapters, we will study ideas about _other_ languages.  Our
+technique will be to model these other languages in Agda, and to state
+and prove properties about our models.
 
 ## A bit of vocabulary {#vocab}
 
