@@ -709,15 +709,6 @@ Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
 -- Your code goes here
 ```
 
-
-#### Exercise `Any-∃` (practice)
-
-Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
-
-```
--- Your code goes here
-```
-
 ## More exercises
 
 #### Exercise `⊎-comm` (starting) {#or-comm}
@@ -1129,8 +1120,8 @@ more familiar.  Note that there may be no space between the `∃` and
 `[`, and that we will usually need to parenthesize `B`.
 
 For example, we can show that there is a number whose successor is 2.
-The proof the witness, together with the evidence that when we replace
-`x` with the witness, the resulting formula holds.
+The proof consists of the witness, together with the evidence that
+when we replace `x` with the witness, the resulting formula holds.
 
 ```
 _ : ∃[ x ] (suc (x) ≡ 2)
@@ -1194,6 +1185,14 @@ Does the converse hold? If so, prove; if not, explain why.
 
 Let `Tri` and `B` be as in Exercise `∀-×`.
 Show that `∃[ x ] B x` is isomorphic to `B aa ⊎ B bb ⊎ B cc`.
+
+#### Exercise `Any-∃` (practice)
+
+Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
+
+```
+-- Your code goes here
+```
 
 ## An existential example
 

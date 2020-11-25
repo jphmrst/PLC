@@ -1,7 +1,7 @@
 ---
 title     : "ImpExprs: Expression and values in Imp"
 layout    : page
-prev      : /MapProps/
+prev      : /VerifExers/
 permalink : /ImpExprs/
 next      : /Imp/
 ---

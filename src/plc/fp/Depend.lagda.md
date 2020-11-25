@@ -260,6 +260,16 @@ Implement and test `map` for polymorphic `Vec`.
 
 Implement and test `foldr` for polymorphic `Vec`.
 
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
+
+One final remark: you may notice that there is a curious omission from
+the set of functions which these exercises ask you to write for
+vectors.  Can you tell what it is?  We will need a few more tools to
+express the type of this function, and we will return to this topic in
+a [later section]({{ site.baseurl }}/VerifExers/).
+
 ## Unicode
 
 This section uses the following unicode:

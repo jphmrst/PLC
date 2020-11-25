@@ -694,8 +694,8 @@ In the first branch, the value of `kkIsT` will be evidence for
 `key ≡idᵇ k ≡ true`; and in the second branch, the value of
 `kkIsF` will be evidence for `key ≡idᵇ k ≡ false`.
 
-We will apply this technique in the
-[MapProps]({{ site.baseurl }}/MapProps/) section.
+We will apply this technique in the [VerifExers]({{ site.baseurl
+}}/VerifExers/) section.
 
 ## Standard Library
 

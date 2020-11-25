@@ -16,7 +16,8 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
-open import plc.vfp.MapProps
+import plc.vfp.VerifExers as VE
+open VE.MapProps
 open import plc.vfp.Relations using (_⇔_)
 open import plc.vfp.Logic
 open import plc.imp.ImpExprs public
@@ -347,7 +348,7 @@ two different output states `st'` and `st''`?
 
 In fact, this cannot happen: `ceval` _is_ a partial function.  Note
 that we will make use of some of the results on partial maps from
-[Section MapProps]({{ site.baseurl }}/MapProps/) in this result.
+[Section VerifExers]({{ site.baseurl }}/VerifExers/) in this result.
 
 We will actually prove a slightly more general lemma first, that
 `ceval` preserves the equality relationship.  This technique is
@@ -458,7 +459,7 @@ we have seen in some form before.
 
  - Since the states whose equivalences we prove are on `TotalMap`
    functions, we will use the library of results from the
-   [`MapProps` section]({{ site.baseurl }}/MapProps/).
+   [Section VerifExers]({{ site.baseurl }}/VerifExers/).
 
 Once again we see that the form of command corresponds to only a
 single form of evaluation evidence, and that that evidence in turn

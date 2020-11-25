@@ -17,7 +17,8 @@ open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 open import plc.vfp.Induction
-open import plc.vfp.MapProps
+import plc.vfp.VerifExers as VE
+open VE.MapProps
 open import plc.vfp.Relations using (_⇔_)
 open _⇔_
 open import plc.vfp.Logic

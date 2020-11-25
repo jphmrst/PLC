@@ -33,7 +33,7 @@ permalink: /
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations
   - [DataRel]({{ site.baseurl }}/DataRel/): Relations for data structures
   - [Logic]({{ site.baseurl }}/Logic/): Connectives and deduction
-  - [MapProps]({{ site.baseurl }}/MapProps/): Properties of total and partial maps
+  - [VerifExers]({{ site.baseurl }}/VerifExers/): Further applications and exercises
 
 ## Imperative programming
   - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
