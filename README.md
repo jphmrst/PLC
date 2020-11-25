@@ -648,7 +648,7 @@ Ruby bindings) and the Ruby `html-proofer`.
 Some attention is required when installing Agda's libraries on a
 shared file system.  The standard library as shipped contains `.agda`
 files, and not the compiled `.agdai` images (which of course will
-vary from system to system).  When a `.agdai` file does not exist for
+vary from system to system).  When an `.agdai` file does not exist for
 a file from a library, Agda will attempt to compile that file _and
 store the resulting `.agdai` file right alongside the `.agda` source_.
 This tends to fail on shared file systems, because general accounts
