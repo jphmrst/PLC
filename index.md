@@ -27,6 +27,7 @@ permalink: /
 
 ## Verified functional programming
 
+  - [Proof]({{ site.baseurl }}/Proof/): Constructing evidence for formulas
   - [Induction]({{ site.baseurl }}/Induction/): Proof by induction
   - [DataProp]({{ site.baseurl }}/DataProp/): Properties of data structures
   - [Relations]({{ site.baseurl }}/Relations/): Inductive definition of relations

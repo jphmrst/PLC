@@ -39,13 +39,13 @@ open import plc.imp.Equiv
   max??  If it's just one or two like this, we can build them in, but
   if it's a lot... *)
 (* LATER: What about typesetting multi-line triples as
-      {{ P }}
+      ⦃  P ⦄
          c
-      {{ Q }}
+      ⦃  Q ⦄
    instead of
-        {{ P }}
+        ⦃  P ⦄
       c
-        {{ Q }}
+        ⦃  Q ⦄
    when we print them? *)
 (* SOONER: BCP 19: For the second midterm in the the 19fa instance of
    CIS500, we did a little experiment with setting up a
@@ -316,13 +316,13 @@ End ExAssertions.
 (** TERSE: *** *)
 (** TERSE: Informally, instead of writing *)
 (**
-[[
+
       fun st => st X = m
-]]
+
     we'll write just
-[[
+
       X = m
-]]
+
 *)
 
 (** FULL: This example also illustrates a convention that we'll use
@@ -487,9 +487,9 @@ End ExPrettyAssertions.
 
 (** A _Hoare triple_ is a claim about the state before and after executing
     a command.  A standard notation is
-[[
+
       {P} c {Q}
-]]
+
     meaning:
 
       - If command [c] begins execution in a state satisfying assertion [P],
@@ -501,19 +501,19 @@ End ExPrettyAssertions.
 
     Because single braces are already used in other ways in Coq, we'll write
     Hoare triples with double braces:
-[[
-       {{P}} c {{Q}}
-]]
+
+       ⦃ P ⦄ c ⦃ Q⦄
+
  *)
 (** TERSE: *** *)
 (**
     For example,
 
-    - [{{X = 0}} X := X + 1 {{X = 1}}] is a valid Hoare triple,
+    - [⦃ X = 0 ⦄ X := X + 1 ⦃ X = 1 ⦄] is a valid Hoare triple,
       stating that command [X := X + 1] would transform a state in which
       [X = 0] to a state in which [X = 1].
 
-    - [{{X = m}} X := X + 1 {{X = m + 1}}], is also a valid Hoare triple.
+    - [⦃ X = m ⦄ X := X + 1 ⦃ X = m + 1 ⦄], is also a valid Hoare triple.
       It's even more descriptive of the exact behavior of that command than
       the previous example. *)
 (* SOONER: BCP: Not 100% sure I agree with the wording.  When m is
@@ -554,29 +554,29 @@ End ExPrettyAssertions.
 (* EX1? (valid_triples) *)
 (** Which of the following Hoare triples are _valid_ -- i.e., the
     claimed relation between [P], [c], and [Q] is true?
-[[
-   1) {{True}} X := 5 {{X = 5}}
 
-   2) {{X = 2}} X := X + 1 {{X = 3}}
+   1) ⦃ True ⦄ X := 5 ⦃ X = 5⦄
 
-   3) {{True}} X := 5; Y := 0 {{X = 5}}
+   2) ⦃ X = 2 ⦄ X := X + 1 ⦃ X = 3⦄
 
-   4) {{X = 2 /\ X = 3}} X := 5 {{X = 0}}
+   3) ⦃ True ⦄ X := 5; Y := 0 ⦃ X = 5⦄
 
-   5) {{True}} skip {{False}}
+   4) ⦃ X = 2 /\ X = 3 ⦄ X := 5 ⦃ X = 0⦄
 
-   6) {{False}} skip {{True}}
+   5) ⦃ True ⦄ skip ⦃ False⦄
 
-   7) {{True}} while true do skip end {{False}}
+   6) ⦃ False ⦄ skip ⦃ True⦄
 
-   8) {{X = 0}}
+   7) ⦃ True ⦄ while true do skip end ⦃ False⦄
+
+   8) ⦃ X = 0⦄
         while X = 0 do X := X + 1 end
-      {{X = 1}}
+      ⦃ X = 1⦄
 
-   9) {{X = 1}}
+   9) ⦃ X = 1⦄
         while ~(X = 0) do X := X + 1 end
-      {{X = 100}}
-]]
+      ⦃ X = 100⦄
+
 *)
 (* FULL: SOLUTION *)
 (* All are valid except the 5th. *)
@@ -596,10 +596,10 @@ Definition hoare_triple
      P st  ->
      Q st'.
 
-Notation "{{ P }}  c  {{ Q }}" :=
+Notation "⦃  P ⦄  c  ⦃ Q  ⦄" :=
   (hoare_triple P c Q) (at level 90, c custom com at level 99)
   : hoare_spec_scope.
-Check ({{True}} X := 0 {{True}}).
+Check (⦃ True ⦄ X := 0 ⦃ True ⦄).
 
 (* HIDE: AAA: If I try to set the notation as {P} c {Q}, I get the
    following error:
@@ -633,7 +633,7 @@ Check ({{True}} X := 0 {{True}}).
 
 Theorem hoare_post_true : forall (P Q : Assertion) c,
   (forall st, Q st) ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 (** [] *)
 
 (* EX1 (hoare_pre_false) *)
@@ -643,7 +643,7 @@ Theorem hoare_post_true : forall (P Q : Assertion) c,
 
 Theorem hoare_pre_false : forall (P Q : Assertion) c,
   (forall st, ~ (P st)) ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 (** [] *)
 
 (* ####################################################### *)
@@ -689,9 +689,9 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
     logic proof rules.  Here's how it works.
 
     Consider this incomplete Hoare triple:
-[[
-       {{ ??? }}  X := Y  {{ X = 1 }}
-]]
+
+       ⦃ ??? ⦄  X := Y  ⦃ X = 1 ⦄
+
 
     We want to assign [Y] to [X] and finish in a state where [X] is [1].
     What could the precondition be?
@@ -699,9 +699,9 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
     One possibility is [Y = 1], because if [Y] is already [1] then
     assigning it to [X] causes [X] to be [1].  That leads to a valid
     Hoare triple:
-[[
-       {{ Y = 1 }}  X := Y  {{ X = 1 }}
-]]
+
+       ⦃ Y = 1 ⦄  X := Y  ⦃ X = 1 ⦄
+
     It may seem as though coming up with that precondition must have
     taken some clever thought.  But there is a mechanical way we could
     have done it: if we take the postcondition [X = 1] and in it
@@ -710,27 +710,27 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
     precondition, [Y = 1]. *)
 
 (** TERSE: How can we complete this triple?
-[[
-       {{ ??? }}  X := Y  {{ X = 1 }}
-]]
+
+       ⦃ ??? ⦄  X := Y  ⦃ X = 1 ⦄
+
     One possibility is:
-[[
-       {{ Y = 1 }}  X := Y  {{ X = 1 }}
-]]
+
+       ⦃ Y = 1 ⦄  X := Y  ⦃ X = 1 ⦄
+
 
     The precondition is just the postcondition, but with [X] replaced
     by [Y]. *)
 
 (** FULL: That same technique works in more complicated cases.  For
     example,
-[[
-       {{ ??? }}  X := X + Y  {{ X = 1 }}
-]]
+
+       ⦃ ??? ⦄  X := X + Y  ⦃ X = 1 ⦄
+
     If we replace the [X] in [X = 1] with [X + Y], we get [X + Y = 1].
     That again leads to a valid Hoare triple:
-[[
-       {{ X + Y = 1 }}  X := X + Y  {{ X = 1 }}
-]]
+
+       ⦃ X + Y = 1 ⦄  X := X + Y  ⦃ X = 1 ⦄
+
     Why does this technique work?  The postcondition identifies some
     property [P] that we want to hold of the variable [X] being
     assigned.  In this case, [P] is "equals [1]".  To complete the
@@ -743,13 +743,13 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
 
 (** TERSE: *** *)
 (** TERSE: Another example:
-[[
-       {{ ??? }}  X := X + Y  {{ X = 1 }}
-]]
+
+       ⦃ ??? ⦄  X := X + Y  ⦃ X = 1 ⦄
+
     Replace [X] with [X + Y]:
-[[
-       {{ X + Y = 1 }}  X := X + Y  {{ X = 1 }}
-]]
+
+       ⦃ X + Y = 1 ⦄  X := X + Y  ⦃ X = 1 ⦄
+
     This works because "equals 1" holding of [X] is guaranteed
     by "equals 1" holding of whatever is being assigned to [X]. *)
 
@@ -758,18 +758,18 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
 (** In general, the postcondition could be some arbitrary assertion
     [Q], and the right-hand side of the assignment could be some
     arithmetic expression [a]:
-[[
-       {{ ??? }}  X := a  {{ Q }}
-]]
+
+       ⦃ ??? ⦄  X := a  ⦃ Q ⦄
+
     The precondition would then be [Q], but with any occurrences of
     [X] in it replaced by [a].  Let's introduce a notation for this
     idea of replacing occurrences: Define [Q [X |-> a]] to mean "[Q]
     where [a] is substituted in place of [X]".
 
     That yields the Hoare logic rule for assignment:
-[[
-      {{ Q [X |-> a] }}  X := a  {{ Q }}
-]]
+
+      ⦃ Q [X |-> a] ⦄  X := a  ⦃ Q ⦄
+
     One way of reading that rule is: If you want statement [X := a]
     to terminate in a state that satisfies assertion [Q], then it
     suffices to start in a state that also satisfies [Q], except
@@ -787,19 +787,19 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
 (** TERSE: *** *)
 
 (** Here are some valid instances of the assignment rule:
-[[
-      {{ (X <= 5) [X |-> X + 1] }}     (that is, X + 1 <= 5)
+
+      ⦃ (X <= 5) [X |-> X + 1] ⦄     (that is, X + 1 <= 5)
       X := X + 1
-      {{ X <= 5 }}
+      ⦃ X <= 5 ⦄
 
-      {{ (X = 3) [X |-> 3] }}          (that is, 3 = 3)
+      ⦃ (X = 3) [X |-> 3] ⦄          (that is, 3 = 3)
       X := 3
-      {{ X = 3 }}
+      ⦃ X = 3 ⦄
 
-      {{ (0 <= X /\ X <= 5) [X |-> 3]  (that is, 0 <= 3 /\ 3 <= 5)
+      ⦃ (0 <= X /\ X <= 5) [X |-> 3]  (that is, 0 <= 3 /\ 3 <= 5)
       X := 3
-      {{ 0 <= X /\ X <= 5 }}
-]]
+      ⦃ 0 <= X /\ X <= 5 ⦄
+
 *)
 
 (** TERSE: *** *)
@@ -834,27 +834,27 @@ Notation "P [ X |-> a ]" := (assn_sub X a P)
 (** To see how this works, let's calculate what happens with a couple
     of examples.  First, suppose [P'] is [(X <= 5) [X |-> 3]] -- that
     is, more formally, [P'] is the Coq expression
-[[
+
     fun st =>
       (fun st' => st' X <= 5)
       (X !-> aeval st 3 ; st),
-]]
+
     which simplifies to
-[[
+
     fun st =>
       (fun st' => st' X <= 5)
       (X !-> 3 ; st)
-]]
+
     and further simplifies to
-[[
+
     fun st =>
       ((X !-> 3 ; st) X) <= 5
-]]
+
     and finally to
-[[
+
     fun st =>
       3 <= 5.
-]]
+
     That is, [P'] is the assertion that [3] is less than or equal to
     [5] (as expected). *)
 
@@ -862,21 +862,21 @@ Notation "P [ X |-> a ]" := (assn_sub X a P)
 
 (** For a more interesting example, suppose [P'] is [(X <= 5) [X |->
     X + 1]].  Formally, [P'] is the Coq expression
-[[
+
     fun st =>
       (fun st' => st' X <= 5)
       (X !-> aeval st (X + 1) ; st),
-]]
+
     which simplifies to
-[[
+
     fun st =>
       (X !-> aeval st (X + 1) ; st) X <= 5
-]]
+
     and further simplifies to
-[[
+
     fun st =>
       (aeval st (X + 1)) <= 5.
-]]
+
     That is, [P'] is the assertion that [X + 1] is at most [5].
 *)
 
@@ -886,14 +886,14 @@ Notation "P [ X |-> a ]" := (assn_sub X a P)
     proof rule for assignment:
 [[[
       ------------------------------ (hoare_asgn)
-      {{Q [X |-> a]}} X := a {{Q}}
+      ⦃ Q [X |-> a] ⦄ X := a ⦃ Q⦄
 ]]]
 *)
 
 (** We can prove formally that this rule is indeed valid. *)
 
 Theorem hoare_asgn : forall Q X a,
-  {{Q [X |-> a]}} X := a {{Q}}.
+  ⦃ Q [X |-> a] ⦄ X := a ⦃ Q ⦄.
 (* FOLD *)
 Proof.
   unfold hoare_triple.
@@ -907,9 +907,9 @@ Proof.
 (** Here's a first formal proof using this rule. *)
 
 Example assn_sub_example :
-  {{(X < 5) [X |-> X + 1]}}
+  ⦃ (X < 5) [X |-> X + 1]⦄
   X := X + 1
-  {{X < 5}}.
+  ⦃ X < 5 ⦄.
 Proof.
   (* WORKINCLASS *)
   apply hoare_asgn.  Qed.
@@ -918,9 +918,9 @@ Proof.
 (** TERSE: *** *)
 (** (Of course, what would be even more helpful is to prove this
     simpler triple:
-[[
-      {{X < 4}} X := X + 1 {{X < 5}}
-]]
+
+      ⦃ X < 4 ⦄ X := X + 1 ⦃ X < 5⦄
+
    We will see how to do so in the next section. *)
 
 (* FULL *)
@@ -928,31 +928,31 @@ Proof.
 (* EX2M? (hoare_asgn_examples) *)
 (* SOONER: There's no reason any more for this to be a manual exercise!! *)
 (** Complete these Hoare triples...
-[[
-    1) {{ ??? }}
-       X ::= 2 * X
-       {{ X <= 10 }}
 
-    2) {{ ??? }}
+    1) ⦃ ??? ⦄
+       X ::= 2 * X
+       ⦃ X <= 10 ⦄
+
+    2) ⦃ ??? ⦄
        X := 3
-       {{ 0 <= X /\ X <= 5 }}
-]]
+       ⦃ 0 <= X /\ X <= 5 ⦄
+
    ...using the names [assn_sub_ex1] and [assn_sub_ex2], and prove
    both with just [apply hoare_asgn]. If you find that tactic doesn't
    suffice, double check that you have completed the triple properly. *)
 
 (* SOLUTION *)
 Example assn_sub_ex1 :
-  {{ (X <= 10) [X |-> 2 * X] }}
+  ⦃ (X <= 10) [X |-> 2 * X] ⦄
   X := 2 * X
-  {{ X <= 10 }}.
+  ⦃ X <= 10  ⦄.
 Proof.
   apply hoare_asgn. Qed.
 
 Example assn_sub_ex2 :
-  {{ (0 <= X /\ X <= 5) [X |-> 3] }}
+  ⦃ (0 <= X /\ X <= 5) [X |-> 3] ⦄
   X := 3
-  {{ 0 <=  X /\ X <= 5 }}.
+  ⦃ 0 <=  X /\ X <= 5  ⦄.
 Proof.
   apply hoare_asgn. Qed.
 (* /SOLUTION *)
@@ -967,7 +967,7 @@ Proof.
     seemingly natural one:
 [[[
       ------------------------------ (hoare_asgn_wrong)
-      {{ True }} X := a {{ X = a }}
+      ⦃ True ⦄ X := a ⦃ X = a ⦄
 ]]]
     Give a counterexample showing that this rule is incorrect and
     argue informally that it is really a counterexample.  (Hint:
@@ -987,7 +987,7 @@ Proof.
    Watson): *)
 
 Theorem hoare_asgn_wrong : exists a:aexp,
-  ~ {{ True }} X := a {{ X = a }}.
+  ~ ⦃ True ⦄ X := a ⦃ X = a  ⦄.
 Proof.
   exists <{ X + 1 }>. intros Hc.
   unfold hoare_triple in Hc.
@@ -1016,9 +1016,9 @@ Qed.
     that does, intuitively, "work forwards" rather than backwards.
 [[[
        ------------------------------------------ (hoare_asgn_fwd)
-       {{fun st => P st /\ st X = m}}
+       ⦃ fun st => P st /\ st X = m⦄
          X := a
-       {{fun st => P st' /\ st X = aeval st' a }}
+       ⦃ fun st => P st' /\ st X = aeval st' a ⦄
        (where st' = (X !-> m ; st))
 ]]]
     Note that we use the original value of [X] to reconstruct the
@@ -1029,10 +1029,10 @@ Qed.
 
 Theorem hoare_asgn_fwd :
   forall m a P,
-  {{fun st => P st /\ st X = m}}
+  ⦃ fun st => P st /\ st X = m⦄
     X := a
-  {{fun st => P (X !-> m ; st)
-           /\ st X = aeval (X !-> m ; st) a }}.
+  ⦃ fun st => P (X !-> m ; st)
+           /\ st X = aeval (X !-> m ; st) a  ⦄.
 (** [] *)
 
 (* EX2A? (hoare_asgn_fwd_exists) *)
@@ -1041,10 +1041,10 @@ Theorem hoare_asgn_fwd :
     variable.  Prove that it is correct.
 [[[
       ------------------------------------ (hoare_asgn_fwd_exists)
-      {{fun st => P st}}
+      ⦃ fun st => P st⦄
         X := a
-      {{fun st => exists m, P (X !-> m ; st) /\
-                     st X = aeval (X !-> m ; st) a }}
+      ⦃ fun st => exists m, P (X !-> m ; st) /\
+                     st X = aeval (X !-> m ; st) a ⦄
 ]]]
 *)
 (* INSTRUCTORS: This rule was proposed to BCP by Nick Giannarakis and
@@ -1055,10 +1055,10 @@ Theorem hoare_asgn_fwd :
 
 Theorem hoare_asgn_fwd_exists :
   forall a P,
-  {{fun st => P st}}
+  ⦃ fun st => P st⦄
     X := a
-  {{fun st => exists m, P (X !-> m ; st) /\
-                st X = aeval (X !-> m ; st) a }}.
+  ⦃ fun st => exists m, P (X !-> m ; st) /\
+                st X = aeval (X !-> m ; st) a  ⦄.
 (** [] *)
 (* /FULL *)
 
@@ -1087,13 +1087,13 @@ Theorem hoare_asgn_fwd_exists :
 
 (** TERSE: *** *)
 (** For instance, while
-[[
-      {{(X = 3) [X |-> 3]}} X := 3 {{X = 3}},
-]]
+
+      ⦃ (X = 3) [X |-> 3] ⦄ X := 3 ⦃ X = 3 ⦄,
+
     follows directly from the assignment rule,
-[[
-      {{True}} X := 3 {{X = 3}}
-]]
+
+      ⦃ True ⦄ X := 3 ⦃ X = 3⦄
+
     does not.  This triple is valid, but it is not an instance of
     [hoare_asgn] because [True] and [(X = 3) [X |-> 3]] are not
     syntactically equal assertions.  However, they are logically
@@ -1101,10 +1101,10 @@ Theorem hoare_asgn_fwd_exists :
     certainly be as well.  We can capture this observation with the
     following rule:
 [[[
-                {{P'}} c {{Q}}
+                ⦃ P' ⦄ c ⦃ Q⦄
                   P <<->> P'
          -----------------------------   (hoare_consequence_pre_equiv)
-                {{P}} c {{Q}}
+                ⦃ P ⦄ c ⦃ Q⦄
 ]]]
 *)
 
@@ -1115,15 +1115,15 @@ Theorem hoare_asgn_fwd_exists :
     valid triple always produces another valid triple. This
     observation is captured by two _Rules of Consequence_.
 [[[
-                {{P'}} c {{Q}}
+                ⦃ P' ⦄ c ⦃ Q⦄
                    P ->> P'
          -----------------------------   (hoare_consequence_pre)
-                {{P}} c {{Q}}
+                ⦃ P ⦄ c ⦃ Q⦄
 
-                {{P}} c {{Q'}}
+                ⦃ P ⦄ c ⦃ Q'⦄
                   Q' ->> Q
          -----------------------------    (hoare_consequence_post)
-                {{P}} c {{Q}}
+                ⦃ P ⦄ c ⦃ Q⦄
 ]]]
 *)
 
@@ -1132,9 +1132,9 @@ Theorem hoare_asgn_fwd_exists :
 (** Here are the formal versions: *)
 
 Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 (* FOLD *)
 Proof.
   unfold hoare_triple, "->>".
@@ -1146,9 +1146,9 @@ Qed.
 (* /FOLD *)
 
 Theorem hoare_consequence_post : forall (P Q Q' : Assertion) c,
-  {{P}} c {{Q'}} ->
+  ⦃ P ⦄ c ⦃ Q' ⦄ ->
   Q' ->> Q ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 (* FOLD *)
 Proof.
   unfold hoare_triple, "->>".
@@ -1163,16 +1163,16 @@ Qed.
 (** TERSE: *** *)
 
 (** For example, we can use the first consequence rule like this:
-[[
-      {{ True }} ->>
-      {{ (X = 1) [X |-> 1] }}
+
+      ⦃ True ⦄ ->>
+      ⦃ (X = 1) [X |-> 1] ⦄
     X := 1
-      {{ X = 1 }}
-]]
+      ⦃ X = 1 ⦄
+
     Or, formally... *)
 
 Example hoare_asgn_example1 :
-  {{True}} X := 1 {{X = 1}}.
+  ⦃ True ⦄ X := 1 ⦃ X = 1 ⦄.
 Proof.
   (* WORKINCLASS *)
   apply hoare_consequence_pre with (P' := (X = 1) [X |-> 1]).
@@ -1184,18 +1184,18 @@ Qed.
 
 (** TERSE: *** *)
 (** We can also use it to prove the example mentioned earlier.
-[[
-      {{ X < 4 }} ->>
-      {{ (X < 5)[X |-> X + 1] }}
+
+      ⦃ X < 4 ⦄ ->>
+      ⦃ (X < 5)[X |-> X + 1] ⦄
     X := X + 1
-      {{ X < 5 }}
-]]
+      ⦃ X < 5 ⦄
+
    Or, formally ... *)
 
 Example assn_sub_example2 :
-  {{X < 4}}
+  ⦃ X < 4⦄
   X := X + 1
-  {{X < 5}}.
+  ⦃ X < 5 ⦄.
 Proof.
   (* WORKINCLASS *)
   apply hoare_consequence_pre with (P' := (X < 5) [X |-> X + 1]).
@@ -1208,20 +1208,20 @@ Qed.
 (** TERSE: *** *)
 (** Finally, here is a combined rule of consequence that allows us to
     vary both the precondition and the postcondition.
-[[
-                {{P'}} c {{Q'}}
+
+                ⦃ P' ⦄ c ⦃ Q'⦄
                    P ->> P'
                    Q' ->> Q
          -----------------------------   (hoare_consequence)
-                {{P}} c {{Q}}
-]]
+                ⦃ P ⦄ c ⦃ Q⦄
+
 *)
 
 Theorem hoare_consequence : forall (P P' Q Q' : Assertion) c,
-  {{P'}} c {{Q'}} ->
+  ⦃ P' ⦄ c ⦃ Q' ⦄ ->
   P ->> P' ->
   Q' ->> Q ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 (* FOLD *)
 Proof.
   intros P P' Q Q' c Htriple Hpre Hpost.
@@ -1262,9 +1262,9 @@ Hint Unfold assert_of_Prop Aexp_of_nat Aexp_of_aexp : core.
 (** TERSE: Here's a good candidate for automation: *)
 
 Theorem hoare_consequence_pre' : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   unfold hoare_triple, "->>".
   intros P P' Q c Hhoare Himp st st' Heval Hpre.
@@ -1277,9 +1277,9 @@ Qed.
 (** Merely using [auto], though, doesn't complete the proof. *)
 
 Theorem hoare_consequence_pre'' : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   auto. (* no progress *)
 Abort.
@@ -1302,9 +1302,9 @@ Abort.
 (** TERSE: Tactic [eapply] will find [st] for us. *)
 
 Theorem hoare_consequence_pre''' : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   unfold hoare_triple, "->>".
   intros P P' Q c Hhoare Himp st st' Heval Hpre.
@@ -1318,9 +1318,9 @@ Qed.
     So, the entire proof can be done in just one line. *)
 
 Theorem hoare_consequence_pre'''' : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   eauto.
 Qed.
@@ -1335,9 +1335,9 @@ Qed.
     rule. *)
 
 Theorem hoare_consequence_post' : forall (P Q Q' : Assertion) c,
-  {{P}} c {{Q'}} ->
+  ⦃ P ⦄ c ⦃ Q' ⦄ ->
   Q' ->> Q ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   eauto.
 Qed.
@@ -1348,7 +1348,7 @@ Qed.
     the consequence rule: *)
 
 Example hoare_asgn_example1' :
-  {{True}} X := 1 {{X = 1}}.
+  ⦃ True ⦄ X := 1 ⦃ X = 1 ⦄.
 Proof.
   eapply hoare_consequence_pre. (* no need to state an assertion *)
   - apply hoare_asgn.
@@ -1360,7 +1360,7 @@ Qed.
     automation. *)
 
 Example hoare_asgn_example1'' :
-  {{True}} X := 1 {{X = 1}}.
+  ⦃ True ⦄ X := 1 ⦃ X = 1 ⦄.
 Proof.
   eapply hoare_consequence_pre.
   - apply hoare_asgn.
@@ -1385,9 +1385,9 @@ Qed.
     [auto] for the final bullet, since it needs [omega]. *)
 
 Example assn_sub_example2' :
-  {{X < 4}}
+  ⦃ X < 4⦄
   X := X + 1
-  {{X < 5}}.
+  ⦃ X < 5 ⦄.
 Proof.
   eapply hoare_consequence_pre.
   - apply hoare_asgn.
@@ -1406,9 +1406,9 @@ Ltac assn_auto :=
 
 (** TERSE: *** *)
 Example assn_sub_example2'' :
-  {{X < 4}}
+  ⦃ X < 4⦄
   X := X + 1
-  {{X < 5}}.
+  ⦃ X < 5 ⦄.
 Proof.
   eapply hoare_consequence_pre.
   - apply hoare_asgn.
@@ -1416,7 +1416,7 @@ Proof.
 Qed.
 
 Example hoare_asgn_example1''':
-  {{True}} X := 1 {{X = 1}}.
+  ⦃ True ⦄ X := 1 ⦃ X = 1 ⦄.
 Proof.
   eapply hoare_consequence_pre.
   - apply hoare_asgn.
@@ -1435,27 +1435,27 @@ Qed.
     as those above. *)
 
 Example assn_sub_ex1' :
-  {{ X <= 5 }}
+  ⦃ X <= 5 ⦄
   X := 2 * X
-  {{ X <= 10 }}.
+  ⦃ X <= 10  ⦄.
 
 Example assn_sub_ex2' :
-  {{ 0 <= 3 /\ 3 <= 5 }}
+  ⦃ 0 <= 3 /\ 3 <= 5 ⦄
   X := 3
-  {{ 0 <= X /\ X <= 5 }}.
+  ⦃ 0 <= X /\ X <= 5  ⦄.
 
 (* GRADE_THEOREM 1: assn_sub_ex1' *)
 (* GRADE_THEOREM 1: assn_sub_ex2' *)
 (** [] *)
 
 (* LATER: Note here about equivalent preconditions
-[[
-      {{ X + 1 <= 5 }}  X := X + 1  {{ X <= 5 }}
 
-      {{ 3 = 3 }}  X := 3  {{ X = 3 }}
+      ⦃ X + 1 <= 5 ⦄  X := X + 1  ⦃ X <= 5 ⦄
 
-      {{ 0 <= 3 /\ 3 <= 5 }}  X := 3  {{ 0 <= X /\ X <= 5 }}
-]]
+      ⦃ 3 = 3 ⦄  X := 3  ⦃ X = 3 ⦄
+
+      ⦃ 0 <= 3 /\ 3 <= 5 ⦄  X := 3  ⦃ 0 <= X /\ X <= 5 ⦄
+
 *)
 (* /FULL *)
 
@@ -1464,14 +1464,14 @@ Example assn_sub_ex2' :
 
 (** Since [skip] doesn't change the state, it preserves any
     assertion [P]:
-[[
+
       --------------------  (hoare_skip)
-      {{ P }} skip {{ P }}
-]]
+      ⦃ P ⦄ skip ⦃ P ⦄
+
 *)
 
 Theorem hoare_skip : forall P,
-     {{P}} skip {{P}}.
+     ⦃ P ⦄ skip ⦃ P ⦄.
 (* FOLD *)
 Proof.
   intros P st st' H HP. inversion H; subst. assumption.
@@ -1486,17 +1486,17 @@ Qed.
     where [R] holds, then doing [c1] followed by [c2] will take any
     state where [P] holds to one where [R] holds:
 [[[
-        {{ P }} c1 {{ Q }}
-        {{ Q }} c2 {{ R }}
+        ⦃ P ⦄ c1 ⦃ Q ⦄
+        ⦃ Q ⦄ c2 ⦃ R ⦄
        ----------------------  (hoare_seq)
-       {{ P }} c1;c2 {{ R }}
+       ⦃ P ⦄ c1;c2 ⦃ R ⦄
 ]]]
 *)
 
 Theorem hoare_seq : forall P Q R c1 c2,
-     {{Q}} c2 {{R}} ->
-     {{P}} c1 {{Q}} ->
-     {{P}} c1; c2 {{R}}.
+     ⦃ Q ⦄ c2 ⦃ R ⦄ ->
+     ⦃ P ⦄ c1 ⦃ Q ⦄ ->
+     ⦃ P ⦄ c1; c2 ⦃ R ⦄.
 (* FOLD *)
 Proof.
   unfold hoare_triple.
@@ -1521,9 +1521,9 @@ Qed.
     [eapply] tactic. *)
 
 Example hoare_asgn_example3 : forall (a:aexp) (n:nat),
-  {{a = n}}
+  ⦃ a = n⦄
   X := a; skip
-  {{X = n}}.
+  ⦃ X = n ⦄.
 Proof.
   intros a n. eapply hoare_seq.
   - (* right part of seq *)
@@ -1537,13 +1537,13 @@ Qed.
 (** Informally, a nice way of displaying a proof using the sequencing
     rule is as a "decorated program" where the intermediate assertion
     [Q] is written between [c1] and [c2]:
-[[
-      {{ a = n }}
+
+      ⦃ a = n ⦄
     X := a;
-      {{ X = n }}    <--- decoration for Q
+      ⦃ X = n ⦄    <--- decoration for Q
     skip
-      {{ X = n }}
-]]
+      ⦃ X = n ⦄
+
 *)
 (* LATER: We're introducing decorated programs here, and perhaps we
    should make a slightly bigger deal out of them now (even though we
@@ -1554,15 +1554,15 @@ Qed.
 (* FULL *)
 (* EX2! (hoare_asgn_example4) *)
 (** Translate this "decorated program" into a formal proof:
-[[
-                   {{ True }} ->>
-                   {{ 1 = 1 }}
+
+                   ⦃ True ⦄ ->>
+                   ⦃ 1 = 1 ⦄
     X := 1;
-                   {{ X = 1 }} ->>
-                   {{ X = 1 /\ 2 = 2 }}
+                   ⦃ X = 1 ⦄ ->>
+                   ⦃ X = 1 /\ 2 = 2 ⦄
     Y := 2
-                   {{ X = 1 /\ Y = 2 }}
-]]
+                   ⦃ X = 1 /\ Y = 2 ⦄
+
    Note the use of "[->>]" decorations, each marking a use of
    [hoare_consequence_pre].
 
@@ -1570,17 +1570,17 @@ Qed.
    explicitly identifies [X = 1] as the intermediate assertion. *)
 
 Example hoare_asgn_example4 :
-  {{ True }}
+  ⦃ True ⦄
   X := 1; Y := 2
-  {{ X = 1 /\ Y = 2 }}.
+  ⦃ X = 1 /\ Y = 2  ⦄.
 (** [] *)
 
 (* EX3 (swap_exercise) *)
 (** Write an Imp program [c] that swaps the values of [X] and [Y] and
     show that it satisfies the following specification:
-[[
-      {{X <= Y}} c {{Y <= X}}
-]]
+
+      ⦃ X <= Y ⦄ c ⦃ Y <= X⦄
+
     Your proof should not need to use [unfold hoare_triple].  (Hint:
     Remember that the assignment rule works best when it's applied
     "back to front," from the postcondition to the precondition.  So
@@ -1590,15 +1590,15 @@ Example hoare_asgn_example4 :
    confusing to try to write out the decorated program version of this
    proof. *)
 (* HIDE: CH: Here goes:
-[[
-    {{ X <= Y }}
+
+    ⦃ X <= Y ⦄
   Z := X;
-    {{ Z <= Y }}
+    ⦃ Z <= Y ⦄
   X := Y;
-    {{ Z <= X }}
+    ⦃ Z <= X ⦄
   Y := Z
-    {{ Y <= X }}
-]]
+    ⦃ Y <= X ⦄
+
    The _only_ catch is that one needs to do it backwards, since that's
    how the hoare_asgn rule is defined.
    Maybe move this decorated program to the decorated programs
@@ -1608,9 +1608,9 @@ Example hoare_asgn_example4 :
 Definition swap_program : com
 
 Theorem swap_exercise :
-  {{X <= Y}}
+  ⦃ X <= Y⦄
   swap_program
-  {{Y <= X}}.
+  ⦃ Y <= X ⦄.
 (** [] *)
 
 (* EX4 (invalid_triple) *)
@@ -1619,11 +1619,11 @@ Theorem swap_exercise :
    in volume 1, because my students start wanting it rather
    early on. *)
 (** Show that
-[[
-    {{ a = n }}
+
+    ⦃ a = n ⦄
       X := 3;; Y := a
-    {{ Y = n }}
-]]
+    ⦃ Y = n ⦄
+
     is not a valid Hoare triple for some choices of [a] and [n].
 
     Conceptual hint:  invent a particular [a] and [n] for which the triple
@@ -1633,18 +1633,18 @@ Theorem swap_exercise :
     You'll want to instantiate that for the particular [a] and [n]
     you've invented.  You can do that with [assert] and [apply], but
     Coq offers an even easier tactic: [specialize].  If you write
-[[
+
     specialize H with (a := your_a) (n := your_n)
-]]
+
     the hypothesis will be instantiated on [your_a] and [your_n].
  *)
 (* SOONER: BCP 20: Yes, showing them [specialize] would be a good
    prelude to revealing that it is really just application. *)
 
 Theorem invalid_triple : ~ forall (a : aexp) (n : nat),
-    {{ a = n }}
+    ⦃ a = n ⦄
       X := 3; Y := a
-    {{ Y = n }}.
+    ⦃ Y = n  ⦄.
 (** [] *)
 (* /FULL *)
 
@@ -1658,10 +1658,10 @@ Theorem invalid_triple : ~ forall (a : aexp) (n : nat),
     either of the branches, then it holds after the whole conditional.
     So we might be tempted to write:
 [[[
-              {{P}} c1 {{Q}}
-              {{P}} c2 {{Q}}
+              ⦃ P ⦄ c1 ⦃ Q⦄
+              ⦃ P ⦄ c2 ⦃ Q⦄
       ---------------------------------
-      {{P}} if b then c1 else c2 {{Q}}
+      ⦃ P ⦄ if b then c1 else c2 ⦃ Q⦄
 ]]]
 *)
 
@@ -1669,14 +1669,14 @@ Theorem invalid_triple : ~ forall (a : aexp) (n : nat),
 
 (** However, this is rather weak. For example, using this rule,
    we cannot show
-[[
-     {{ True }}
+
+     ⦃ True ⦄
      if X = 0
        then Y := 2
        else Y := X + 1
      end
-     {{ X <= Y }}
-]]
+     ⦃ X <= Y ⦄
+
    since the rule tells us nothing about the state in which the
    assignments take place in the "then" and "else" branches. *)
 
@@ -1691,10 +1691,10 @@ Theorem invalid_triple : ~ forall (a : aexp) (n : nat),
 (** TERSE: Better: *)
 (**
 [[[
-              {{P /\   b}} c1 {{Q}}
-              {{P /\ ~ b}} c2 {{Q}}
+              ⦃ P /\   b ⦄ c1 ⦃ Q⦄
+              ⦃ P /\ ~ b ⦄ c2 ⦃ Q⦄
       ------------------------------------  (hoare_if)
-      {{P}} if b then c1 else c2 end {{Q}}
+      ⦃ P ⦄ if b then c1 else c2 end ⦃ Q⦄
 ]]]
 *)
 
@@ -1723,16 +1723,16 @@ Definition bassn b : Assertion :=
     and prove it correct. *)
 
 Theorem hoare_if : forall P Q (b:bexp) c1 c2,
-  {{ P /\ b }} c1 {{Q}} ->
-  {{ P /\ ~ b}} c2 {{Q}} ->
-  {{P}} if b then c1 else c2 end {{Q}}.
+  ⦃ P /\ b ⦄ c1 ⦃ Q ⦄ ->
+  ⦃ P /\ ~ b ⦄ c2 ⦃ Q ⦄ ->
+  ⦃ P ⦄ if b then c1 else c2 end ⦃ Q ⦄.
 (** That is (unwrapping the notations):
-[[
+
       Theorem hoare_if : forall P Q b c1 c2,
-        {{fun st => P st /\ bassn b st}} c1 {{Q}} ->
-        {{fun st => P st /\ ~ (bassn b st)}} c2 {{Q}} ->
-        {{P}} if b then c1 else c2 end {{Q}}.
-]]
+        ⦃ fun st => P st /\ bassn b st ⦄ c1 ⦃ Q ⦄ ->
+        ⦃ fun st => P st /\ ~ (bassn b st) ⦄ c2 ⦃ Q ⦄ ->
+        ⦃ P ⦄ if b then c1 else c2 end ⦃ Q ⦄.
+
 *)
 (* FOLD *)
 Proof.
@@ -1747,12 +1747,12 @@ Qed.
     rule satisfies the specification we gave. *)
 
 Example if_example :
-    {{True}}
+    ⦃ True⦄
   if (X = 0)
     then Y := 2
     else Y := X + 1
   end
-    {{X <= Y}}.
+    ⦃ X <= Y ⦄.
 (* FULL: FOLD *)
 Proof.
   apply hoare_if.
@@ -1793,12 +1793,12 @@ Ltac assn_auto' :=
 (** Now the proof is quite streamlined. *)
 
 Example if_example'' :
-  {{True}}
+  ⦃ True⦄
   if X = 0
     then Y := 2
     else Y := X + 1
   end
-  {{X <= Y}}.
+  ⦃ X <= Y ⦄.
 Proof.
   apply hoare_if.
   - eapply hoare_consequence_pre.
@@ -1812,12 +1812,12 @@ Qed.
 (** We can even shorten it a little bit more. *)
 
 Example if_example''' :
-  {{True}}
+  ⦃ True⦄
   if X = 0
     then Y := 2
     else Y := X + 1
   end
-  {{X <= Y}}.
+  ⦃ X <= Y ⦄.
 Proof.
   apply hoare_if; eapply hoare_consequence_pre;
     try apply hoare_asgn; try assn_auto'.
@@ -1839,12 +1839,12 @@ Ltac assn_auto'' :=
     hoare_triple]. *)
 
 Theorem if_minus_plus :
-  {{True}}
+  ⦃ True⦄
   if (X <= Y)
     then Z := Y - X
     else Y := X + Z
   end
-  {{Y = X + Z}}.
+  ⦃ Y = X + Z ⦄.
 (* /FULL *)
 (** [] *)
 
@@ -1976,7 +1976,7 @@ Definition hoare_triple
 
 Hint Unfold hoare_triple : core.
 
-Notation "{{ P }}  c  {{ Q }}" := (hoare_triple P c Q)
+Notation "⦃  P ⦄  c  ⦃ Q  ⦄" := (hoare_triple P c Q)
                                   (at level 90, c custom com at level 99)
                                   : hoare_spec_scope.
 
@@ -1998,9 +1998,9 @@ Notation "{{ P }}  c  {{ Q }}" := (hoare_triple P c Q)
 
 (* SOLUTION *)
 Theorem hoare_if1 : forall (b : bexp) (c : com) (P Q : Assertion),
-  {{ P /\ b }} c {{ Q }} ->
+  ⦃ P /\ b ⦄ c ⦃ Q ⦄ ->
   ( P /\ ~ b)%assertion ->> Q ->
-  {{ P }} (if1 b then c end) {{ Q }}.
+  ⦃ P ⦄ (if1 b then c end) ⦃ Q  ⦄.
 Proof.
   intros b c P Q Htrue Hfalse st st' Heval Hpre.
   inversion Heval; subst; eauto.
@@ -2009,13 +2009,13 @@ Qed.
 
 (** For full credit, prove formally [hoare_if1_good] that your rule is
     precise enough to show the following valid Hoare triple:
-[[
-  {{ X + Y = Z }}
+
+  ⦃ X + Y = Z ⦄
   if1 ~(Y = 0) then
     X := X + Y
   end
-  {{ X = Z }}
-]]
+  ⦃ X = Z ⦄
+
 *)
 (* GRADE_MANUAL 2: hoare_if1 *)
 (** [] *)
@@ -2025,15 +2025,15 @@ Qed.
     type. *)
 
 Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   eauto.
 Qed.
 
 Theorem hoare_asgn : forall Q X a,
-  {{Q [X |-> a]}} (X := a) {{Q}}.
+  ⦃ Q [X |-> a] ⦄ (X := a) ⦃ Q ⦄.
 Proof.
   intros Q X a st st' Heval HQ.
   inversion Heval; subst.
@@ -2061,11 +2061,11 @@ Ltac assn_auto''' :=
 (* /QUIETSOLUTION *)
 
 Lemma hoare_if1_good :
-  {{ X + Y = Z }}
+  ⦃ X + Y = Z ⦄
   if1 ~(Y = 0) then
     X := X + Y
   end
-  {{ X = Z }}.
+  ⦃ X = Z  ⦄.
 
 (** [] *)
 
@@ -2089,9 +2089,9 @@ End If1.
       - Leads to a compositional reasoning process
 
     The basic structure is given by _Hoare triples_ of the form:
-[[
-           {{P}} c {{Q}}
-]]
+
+           ⦃ P ⦄ c ⦃ Q⦄
+
       - [P] and [Q] are assertions about the state of the Imp program.
       - "If command [c] is started in a state satisfying assertion [P],
          and if [c] eventually terminates in some final state, then this
@@ -2102,26 +2102,26 @@ End If1.
 (** The rules of Hoare Logic (so far):
 [[[
              ----------------------------- (hoare_asgn)
-             {{Q [X |-> a]}} X := a {{Q}}
+             ⦃ Q [X |-> a] ⦄ X := a ⦃ Q⦄
 
              ----------------  (hoare_skip)
-             {{P}} skip {{P}}
+             ⦃ P ⦄ skip ⦃ P⦄
 
-               {{P}} c1 {{Q}}
-               {{Q}} c2 {{R}}
+               ⦃ P ⦄ c1 ⦃ Q⦄
+               ⦃ Q ⦄ c2 ⦃ R⦄
               ------------------  (hoare_seq)
-              {{P}} c1;c2 {{R}}
+              ⦃ P ⦄ c1;c2 ⦃ R⦄
 
-              {{P /\   b}} c1 {{Q}}
-              {{P /\ ~ b}} c2 {{Q}}
+              ⦃ P /\   b ⦄ c1 ⦃ Q⦄
+              ⦃ P /\ ~ b ⦄ c2 ⦃ Q⦄
       ------------------------------------  (hoare_if)
-      {{P}} if b then c1 else c2 end {{Q}}
+      ⦃ P ⦄ if b then c1 else c2 end ⦃ Q⦄
 
-                {{P'}} c {{Q'}}
+                ⦃ P' ⦄ c ⦃ Q'⦄
                    P ->> P'
                    Q' ->> Q
          -----------------------------   (hoare_consequence)
-                {{P}} c {{Q}}
+                ⦃ P ⦄ c ⦃ Q⦄
 ]]]
 *)
 (* /TERSE *)
@@ -2141,26 +2141,26 @@ End If1.
 (** FULL: The Hoare rule for [while] loops is based on the idea of an
     _invariant_: an assertion whose truth is guaranteed before and
     after executing a command.  An assertion [P] is an invariant of [c] if
-[[
-      {{P}} c {{P}}
-]]
+
+      ⦃ P ⦄ c ⦃ P⦄
+
     holds.  Note that in the middle of executing [c], the invariant
     might temporarily become false, but by the end of [c], it must be
     restored. *)
 
 (** TERSE: Assertion [P] is an _invariant_ of [c] if
-[[
-      {{P}} c {{P}}
-]]
+
+      ⦃ P ⦄ c ⦃ P⦄
+
     holds. *)
 
 (** FULL:  As a first attempt at a [while] rule, we could try:
 
-[[
-             {{P}} c {{P}}
+
+             ⦃ P ⦄ c ⦃ P⦄
       ---------------------------
-      {{P} while b do c end {{P}}
-]]
+      ⦃ P} while b do c end ⦃ P⦄
+
 
     That rule is valid: if [P] is an invariant of [c], as the premise
     requires, then no matter how many times the loop body executes,
@@ -2170,31 +2170,31 @@ End If1.
     the loop terminates when [b] becomes false.  So we can strengthen
     the postcondition in the conclusion:
 
-[[
-              {{P}} c {{P}}
+
+              ⦃ P ⦄ c ⦃ P⦄
       ---------------------------------
-      {{P} while b do c end {{P /\ ~b}}
-]]
+      ⦃ P} while b do c end ⦃ P /\ ~b⦄
+
 
     Second, the loop body will be executed only if [b] is true.  So we
     can also strengthen the precondition in the premise:
 
-[[
-            {{P /\ b}} c {{P}}
+
+            ⦃ P /\ b ⦄ c ⦃ P⦄
       --------------------------------- (hoare_while)
-      {{P} while b do c end {{P /\ ~b}}
-]]
+      ⦃ P} while b do c end ⦃ P /\ ~b⦄
+
  *)
 
 (** TERSE: *** *)
 (** TERSE: The Hoare while rule combines the idea of an invariant with
      information about when guard [b] does or does not hold.
 
-[[
-            {{P /\ b}} c {{P}}
+
+            ⦃ P /\ b ⦄ c ⦃ P⦄
       --------------------------------- (hoare_while)
-      {{P} while b do c end {{P /\ ~b}}
-]]
+      ⦃ P} while b do c end ⦃ P /\ ~b⦄
+
 
 *)
 
@@ -2212,8 +2212,8 @@ End If1.
 (* SOONER: The big comment will not display nicely.  But I guess it's
    folded... *)
 Theorem hoare_while : forall P (b:bexp) c,
-  {{P /\ b}} c {{P}} ->
-  {{P}} while b do c end {{P /\ ~ b}}.
+  ⦃ P /\ b ⦄ c ⦃ P ⦄ ->
+  ⦃ P ⦄ while b do c end ⦃ P /\ ~ b ⦄.
 (* FOLD *)
 Proof.
   intros P b c Hhoare st st' Heval HP.
@@ -2236,9 +2236,9 @@ Qed.
     invariant is different from being an invariant of the body,
     because it means being able to prove correctness of the loop.  For
     example, [X = 0] is a loop invariant of
-[[
+
       while X = 2 do X := 1 end
-]]
+
     even though [X = 0] is not an invariant of [X := 1]. *)
 
 (** TERSE: *** *)
@@ -2246,9 +2246,9 @@ Qed.
 (** This is a slightly (but crucially) weaker requirement.  For
     example, if [P] is the assertion [X = 0], then [P] _is_ an
     invariant of the loop
-[[
+
       while X = 2 do X := 1 end
-]]
+
     although it is clearly _not_ preserved by the body of the
     loop. *)
 
@@ -2363,29 +2363,29 @@ Qed.
        gcd-correctness proof -- "when the loop terminates, ..., and
        that B = 0. ..." Thus, the post-condition is [P /\ ~ b], where
        [b] is the loop condition.
-    3. What do we demand of the loop body [c]? [{{ P }} c {{ P }}]
+    3. What do we demand of the loop body [c]? [⦃  P ⦄ c ⦃ P  ⦄]
        might be a good first guess, since we want [P] to be an
        invariant. But remember that we asserted [P] before evaluating
        the loop condition, and so we know that [b] must have
        evaluated to true. Thus, we want the loop body to satisfy
-       the Hoare triple: [{{ P /\ b }} c {{ P }}].
+       the Hoare triple: [⦃  P /\ b ⦄ c ⦃ P  ⦄].
 
     Putting these together, we get the Hoare proof rule for while:
 
 [[[
-               {{P /\ b}} c {{P}}
+               ⦃ P /\ b ⦄ c ⦃ P⦄
         ----------------------------------  (hoare_while)
-        {{P}} while b do c end {{P /\ ~ b}}
+        ⦃ P ⦄ while b do c end ⦃ P /\ ~ b⦄
 ]]] *)
 
 (* /HIDE *)
 
 Example while_example :
-    {{X <= 3}}
+    ⦃ X <= 3⦄
   while (X <= 2) do
     X := X + 1
   end
-    {{X = 3}}.
+    ⦃ X = 3 ⦄.
 (* FOLD *)
 Proof.
   eapply hoare_consequence_post.
@@ -2411,7 +2411,7 @@ Qed.
    rather than using the while rule. *)
 (* LATER: Point out the trick using intros to do the splitting. *)
 Theorem never_loop_hoare: forall P c,
-  {{P}} while false do c end {{P}}.
+  ⦃ P ⦄ while false do c end ⦃ P ⦄.
 Proof.
   intros P c.
   eapply hoare_consequence_post. apply hoare_while.
@@ -2438,7 +2438,7 @@ Qed.
    BCP 20: OK *)
 (* LATER: MRC'20: It would be nice to automate the second bullet. *)
 Theorem always_loop_hoare : forall Q,
-  {{True}} while true do skip end {{Q}}.
+  ⦃ True ⦄ while true do skip end ⦃ Q ⦄.
 (* FULL: FOLD *)
 Proof.
   intros Q.
@@ -2451,7 +2451,7 @@ Qed.
 (* HIDE *)
 (* A different way through the proof... *)
 Theorem always_loop_hoare' : forall P Q,
-  {{P}} while true do skip end {{Q}}.
+  ⦃ P ⦄ while true do skip end ⦃ Q ⦄.
   intros P Q.
   apply hoare_consequence_pre with (P' := (True:Assertion)).
   eapply hoare_consequence_post.
@@ -2467,7 +2467,7 @@ Theorem always_loop_hoare' : forall P Q,
 (* And, of course, there is also the low-level way to do it, without using
    Hoare logic... *)
 Theorem always_loop_hoare'' : forall P Q,
-  {{P}} while true do skip end {{Q}}.
+  ⦃ P ⦄ while true do skip end ⦃ Q ⦄.
 Proof.
   intros. unfold hoare_triple.
   intros. remember <{ while true do skip end}> as c.
@@ -2607,7 +2607,7 @@ Definition hoare_triple (P : Assertion) (c : com) (Q : Assertion)
                         : Prop :=
   forall st st', st =[ c ]=> st' -> P st -> Q st'.
 
-Notation "{{ P }}  c  {{ Q }}" :=
+Notation "⦃  P ⦄  c  ⦃ Q  ⦄" :=
   (hoare_triple P c Q) (at level 90, c custom com at level 99).
 
 (** To make sure you've got the evaluation rules for [repeat] right,
@@ -2636,9 +2636,9 @@ Proof.
    different ways! *)
 
 Theorem hoare_repeat : forall P Q (b:bexp) c,
-  {{ P }} c {{ Q }} ->
-  {{ Q /\ ~ b }} c {{ Q }} ->
-  {{ P }} repeat c until b end {{ Q /\ b }}.
+  ⦃ P ⦄ c ⦃ Q ⦄ ->
+  ⦃ Q /\ ~ b ⦄ c ⦃ Q ⦄ ->
+  ⦃ P ⦄ repeat c until b end ⦃ Q /\ b  ⦄.
 Proof.
   intros.
   remember <{ repeat c until b end }> as cr. unfold hoare_triple.
@@ -2660,14 +2660,14 @@ Qed.
 
 (** For full credit, make sure (informally) that your rule can be used
     to prove the following valid Hoare triple:
-[[
-  {{ X > 0 }}
+
+  ⦃ X > 0 ⦄
   repeat
     Y := X;
     X := X - 1
   until X = 0 end
-  {{ X = 0 /\ Y > 0 }}
-]]
+  ⦃ X = 0 /\ Y > 0 ⦄
+
 *)
 (* QUIETSOLUTION *)
 
@@ -2685,7 +2685,7 @@ Definition ex2_repeat :=
     a separate module, with a different definition of commands). *)
 
 Theorem hoare_asgn : forall Q X a,
-  {{Q [X |-> a]}} X := a {{Q}}.
+  ⦃ Q [X |-> a] ⦄ X := a ⦃ Q ⦄.
 Proof.
   unfold hoare_triple.
   intros Q X a st st' HE HQ.
@@ -2693,10 +2693,10 @@ Proof.
   unfold assn_sub in HQ. assumption.  Qed.
 
 Theorem hoare_consequence : forall (P P' Q Q' : Assertion) c,
-  {{P'}} c {{Q'}} ->
+  ⦃ P' ⦄ c ⦃ Q' ⦄ ->
   P ->> P' ->
   Q' ->> Q ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   intros P P' Q Q' c Hht HPP' HQ'Q.
   intros st st' Hc HP.
@@ -2704,18 +2704,18 @@ Proof.
   apply HPP'. assumption. Qed.
 
 Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   intros P P' Q c Hhoare Himp.
   intros st st' Hc HP. apply (Hhoare st st').
   assumption. apply Himp. assumption. Qed.
 
 Theorem hoare_seq : forall P Q R c1 c2,
-  {{Q}} c2 {{R}} ->
-  {{P}} c1 {{Q}} ->
-  {{P}} c1;c2 {{R}}.
+  ⦃ Q ⦄ c2 ⦃ R ⦄ ->
+  ⦃ P ⦄ c1 ⦃ Q ⦄ ->
+  ⦃ P ⦄ c1;c2 ⦃ R ⦄.
 Proof.
   intros P Q R c1 c2 H1 H2 st st' H12 Pre.
   inversion H12; subst.
@@ -2727,9 +2727,9 @@ Proof.
             noticable here that an explicit state is given to the conditional statements.
  *)
 Lemma ex2_repeat_hoare_repeat :
-  {{ X > 0 }}
+  ⦃ X > 0 ⦄
   ex2_repeat
-  {{ X = 0 /\ Y > 0 }}.
+  ⦃ X = 0 /\ Y > 0  ⦄.
 Proof.
   unfold ex2_repeat.
   eapply hoare_consequence.
@@ -2760,8 +2760,8 @@ Qed.
 (* NOTATION: Here, too, the printing isn't as we write the notation. (As soon as we start
   the proof context). Is this intended? *)
 Lemma hoare_repeat' : forall P b c,
-  {{P}} c {{P}} ->
-  {{P}} repeat c until b end {{ P /\ b }}.
+  ⦃ P ⦄ c ⦃ P ⦄ ->
+  ⦃ P ⦄ repeat c until b end ⦃ P /\ b  ⦄.
 Proof.
   unfold hoare_triple.
   intros P b c H st st' He HP.
@@ -2780,13 +2780,13 @@ Proof.
 
 Lemma hoare_repeat_implies_hoare_repeat' :
   (forall P Q (b:bexp) c,
-  {{ P }} c {{ Q }} ->
-  {{ Q /\ ~ b }} c {{ Q }} ->
-  {{ P }} repeat c until b end {{ Q /\ b }})
+  ⦃ P ⦄ c ⦃ Q ⦄ ->
+  ⦃ Q /\ ~ b ⦄ c ⦃ Q ⦄ ->
+  ⦃ P ⦄ repeat c until b end ⦃ Q /\ b  ⦄)
   ->
   (forall P b c,
-  {{P}} c {{P}} ->
-  {{P}} repeat c until b end {{ P /\  b}}).
+  ⦃ P ⦄ c ⦃ P ⦄ ->
+  ⦃ P ⦄ repeat c until b end ⦃ P /\  b ⦄).
 Proof.
   intro hoare_repeat. intros. apply hoare_repeat. assumption.
   eapply hoare_consequence_pre. eassumption.
@@ -2798,9 +2798,9 @@ Qed.
    failed proof attempt. *)
 
 Lemma ex2_repeat_hoare_repeat'_fails1 :
-  {{ X > 0 /\  Y > 0}}
+  ⦃ X > 0 /\  Y > 0⦄
   ex2_repeat
-  {{ X = 0 /\  Y > 0}}.
+  ⦃ X = 0 /\  Y > 0 ⦄.
 Proof.
   eapply hoare_consequence.
   apply hoare_repeat' with (P := (Y > 0)%assertion).
@@ -2825,9 +2825,9 @@ Abort.
    it is too strong to be an invariant. *)
 
 Lemma ex2_repeat_hoare_repeat'_fails2 :
-  {{ X > 0 /\ Y > 0}}
+  ⦃ X > 0 /\ Y > 0⦄
   ex2_repeat
-  {{ X = 0 /\ Y > 0}}.
+  ⦃ X = 0 /\ Y > 0 ⦄.
 Proof.
   eapply hoare_consequence.
   apply hoare_repeat' with (P := (X > 0 /\ Y > 0)%assertion).
@@ -2868,30 +2868,30 @@ End RepeatExercise.
 (** The rules of Hoare Logic are:
 [[[
              --------------------------- (hoare_asgn)
-             {{Q [X |-> a]}} X:=a {{Q}}
+             ⦃ Q [X |-> a] ⦄ X:=a ⦃ Q⦄
 
              --------------------  (hoare_skip)
-             {{ P }} skip {{ P }}
+             ⦃ P ⦄ skip ⦃ P ⦄
 
-               {{ P }} c1 {{ Q }}
-               {{ Q }} c2 {{ R }}
+               ⦃ P ⦄ c1 ⦃ Q ⦄
+               ⦃ Q ⦄ c2 ⦃ R ⦄
               ----------------------  (hoare_seq)
-              {{ P }} c1;c2 {{ R }}
+              ⦃ P ⦄ c1;c2 ⦃ R ⦄
 
-              {{P /\   b}} c1 {{Q}}
-              {{P /\ ~ b}} c2 {{Q}}
+              ⦃ P /\   b ⦄ c1 ⦃ Q⦄
+              ⦃ P /\ ~ b ⦄ c2 ⦃ Q⦄
       ------------------------------------  (hoare_if)
-      {{P}} if b then c1 else c2 end {{Q}}
+      ⦃ P ⦄ if b then c1 else c2 end ⦃ Q⦄
 
-               {{P /\ b}} c {{P}}
+               ⦃ P /\ b ⦄ c ⦃ P⦄
         -----------------------------------  (hoare_while)
-        {{P}} while b do c end {{P /\ ~ b}}
+        ⦃ P ⦄ while b do c end ⦃ P /\ ~ b⦄
 
-                {{P'}} c {{Q'}}
+                ⦃ P' ⦄ c ⦃ Q'⦄
                    P ->> P'
                    Q' ->> Q
          -----------------------------   (hoare_consequence)
-                {{P}} c {{Q}}
+                ⦃ P ⦄ c ⦃ Q⦄
 ]]]
     In the next chapter, we'll see how these rules are used to prove
     that programs satisfy specifications of their behavior. *)
@@ -3001,16 +3001,16 @@ Definition hoare_triple (P:Assertion) (c:com) (Q:Assertion) : Prop :=
 
 Hint Unfold hoare_triple : core.
 
-Notation "{{ P }}  c  {{ Q }}" := (hoare_triple P c Q)
+Notation "⦃  P ⦄  c  ⦃ Q  ⦄" := (hoare_triple P c Q)
                                   (at level 90, c custom com at level 99)
                                   : hoare_spec_scope.
 
 (** And the precondition consequence rule is exactly as before. *)
 
 Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof. eauto. Qed.
 
 (* EX3 (hoare_havoc) *)
@@ -3021,7 +3021,7 @@ Proof. eauto. Qed.
 Definition havoc_pre (X : string) (Q : Assertion) (st : total_map nat) : Prop
 
 Theorem hoare_havoc : forall (Q : Assertion) (X : string),
-  {{ havoc_pre X Q }} havoc X {{ Q }}.
+  ⦃ havoc_pre X Q ⦄ havoc X ⦃ Q  ⦄.
 
 (** [] *)
 
@@ -3034,7 +3034,7 @@ Theorem hoare_havoc : forall (Q : Assertion) (X : string),
 
     Hint: the [assn_auto] tactics we've built won't help you here.
     You need to proceed manually. *)
-(* INSTRUCTORS: for example, {{ false }} HAVOC X {{ P }} would
+(* INSTRUCTORS: for example, ⦃ false ⦄ HAVOC X ⦃ P ⦄ would
    be a sound but incomplete rule in which the precondition is
    too strong. *)
 (* LATER: MRC'20: sure would be nice to automate this better. *)
@@ -3042,7 +3042,7 @@ Theorem hoare_havoc : forall (Q : Assertion) (X : string),
    because its definition is admitted. *)
 
 Theorem havoc_post : forall (P : Assertion) (X : string),
-  {{ P }} havoc X {{ fun st => exists (n:nat), P [X |-> n] st }}.
+  ⦃ P ⦄ havoc X ⦃ fun st => exists (n:nat), P [X |-> n] st  ⦄.
 
 (** [] *)
 
@@ -3160,7 +3160,7 @@ Inductive ceval : com -> state -> result -> Prop :=
 
 where "st '=[' c ']=>' r" := (ceval c st r).
 
-(** We redefine hoare triples: Now, [{{P}} c {{Q}}] means that,
+(** We redefine hoare triples: Now, [⦃ P ⦄ c ⦃ Q ⦄] means that,
     whenever [c] is started in a state satisfying [P], and terminates
     with result [r], then [r] is not an error and the state of [r]
     satisfies [Q]. *)
@@ -3175,7 +3175,7 @@ Definition hoare_triple
    have [exists st'] in the conclusion.  BCP 10/18: Not sure what sort
    of cleaning up would be useful... *)
 
-Notation "{{ P }}  c  {{ Q }}" :=
+Notation "⦃  P ⦄  c  ⦃ Q  ⦄" :=
   (hoare_triple P c Q) (at level 90, c custom com at level 99)
   : hoare_spec_scope.
 
@@ -3185,12 +3185,12 @@ Notation "{{ P }}  c  {{ Q }}" :=
     triple for [assert] also works for [ASSUME]. *)
 
 Theorem assert_assume_differ : exists (P:Assertion) b (Q:Assertion),
-       ({{P}} assume b {{Q}})
-  /\ ~ ({{P}} assert b {{Q}}).
+       (⦃ P ⦄ assume b ⦃ Q ⦄)
+  /\ ~ (⦃ P ⦄ assert b ⦃ Q ⦄).
 
 Theorem assert_implies_assume : forall P b Q,
-     ({{P}} assert b {{Q}})
-  -> ({{P}} assume b {{Q}}).
+     (⦃ P ⦄ assert b ⦃ Q ⦄)
+  -> (⦃ P ⦄ assume b ⦃ Q ⦄).
 
 (** Your task is now to state Hoare rules for [assert] and [assume],
     and use them to prove a simple program correct.  Name your hoare
@@ -3200,7 +3200,7 @@ Theorem assert_implies_assume : forall P b Q,
     adapted to the new semantics. *)
 
 Theorem hoare_asgn : forall Q X a,
-  {{Q [X |-> a]}} X := a {{Q}}.
+  ⦃ Q [X |-> a] ⦄ X := a ⦃ Q ⦄.
 Proof.
   unfold hoare_triple.
   intros Q X a st st' HE HQ.
@@ -3209,9 +3209,9 @@ Proof.
   assumption. Qed.
 
 Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
-  {{P'}} c {{Q}} ->
+  ⦃ P' ⦄ c ⦃ Q ⦄ ->
   P ->> P' ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   intros P P' Q c Hhoare Himp.
   intros st st' Hc HP. apply (Hhoare st st').
@@ -3219,9 +3219,9 @@ Proof.
 
 (* LATER: These proofs are a bit messy. Can it be made shorter? *)
 Theorem hoare_consequence_post : forall (P Q Q' : Assertion) c,
-  {{P}} c {{Q'}} ->
+  ⦃ P ⦄ c ⦃ Q' ⦄ ->
   Q' ->> Q ->
-  {{P}} c {{Q}}.
+  ⦃ P ⦄ c ⦃ Q ⦄.
 Proof.
   intros P Q Q' c Hhoare Himp.
   intros st r Hc HP.
@@ -3234,9 +3234,9 @@ Proof.
 Qed.
 
 Theorem hoare_seq : forall P Q R c1 c2,
-  {{Q}} c2 {{R}} ->
-  {{P}} c1 {{Q}} ->
-  {{P}} c1;c2 {{R}}.
+  ⦃ Q ⦄ c2 ⦃ R ⦄ ->
+  ⦃ P ⦄ c1 ⦃ Q ⦄ ->
+  ⦃ P ⦄ c1;c2 ⦃ R ⦄.
 Proof.
   intros P Q R c1 c2 H1 H2 st r H12 Pre.
   inversion H12; subst.
@@ -3256,7 +3256,7 @@ Qed.
 
 (* SOLUTION *)
 Theorem hoare_assert : forall Q (b:bexp),
-  {{Q /\ b}} assert b {{Q}}.
+  ⦃ Q /\ b ⦄ assert b ⦃ Q ⦄.
 Proof.
 intros Q b st r HEval [Hst Hb].
 exists st. inversion HEval; subst.
@@ -3267,7 +3267,7 @@ Qed.
 
 (* Stating this in a backwards-direction friendly way. *)
 Theorem hoare_assume : forall (Q: state -> Prop) (b:bexp),
-  {{b -> Q}}  assume b {{Q}}.
+  ⦃ b -> Q ⦄  assume b ⦃ Q ⦄.
 Proof.
 intros P b st r HEval Hst.
 exists st. inversion HEval; subst.
@@ -3280,16 +3280,16 @@ Qed.
 (** Here are the other proof rules (sanity check) *)
 (* NOTATION : IY -- Do we want <{ }> to be printing in here? *)
 Theorem hoare_skip : forall P,
-     {{P}} skip {{P}}.
+     ⦃ P ⦄ skip ⦃ P ⦄.
 Proof.
   intros P st st' H HP. inversion H. subst.
   eexists. split. reflexivity. assumption.
 Qed.
 
 Theorem hoare_if : forall P Q (b:bexp) c1 c2,
-  {{ P /\ b}} c1 {{Q}} ->
-  {{ P /\ ~ b}} c2 {{Q}} ->
-  {{P}} if b then c1 else c2 end {{Q}}.
+  ⦃ P /\ b ⦄ c1 ⦃ Q ⦄ ->
+  ⦃ P /\ ~ b ⦄ c2 ⦃ Q ⦄ ->
+  ⦃ P ⦄ if b then c1 else c2 end ⦃ Q ⦄.
 Proof.
   intros P Q b c1 c2 HTrue HFalse st st' HE HP.
   inversion HE; subst.
@@ -3305,8 +3305,8 @@ Proof.
       apply bexp_eval_false. assumption. Qed.
 
 Theorem hoare_while : forall P (b:bexp) c,
-  {{P /\ b}} c {{P}} ->
-  {{P}} while b do c end {{ P /\ ~b}}.
+  ⦃ P /\ b ⦄ c ⦃ P ⦄ ->
+  ⦃ P ⦄ while b do c end ⦃ P /\ ~b ⦄.
 Proof.
   intros P b c Hhoare st st' He HP.
   remember <{while b do c end}> as wcom eqn:Heqwcom.
@@ -3335,11 +3335,11 @@ Qed.
 (* LATER: /HIDE *)
 
 Example assert_assume_example:
-  {{True}}
+  ⦃ True⦄
   assume (X = 1);
   X := X + 1;
   assert (X = 2)
-  {{True}}.
+  ⦃ True ⦄.
 
 End HoareAssertAssume.
 (** [] *)
@@ -3361,29 +3361,29 @@ Definition hoare_quad
      P st  ->
      (s = SNormal -> Q st') /\ (s = SThrow -> S st').
 
-Notation "{{ P }} c {{ Q }} {{ S }}" :=
+Notation "⦃  P ⦄ c ⦃ Q ⦄ ⦃ S  ⦄" :=
   (hoare_quad P c Q S) (at level 90, c custom com at level 99)
   : hoare_spec_scope.
 
 Theorem hoare_skip : forall P S,
-     {{P}} skip {{P}} {{S}}.
+     ⦃ P ⦄ skip ⦃ P ⦄ ⦃ S ⦄.
 
 Theorem hoare_seq : forall P Q R S c1 c2,
-     {{Q}} c2 {{R}} {{S}} ->
-     {{P}} c1 {{Q}} {{S}} ->
-     {{P}} c1;c2 {{R}} {{S}}.
+     ⦃ Q ⦄ c2 ⦃ R ⦄ ⦃ S ⦄ ->
+     ⦃ P ⦄ c1 ⦃ Q ⦄ ⦃ S ⦄ ->
+     ⦃ P ⦄ c1;c2 ⦃ R ⦄ ⦃ S ⦄.
 
 Theorem hoare_stop : forall Q S,
-     {{S}} throw {{Q}} {{S}}.
+     ⦃ S ⦄ throw ⦃ Q ⦄ ⦃ S ⦄.
 
 Lemma hoare_try : forall P Q S1 S2 c1 c2,
-  {{P}} c1 {{Q}} {{S1}} ->
-  {{S1}} c2 {{Q}} {{S2}} ->
-  {{P}} try c1 catch c2 end {{Q}} {{S2}}.
+  ⦃ P ⦄ c1 ⦃ Q ⦄ ⦃ S1 ⦄ ->
+  ⦃ S1 ⦄ c2 ⦃ Q ⦄ ⦃ S2 ⦄ ->
+  ⦃ P ⦄ try c1 catch c2 end ⦃ Q ⦄ ⦃ S2 ⦄.
 
 Lemma hoare_while : forall P S (b:bexp) c,
-  {{ P /\ b}} c {{P}} {{S}} ->
-  {{P}} while b do c end {{ P /\ ~ b}} {{S}}.
+  ⦃ P /\ b ⦄ c ⦃ P ⦄ ⦃ S ⦄ ->
+  ⦃ P ⦄ while b do c end ⦃ P /\ ~ b ⦄ ⦃ S ⦄.
 End ThrowHoare.
 (** [] *)
 (* /HIDE *)
@@ -3460,7 +3460,7 @@ End ThrowHoare.
    belongs here or with the formal decorated programs.  (Maybe we
    should try to put most new examples there...)
 
-      {{ X = n /\ n > 1 }}
+      ⦃ X = n /\ n > 1 ⦄
     P := 1;
     D := 2;
     while D < X AND P = 1 do
@@ -3468,7 +3468,7 @@ End ThrowHoare.
       while Y >= D do
         Y := Y - D
       end;
-      {{ exists q, X = q * D + Y }}
+      ⦃ exists q, X = q * D + Y ⦄
       if Y = 0 then
         P := 0
       else
@@ -3476,8 +3476,8 @@ End ThrowHoare.
       end;
       D := D + 1
     end
-      {{ I /\ (D >= X \/ P <> 1) }} ->>
-      {{ P = 1 -> (forall d, (exists q, n = d * q) -> d = 1 \/ d = n) }}
+      ⦃ I /\ (D >= X \/ P <> 1) ⦄ ->>
+      ⦃ P = 1 -> (forall d, (exists q, n = d * q) -> d = 1 \/ d = n) ⦄
 
     I= (P = 1 -> (forall d, d <= D -> (exists q, X = d * q) -> d = 1 \/ d = n))
        /\ X = n /\ n > 1
@@ -3485,21 +3485,21 @@ End ThrowHoare.
 (* LATER: A possible (harder, perhaps advanced or optional)
    exercise -- nice because it has nested loops...
 
-  {{ Y = n }}
+  ⦃ Y = n ⦄
   Z := 0;
-  {{ I }}
+  ⦃ I ⦄
   while Y > 0 do
-    {{ I /\ Y>0 }}
+    ⦃ I /\ Y>0 ⦄
     X := Y;
     while X > 0 do
       Z := Z + 1;
       X := X - 1
     end;
     Y := Y - 1
-    {{ I }}
+    ⦃ I ⦄
   end
-  {{ I /\ ~(Y > 0) }}
-  {{ Z = n*(n-1)/2 }}
+  ⦃ I /\ ~(Y > 0) ⦄
+  ⦃ Z = n*(n-1)/2 ⦄
 
   where I = Z + Y*(Y+1)/2 = n*(n+1)/2
  *)
@@ -3559,27 +3559,27 @@ End ThrowHoare.
 
 (** TERSE: *** *)
 (** For example, consider the program:
-[[
+
     X := m;
     Z := p;
     while ~(X = 0) do
       Z := Z - 1;
       X := X - 1
     end
-]]
+
 *)
 (** TERSE: *** *)
 (** Here is one possible specification for this program:
-[[
-      {{ True }}
+
+      ⦃ True ⦄
     X := m;
     Z := p;
     while ~(X = 0) do
       Z := Z - 1;
       X := X - 1
     end
-      {{ Z = p - m }}
-]]
+      ⦃ Z = p - m ⦄
+
    Note the _parameters_ [m] and [p], which stand for
    fixed-but-arbitrary numbers.  Formally, they are simply Coq
    variables of type [nat].
@@ -3587,34 +3587,34 @@ End ThrowHoare.
 (** TERSE: *** *)
 (** Here is a decorated version of the program, embodying a
     proof of this specification:
-[[
-      {{ True }} ->>
-      {{ m = m }}
+
+      ⦃ True ⦄ ->>
+      ⦃ m = m ⦄
     X := m;
-      {{ X = m }} ->>
-      {{ X = m /\ p = p }}
+      ⦃ X = m ⦄ ->>
+      ⦃ X = m /\ p = p ⦄
     Z := p;
-      {{ X = m /\ Z = p }} ->>
-      {{ Z - X = p - m }}
+      ⦃ X = m /\ Z = p ⦄ ->>
+      ⦃ Z - X = p - m ⦄
     while ~(X = 0) do
-        {{ Z - X = p - m /\ X <> 0 }} ->>
-        {{ (Z - 1) - (X - 1) = p - m }}
+        ⦃ Z - X = p - m /\ X <> 0 ⦄ ->>
+        ⦃ (Z - 1) - (X - 1) = p - m ⦄
       Z := Z - 1;
-        {{ Z - (X - 1) = p - m }}
+        ⦃ Z - (X - 1) = p - m ⦄
       X := X - 1
-        {{ Z - X = p - m }}
+        ⦃ Z - X = p - m ⦄
     end
-      {{ Z - X = p - m /\ ~ (X <> 0) }} ->>
-      {{ Z = p - m }}
-]]
+      ⦃ Z - X = p - m /\ ~ (X <> 0) ⦄ ->>
+      ⦃ Z = p - m ⦄
+
 *)
 
 (* LATER: MRC'20: It bothers me a little in the proof above (and
    similarly throughout the whole file really when it comes to guards)
    that when we get to this part:
-[[
-    while ~(X = 0) do {{ Z - X = p - m /\ X <> 0 }} ->>
-]]
+
+    while ~(X = 0) do ⦃ Z - X = p - m /\ X <> 0 ⦄ ->>
+
    we are inconsistent about [X <> 0] vs. [~(X=0)].  I admit they
    evaluate the same (er, sort of---the former is a [bexp] whereas the
    latter is an assertion), but they aren't syntactically the same.
@@ -3641,9 +3641,9 @@ End ThrowHoare.
    "locally consistent" or "locally consistent wrt P and Q"... *)
 (** - [skip] is locally consistent if its precondition and
       postcondition are the same:
-[[
-          {{ P }} skip {{ P }}
-]]
+
+          ⦃ P ⦄ skip ⦃ P ⦄
+
 *)
 (** TERSE: *** *)
 
@@ -3651,19 +3651,19 @@ End ThrowHoare.
       consistent (with respect to assertions [P] and [R]) if [c1] is
       locally consistent (with respect to [P] and [Q]) and [c2] is
       locally consistent (with respect to [Q] and [R]):
-[[
-          {{ P }} c1; {{ Q }} c2 {{ R }}
-]]
+
+          ⦃ P ⦄ c1; ⦃ Q ⦄ c2 ⦃ R ⦄
+
 *)
 (** TERSE: *** *)
 
 (** - An assignment [X ::= a] is locally consistent with respect to
       a precondition of the form [P [X |-> a]] and the postcondition [P]:
-[[
-          {{ P [X |-> a] }}
+
+          ⦃ P [X |-> a] ⦄
           X := a
-          {{ P }}
-]]
+          ⦃ P ⦄
+
 *)
 (** TERSE: *** *)
 
@@ -3671,19 +3671,19 @@ End ThrowHoare.
       [P] and [Q] if its "then" branch is locally consistent with respect
       to [P /\ b] and [Q]) and its "else" branch is locally consistent
       with respect to [P /\ ~b] and [Q]:
-[[
-          {{ P }}
+
+          ⦃ P ⦄
           if b then
-            {{ P /\ b }}
+            ⦃ P /\ b ⦄
             c1
-            {{ Q }}
+            ⦃ Q ⦄
           else
-            {{ P /\ ~b }}
+            ⦃ P /\ ~b ⦄
             c2
-            {{ Q }}
+            ⦃ Q ⦄
           end
-          {{ Q }}
-]]
+          ⦃ Q ⦄
+
 *)
 (** TERSE: *** *)
 
@@ -3691,24 +3691,24 @@ End ThrowHoare.
       postcondition is [P /\ ~b], if the pre- and postconditions of
       its body are exactly [P /\ b] and [P], and if its body is
       locally consistent with respect to assertions [P /\ b] and [P]:
-[[
-          {{ P }}
+
+          ⦃ P ⦄
           while b do
-            {{ P /\ b }}
+            ⦃ P /\ b ⦄
             c1
-            {{ P }}
+            ⦃ P ⦄
           end
-          {{ P /\ ~b }}
-]]
+          ⦃ P /\ ~b ⦄
+
 *)
 (** TERSE: *** *)
 
 (** - A pair of assertions separated by [->>] is locally consistent if
       the first implies the second:
-[[
-          {{ P }} ->>
-          {{ P' }}
-]]
+
+          ⦃ P ⦄ ->>
+          ⦃ P' ⦄
+
       This corresponds to the application of [hoare_consequence], and it
       is the _only_ place in a decorated program where checking whether
       decorations are correct is not fully mechanical and syntactic,
@@ -3736,25 +3736,25 @@ End ThrowHoare.
 (** Here is a program that swaps the values of two variables using
     addition and subtraction (instead of by assigning to a temporary
     variable).
-[[
+
        X := X + Y;
        Y := X - Y;
        X := X - Y
-]]
+
     We can prove (informally) using decorations that this program is
     correct -- i.e., it always swaps the values of variables [X] and [Y]. *)
 (* TERSE: WORK IN CLASS *)
 (** FULL:
-[[
-    (1)     {{ X = m /\ Y = n }} ->>
-    (2)     {{ (X + Y) - ((X + Y) - Y) = n /\ (X + Y) - Y = m }}
+
+    (1)     ⦃ X = m /\ Y = n ⦄ ->>
+    (2)     ⦃ (X + Y) - ((X + Y) - Y) = n /\ (X + Y) - Y = m ⦄
            X := X + Y;
-    (3)     {{ X - (X - Y) = n /\ X - Y = m }}
+    (3)     ⦃ X - (X - Y) = n /\ X - Y = m ⦄
            Y := X - Y;
-    (4)     {{ X - Y = n /\ Y = m }}
+    (4)     ⦃ X - Y = n /\ Y = m ⦄
            X := X - Y
-    (5)     {{ X = n /\ Y = m }}
-]]
+    (5)     ⦃ X = n /\ Y = m ⦄
+
     The decorations can be constructed as follows:
 
       - We begin with the undecorated program (the unnumbered lines).
@@ -3776,11 +3776,11 @@ End ThrowHoare.
     the step from (1) to (2) is a valid use of the law of
     consequence. For this we substitute [X] by [m] and [Y] by [n] and
     calculate as follows:
-[[
+
             (m + n) - ((m + n) - n) = n /\ (m + n) - n = m
             (m + n) - m = n /\ m = m
             n = n /\ m = m
-]]
+
 
     Note that, since we are working with natural numbers rather than
     fixed-width machine integers, we don't need to worry about the
@@ -3798,34 +3798,34 @@ End ThrowHoare.
 (* LATER: This is not such an interesting example... *)
 (** TERSE: Here's a simple program using conditionals, with a possible
     specification:
-[[
-         {{ True }}
+
+         ⦃ True ⦄
        if X <= Y then
          Z := Y - X
        else
          Z := X - Y
        end
-         {{ Z + X = Y \/ Z + Y = X }}
-]]
+         ⦃ Z + X = Y \/ Z + Y = X ⦄
+
     Let's turn it into a decorated program...
 *)
 (* TERSE: WORK IN CLASS *)
 (** FULL: Here is a simple decorated program using conditionals:
-[[
-      (1)     {{True}}
+
+      (1)     ⦃ True⦄
             if X <= Y then
-      (2)       {{True /\ X <= Y}} ->>
-      (3)       {{(Y - X) + X = Y \/ (Y - X) + Y = X}}
+      (2)       ⦃ True /\ X <= Y ⦄ ->>
+      (3)       ⦃ (Y - X) + X = Y \/ (Y - X) + Y = X⦄
               Z := Y - X
-      (4)       {{Z + X = Y \/ Z + Y = X}}
+      (4)       ⦃ Z + X = Y \/ Z + Y = X⦄
             else
-      (5)       {{True /\ ~(X <= Y) }} ->>
-      (6)       {{(X - Y) + X = Y \/ (X - Y) + Y = X}}
+      (5)       ⦃ True /\ ~(X <= Y) ⦄ ->>
+      (6)       ⦃ (X - Y) + X = Y \/ (X - Y) + Y = X⦄
               Z := X - Y
-      (7)       {{Z + X = Y \/ Z + Y = X}}
+      (7)       ⦃ Z + X = Y \/ Z + Y = X⦄
             end
-      (8)     {{Z + X = Y \/ Z + Y = X}}
-]]
+      (8)     ⦃ Z + X = Y \/ Z + Y = X⦄
+
 These decorations were constructed as follows:
 
   - We start with the outer precondition (1) and postcondition (8).
@@ -3856,21 +3856,21 @@ These decorations were constructed as follows:
 (* EX2M (if_minus_plus_reloaded) *)
 (* INSTRUCTORS: Formal decorated program is called [if_minus_plus_dec] *)
 (** Fill in valid decorations for the following program:
-[[
-       {{ True }}
+
+       ⦃ True ⦄
       if X <= Y then
-          {{                         }} ->>
-          {{                         }}
+          ⦃                         ⦄ ->>
+          ⦃                         ⦄
         Z := Y - X
-          {{                         }}
+          ⦃                         ⦄
       else
-          {{                         }} ->>
-          {{                         }}
+          ⦃                         ⦄ ->>
+          ⦃                         ⦄
         Y := X + Z
-          {{                         }}
+          ⦃                         ⦄
       end
-        {{ Y = X + Z }}
-]]
+        ⦃ Y = X + Z ⦄
+
     Briefly justify each use of [->>].
 *)
 
@@ -3878,21 +3878,21 @@ These decorations were constructed as follows:
 (** [] *)
 (* QUIETSOLUTION *)
 (*
-[[
-   {{ True }}
+
+   ⦃ True ⦄
    if X <= Y then
-     {{ True /\ X <= Y }} ->>
-     {{ Y = X + (Y - X) }}
+     ⦃ True /\ X <= Y ⦄ ->>
+     ⦃ Y = X + (Y - X) ⦄
      Z := Y - X
-     {{ Y = X + Z }}
+     ⦃ Y = X + Z ⦄
    else
-     {{ True /\ ~(X <= Y) }} ->>
-     {{ X + Z = X + Z }}
+     ⦃ True /\ ~(X <= Y) ⦄ ->>
+     ⦃ X + Z = X + Z ⦄
      Y := X + Z
-     {{ Y = X + Z }}
+     ⦃ Y = X + Z ⦄
    end
-   {{ Y = X + Z }}
-]]
+   ⦃ Y = X + Z ⦄
+
 
 The second use of consequence is trivial, while the first
 crucially depends on the [X <= Y] condition, which ensures that
@@ -3908,28 +3908,28 @@ subtracting [X] from [Y] and then adding back [X] produces [Y]. *)
 
 (** TERSE: Here is a very simple [while] loop with a simple
     specification:
-[[
-          {{ True }}
+
+          ⦃ True ⦄
         while ~(X = 0) do
           X := X - 1
         end
-          {{ X = 0 }}
-]]
+          ⦃ X = 0 ⦄
+
 *)
 (* TERSE: WORK IN CLASS *)
 (** FULL: Here is a [while] loop that is so simple that [True] suffices
     as a loop invariant.
-[[
-        (1)      {{ True }}
+
+        (1)      ⦃ True ⦄
                while ~(X = 0) do
-        (2)        {{ True /\ X <> 0 }} ->>
-        (3)        {{ True }}
+        (2)        ⦃ True /\ X <> 0 ⦄ ->>
+        (3)        ⦃ True ⦄
                  X := X - 1
-        (4)        {{ True }}
+        (4)        ⦃ True ⦄
                end
-        (5)      {{ True /\ ~(X <> 0) }} ->>
-        (6)      {{ X = 0 }}
-]]
+        (5)      ⦃ True /\ ~(X <> 0) ⦄ ->>
+        (6)      ⦃ X = 0 ⦄
+
    The decorations can be constructed as follows:
 
      - Start with the outer precondition (1) and postcondition (6).
@@ -3964,9 +3964,9 @@ Definition reduce_to_zero' : com :=
      end }>.
 
 Theorem reduce_to_zero_correct' :
-  {{True}}
+  ⦃ True⦄
     reduce_to_zero'
-  {{X = 0}}.
+  ⦃ X = 0 ⦄.
 Proof.
   unfold reduce_to_zero'.
   (* First we need to transform the postcondition so
@@ -3994,9 +3994,9 @@ Qed.
     the most advanced of those tactics to streamline the previous proof: *)
 
 Theorem reduce_to_zero_correct'' :
-  {{True}}
+  ⦃ True⦄
   reduce_to_zero'
-  {{X = 0}}.
+  ⦃ X = 0 ⦄.
 Proof.
   unfold reduce_to_zero'.
   eapply hoare_consequence_post.
@@ -4055,9 +4055,9 @@ Ltac verify_assn :=
 (** All that automation makes it easy to verify [reduce_to_zero']: *)
 
 Theorem reduce_to_zero_correct''' :
-  {{True}}
+  ⦃ True⦄
   reduce_to_zero'
-  {{X = 0}}.
+  ⦃ X = 0 ⦄.
 (* FOLD *)
 Proof.
   unfold reduce_to_zero'.
@@ -4094,29 +4094,29 @@ Qed.
    That's the change I've made below, instead of re-explaining them. *)
 (** The following Imp program calculates the integer quotient and
     remainder of parameters [m] and [n].
-[[
+
        X := m;
        Y := 0;
        while n <= X do
          X := X - n;
          Y := Y + 1
        end;
-]]
+
     If we replace [m] and [n] by numbers and execute the program, it
     will terminate with the variable [X] set to the remainder when [m]
     is divided by [n] and [Y] set to the quotient. *)
 (** TERSE: *** *)
 (** TERSE: Here's a possible specification:
-[[
-        {{ True }}
+
+        ⦃ True ⦄
       X := m;
       Y := 0;
       while n <= X do
         X := X - n;
         Y := Y + 1
       end
-        {{ n * Y + X = m /\ X < n }}
-]]
+        ⦃ n * Y + X = m /\ X < n ⦄
+
 *)
 
 (* TERSE: WORK IN CLASS *)
@@ -4128,24 +4128,24 @@ Qed.
     think very hard about the loop invariant: the invariant is just
     the first conjunct [n * Y + X = m], and we can use this to
     decorate the program.
-[[
-      (1)    {{ True }} ->>
-      (2)    {{ n * 0 + m = m }}
+
+      (1)    ⦃ True ⦄ ->>
+      (2)    ⦃ n * 0 + m = m ⦄
            X := m;
-      (3)    {{ n * 0 + X = m }}
+      (3)    ⦃ n * 0 + X = m ⦄
            Y := 0;
-      (4)    {{ n * Y + X = m }}
+      (4)    ⦃ n * Y + X = m ⦄
            while n <= X do
-      (5)      {{ n * Y + X = m /\ n <= X }} ->>
-      (6)      {{ n * (Y + 1) + (X - n) = m }}
+      (5)      ⦃ n * Y + X = m /\ n <= X ⦄ ->>
+      (6)      ⦃ n * (Y + 1) + (X - n) = m ⦄
              X := X - n;
-      (7)      {{ n * (Y + 1) + X = m }}
+      (7)      ⦃ n * (Y + 1) + X = m ⦄
              Y := Y + 1
-      (8)      {{ n * Y + X = m }}
+      (8)      ⦃ n * Y + X = m ⦄
            end
-      (9)    {{ n * Y + X = m /\ ~ (n <= X) }} ->>
-     (10)    {{ n * Y + X = m /\ X < n }}
-]]
+      (9)    ⦃ n * Y + X = m /\ ~ (n <= X) ⦄ ->>
+     (10)    ⦃ n * Y + X = m /\ X < n ⦄
+
     Assertions (4), (5), (8), and (9) are derived mechanically from
     the invariant and the loop's guard.  Assertions (8), (7), and (6)
     are derived using the assignment rule going backwards from (8)
@@ -4213,14 +4213,14 @@ Qed.
 (** The following program subtracts the value of [X] from the value of
     [Y] by repeatedly decrementing both [X] and [Y].  We want to verify its
     correctness with respect to the pre- and postconditions shown:
-[[
-             {{ X = m /\ Y = n }}
+
+             ⦃ X = m /\ Y = n ⦄
            while ~(X = 0) do
              Y := Y - 1;
              X := X - 1
            end
-             {{ Y = n - m }}
-]]
+             ⦃ Y = n - m ⦄
+
 *)
 
 (** TERSE: *** *)
@@ -4231,20 +4231,20 @@ Qed.
     as usual, and without any thinking at all yet).
 
     This leads to the following skeleton:
-[[
-        (1)      {{ X = m /\ Y = n }}  ->>             (a)
-        (2)      {{ Inv }}
+
+        (1)      ⦃ X = m /\ Y = n ⦄  ->>             (a)
+        (2)      ⦃ Inv ⦄
                while ~(X = 0) do
-        (3)        {{ Inv /\ X <> 0 }}  ->>              (c)
-        (4)        {{ Inv [X |-> X-1] [Y |-> Y-1] }}
+        (3)        ⦃ Inv /\ X <> 0 ⦄  ->>              (c)
+        (4)        ⦃ Inv [X |-> X-1] [Y |-> Y-1] ⦄
                  Y := Y - 1;
-        (5)        {{ Inv [X |-> X-1] }}
+        (5)        ⦃ Inv [X |-> X-1] ⦄
                  X := X - 1
-        (6)        {{ Inv }}
+        (6)        ⦃ Inv ⦄
                end
-        (7)      {{ Inv /\ ~ (X <> 0) }}  ->>            (b)
-        (8)      {{ Y = n - m }}
-]]
+        (7)      ⦃ Inv /\ ~ (X <> 0) ⦄  ->>            (b)
+        (8)      ⦃ Y = n - m ⦄
+
     By examining this skeleton, we can see that any valid [Inv] will
     have to respect three conditions:
     - (a) it must be _weak_ enough to be implied by the loop's
@@ -4270,20 +4270,20 @@ Qed.
     for a very simple loop, choosing [True] as an invariant did the
     job.  So let's try instantiating [Inv] with [True] in the skeleton
     above and see what we get...
-[[
-        (1)      {{ X = m /\ Y = n }} ->>       (a - OK)
-        (2)      {{ True }}
+
+        (1)      ⦃ X = m /\ Y = n ⦄ ->>       (a - OK)
+        (2)      ⦃ True ⦄
                while ~(X = 0) do
-        (3)        {{ True /\ X <> 0 }}  ->>    (c - OK)
-        (4)        {{ True }}
+        (3)        ⦃ True /\ X <> 0 ⦄  ->>    (c - OK)
+        (4)        ⦃ True ⦄
                  Y := Y - 1;
-        (5)        {{ True }}
+        (5)        ⦃ True ⦄
                  X := X - 1
-        (6)        {{ True }}
+        (6)        ⦃ True ⦄
                end
-        (7)      {{ True /\ ~(X <> 0) }}  ->>       (b - WRONG!)
-        (8)      {{ Y = n - m }}
-]]
+        (7)      ⦃ True /\ ~(X <> 0) ⦄  ->>       (b - WRONG!)
+        (8)      ⦃ Y = n - m ⦄
+
     While conditions (a) and (c) are trivially satisfied, condition
     (b) is wrong, i.e., it is not the case that [True /\ X = 0] (7)
     implies [Y = n - m] (8).  In fact, the two assertions are
@@ -4295,20 +4295,20 @@ Qed.
     this is to let the invariant _be_ the postcondition.  So let's
     return to our skeleton, instantiate [Inv] with [Y = n - m], and
     check conditions (a) to (c) again.
-[[
-    (1)      {{ X = m /\ Y = n }}  ->>          (a - WRONG!)
-    (2)      {{ Y = n - m }}
+
+    (1)      ⦃ X = m /\ Y = n ⦄  ->>          (a - WRONG!)
+    (2)      ⦃ Y = n - m ⦄
            while ~(X = 0) do
-    (3)        {{ Y = n - m /\ X <> 0 }}  ->>   (c - WRONG!)
-    (4)        {{ Y - 1 = n - m }}
+    (3)        ⦃ Y = n - m /\ X <> 0 ⦄  ->>   (c - WRONG!)
+    (4)        ⦃ Y - 1 = n - m ⦄
              Y := Y - 1;
-    (5)        {{ Y = n - m }}
+    (5)        ⦃ Y = n - m ⦄
              X := X - 1
-    (6)        {{ Y = n - m }}
+    (6)        ⦃ Y = n - m ⦄
            end
-    (7)      {{ Y = n - m /\ ~(X <> 0) }}  ->>      (b - OK)
-    (8)      {{ Y = n - m }}
-]]
+    (7)      ⦃ Y = n - m /\ ~(X <> 0) ⦄  ->>      (b - OK)
+    (8)      ⦃ Y = n - m ⦄
+
     This time, condition (b) holds trivially, but (a) and (c) are
     broken. Condition (a) requires that (1) [X = m /\ Y = n]
     implies (2) [Y = n - m].  If we substitute [Y] by [n] we have to
@@ -4335,20 +4335,20 @@ Qed.
     between iterations: initially, [Y = n] and [X = m], and the
     difference is always [n - m].  So let's try instantiating [Inv] in
     the skeleton above with [Y - X = n - m].
-[[
-    (1)      {{ X = m /\ Y = n }}  ->>               (a - OK)
-    (2)      {{ Y - X = n - m }}
+
+    (1)      ⦃ X = m /\ Y = n ⦄  ->>               (a - OK)
+    (2)      ⦃ Y - X = n - m ⦄
            while ~(X = 0) do
-    (3)        {{ Y - X = n - m /\ X <> 0 }}  ->>    (c - OK)
-    (4)        {{ (Y - 1) - (X - 1) = n - m }}
+    (3)        ⦃ Y - X = n - m /\ X <> 0 ⦄  ->>    (c - OK)
+    (4)        ⦃ (Y - 1) - (X - 1) = n - m ⦄
              Y := Y - 1;
-    (5)        {{ Y - (X - 1) = n - m }}
+    (5)        ⦃ Y - (X - 1) = n - m ⦄
              X := X - 1
-    (6)        {{ Y - X = n - m }}
+    (6)        ⦃ Y - X = n - m ⦄
            end
-    (7)      {{ Y - X = n - m /\ ~(X <> 0) }}  ->>       (b - OK)
-    (8)      {{ Y = n - m }}
-]]
+    (7)      ⦃ Y - X = n - m /\ ~(X <> 0) ⦄  ->>       (b - OK)
+    (8)      ⦃ Y = n - m ⦄
+
     Success!  Conditions (a), (b) and (c) all hold now.  (To
     verify (c), we need to check that, under the assumption that [X <>
     0], we have [Y - X = (Y - 1) - (X - 1)]; this holds for all
@@ -4368,36 +4368,36 @@ Qed.
     the variable [Y] is to start [Y] at [0], then decrement [X] until
     it hits [0], incrementing [Y] at each step. Here is a program that
     implements this idea:
-[[
-        {{ X = m }}
+
+        ⦃ X = m ⦄
       Y := 0;
       while ~(X = 0) do
         X := X - 1;
         Y := Y + 1
       end
-        {{ Y = m }}
-]]
+        ⦃ Y = m ⦄
+
     Write an informal decorated program showing that this procedure
     is correct, and justify each use of [->>]. *)
 
 (* SOLUTION *)
 (**
-[[
-      {{ X = m }} ->>
-      {{ 0 + X = m }}
+
+      ⦃ X = m ⦄ ->>
+      ⦃ 0 + X = m ⦄
     Y := 0;
-      {{ Y + X = m }}
+      ⦃ Y + X = m ⦄
     while ~(X = 0) do
-        {{ Y + X = m /\ X <> 0 }} ->>
-        {{ (Y + 1) + (X - 1) = m }}
+        ⦃ Y + X = m /\ X <> 0 ⦄ ->>
+        ⦃ (Y + 1) + (X - 1) = m ⦄
       X := X - 1;
-        {{ (Y + 1) + X = m }}
+        ⦃ (Y + 1) + X = m ⦄
       Y := Y + 1
-        {{ Y + X = m }}
+        ⦃ Y + X = m ⦄
     end
-      {{ Y + X = m /\ ~(X <> 0) }}
-      {{ Y = m }}
-]]
+      ⦃ Y + X = m /\ ~(X <> 0) ⦄
+      ⦃ Y = m ⦄
+
 
     The first implication is trivial.  The second relies on using [X <>
     0] to show that the subtraction is not zero-truncated.  The third
@@ -4418,12 +4418,12 @@ Qed.
 (* EX3? (add_slowly_decoration) *)
 (** The following program adds the variable X into the variable Z
     by repeatedly decrementing X and incrementing Z.
-[[
+
       while ~(X = 0) do
          Z := Z + 1;
          X := X - 1
       end
-]]
+
     Following the pattern of the [subtract_slowly] example above, pick
     a precondition and postcondition that give an appropriate
     specification of [add_slowly]; then (informally) decorate the
@@ -4431,20 +4431,20 @@ Qed.
 
 (* SOLUTION *)
 (**
-[[
-    {{ X = m /\ Z = p }} ->>
-    {{ Z + X = p + m }}
+
+    ⦃ X = m /\ Z = p ⦄ ->>
+    ⦃ Z + X = p + m ⦄
   while ~(X = 0) do
-       {{ Z + X = p + m /\ X <> 0 }} ->>
-       {{ (Z + 1) + (X - 1) = p + m }}
+       ⦃ Z + X = p + m /\ X <> 0 ⦄ ->>
+       ⦃ (Z + 1) + (X - 1) = p + m ⦄
      Z := Z + 1;
-       {{ Z + (X - 1) = p + m }}
+       ⦃ Z + (X - 1) = p + m ⦄
      X := X - 1
-       {{ Z + X = p + m }}
+       ⦃ Z + X = p + m ⦄
   end
-    {{ Z + X = p + m /\ ~(X <> 0) }} ->>
-    {{ Z = p + m }}
-]]
+    ⦃ Z + X = p + m /\ ~(X <> 0) ⦄ ->>
+    ⦃ Z = p + m ⦄
+
     The first implication follows from substitution.  The second relies
     on using [X <> 0] to show that subtraction is not zero-truncated.
     The third follows from observing that [X] must be [0]. *)
@@ -4460,13 +4460,13 @@ Qed.
 
 (** Here is a cute little program for computing the parity of the
     value initially stored in [X] (due to Daniel Cristofani).
-[[
-         {{ X = m }}
+
+         ⦃ X = m ⦄
        while 2 <= X do
          X := X - 2
        end
-         {{ X = parity m }}
-]]
+         ⦃ X = parity m ⦄
+
     The mathematical [parity] function used in the specification is
     defined in Coq as follows: *)
 
@@ -4487,53 +4487,53 @@ Fixpoint parity x :=
     value of [X] is [m], so the parity of [X] is always equal to the
     parity of [m]. Using [parity X = parity m] as an invariant we
     obtain the following decorated program:
-[[
-        {{ X = m }} ->>                               (a - OK)
-        {{ parity X = parity m }}
+
+        ⦃ X = m ⦄ ->>                               (a - OK)
+        ⦃ parity X = parity m ⦄
       while 2 <= X do
-          {{ parity X = parity m /\ 2 <= X }}  ->>    (c - OK)
-          {{ parity (X-2) = parity m }}
+          ⦃ parity X = parity m /\ 2 <= X ⦄  ->>    (c - OK)
+          ⦃ parity (X-2) = parity m ⦄
         X := X - 2
-          {{ parity X = parity m }}
+          ⦃ parity X = parity m ⦄
       end
-        {{ parity X = parity m /\ ~(2 <= X) }}  ->>       (b - OK)
-        {{ X = parity m }}
-]]
+        ⦃ parity X = parity m /\ ~(2 <= X) ⦄  ->>       (b - OK)
+        ⦃ X = parity m ⦄
+
     With this invariant, conditions (a), (b), and (c) are all
     satisfied. For verifying (b), we observe that, when [X < 2], we
     have [parity X = X] (we can easily see this in the definition of
     [parity]).  For verifying (c), we observe that, when [2 <= X], we
     have [parity X = parity (X-2)]. *)
 (* HIDE: A more complexly phrased invariant for the same program
-[[
-        {{ X = m }}  ->>                        (a - OK)
-        {{ ev X <-> ev m }}
+
+        ⦃ X = m ⦄  ->>                        (a - OK)
+        ⦃ ev X <-> ev m ⦄
       while 2 <= X do
-          {{ ev X <-> ev m /\ 2 <= X }}  ->>    (c - OK)
-          {{ ev (X-2) <-> ev m }}
+          ⦃ ev X <-> ev m /\ 2 <= X ⦄  ->>    (c - OK)
+          ⦃ ev (X-2) <-> ev m ⦄
         X := X - 2
-          {{ ev X <-> ev m }}
+          ⦃ ev X <-> ev m ⦄
       end
-        {{ (ev X <-> ev m) /\ ~(2 <= X) }}  ->>     (b - OK)
-        {{ X=0 <-> ev m }}
-]]
+        ⦃ (ev X <-> ev m) /\ ~(2 <= X) ⦄  ->>     (b - OK)
+        ⦃ X=0 <-> ev m ⦄
+
 *)
 (* HIDE: find_parity'_dec; more complicated phrasing of invariant
    there is very little resamblance between the invariant and the
    postcondition -- the implication is also non-obvious, and the
    X <= m condition makes the invariant more complicated
-[[
-    {{ X = m }} ->>
-    {{ X <= m /\ ev (m - X) }}
+
+    ⦃ X = m ⦄ ->>
+    ⦃ X <= m /\ ev (m - X) ⦄
   while 2 <= X do
-      {{ X <= m /\ ev (m - X) /\ 2 <= X }} ->>
-      {{ X - 2 <= m /\ ev (m - (X - 2)) }}
+      ⦃ X <= m /\ ev (m - X) /\ 2 <= X ⦄ ->>
+      ⦃ X - 2 <= m /\ ev (m - (X - 2)) ⦄
     X := X - 2
-      {{ X <= m /\ ev (m - X) }}
+      ⦃ X <= m /\ ev (m - X) ⦄
   end
-    {{ X <= m /\ ev (m - X) /\ ~(2 <= X) }} ->>
-    {{ X=0 <-> ev m }}
-]]
+    ⦃ X <= m /\ ev (m - X) /\ ~(2 <= X) ⦄ ->>
+    ⦃ X=0 <-> ev m ⦄
+
 *)
 
 (* FULL *)
@@ -4578,11 +4578,11 @@ Qed.
 (* /FOLD *)
 
 Theorem parity_correct : forall (m:nat),
-  {{ X = m }}
+  ⦃ X = m ⦄
   while 2 <= X do
     X := X - 2
   end
-  {{  X = parity m }}.
+  ⦃  X = parity m  ⦄.
 (** [] *)
 (* /FULL *)
 
@@ -4594,33 +4594,33 @@ Theorem parity_correct : forall (m:nat),
 
 (** The following program computes the integer square root of [X]
     by naive iteration:
-[[
-      {{ X=m }}
+
+      ⦃ X=m ⦄
     Z := 0;
     while (Z+1)*(Z+1) <= X do
       Z := Z+1
     end
-      {{ Z*Z<=m /\ m<(Z+1)*(Z+1) }}
-]]
+      ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄
+
 *)
 
 (* TERSE: WORK IN CLASS *)
 (** FULL: As above, we can try to use the postcondition as a candidate
     invariant, obtaining the following decorated program:
-[[
-    (1)  {{ X=m }}  ->>           (a - second conjunct of (2) WRONG!)
-    (2)  {{ 0*0 <= m /\ m<(0+1)*(0+1) }}
+
+    (1)  ⦃ X=m ⦄  ->>           (a - second conjunct of (2) WRONG!)
+    (2)  ⦃ 0*0 <= m /\ m<(0+1)*(0+1) ⦄
        Z := 0;
-    (3)  {{ Z*Z <= m /\ m<(Z+1)*(Z+1) }}
+    (3)  ⦃ Z*Z <= m /\ m<(Z+1)*(Z+1) ⦄
        while (Z+1)*(Z+1) <= X do
-    (4)    {{ Z*Z<=m /\ (Z+1)*(Z+1)<=X }}  ->>             (c - WRONG!)
-    (5)    {{ (Z+1)*(Z+1)<=m /\ m<((Z+1)+1)*((Z+1)+1) }}
+    (4)    ⦃ Z*Z<=m /\ (Z+1)*(Z+1)<=X ⦄  ->>             (c - WRONG!)
+    (5)    ⦃ (Z+1)*(Z+1)<=m /\ m<((Z+1)+1)*((Z+1)+1) ⦄
          Z := Z+1
-    (6)    {{ Z*Z<=m /\ m<(Z+1)*(Z+1) }}
+    (6)    ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄
        end
-    (7)  {{ Z*Z<=m /\ m<(Z+1)*(Z+1) /\ ~((Z+1)*(Z+1)<=X) }}  ->> (b - OK)
-    (8)  {{ Z*Z<=m /\ m<(Z+1)*(Z+1) }}
-]]
+    (7)  ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) /\ ~((Z+1)*(Z+1)<=X) ⦄  ->> (b - OK)
+    (8)  ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄
+
     This didn't work very well: conditions (a) and (c) both failed.
     Looking at condition (c), we see that the second conjunct of (4)
     is almost the same as the first conjunct of (5), except that (4)
@@ -4635,20 +4635,20 @@ Theorem parity_correct : forall (m:nat),
     us to simplify a bit.
 
     So we now try [X=m /\ Z*Z <= m] as the loop invariant:
-[[
-      {{ X=m }}  ->>                                      (a - OK)
-      {{ X=m /\ 0*0 <= m }}
+
+      ⦃ X=m ⦄  ->>                                      (a - OK)
+      ⦃ X=m /\ 0*0 <= m ⦄
     Z := 0;
-      {{ X=m /\ Z*Z <= m }}
+      ⦃ X=m /\ Z*Z <= m ⦄
     while (Z+1)*(Z+1) <= X do
-        {{ X=m /\ Z*Z<=m /\ (Z+1)*(Z+1)<=X }}  ->>        (c - OK)
-        {{ X=m /\ (Z+1)*(Z+1)<=m }}
+        ⦃ X=m /\ Z*Z<=m /\ (Z+1)*(Z+1)<=X ⦄  ->>        (c - OK)
+        ⦃ X=m /\ (Z+1)*(Z+1)<=m ⦄
       Z := Z + 1
-        {{ X=m /\ Z*Z<=m }}
+        ⦃ X=m /\ Z*Z<=m ⦄
     end
-      {{ X=m /\ Z*Z<=m /\ ~((Z+1)*(Z+1)<=X) }}  ->>           (b - OK)
-      {{ Z*Z<=m /\ m<(Z+1)*(Z+1) }}
-]]
+      ⦃ X=m /\ Z*Z<=m /\ ~((Z+1)*(Z+1)<=X) ⦄  ->>           (b - OK)
+      ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄
+
     This works, since conditions (a), (b), and (c) are now all
     trivially satisfied.
 
@@ -4667,16 +4667,16 @@ Theorem parity_correct : forall (m:nat),
 (* INSTRUCTORS: Formal decorated program called [square_simpler_dec] *)
 
 (** Here is a program that squares [X] by repeated addition:
-[[
-    {{ X = m }}
+
+    ⦃ X = m ⦄
   Y := 0;
   Z := 0;
   while ~(Y = X)  do
     Z := Z + X;
     Y := Y + 1
   end
-    {{ Z = m*m }}
-]]
+    ⦃ Z = m*m ⦄
+
 *)
 
 (* TERSE: WORK IN CLASS *)
@@ -4686,24 +4686,24 @@ Theorem parity_correct : forall (m:nat),
     that we know is often useful in the invariant is the postcondition,
     so let's add that too, leading to the candidate invariant
     [Z = m * m /\ X = m].
-[[
-      {{ X = m }} ->>                            (a - WRONG)
-      {{ 0 = m*m /\ X = m }}
+
+      ⦃ X = m ⦄ ->>                            (a - WRONG)
+      ⦃ 0 = m*m /\ X = m ⦄
     Y := 0;
-      {{ 0 = m*m /\ X = m }}
+      ⦃ 0 = m*m /\ X = m ⦄
     Z := 0;
-      {{ Z = m*m /\ X = m }}
+      ⦃ Z = m*m /\ X = m ⦄
     while ~(Y = X) do
-        {{ Z = m*m /\ X = m /\ Y <> X }} ->>     (c - WRONG)
-        {{ Z+X = m*m /\ X = m }}
+        ⦃ Z = m*m /\ X = m /\ Y <> X ⦄ ->>     (c - WRONG)
+        ⦃ Z+X = m*m /\ X = m ⦄
       Z := Z + X;
-        {{ Z = m*m /\ X = m }}
+        ⦃ Z = m*m /\ X = m ⦄
       Y := Y + 1
-        {{ Z = m*m /\ X = m }}
+        ⦃ Z = m*m /\ X = m ⦄
     end
-      {{ Z = m*m /\ X = m /\ ~(Y <> X) }} ->>         (b - OK)
-      {{ Z = m*m }}
-]]
+      ⦃ Z = m*m /\ X = m /\ ~(Y <> X) ⦄ ->>         (b - OK)
+      ⦃ Z = m*m ⦄
+
 
     Conditions (a) and (c) fail because of the [Z = m*m] part.  While
     [Z] starts at [0] and works itself up to [m*m], we can't expect
@@ -4712,24 +4712,24 @@ Theorem parity_correct : forall (m:nat),
     iteration [Z = 2*m], and at the end [Z = m*m].  Since the variable
     [Y] tracks how many times we go through the loop, this leads us to
     derive a new invariant candidate: [Z = Y*m /\ X = m].
-[[
-      {{ X = m }} ->>                               (a - OK)
-      {{ 0 = 0*m /\ X = m }}
+
+      ⦃ X = m ⦄ ->>                               (a - OK)
+      ⦃ 0 = 0*m /\ X = m ⦄
     Y := 0;
-      {{ 0 = Y*m /\ X = m }}
+      ⦃ 0 = Y*m /\ X = m ⦄
     Z := 0;
-      {{ Z = Y*m /\ X = m }}
+      ⦃ Z = Y*m /\ X = m ⦄
     while ~(Y = X) do
-        {{ Z = Y*m /\ X = m /\ Y <> X }} ->>        (c - OK)
-        {{ Z+X = (Y+1)*m /\ X = m }}
+        ⦃ Z = Y*m /\ X = m /\ Y <> X ⦄ ->>        (c - OK)
+        ⦃ Z+X = (Y+1)*m /\ X = m ⦄
       Z := Z + X;
-        {{ Z = (Y+1)*m /\ X = m }}
+        ⦃ Z = (Y+1)*m /\ X = m ⦄
       Y := Y + 1
-        {{ Z = Y*m /\ X = m }}
+        ⦃ Z = Y*m /\ X = m ⦄
     end
-      {{ Z = Y*m /\ X = m /\ ~(Y <> X) }} ->>           (b - OK)
-      {{ Z = m*m }}
-]]
+      ⦃ Z = Y*m /\ X = m /\ ~(Y <> X) ⦄ ->>           (b - OK)
+      ⦃ Z = m*m ⦄
+
 
     This new invariant makes the proof go through: all three
     conditions are easy to check.
@@ -4743,7 +4743,7 @@ Theorem parity_correct : forall (m:nat),
 (* HIDE: the more complicated version from 2012's class
 
 Here is a program that squares X by repeated addition:
-[[
+
   X := n;
   Y := X;
   Z := 0;
@@ -4751,53 +4751,53 @@ Here is a program that squares X by repeated addition:
     Z := Z + X;
     Y := Y - 1
   end
-]]
+
 
   Bob's simpler invariant for squaring [square_dec]:
   (a very similar invariant given as solution in 2011 final; exercise 3)
 
-[[
-  {{ True }}
+
+  ⦃ True ⦄
   X := n;
-  {{ X = n }}
+  ⦃ X = n ⦄
   Y := X;
-  {{ X = n /\ Y = n }}
+  ⦃ X = n /\ Y = n ⦄
   Z := 0;
-  {{ X = n /\ Y = n /\ Z = 0}} ->>
-  {{ Z + X * Y = n * n }}
+  ⦃ X = n /\ Y = n /\ Z = 0 ⦄ ->>
+  ⦃ Z + X * Y = n * n ⦄
   while ~(Y = 0) do
-    {{ Z + X * Y = n * n /\ (Y <> 0)}} ->>
-    {{ Z + X + X * (Y - 1) = n * n }}
+    ⦃ Z + X * Y = n * n /\ (Y <> 0) ⦄ ->>
+    ⦃ Z + X + X * (Y - 1) = n * n ⦄
     Z := Z + X;
-    {{ Z + X * (Y - 1) = n * n }}
+    ⦃ Z + X * (Y - 1) = n * n ⦄
     Y := Y - 1
-    {{ Z + X * Y = n * n }}
+    ⦃ Z + X * Y = n * n ⦄
   end
-  {{ Z + X * Y = n * n /\ ~(Y <> 0)}} ->>
-  {{ Z = n * n }}
-]]
+  ⦃ Z + X * Y = n * n /\ ~(Y <> 0) ⦄ ->>
+  ⦃ Z = n * n ⦄
+
 
 The other invariant [square_dec']:
-[[
-  {{ True }}
+
+  ⦃ True ⦄
   X := n;
-  {{ X = n }}
+  ⦃ X = n ⦄
   Y := X;
-  {{ X = n /\ Y = n }}
+  ⦃ X = n /\ Y = n ⦄
   Z := 0;
-  {{ X = n /\ Y = n /\ Z = 0}} ->>
-  {{ Z = X * (X - Y) /\ X = n /\ Y <= X }}
+  ⦃ X = n /\ Y = n /\ Z = 0 ⦄ ->>
+  ⦃ Z = X * (X - Y) /\ X = n /\ Y <= X ⦄
   while ~(Y = 0) do
-    {{ Z = X * (X - Y) /\ X = n /\ Y <= X /\ (Y <> 0)}} ->>
-    {{ Z + X = X * (X - (Y - 1)) /\ X = n /\ (Y - 1) <= X }}
+    ⦃ Z = X * (X - Y) /\ X = n /\ Y <= X /\ (Y <> 0) ⦄ ->>
+    ⦃ Z + X = X * (X - (Y - 1)) /\ X = n /\ (Y - 1) <= X ⦄
     Z := Z + X;
-    {{ Z = X * (X - (Y - 1)) /\ X = n /\ (Y - 1) <= X }}
+    ⦃ Z = X * (X - (Y - 1)) /\ X = n /\ (Y - 1) <= X ⦄
     Y := Y - 1
-    {{ Z = X * (X - Y) /\ X = n /\ Y <= X }}
+    ⦃ Z = X * (X - Y) /\ X = n /\ Y <= X ⦄
   end
-  {{ Z = X * (X - Y) /\ X = n /\ Y <= X /\ ~(Y <> 0)}} ->>
-  {{ Z = n * n }}
-]]
+  ⦃ Z = X * (X - Y) /\ X = n /\ Y <= X /\ ~(Y <> 0) ⦄ ->>
+  ⦃ Z = n * n ⦄
+
 *)
 
 (* FULL *)
@@ -4823,58 +4823,58 @@ The other invariant [square_dec']:
     1*2*...*n]).  Here is an Imp program that calculates the factorial
     of the number initially stored in the variable [X] and puts it in
     the variable [Y]:
-[[
-    {{ X = m }}
+
+    ⦃ X = m ⦄
   Y := 1 ;
   while ~(X = 0)
   do
      Y := Y * X ;
      X := X - 1
   end
-    {{ Y = m! }}
-]]
+    ⦃ Y = m! ⦄
+
     Fill in the blanks in following decorated program. Bear in mind
     that we are working with natural numbers, for which both division
     and subtraction can behave differently than with real numbers.
     Excluding both operations from your loop invariant is advisable.
-[[
-    {{ X = m }} ->>
-    {{                                      }}
+
+    ⦃ X = m ⦄ ->>
+    ⦃                                      ⦄
   Y := 1;
-    {{                                      }}
+    ⦃                                      ⦄
   while ~(X = 0)
-  do   {{                                      }} ->>
-       {{                                      }}
+  do   ⦃                                      ⦄ ->>
+       ⦃                                      ⦄
      Y := Y * X;
-       {{                                      }}
+       ⦃                                      ⦄
      X := X - 1
-       {{                                      }}
+       ⦃                                      ⦄
   end
-    {{                                      }} ->>
-    {{ Y = m! }}
-]]
+    ⦃                                      ⦄ ->>
+    ⦃ Y = m! ⦄
+
     Briefly justify each use of [->>].
 *)
 (* QUIETSOLUTION *)
 
 (** Solution:
 
-[[
-    {{ X = m }} ->>
-    {{ 1 * X! = m! }}
+
+    ⦃ X = m ⦄ ->>
+    ⦃ 1 * X! = m! ⦄
   Y := 1;
-    {{ Y * X! = m! }}
+    ⦃ Y * X! = m! ⦄
   while ~(X = 0)
-  do   {{ Y * X! = m! /\ X <> 0 }} ->>
-       {{ Y * X * (X - 1)! = m! }}
+  do   ⦃ Y * X! = m! /\ X <> 0 ⦄ ->>
+       ⦃ Y * X * (X - 1)! = m! ⦄
      Y := Y * X;
-       {{ Y * (X - 1)! = m! }}
+       ⦃ Y * (X - 1)! = m! ⦄
      X := X - 1
-       {{ Y * X! = m! }}
+       ⦃ Y * X! = m! ⦄
   end
-    {{ Y * X! = m! /\ ~(X <> 0) }} ->>
-    {{ Y = m! }}
-]]
+    ⦃ Y * X! = m! /\ ~(X <> 0) ⦄ ->>
+    ⦃ Y = m! ⦄
+
     The first implication holds by substitution and algebra.  The
     second holds because [X <> 0] (as in previous examples), and
     algebra.  The third holds because [X] must be [0] and [0!] is 1,
@@ -4889,23 +4889,23 @@ The other invariant [square_dec']:
    because it nicely illustrates the point that the way you write the
    program often determines how hard it is to verify...
 
-    {{ True }} ->>
-    {{ m! = 1 * m!/0! /\ 0 <= m }}
+    ⦃ True ⦄ ->>
+    ⦃ m! = 1 * m!/0! /\ 0 <= m ⦄
   Y := 1;
-    {{ m! = Y * m!/0! /\ 0 <= m }}
+    ⦃ m! = Y * m!/0! /\ 0 <= m ⦄
   X := 0;
-    {{ m! = Y * m!/X! /\ X <= m }}
+    ⦃ m! = Y * m!/X! /\ X <= m ⦄
   while X .< m do
-      {{ m! = Y * m!/X! /\ X <= m /\ X < m }} ->>
-      {{ ... needs work here! ... }} ->>
-      {{ m! = (Y*(X+1)) * m!/(X+1)! /\ (X+1) <= m }} ->>
+      ⦃ m! = Y * m!/X! /\ X <= m /\ X < m ⦄ ->>
+      ⦃ ... needs work here! ... ⦄ ->>
+      ⦃ m! = (Y*(X+1)) * m!/(X+1)! /\ (X+1) <= m ⦄ ->>
     X := X + 1;
-      {{ m! = (Y*X) * m!/X! /\ X <= m }} ->>
+      ⦃ m! = (Y*X) * m!/X! /\ X <= m ⦄ ->>
     Y := Y * X
-      {{ m! = Y * m!/X! /\ X <= m }}
+      ⦃ m! = Y * m!/X! /\ X <= m ⦄
   end
-    {{ m! = Y * m!/X! /\ X <= m /\ ~(X < m) }} ->>
-    {{ Y = m! }}
+    ⦃ m! = Y * m!/X! /\ X <= m /\ ~(X < m) ⦄ ->>
+    ⦃ Y = m! ⦄
  *)
 (* HIDE: MRC'20: That's not really an Imp program though: it is a schema
    for an Imp program.  [m] is not an Imp variable nor a constant. *)
@@ -4923,8 +4923,8 @@ The other invariant [square_dec']:
 (* LATER: LY: in this exercise, many end up writing the following implication
    after the while line:
 
-   {{ Z = min a b - min X Y /\ ... }} ->>
-   {{ Z+1 = min a b - min (X-1) (Y-1) /\ ... }}
+   ⦃ Z = min a b - min X Y /\ ... ⦄ ->>
+   ⦃ Z+1 = min a b - min (X-1) (Y-1) /\ ... ⦄
 
    that is invalid if you interpret [-] pedantically as [sub : nat -> nat -> nat],
    which takes nonnegative values only. But if we are more generous and interpret
@@ -4939,37 +4939,37 @@ The other invariant [square_dec']:
     numbers, especially subtraction.
 
     In your justifications, you may rely on the following facts about min:
-[[
+
   Lemma lemma1 : forall x y,
     (x<>0 /\ y<>0) -> min x y <> 0.
   Lemma lemma2 : forall x y,
     min (x-1) (y-1) = (min x y) - 1.
-]]
+
     plus standard high-school algebra, as always. *)
 
 (**
-[[
-  {{ True }} ->>
-  {{                    }}
+
+  ⦃ True ⦄ ->>
+  ⦃                    ⦄
   X := a;
-  {{                       }}
+  ⦃                       ⦄
   Y := b;
-  {{                       }}
+  ⦃                       ⦄
   Z := 0;
-  {{                       }}
+  ⦃                       ⦄
   while ~(X = 0) && ~(Y = 0) do
-    {{                                     }} ->>
-    {{                                }}
+    ⦃                                     ⦄ ->>
+    ⦃                                ⦄
     X := X - 1;
-    {{                            }}
+    ⦃                            ⦄
     Y := Y - 1;
-    {{                        }}
+    ⦃                        ⦄
     Z := Z + 1
-    {{                       }}
+    ⦃                       ⦄
   end
-  {{                            }} ->>
-  {{ Z = min a b }}
-]]
+  ⦃                            ⦄ ->>
+  ⦃ Z = min a b ⦄
+
 *)
 (* QUIETSOLUTION *)
 
@@ -4978,31 +4978,31 @@ The other invariant [square_dec']:
    to do a translation like that. *)
 (** Solution:
 
-[[
-  {{ True }}
+
+  ⦃ True ⦄
   ->>
-  {{ 0 + min a b = min a b }}
+  ⦃ 0 + min a b = min a b ⦄
   X := a;
-  {{ 0 + min X b = min a b }}
+  ⦃ 0 + min X b = min a b ⦄
   Y := b;
-  {{ 0 + min X Y = min a b }}
+  ⦃ 0 + min X Y = min a b ⦄
   Z := 0;
-  {{ Z + min X Y = min a b }}
+  ⦃ Z + min X Y = min a b ⦄
   while ~(X = 0) && ~(Y = 0) do
-    {{ Z + min X Y = min a b /\ (X<>0 /\ Y<>0) }}
+    ⦃ Z + min X Y = min a b /\ (X<>0 /\ Y<>0) ⦄
     ->>
-    {{ Z+1 + min (X-1) (Y-1) = min a b }}
+    ⦃ Z+1 + min (X-1) (Y-1) = min a b ⦄
     X := X - 1;
-    {{ Z+1 + min X (Y-1) = min a b }}
+    ⦃ Z+1 + min X (Y-1) = min a b ⦄
     Y := Y - 1;
-    {{ Z+1 + min X Y = min a b }}
+    ⦃ Z+1 + min X Y = min a b ⦄
     Z := Z + 1
-    {{ Z + min X Y = min a b }}
+    ⦃ Z + min X Y = min a b ⦄
   end
-  {{ Z + min X Y = min a b /\ ~(X<>0 /\ Y<>0) }}
+  ⦃ Z + min X Y = min a b /\ ~(X<>0 /\ Y<>0) ⦄
   ->>
-  {{ Z = min a b }}
-]]
+  ⦃ Z = min a b ⦄
+
     - The first implication holds by substitution and algebra.
     - The second holds because:
         + by lemma2 we can rewrite [Z+1 + min (X-1) (Y-1)] as
@@ -5023,7 +5023,7 @@ The other invariant [square_dec']:
 
 (* EX3M (two_loops) *)
 (** Here is a very inefficient way of adding 3 numbers:
-[[
+
      X := 0;
      Y := 0;
      Z := c;
@@ -5035,44 +5035,44 @@ The other invariant [square_dec']:
        Y := Y + 1;
        Z := Z + 1
      end
-]]
+
     Show that it does what it should by filling in the blanks in the
     following decorated program.
-[[
-      {{ True }} ->>
-      {{                                        }}
+
+      ⦃ True ⦄ ->>
+      ⦃                                        ⦄
     X := 0;
-      {{                                        }}
+      ⦃                                        ⦄
     Y := 0;
-      {{                                        }}
+      ⦃                                        ⦄
     Z := c;
-      {{                                        }}
+      ⦃                                        ⦄
     while ~(X = a) do
-        {{                                        }} ->>
-        {{                                        }}
+        ⦃                                        ⦄ ->>
+        ⦃                                        ⦄
       X := X + 1;
-        {{                                        }}
+        ⦃                                        ⦄
       Z := Z + 1
-        {{                                        }}
+        ⦃                                        ⦄
     end;
-      {{                                        }} ->>
-      {{                                        }}
+      ⦃                                        ⦄ ->>
+      ⦃                                        ⦄
     while ~(Y = b) do
-        {{                                        }} ->>
-        {{                                        }}
+        ⦃                                        ⦄ ->>
+        ⦃                                        ⦄
       Y := Y + 1;
-        {{                                        }}
+        ⦃                                        ⦄
       Z := Z + 1
-        {{                                        }}
+        ⦃                                        ⦄
     end
-      {{                                        }} ->>
-      {{ Z = a + b + c }}
-]]
+      ⦃                                        ⦄ ->>
+      ⦃ Z = a + b + c ⦄
+
 *)
 (* LATER: MRC'20: Again, the above isn't an IMP program, but a program
    schema.  What about using the following instead?
-[[
-       {{ X = a /\ Y = b /\ Z = c }}
+
+       ⦃ X = a /\ Y = b /\ Z = c ⦄
      I ::= 0;;
      while ~(I = X) do
        I ::= I + 1;;
@@ -5083,78 +5083,78 @@ The other invariant [square_dec']:
        I ::= I + 1;;
        Z ::= Z + 1
      end
-       {{ Z = a + b + c }}
-]]
+       ⦃ Z = a + b + c ⦄
+
 *)
 
 (* QUIETSOLUTION *)
 (**
 Solution:
-[[
-    {{ True }} ->>
-    {{ c = 0 + c /\ 0 = 0 }}
+
+    ⦃ True ⦄ ->>
+    ⦃ c = 0 + c /\ 0 = 0 ⦄
   X := 0;
-    {{ c = X + c /\ 0 = 0 }}
+    ⦃ c = X + c /\ 0 = 0 ⦄
   Y := 0;
-    {{ c = X + c /\ Y = 0 }}
+    ⦃ c = X + c /\ Y = 0 ⦄
   Z := c;
-    {{ Z = X + c /\ Y = 0 }}
+    ⦃ Z = X + c /\ Y = 0 ⦄
   while ~(X = a) do
-      {{ Z = X + c /\ Y = 0 /\ X <> a }} ->>
-      {{ Z + 1 = X + 1 + c /\ Y = 0 }}
+      ⦃ Z = X + c /\ Y = 0 /\ X <> a ⦄ ->>
+      ⦃ Z + 1 = X + 1 + c /\ Y = 0 ⦄
     X := X + 1;
-      {{ Z + 1 = X + c /\ Y = 0 }}
+      ⦃ Z + 1 = X + c /\ Y = 0 ⦄
     Z := Z + 1
-      {{ Z = X + c /\ Y = 0 }}
+      ⦃ Z = X + c /\ Y = 0 ⦄
   end;
-    {{ Z = X + c /\ Y = 0 /\ ~(X <> a) }} ->>
-    {{ Z = a + Y + c }}
+    ⦃ Z = X + c /\ Y = 0 /\ ~(X <> a) ⦄ ->>
+    ⦃ Z = a + Y + c ⦄
   while ~(Y = b) do
-      {{ Z = a + Y + c /\ Y <> b }} ->>
-      {{ Z + 1 = a + Y + 1 + c }}
+      ⦃ Z = a + Y + c /\ Y <> b ⦄ ->>
+      ⦃ Z + 1 = a + Y + 1 + c ⦄
     Y := Y + 1;
-      {{ Z + 1 = a + Y + c }}
+      ⦃ Z + 1 = a + Y + c ⦄
     Z := Z + 1
-      {{ Z = a + Y + c }}
+      ⦃ Z = a + Y + c ⦄
   end
-    {{ Z = a + Y + c /\ ~(Y <> b) }} ->>
-    {{ Z = a + b + c }}
-]]
+    ⦃ Z = a + Y + c /\ ~(Y <> b) ⦄ ->>
+    ⦃ Z = a + b + c ⦄
+
 
 Another solution follows.  It doesn't require carrying an additional
 [Y = 0] conjunct through the first loop, but instead carries an
 additional [ + Y] term through it.
 
-[[
-      {{ True }} ->>
-        {{ c = 0 + 0 + c }}
+
+      ⦃ True ⦄ ->>
+        ⦃ c = 0 + 0 + c ⦄
     X := 0;
-        {{ c = X + 0 + c }}
+        ⦃ c = X + 0 + c ⦄
     Y := 0;
-        {{ c = X + Y + c }}
+        ⦃ c = X + Y + c ⦄
     Z := c;
-        {{ Z = X + Y + c }}
+        ⦃ Z = X + Y + c ⦄
     while ~(X = a) do
-        {{ Z = X + Y + c /\ X <> a }} ->>
-        {{ Z + 1 = (X + 1) + Y + c }}
+        ⦃ Z = X + Y + c /\ X <> a ⦄ ->>
+        ⦃ Z + 1 = (X + 1) + Y + c ⦄
       X := X + 1;
-        {{ Z + 1 = X + Y + c }}
+        ⦃ Z + 1 = X + Y + c ⦄
       Z := Z + 1
-        {{ Z = X + Y + c }}
+        ⦃ Z = X + Y + c ⦄
     end;
-      {{ Z = X + Y + c /\ ~(X <> a) }} ->>
-      {{ Z = a + Y + c }}
+      ⦃ Z = X + Y + c /\ ~(X <> a) ⦄ ->>
+      ⦃ Z = a + Y + c ⦄
     while ~(Y = b) do
-        {{ Z = a + Y + c /\ (Y <> b) }} ->>
-        {{ Z + 1 = a + (Y + 1) + c }}
+        ⦃ Z = a + Y + c /\ (Y <> b) ⦄ ->>
+        ⦃ Z + 1 = a + (Y + 1) + c ⦄
       Y := Y + 1;
-        {{ Z + 1 = a + Y + c }}
+        ⦃ Z + 1 = a + Y + c ⦄
       Z := Z + 1
-        {{ Z = a + Y + c }}
+        ⦃ Z = a + Y + c ⦄
     end
-      {{ Z = a + Y + c /\ ~(Y <> b) }} ->>
-      {{ Z = a + b + c }}
-]]
+      ⦃ Z = a + Y + c /\ ~(Y <> b) ⦄ ->>
+      ⦃ Z = a + b + c ⦄
+
 *)
 (* /QUIETSOLUTION *)
 (* GRADE_MANUAL 3: decorations_in_two_loops *)
@@ -5170,8 +5170,8 @@ additional [ + Y] term through it.
    The variables are all going _up_.
 
    Also, this is again a program schema rather than a program.  Why not...
-[[
-      {{ True }}
+
+      ⦃ True ⦄
     X ::= 0;;
     Y ::= 1;;
     Z ::= 1;;
@@ -5180,15 +5180,15 @@ additional [ + Y] term through it.
       Y ::= Y + Z;;
       X ::= X + 1
     end
-      {{ Y = 2 ^ (W + 1) - 1 }}
-]]
+      ⦃ Y = 2 ^ (W + 1) - 1 ⦄
+
    ...?
 *)
 
 (* EX4? (dpow2_down) *)
 (** Here is a program that computes the series:
     [1 + 2 + 2^2 + ... + 2^m = 2^(m+1) - 1]
-[[
+
     X := 0;
     Y := 1;
     Z := 1;
@@ -5197,61 +5197,61 @@ additional [ + Y] term through it.
       Y := Y + Z;
       X := X + 1
     end
-]]
+
     Write a decorated program for this, and justify each use of [->>]. *)
 
 (* SOLUTION *)
 (**
-[[
-  {{ True }} ->>
-  {{ 1 = 2^(0+1)-1 /\ 1 = 2^0 }}
+
+  ⦃ True ⦄ ->>
+  ⦃ 1 = 2^(0+1)-1 /\ 1 = 2^0 ⦄
   X := 0;
-  {{ 1 = 2^(X+1)-1 /\ 1 = 2^X }}
+  ⦃ 1 = 2^(X+1)-1 /\ 1 = 2^X ⦄
   Y := 1;
-  {{ Y = 2^(X+1)-1 /\ 1 = 2^X }}
+  ⦃ Y = 2^(X+1)-1 /\ 1 = 2^X ⦄
   Z := 1;
-  {{ Y = 2^(X+1)-1 /\ Z = 2^X }}
+  ⦃ Y = 2^(X+1)-1 /\ Z = 2^X ⦄
   while ~(X = m) do
-    {{ Y = 2^(X+1)-1 /\ Z = 2^X /\ (X <> m) }} ->>
-    {{ Y + 2 * Z = 2^(X+2)-1 /\ 2 * Z = 2^(X+1) }}
+    ⦃ Y = 2^(X+1)-1 /\ Z = 2^X /\ (X <> m) ⦄ ->>
+    ⦃ Y + 2 * Z = 2^(X+2)-1 /\ 2 * Z = 2^(X+1) ⦄
     Z := 2 * Z;
-    {{ Y + Z = 2^(X+2)-1 /\ Z = 2^(X+1) }}
+    ⦃ Y + Z = 2^(X+2)-1 /\ Z = 2^(X+1) ⦄
     Y := Y + Z;
-    {{ Y = 2^(X+2)-1 /\ Z = 2^(X+1) }}
+    ⦃ Y = 2^(X+2)-1 /\ Z = 2^(X+1) ⦄
     X := X + 1
-    {{ Y = 2^(X+1)-1 /\ Z = 2^X }}
+    ⦃ Y = 2^(X+1)-1 /\ Z = 2^X ⦄
   end
-  {{ Y = 2^(X+1)-1 /\ Z = 2^X /\ ~(X <> m) }} ->>
-  {{ Y = 2^(m+1)-1 }}
-]]
+  ⦃ Y = 2^(X+1)-1 /\ Z = 2^X /\ ~(X <> m) ⦄ ->>
+  ⦃ Y = 2^(m+1)-1 ⦄
+
 
 Checking the only non-trivial application of consequence:
-[[
-    {{ Y = 2^(X+1)-1 /\ Z = 2^X /\ (X <> m) }} ->>
-    {{ Y + 2 * Z = 2^(X+1+1)-1 /\ 2 * Z = 2^(X+1) }}
-]]
+
+    ⦃ Y = 2^(X+1)-1 /\ Z = 2^X /\ (X <> m) ⦄ ->>
+    ⦃ Y + 2 * Z = 2^(X+1+1)-1 /\ 2 * Z = 2^(X+1) ⦄
+
 
 Need to show these two conditions:
 
-[[
+
   2^(X+1)-1 + 2 * 2^X = 2^(X+1+1)-1
   2^(X+1) + 2^(X+1) = 2^(X+2) (OK)
-]]
 
-[[
+
+
   2 * 2^X = 2^(X+1) (OK)
-]]
+
 
 Deriving the invariant for Z mathematically:
 
-[[
-  {{ Y = 2^(X+1)-1 /\ (X <> m) }} ->> {{ Y + 2*Z = 2^(X+1+1)-1 }}
+
+  ⦃ Y = 2^(X+1)-1 /\ (X <> m) ⦄ ->> ⦃ Y + 2*Z = 2^(X+1+1)-1 ⦄
 
   2^(X+1)-1 + 2*Z = 2^(X+1+1)-1
   2*Z = 2^(X+2) - 2^(X+1)
   2*Z = 2^(X+1)
   Z = 2^X
-]]
+
 *)
 (* /SOLUTION *)
 (** [] *)
@@ -5294,9 +5294,9 @@ Answer: Z = min(x,y) - min(X,Y)
 
 (** FULL: Some preconditions are more interesting than others.
     For example,
-[[
-      {{ False }}  X := Y + 1  {{ X <= 5 }}
-]]
+
+      ⦃ False ⦄  X := Y + 1  ⦃ X <= 5 ⦄
+
     is _not_ very interesting: although it is perfectly valid Hoare
     triple, it tells us nothing useful.  Since the precondition isn't
     satisfied by any state, it doesn't describe any situations where
@@ -5304,9 +5304,9 @@ Answer: Z = min(x,y) - min(X,Y)
     [X <= 5].
 
     By contrast,
-[[
-      {{ Y <= 4 /\ Z = 0 }}  X := Y + 1 {{ X <= 5 }}
-]]
+
+      ⦃ Y <= 4 /\ Z = 0 ⦄  X := Y + 1 ⦃ X <= 5 ⦄
+
     has a useful precondition: it tells us that, if we can somehow
     create a situation in which we know that [Y <= 4 /\ Z = 0], then
     running this command will produce a state satisfying the
@@ -5315,23 +5315,23 @@ Answer: Z = min(x,y) - min(X,Y)
     has nothing to do with the postcondition [X <= 5].
 
     The most useful precondition is this one:
-[[
-      {{ Y <= 4 }}  X := Y + 1  {{ X <= 5 }}
-]]
+
+      ⦃ Y <= 4 ⦄  X := Y + 1  ⦃ X <= 5 ⦄
+
     Assertion [Y <= 4] is the _weakest precondition_ of command [X ::=
     Y + 1] for postcondition [X <= 5]. *)
 (** TERSE: A useless (though valid) Hoare triple:
-[[
-      {{ False }}  X := Y + 1  {{ X <= 5 }}
-]]
+
+      ⦃ False ⦄  X := Y + 1  ⦃ X <= 5 ⦄
+
     A better precondition:
-[[
-      {{ Y <= 4 /\ Z = 0 }}  X := Y + 1 {{ X <= 5 }}
-]]
+
+      ⦃ Y <= 4 /\ Z = 0 ⦄  X := Y + 1 ⦃ X <= 5 ⦄
+
     The _best_ precondition:
-[[
-      {{ Y <= 4 }}  X := Y + 1  {{ X <= 5 }}
-]]
+
+      ⦃ Y <= 4 ⦄  X := Y + 1  ⦃ X <= 5 ⦄
+
 *)
 
 (** Assertion [Y <= 4] is a _weakest precondition_ of command [X ::=
@@ -5342,9 +5342,9 @@ Answer: Z = min(x,y) - min(X,Y)
     [P] is a weakest precondition of command [c] for postcondition [Q]
     if:
 
-      - [P] is a precondition, that is, [{{P}} c {{Q}}]; and
+      - [P] is a precondition, that is, [⦃ P ⦄ c ⦃ Q ⦄]; and
       - [P] is at least as weak as all other preconditions, that is,
-        if [{{P'}} c {{Q}}] then [P' ->> P].
+        if [⦃ P' ⦄ c ⦃ Q ⦄] then [P' ->> P].
  *)
 
 (** FULL: Note that weakest preconditions need not be unique.  For
@@ -5352,32 +5352,32 @@ Answer: Z = min(x,y) - min(X,Y)
     logically equivalent assertions [Y < 5], [Y <= 2 * 2], etc.  *)
 
 Definition is_wp P c Q :=
-  {{P}} c {{Q}} /\
-  forall P', {{P'}} c {{Q}} -> (P' ->> P).
+  ⦃ P ⦄ c ⦃ Q ⦄ /\
+  forall P', ⦃ P' ⦄ c ⦃ Q ⦄ -> (P' ->> P).
 
 (* LATER: Make a quiz based on this? *)
 (* EX1? (wp) *)
 (** What are weakest preconditions of the following commands
     for the following postconditions?
-[[
-  1) {{ ? }}  skip  {{ X = 5 }}
 
-  2) {{ ? }}  X := Y + Z {{ X = 5 }}
+  1) ⦃ ? ⦄  skip  ⦃ X = 5 ⦄
 
-  3) {{ ? }}  X := Y  {{ X = Y }}
+  2) ⦃ ? ⦄  X := Y + Z ⦃ X = 5 ⦄
 
-  4) {{ ? }}
+  3) ⦃ ? ⦄  X := Y  ⦃ X = Y ⦄
+
+  4) ⦃ ? ⦄
      if X = 0 then Y := Z + 1 else Y := W + 2 end
-     {{ Y = 5 }}
+     ⦃ Y = 5 ⦄
 
-  5) {{ ? }}
+  5) ⦃ ? ⦄
      X := 5
-     {{ X = 0 }}
+     ⦃ X = 0 ⦄
 
-  6) {{ ? }}
+  6) ⦃ ? ⦄
      while true do X := 0 end
-     {{ X = 0 }}
-]]
+     ⦃ X = 0 ⦄
+
 *)
 (* SOLUTION *)
 (*
@@ -5396,19 +5396,19 @@ Definition is_wp P c Q :=
 For each of the following Hoare triples, give a weakest precondition
 that makes the triple valid.
 (a)
-    {{ ? }}
+    ⦃ ? ⦄
 while Y <= X do
 X := X - 1 end
-{{ Y > X }}
-    {{ ? }}
+⦃  Y > X ⦄
+    ⦃ ? ⦄
 if X .> 3 then Z := X else Z := Y end
-{{ Z = W }}
-    {{ ? }}
+⦃  Z = W ⦄
+    ⦃ ? ⦄
 while IsCons X do
   N := N + 1;
   X := Tail(X)
 end
-{{ X = [ ] ∧ N = length l }}
+⦃  X = [ ] ∧ N = length l ⦄
 
 ---------
 And:
@@ -5451,7 +5451,7 @@ Theorem hoare_asgn_weakest : forall Q X a,
     in the \CHAP{Hoare} chapter returns a weakest precondition. *)
 
 Lemma hoare_havoc_weakest : forall (P Q : Assertion) (X : string),
-  {{ P }} havoc X {{ Q }} ->
+  ⦃ P ⦄ havoc X ⦃ Q ⦄ ->
   P ->> havoc_pre X Q.
 (** [] *)
 
@@ -5464,9 +5464,9 @@ precondition. Formally, we can define it like this:
 
 Q is the strongest postcondition of c for P if:
 
-(a) {{P}} c {{Q}}, and
+(a) ⦃ P ⦄ c ⦃ Q ⦄, and
 
-(b) if Q′ is an assertion such that {{P}}c{{Q′}},
+(b) if Q′ is an assertion such that ⦃ P ⦄c⦃ Q′ ⦄,
     then Q st implies Q′ st, for all states st.
 
 Q is the strongest (most difficult to satisfy) assertion that is
@@ -5474,25 +5474,25 @@ guaranteed to hold after c if P holds before. For example, the
 strongest postcondition of the command skip with respect to the
 precondition Y = 1 is Y = 1. Similarly, the postcondition in...
 
-         {{ Y = y }}
+         ⦃ Y = y ⦄
            if !Y === A0 then X ::= A0 else Y ::= !Y *** A2
-         {{ (Y = y = X = 0) ∨ (Y = 2*y ∧ y <> 0) }}
+         ⦃ (Y = y = X = 0) ∨ (Y = 2*y ∧ y <> 0) ⦄
 
 ...is the strongest one.
 
 Complete each of the following Hoare triples with the strongest
 postcondition for the given command and precondition.
 
-(a) {{Y=1}} X::=!Y+++A1 {{?}}
-(b) {{True}} X::=A5 {{?}}
-(c) {{ True }} skip {{ ? }}
-(d) {{ True }} while true do skip {{ ? }}
-(e) {{ X = x ∧ Y = y }}
+(a) ⦃ Y=1 ⦄ X::=!Y+++A1 ⦃ ?⦄
+(b) ⦃ True ⦄ X::=A5 ⦃ ?⦄
+(c) ⦃ True ⦄ skip ⦃ ? ⦄
+(d) ⦃ True ⦄ while true do skip ⦃ ? ⦄
+(e) ⦃ X = x ∧ Y = y ⦄
     while BNot (!X === A0) do (
                     Y ::= !Y +++ A2;;
                     X ::= !X --- A1
                   )
-    {{ ? }}
+    ⦃ ? ⦄
 *)
 (* /FULL *)
 
@@ -5525,9 +5525,9 @@ postcondition for the given command and precondition.
     this would result in very verbose programs with a lot of repeated
     annotations: for example, a program like [skip;skip] would have to
     be annotated as
-[[
-        {{P}} ({{P}} skip {{P}}) ; ({{P}} skip {{P}}) {{P}},
-]]
+
+        ⦃ P ⦄ (⦃ P ⦄ skip ⦃ P ⦄) ; (⦃ P ⦄ skip ⦃ P ⦄) ⦃ P ⦄,
+
     with pre- and post-conditions on each [skip], plus identical pre-
     and post-conditions on the semicolon!
 
@@ -5546,15 +5546,15 @@ postcondition for the given command and precondition.
     The alternative--decorating every command with both a pre- and
     postcondition--would be too heavyweight. E.g., [skip; skip] would
     become:
-[[
-        {{P}} ({{P}} skip {{P}}) ; ({{P}} skip {{P}}) {{P}},
-]]
+
+        ⦃ P ⦄ (⦃ P ⦄ skip ⦃ P ⦄) ; (⦃ P ⦄ skip ⦃ P ⦄) ⦃ P ⦄,
+
 *)
 
 (** Specifically, we decorate as follows:
 
     - Command [skip] is decorated only with its postcondition, as
-      [skip {{ Q }}].
+      [skip ⦃ Q  ⦄].
 
     - Sequence [d1 ;; d2] contains no additional decoration.  Inside
       [d2] there will be a postcondition; that serves as the
@@ -5563,41 +5563,41 @@ postcondition for the given command and precondition.
       [d2].
 
     - Assignment [X ::= a] is decorated only with its postcondition,
-      as [X ::= a {{ Q }}].
+      as [X ::= a ⦃ Q  ⦄].
 
     - If statement [if b then d1 else d2] is decorated with a
       postcondition for the entire statement, as well as preconditions
       for each branch, as
-      [if b then {{ P1 }} d1 else {{ P2 }} d2 end {{ Q }}].
+      [if b then ⦃ P1 ⦄ d1 else ⦃ P2 ⦄ d2 end ⦃ Q  ⦄].
 
     - While loop [while b do d end] is decorated with its
       postcondition and a precondition for the body, as
-      [while b do {{ P }} d end {{ Q }}].  The postcondition inside
+      [while b do ⦃ P ⦄ d end ⦃ Q  ⦄].  The postcondition inside
       [d] serves as the loop invariant.
 
     - Implications [->>] are added as decorations for a precondition
-      as [->> {{ P }} d], or for a postcondition as [d ->> {{ Q }}].
+      as [->> ⦃ P ⦄ d], or for a postcondition as [d ->> ⦃ Q  ⦄].
       The former is waiting for another precondition to eventually be
-      supplied, e.g., [{{ P'}} ->> {{ P }} d], and the latter relies
+      supplied, e.g., [⦃  P' ⦄ ->> ⦃ P ⦄ d], and the latter relies
       on the postcondition already embedded in [d].
 *)
 
 Inductive dcom : Type :=
 | DCSkip (Q : Assertion)
-  (* skip {{ Q }} *)
+  (* skip ⦃ Q ⦄ *)
 | DCSeq (d1 d2 : dcom)
   (* d1 ;; d2 *)
 | DCAsgn (X : string) (a : aexp) (Q : Assertion)
-  (* X := a {{ Q }} *)
+  (* X := a ⦃ Q ⦄ *)
 | DCIf (b : bexp) (P1 : Assertion) (d1 : dcom)
        (P2 : Assertion) (d2 : dcom) (Q : Assertion)
-  (* if b then {{ P1 }} d1 else {{ P2 }} d2 end {{ Q }} *)
+  (* if b then ⦃ P1 ⦄ d1 else ⦃ P2 ⦄ d2 end ⦃ Q ⦄ *)
 | DCWhile (b : bexp) (P : Assertion) (d : dcom) (Q : Assertion)
-  (* while b do {{ P }} d end {{ Q }} *)
+  (* while b do ⦃ P ⦄ d end ⦃ Q ⦄ *)
 | DCPre (P : Assertion) (d : dcom)
-  (* ->> {{ P }} d *)
+  (* ->> ⦃ P ⦄ d *)
 | DCPost (d : dcom) (Q : Assertion)
-  (* d ->> {{ Q }} *)
+  (* d ->> ⦃ Q ⦄ *)
 .
 
 (** [DCPre] is used to provide the weakened precondition from
@@ -5616,41 +5616,41 @@ Inductive decorated : Type :=
 (* FOLD *)
 Declare Scope dcom_scope.
 (* INSTRUCTORS: Definition of template dcom *)
-Notation "'skip' {{ P }}"
+Notation "'skip' ⦃ P  ⦄"
       := (DCSkip P)
       (in custom com at level 0, P constr) : dcom_scope.
-Notation "l ':=' a {{ P }}"
+Notation "l ':=' a ⦃ P  ⦄"
       := (DCAsgn l a P)
       (in custom com at level 0, l constr at level 0,
           a custom com at level 85, P constr, no associativity) : dcom_scope.
-Notation "'while' b 'do' {{ Pbody }} d 'end' {{ Ppost }}"
+Notation "'while' b 'do' ⦃ Pbody ⦄ d 'end' ⦃ Ppost  ⦄"
       := (DCWhile b Pbody d Ppost)
            (in custom com at level 89, b custom com at level 99,
            Pbody constr, Ppost constr) : dcom_scope.
-Notation "'if' b 'then' {{ P }} d 'else' {{ P' }} d' 'end' {{ Q }}"
+Notation "'if' b 'then' ⦃ P ⦄ d 'else' ⦃ P' ⦄ d' 'end' ⦃ Q  ⦄"
       := (DCIf b P d P' d' Q)
            (in custom com at level 89, b custom com at level 99,
                P constr, P' constr, Q constr) : dcom_scope.
-Notation "'->>' {{ P }} d"
+Notation "'->>' ⦃ P ⦄ d"
       := (DCPre P d)
       (in custom com at level 12, right associativity, P constr) : dcom_scope.
-Notation "d '->>' {{ P }}"
+Notation "d '->>' ⦃ P  ⦄"
       := (DCPost d P)
       (in custom com at level 10, right associativity, P constr) : dcom_scope.
 Notation " d ; d' "
       := (DCSeq d d')
       (in custom com at level 90, right associativity) : dcom_scope.
-Notation "{{ P }} d"
+Notation "⦃  P ⦄ d"
       := (Decorated P d)
       (in custom com at level 91, P constr) : dcom_scope.
 
 Open Scope dcom_scope.
 
 Example dec0 :=
-  <{ skip {{ True }} }>.
+  <{ skip ⦃ True ⦄ }>.
 Example dec1 :=
-  <{ while true do {{ True }} skip {{ True }} end
-  {{ True }} }>.
+  <{ while true do ⦃ True ⦄ skip ⦃ True ⦄ end
+  ⦃ True ⦄ }>.
 
 (* /FOLD *)
 
@@ -5666,15 +5666,15 @@ Unset Printing All.
 
 Example dec_while : decorated :=
   <{
-  {{ True }}
+  ⦃ True ⦄
   while ~(X = 0)
   do
-    {{ True /\ (X <> 0) }}
+    ⦃ True /\ (X <> 0) ⦄
     X := X - 1
-    {{ True }}
+    ⦃ True ⦄
   end
-  {{ True /\  X = 0}} ->>
-  {{ X = 0 }} }>.
+  ⦃ True /\  X = 0 ⦄ ->>
+  ⦃ X = 0 ⦄ }>.
 
 (** TERSE: *** *)
 
@@ -5750,13 +5750,13 @@ Proof. reflexivity. Qed.
 (** TERSE: When is a decorated program correct? *)
 
 Definition dec_correct (dec : decorated) :=
-  {{pre_dec dec}} extract_dec dec {{post_dec dec}}.
+  ⦃ pre_dec dec ⦄ extract_dec dec ⦃ post_dec dec ⦄.
 
 Example dec_while_triple_correct :
   dec_correct dec_while
- = {{ True }}
+ = ⦃ True ⦄
    while ~(X = 0) do X := X - 1 end
-   {{ X = 0 }}.
+   ⦃ X = 0  ⦄.
 Proof. reflexivity. Qed.
 
 (** To check whether this Hoare triple is _valid_, we need a way to
@@ -5770,7 +5770,7 @@ Proof. reflexivity. Qed.
 
 (** The function [verification_conditions] takes a [dcom] [d] together
     with a precondition [P] and returns a _proposition_ that, if it
-    can be proved, implies that the triple [{{P}} (extract d) {{post d}}]
+    can be proved, implies that the triple [⦃ P ⦄ (extract d) ⦃ post d ⦄]
     is valid. It does this by walking over [d] and generating a big
     conjunction that includes
 
@@ -5829,7 +5829,7 @@ Fixpoint verification_conditions (P : Assertion) (d : dcom) : Prop :=
     the Hoare Logic rules at some point in the proof. *)
 
 Theorem verification_correct : forall d P,
-  verification_conditions P d -> {{P}} extract d {{post d}}.
+  verification_conditions P d -> ⦃ P ⦄ extract d ⦃ post d ⦄.
 (* FOLD *)
 Proof.
   induction d; intros; simpl in *.
@@ -5924,18 +5924,18 @@ Proof. verify. Qed.
 
 Example subtract_slowly_dec (m : nat) (p : nat) : decorated :=
   <{
-    {{ X = m /\  Z = p }} ->>
-    {{ Z - X = p - m }}
+    ⦃ X = m /\  Z = p ⦄ ->>
+    ⦃ Z - X = p - m ⦄
   while ~(X = 0)
-  do   {{ Z - X = p - m /\ X  <>  0 }} ->>
-       {{ (Z - 1) - (X - 1) = p - m }}
+  do   ⦃ Z - X = p - m /\ X  <>  0 ⦄ ->>
+       ⦃ (Z - 1) - (X - 1) = p - m ⦄
      Z := Z - 1
-       {{ Z - (X - 1) = p - m }} ;
+       ⦃ Z - (X - 1) = p - m ⦄ ;
      X := X - 1
-       {{ Z - X = p - m }}
+       ⦃ Z - X = p - m ⦄
   end
-    {{ Z - X = p - m /\ X = 0 }} ->>
-    {{ Z = p - m }} }>.
+    ⦃ Z - X = p - m /\ X = 0 ⦄ ->>
+    ⦃ Z = p - m ⦄ }>.
 
 Theorem subtract_slowly_dec_correct : forall m p,
   dec_correct (subtract_slowly_dec m p).
@@ -5950,15 +5950,15 @@ Proof. verify. (* this grinds for a bit! *) Qed.
 
 Definition swap_dec (m n:nat) : decorated :=
   <{
-   {{ X = m /\ Y = n}} ->>
-   {{ (X + Y) - ((X + Y) - Y) = n
-                /\ (X + Y) - Y = m }}
+   ⦃ X = m /\ Y = n ⦄ ->>
+   ⦃ (X + Y) - ((X + Y) - Y) = n
+                /\ (X + Y) - Y = m ⦄
   X := X + Y
-   {{ X - (X - Y) = n /\ X - Y = m }};
+   ⦃ X - (X - Y) = n /\ X - Y = m  ⦄;
   Y := X - Y
-   {{ X - Y = n /\ Y = m }};
+   ⦃ X - Y = n /\ Y = m  ⦄;
   X := X - Y
-   {{ X = n /\ Y = m}} }>.
+   ⦃ X = n /\ Y = m ⦄ }>.
 
 Theorem swap_correct : forall m n,
   dec_correct (swap_dec m n).
@@ -5980,19 +5980,19 @@ Definition if_minus_plus_com : com :=
 
 Definition if_minus_plus_dec :=
   <{
-  {{True}}
+  ⦃ True⦄
   if (X <= Y) then
-      {{ True /\ X <= Y }} ->>
-      {{ Y = X + (Y - X) }}
+      ⦃ True /\ X <= Y ⦄ ->>
+      ⦃ Y = X + (Y - X) ⦄
     Z := Y - X
-      {{ Y = X + Z }}
+      ⦃ Y = X + Z ⦄
   else
-      {{ True /\ ~(X <= Y) }} ->>
-      {{ X + Z = X + Z }}
+      ⦃ True /\ ~(X <= Y) ⦄ ->>
+      ⦃ X + Z = X + Z ⦄
     Y := X + Z
-      {{ Y = X + Z }}
+      ⦃ Y = X + Z ⦄
   end
-  {{ Y = X + Z}} }>.
+  ⦃ Y = X + Z ⦄ }>.
 
 Theorem if_minus_plus_correct :
   dec_correct if_minus_plus_dec.
@@ -6001,21 +6001,21 @@ Proof. verify. Qed.
 (** TERSE: *** *)
 Definition if_minus_dec :=
   <{
-  {{True}}
+  ⦃ True⦄
   if (X <= Y) then
-      {{True /\ X <= Y }} ->>
-      {{(Y - X) + X = Y
-               \/ (Y - X) + Y = X}}
+      ⦃ True /\ X <= Y ⦄ ->>
+      ⦃ (Y - X) + X = Y
+               \/ (Y - X) + Y = X⦄
     Z := Y - X
-      {{Z + X = Y \/ Z + Y = X}}
+      ⦃ Z + X = Y \/ Z + Y = X⦄
   else
-      {{True /\ ~(X <= Y) }} ->>
-      {{(X - Y) + X = Y
-               \/ (X - Y) + Y = X}}
+      ⦃ True /\ ~(X <= Y) ⦄ ->>
+      ⦃ (X - Y) + X = Y
+               \/ (X - Y) + Y = X⦄
     Z := X - Y
-      {{Z + X = Y \/ Z + Y = X}}
+      ⦃ Z + X = Y \/ Z + Y = X⦄
   end
-    {{Z + X = Y \/ Z + Y = X}} }>.
+    ⦃ Z + X = Y \/ Z + Y = X ⦄ }>.
 
 Theorem if_minus_correct :
   dec_correct if_minus_dec.
@@ -6030,22 +6030,22 @@ Proof. verify. Qed.
 
 Definition div_mod_dec (a b : nat) : decorated :=
   <{
-  {{ True }} ->>
-  {{ b * 0 + a = a }}
+  ⦃ True ⦄ ->>
+  ⦃ b * 0 + a = a ⦄
   X := a
-  {{ b * 0 + X = a }};
+  ⦃ b * 0 + X = a  ⦄;
   Y := 0
-  {{ b * Y + X = a }};
+  ⦃ b * Y + X = a  ⦄;
   while b <= X do
-    {{ b * Y + X = a /\ b <= X }} ->>
-    {{ b * (Y + 1) + (X - b) = a }}
+    ⦃ b * Y + X = a /\ b <= X ⦄ ->>
+    ⦃ b * (Y + 1) + (X - b) = a ⦄
     X := X - b
-    {{ b * (Y + 1) + X = a }};
+    ⦃ b * (Y + 1) + X = a  ⦄;
     Y := Y + 1
-    {{ b * Y + X = a }}
+    ⦃ b * Y + X = a ⦄
   end
-  {{ b * Y + X = a /\ ~(b <= X) }} ->>
-  {{ b * Y + X = a /\ (X < b) }} }>.
+  ⦃ b * Y + X = a /\ ~(b <= X) ⦄ ->>
+  ⦃ b * Y + X = a /\ (X < b) ⦄ }>.
 
 Theorem div_mod_dec_correct : forall a b,
   dec_correct (div_mod_dec a b).
@@ -6073,16 +6073,16 @@ Inductive ev : nat -> Prop :=
 
 Definition find_parity_dec (m:nat) : decorated :=
   <{
-   {{ X = m }} ->>
-   {{ X <= m /\ ap ev (m - X) }}
+   ⦃ X = m ⦄ ->>
+   ⦃ X <= m /\ ap ev (m - X) ⦄
   while 2 <= X do
-     {{ (X <= m /\ ap ev (m - X)) /\ 2 <= X }} ->>
-     {{ X - 2 <= m /\ ap ev (m - (X - 2)) }}
+     ⦃ (X <= m /\ ap ev (m - X)) /\ 2 <= X ⦄ ->>
+     ⦃ X - 2 <= m /\ ap ev (m - (X - 2)) ⦄
      X := X - 2
-     {{ X <= m /\ ap ev (m - X) }}
+     ⦃ X <= m /\ ap ev (m - X) ⦄
   end
-   {{ (X <= m /\ ap ev (m - X)) /\ X < 2 }} ->>
-   {{  X = 0 <-> ev m }} }>.
+   ⦃ (X <= m /\ ap ev (m - X)) /\ X < 2 ⦄ ->>
+   ⦃  X = 0 <-> ev m ⦄ }>.
 
 Lemma l1 : forall m n p,
   p <= n ->
@@ -6142,16 +6142,16 @@ Qed.
 
 Definition find_parity_dec' (m:nat) : decorated :=
   <{
-  {{ X = m }} ->>
-  {{ ap ev X <-> ev m }}
+  ⦃ X = m ⦄ ->>
+  ⦃ ap ev X <-> ev m ⦄
  while 2 <= X do
-    {{ (ap ev X <-> ev m) /\ 2 <= X }} ->>
-    {{ ap ev (X - 2) <-> ev m }}
+    ⦃ (ap ev X <-> ev m) /\ 2 <= X ⦄ ->>
+    ⦃ ap ev (X - 2) <-> ev m ⦄
     X := X - 2
-    {{ ap ev X <-> ev m }}
+    ⦃ ap ev X <-> ev m ⦄
  end
- {{ (ap ev X <-> ev m) /\ ~(2 <= X) }} ->>
- {{  X=0 <-> ev m }} }>.
+ ⦃ (ap ev X <-> ev m) /\ ~(2 <= X) ⦄ ->>
+ ⦃  X=0 <-> ev m ⦄ }>.
 
 Lemma l4 : forall m,
   2 <= m ->
@@ -6197,16 +6197,16 @@ Qed.
 
 Definition parity_dec (m:nat) : decorated :=
   <{
-  {{ X = m}} ->>
-  {{ ap parity X = parity m }}
+  ⦃ X = m ⦄ ->>
+  ⦃ ap parity X = parity m ⦄
  while 2 <= X do
-    {{ ap parity X = parity m /\ 2 <= X }} ->>
-    {{ ap parity (X - 2) = parity m }}
+    ⦃ ap parity X = parity m /\ 2 <= X ⦄ ->>
+    ⦃ ap parity (X - 2) = parity m ⦄
     X := X - 2
-    {{ ap parity X = parity m }}
+    ⦃ ap parity X = parity m ⦄
  end
- {{ ap parity X = parity m /\ ~(2 <= X) }} ->>
- {{ X = parity m }} }>.
+ ⦃ ap parity X = parity m /\ ~(2 <= X) ⦄ ->>
+ ⦃ X = parity m ⦄ }>.
 
 Theorem parity_dec_correct : forall m,
   dec_correct (parity_dec m).
@@ -6228,20 +6228,20 @@ Qed.
 
 Definition sqrt_dec (m:nat) : decorated :=
   <{
-    {{ X = m }} ->>
-    {{ X = m /\ 0*0 <= m }}
+    ⦃ X = m ⦄ ->>
+    ⦃ X = m /\ 0*0 <= m ⦄
   Z := 0
-    {{ X = m /\ Z*Z <= m }};
+    ⦃ X = m /\ Z*Z <= m  ⦄;
   while ((Z+1)*(Z+1) <= X) do
-      {{ (X = m /\ Z*Z<=m)
-                   /\ (Z + 1)*(Z + 1) <= X }} ->>
-      {{ X = m /\ (Z+1)*(Z+1)<=m }}
+      ⦃ (X = m /\ Z*Z<=m)
+                   /\ (Z + 1)*(Z + 1) <= X ⦄ ->>
+      ⦃ X = m /\ (Z+1)*(Z+1)<=m ⦄
     Z := Z + 1
-      {{ X = m /\ Z*Z<=m }}
+      ⦃ X = m /\ Z*Z<=m ⦄
   end
-    {{ (X = m /\ Z*Z<=m)
-                   /\ ~((Z + 1)*(Z + 1) <= X) }} ->>
-    {{ Z*Z<=m /\ m<(Z+1)*(Z+1) }} }>.
+    ⦃ (X = m /\ Z*Z<=m)
+                   /\ ~((Z + 1)*(Z + 1) <= X) ⦄ ->>
+    ⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄ }>.
 
 Theorem sqrt_correct : forall m,
   dec_correct (sqrt_dec m).
@@ -6255,22 +6255,22 @@ Proof. verify. Qed.
 
 Definition square_dec (m : nat) : decorated :=
   <{
-  {{ X = m }}
+  ⦃ X = m ⦄
   Y := X
-  {{ X = m /\ Y = m }};
+  ⦃ X = m /\ Y = m  ⦄;
   Z := 0
-  {{ X = m /\ Y = m /\ Z = 0}} ->>
-  {{ Z + X * Y = m * m }};
+  ⦃ X = m /\ Y = m /\ Z = 0 ⦄ ->>
+  ⦃ Z + X * Y = m * m  ⦄;
   while ~(Y = 0) do
-    {{ Z + X * Y = m * m /\ Y <> 0 }} ->>
-    {{ (Z + X) + X * (Y - 1) = m * m }}
+    ⦃ Z + X * Y = m * m /\ Y <> 0 ⦄ ->>
+    ⦃ (Z + X) + X * (Y - 1) = m * m ⦄
     Z := Z + X
-    {{ Z + X * (Y - 1) = m * m }};
+    ⦃ Z + X * (Y - 1) = m * m  ⦄;
     Y := Y - 1
-    {{ Z + X * Y = m * m }}
+    ⦃ Z + X * Y = m * m ⦄
   end
-  {{ Z + X * Y = m * m /\ Y = 0 }} ->>
-  {{ Z = m * m }} }>.
+  ⦃ Z + X * Y = m * m /\ Y = 0 ⦄ ->>
+  ⦃ Z = m * m ⦄ }>.
 
 Theorem square_dec_correct : forall m,
   dec_correct (square_dec m).
@@ -6288,30 +6288,30 @@ Qed.
 
 Definition square_dec' (n : nat) : decorated :=
   <{
-  {{ True }}
+  ⦃ True ⦄
   X := n
-  {{ X = n }};
+  ⦃ X = n  ⦄;
   Y := X
-  {{ X = n /\ Y = n }};
+  ⦃ X = n /\ Y = n  ⦄;
   Z := 0
-  {{ X = n /\ Y = n /\ Z = 0 }} ->>
-  {{ Z = X * (X - Y)
-               /\ X = n /\ Y <= X }};
+  ⦃ X = n /\ Y = n /\ Z = 0 ⦄ ->>
+  ⦃ Z = X * (X - Y)
+               /\ X = n /\ Y <= X  ⦄;
   while ~(Y = 0) do
-    {{ (Z = X * (X - Y)
+    ⦃ (Z = X * (X - Y)
                 /\ X = n /\ Y <= X)
-                /\  Y <> 0 }}
+                /\  Y <> 0 ⦄
     Z := Z + X
-    {{ Z = X * (X - (Y - 1))
-                 /\ X = n /\ Y <= X }};
+    ⦃ Z = X * (X - (Y - 1))
+                 /\ X = n /\ Y <= X  ⦄;
     Y := Y - 1
-    {{ Z = X * (X - Y)
-                 /\ X = n /\ Y <= X }}
+    ⦃ Z = X * (X - Y)
+                 /\ X = n /\ Y <= X ⦄
   end
-  {{ (Z = X * (X - Y)
+  ⦃ (Z = X * (X - Y)
               /\ X = n /\ Y <= X)
-               /\ Y = 0 }} ->>
-  {{ Z = n * n }} }>.
+               /\ Y = 0 ⦄ ->>
+  ⦃ Z = n * n ⦄ }>.
 
 Theorem square_dec'_correct : forall (n:nat),
   dec_correct (square_dec' n).
@@ -6334,23 +6334,23 @@ Qed.
 
 Definition square_simpler_dec (m : nat) : decorated :=
   <{
-  {{ X = m }} ->>
-  {{ 0 = 0*m /\ X = m }}
+  ⦃ X = m ⦄ ->>
+  ⦃ 0 = 0*m /\ X = m ⦄
   Y := 0
-  {{ 0 = Y*m /\ X = m }};
+  ⦃ 0 = Y*m /\ X = m  ⦄;
   Z := 0
-  {{ Z = Y*m /\ X = m }};
+  ⦃ Z = Y*m /\ X = m  ⦄;
   while ~(Y = X) do
-    {{ (Z = Y*m /\ X = m)
-        /\ Y <> X }} ->>
-    {{ Z + X = (Y + 1)*m /\ X = m }}
+    ⦃ (Z = Y*m /\ X = m)
+        /\ Y <> X ⦄ ->>
+    ⦃ Z + X = (Y + 1)*m /\ X = m ⦄
     Z := Z + X
-    {{ Z = (Y + 1)*m /\ X = m }};
+    ⦃ Z = (Y + 1)*m /\ X = m  ⦄;
     Y := Y + 1
-    {{ Z = Y*m /\ X = m }}
+    ⦃ Z = Y*m /\ X = m ⦄
   end
-  {{ (Z = Y*m /\ X = m) /\ Y = X }} ->>
-  {{ Z = m*m }} }>.
+  ⦃ (Z = Y*m /\ X = m) /\ Y = X ⦄ ->>
+  ⦃ Z = m*m ⦄ }>.
 
 Theorem square_simpler_dec_correct : forall m,
   dec_correct (square_simpler_dec m).
@@ -6365,34 +6365,34 @@ Qed.
 
 Definition two_loops_dec (a b c : nat) : decorated :=
   <{
-  {{ True }} ->>
-  {{ c = 0 + c /\ 0 = 0 }}
+  ⦃ True ⦄ ->>
+  ⦃ c = 0 + c /\ 0 = 0 ⦄
   X := 0
-  {{ c = X + c /\ 0 = 0 }};
+  ⦃ c = X + c /\ 0 = 0  ⦄;
   Y := 0
-  {{ c = X + c /\ Y = 0 }};
+  ⦃ c = X + c /\ Y = 0  ⦄;
   Z := c
-  {{ Z = X + c /\ Y = 0 }};
+  ⦃ Z = X + c /\ Y = 0  ⦄;
   while ~(X = a) do
-    {{ (Z = X + c /\ Y = 0) /\ X <> a }} ->>
-    {{  Z + 1 = X + 1 + c /\ Y = 0 }}
+    ⦃ (Z = X + c /\ Y = 0) /\ X <> a ⦄ ->>
+    ⦃  Z + 1 = X + 1 + c /\ Y = 0 ⦄
     X := X + 1
-    {{ Z + 1 = X + c /\ Y = 0 }};
+    ⦃ Z + 1 = X + c /\ Y = 0  ⦄;
     Z := Z + 1
-    {{ Z = X + c /\ Y = 0 }}
+    ⦃ Z = X + c /\ Y = 0 ⦄
   end
-  {{ (Z = X + c /\ Y = 0) /\ X = a }} ->>
-  {{ Z = a + Y + c }};
+  ⦃ (Z = X + c /\ Y = 0) /\ X = a ⦄ ->>
+  ⦃ Z = a + Y + c  ⦄;
   while ~(Y = b) do
-    {{ Z = a + Y + c /\ Y <> b }} ->>
-    {{ Z + 1 = a + Y + 1 + c }}
+    ⦃ Z = a + Y + c /\ Y <> b ⦄ ->>
+    ⦃ Z + 1 = a + Y + 1 + c ⦄
     Y := Y + 1
-    {{ Z + 1 = a + Y + c }};
+    ⦃ Z + 1 = a + Y + c  ⦄;
     Z := Z + 1
-    {{ Z = a + Y + c }}
+    ⦃ Z = a + Y + c ⦄
   end
-  {{ Z = a + Y + c /\ Y = b }} ->>
-  {{ Z = a + b + c }} }>.
+  ⦃ Z = a + Y + c /\ Y = b ⦄ ->>
+  ⦃ Z = a + b + c ⦄ }>.
 
 Theorem two_loops_correct : forall a b c,
   dec_correct (two_loops_dec a b c).
@@ -6410,32 +6410,32 @@ Fixpoint pow2 n :=
 
 Definition dpow2_down (n : nat) :=
   <{
-  {{ True }} ->>
-  {{ 1 = (pow2 (0 + 1))-1 /\ 1 = pow2 0 }}
+  ⦃ True ⦄ ->>
+  ⦃ 1 = (pow2 (0 + 1))-1 /\ 1 = pow2 0 ⦄
   X := 0
-  {{ 1 = (pow2 (0 + 1))-1 /\ 1 = ap pow2 X }};
+  ⦃ 1 = (pow2 (0 + 1))-1 /\ 1 = ap pow2 X  ⦄;
   Y := 1
-  {{ Y = (ap pow2 (X + 1))-1 /\ 1 = ap pow2 X}};
+  ⦃ Y = (ap pow2 (X + 1))-1 /\ 1 = ap pow2 X ⦄;
   Z := 1
-  {{ Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X }};
+  ⦃ Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X  ⦄;
   while ~(X = n) do
-    {{ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X)
-                 /\ X <> n }} ->>
-    {{ Y + 2 * Z = (ap pow2 (X + 2))-1
-                 /\ 2 * Z = ap pow2 (X + 1) }}
+    ⦃ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X)
+                 /\ X <> n ⦄ ->>
+    ⦃ Y + 2 * Z = (ap pow2 (X + 2))-1
+                 /\ 2 * Z = ap pow2 (X + 1) ⦄
     Z := 2 * Z
-    {{ Y + Z = (ap pow2 (X + 2))-1
-                 /\ Z = ap pow2 (X + 1) }};
+    ⦃ Y + Z = (ap pow2 (X + 2))-1
+                 /\ Z = ap pow2 (X + 1)  ⦄;
     Y := Y + Z
-    {{ Y = (ap pow2 (X + 2))-1
-                 /\ Z = ap pow2 (X + 1) }};
+    ⦃ Y = (ap pow2 (X + 2))-1
+                 /\ Z = ap pow2 (X + 1)  ⦄;
     X := X + 1
-    {{ Y = (ap pow2 (X + 1))-1
-                 /\ Z = ap pow2 X }}
+    ⦃ Y = (ap pow2 (X + 1))-1
+                 /\ Z = ap pow2 X ⦄
   end
-  {{ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X)
-               /\ X = n }} ->>
-  {{ Y = pow2 (n+1) - 1 }} }>.
+  ⦃ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X)
+               /\ X = n ⦄ ->>
+  ⦃ Y = pow2 (n+1) - 1 ⦄ }>.
 
 Lemma pow2_plus_1 : forall n,
   pow2 (n+1) = pow2 n + pow2 n.
@@ -6475,17 +6475,17 @@ Qed.
     which go after the postcondition of an assignment in a formal
     decorated program.  For example,
 
-[[
-    {{ X = m /\ 0 = 0 }}
+
+    ⦃ X = m /\ 0 = 0 ⦄
   Y := 0;
-    {{ X = m /\ Y = 0 }}
+    ⦃ X = m /\ Y = 0 ⦄
 
 becomes
 
-    {{ X = m /\ 0 = 0 }}
+    ⦃ X = m /\ 0 = 0 ⦄
   Y ::= 0
-    {{ X = m /\ Y = 0 }} ;;
-]]
+    ⦃ X = m /\ Y = 0 ⦄ ;;
+
 *)
 
 Example slow_assignment_dec (m : nat) : decorated
@@ -6504,13 +6504,13 @@ Theorem slow_assignment_dec_correct : forall m,
 (** The factorial function is defined recursively in the Coq standard
     library in a way that is equivalent to the following:
 
-[[
+
 Fixpoint fact (n : nat) : nat :=
   match n with
   | O => 1
   | S n' => n * (fact n')
   end.
-]]
+
      *)
 
 Compute fact 5. (* ==> 120 *)
@@ -6535,20 +6535,20 @@ Compute fact 5. (* ==> 120 *)
 (* SOLUTION *)
 Example factorial_dec (m:nat) : decorated :=
   <{
-    {{ X = m }} ->>
-    {{ 1 * ap fact X = fact m }}
+    ⦃ X = m ⦄ ->>
+    ⦃ 1 * ap fact X = fact m ⦄
   Y := 1
-    {{ Y * ap fact X = fact m }};
+    ⦃ Y * ap fact X = fact m  ⦄;
   while ~(X = 0)
-  do   {{ Y * ap fact X = fact m /\ X <> 0 }}
+  do   ⦃ Y * ap fact X = fact m /\ X <> 0 ⦄
      Y := Y * X
-       {{ Y * ap fact (X - 1) = fact m }} ;
+       ⦃ Y * ap fact (X - 1) = fact m ⦄ ;
      X := X - 1
-       {{ Y * ap fact X = fact m }}
+       ⦃ Y * ap fact X = fact m ⦄
   end
-    {{ Y * ap fact X = fact m /\ X = 0 }}
+    ⦃ Y * ap fact X = fact m /\ X = 0 ⦄
     ->>
-    {{ Y = fact m }} }>.
+    ⦃ Y = fact m ⦄ }>.
 
 Lemma fact_sub1 : forall m,
   m<>0 -> m * fact (m-1) = fact m.
@@ -6588,14 +6588,14 @@ Qed.
 
 (* EX2A? (fib_eqn) *)
 (** The Fibonacci function is usually written like this:
-[[
+
       Fixpoint fib n :=
         match n with
         | 0 => 1
         | 1 => 1
         | _ => fib (pred n) + fib (pred (pred n))
         end.
-]]
+
    This doesn't pass Coq's termination checker, but here is a
    slightly clunkier definition that does: *)
 
@@ -6619,7 +6619,7 @@ Lemma fib_eqn : forall n,
 (* EX4A? (fib) *)
 (** The following Imp program leaves the value of [fib n] in the
     variable [Y] when it terminates:
-[[
+
     X ::= 1;;
     Y ::= 1;;
     Z ::= 1;;
@@ -6629,12 +6629,12 @@ Lemma fib_eqn : forall n,
       Y ::= T;;
       X ::= 1 + X
     end
-]]
+
     Fill in the following definition of [dfib] and prove that it
     satisfies this specification:
-[[
-      {{ True }} dfib {{ Y = fib n }}
-]]
+
+      ⦃ True ⦄ dfib ⦃ Y = fib n ⦄
+
     If all goes well, your proof will be very brief.
     Hint: you will need many uses of [ap] in your assertions.
 *)
@@ -6670,8 +6670,8 @@ Theorem dfib_correct : forall n,
     - gcd n n = n
 
     Euclid's algorithm for calculating GCDs:
-[[
-    {{ X = m /\ Y = n }}
+
+    ⦃ X = m /\ Y = n ⦄
   while ~(X = Y) do
     if Y <= X
       then
@@ -6680,32 +6680,32 @@ Theorem dfib_correct : forall n,
          Y := Y - X
     end
   end
-    {{ X = gcd m n }}
-]]
+    ⦃ X = gcd m n ⦄
+
 
     Informal decorated program:
-[[
-    {{ X = m /\ Y = n }} ->>
-    {{ gcd m n = gcd X Y }}
+
+    ⦃ X = m /\ Y = n ⦄ ->>
+    ⦃ gcd m n = gcd X Y ⦄
   while ~(X = Y) do
-      {{ gcd m n = gcd X Y /\ X<>Y }}
+      ⦃ gcd m n = gcd X Y /\ X<>Y ⦄
     if Y <= X
       then
-          {{ gcd m n = gcd X Y /\ X<>Y /\ Y<=X }} ->>
-          {{ gcd m n = gcd (X-Y) Y }}
+          ⦃ gcd m n = gcd X Y /\ X<>Y /\ Y<=X ⦄ ->>
+          ⦃ gcd m n = gcd (X-Y) Y ⦄
         X := X - Y
-          {{ gcd m n = gcd X Y }}
+          ⦃ gcd m n = gcd X Y ⦄
       else
-          {{ gcd m n = gcd X Y /\ X<>Y /\ ~(Y<=X) }} ->>
-          {{ gcd m n = gcd X (Y-X) }}
+          ⦃ gcd m n = gcd X Y /\ X<>Y /\ ~(Y<=X) ⦄ ->>
+          ⦃ gcd m n = gcd X (Y-X) ⦄
         Y := Y - X
-          {{ gcd m n = gcd X Y }}
+          ⦃ gcd m n = gcd X Y ⦄
     end
   end
-    {{ gcd m n = gcd X Y /\ ~(X<>Y) }} ->>
-    {{ gcd m n = gcd X Y /\ X=Y }} ->>
-    {{ gcd m n = X }}
-]]
+    ⦃ gcd m n = gcd X Y /\ ~(X<>Y) ⦄ ->>
+    ⦃ gcd m n = gcd X Y /\ X=Y ⦄ ->>
+    ⦃ gcd m n = X ⦄
+
 
     Formal decorated program:
 *)
@@ -6717,30 +6717,30 @@ Print gcd. (* this actually uses Euclid's algorithm internally;
 
 Definition gcd_dec (m n:nat) : decorated :=
   <{
-    {{ X = m /\ Y = n }} ->>
-    {{ gcd m n = ap2 gcd X Y }}
+    ⦃ X = m /\ Y = n ⦄ ->>
+    ⦃ gcd m n = ap2 gcd X Y ⦄
   while BNot (BEq (AId X) (AId Y)) do
-      {{ gcd m n = ap2 gcd X Y /\ X <> Y }}
+      ⦃ gcd m n = ap2 gcd X Y /\ X <> Y ⦄
     if (Y <= X)
       then
-          {{ gcd m n = ap2 gcd X Y
-                       /\ X<> Y /\  Y<= X }} ->>
-          {{ gcd m n = ap2 gcd (X - Y) Y }}
+          ⦃ gcd m n = ap2 gcd X Y
+                       /\ X<> Y /\  Y<= X ⦄ ->>
+          ⦃ gcd m n = ap2 gcd (X - Y) Y ⦄
         X := AMinus (AId X) (AId Y)
-          {{ gcd m n = ap2 gcd X Y }}
+          ⦃ gcd m n = ap2 gcd X Y ⦄
       else
 
-      {{ gcd m n = ap2 gcd X Y /\
-                        X<> Y /\ ~(Y<=X) }} ->>
-          {{ gcd m n = ap2 gcd X (Y - X) }}
+      ⦃ gcd m n = ap2 gcd X Y /\
+                        X<> Y /\ ~(Y<=X) ⦄ ->>
+          ⦃ gcd m n = ap2 gcd X (Y - X) ⦄
         Y := AMinus (AId Y) (AId X)
-          {{ gcd m n = ap2 gcd X Y }}
+          ⦃ gcd m n = ap2 gcd X Y ⦄
     end
-      {{ gcd m n = ap2 gcd X Y }}
+      ⦃ gcd m n = ap2 gcd X Y ⦄
   end
-    {{ gcd m n = ap2 gcd X Y /\ ~(X <> Y) }} ->>
-    {{ gcd m n = ap2 gcd X Y /\ X =  Y }} ->>
-    {{ gcd m n =  X }} }>.
+    ⦃ gcd m n = ap2 gcd X Y /\ ~(X <> Y) ⦄ ->>
+    ⦃ gcd m n = ap2 gcd X Y /\ X =  Y ⦄ ->>
+    ⦃ gcd m n =  X ⦄ }>.
 
 Lemma gcd_eq : forall n, gcd n n = n.
 Proof.
@@ -6831,17 +6831,17 @@ end
    Give the weakest precondition for each of the following commands.
    (Use the informal notation for assertions rather than Coq notation,
    i.e., write X = 5, not fun st => st X = 5.)
-   (a) {{ ? }} X ::= (ANum 5) {{ X = 6 }}
+   (a) ⦃ ? ⦄ X ::= (ANum 5) ⦃ X = 6 ⦄
    Answer: False
-   (b) {{ ? }}
+   (b) ⦃ ? ⦄
    testif (BLe (AId X) (AId Y))
    then skip
    else Z := (AId Y); Y := (AId X); X := (AId Z)
-   {{ X <= Y }}
+   ⦃ X <= Y ⦄
    Answer: True
-   (c) {{ ? }} while BNot (BEq (AId Y) (ANum 5)) do Y := APlus (AId Y) (ANum 1) {{ Y = 5 }}
+   (c) ⦃ ? ⦄ while BNot (BEq (AId Y) (ANum 5)) do Y := APlus (AId Y) (ANum 1) ⦃ Y = 5 ⦄
    Answer: True
-   (d) {{ ? }} while BEq (AId X) (ANum 0) do Y := (ANum 1) {{ Y = 5 }}
+   (d) ⦃ ? ⦄ while BEq (AId X) (ANum 0) do Y := (ANum 1) ⦃ Y = 5 ⦄
    Answer: X=0 \/ Y=5
 
    --------------------
@@ -6909,14 +6909,14 @@ Inductive decorated : Type :=
   | Decorated : Assertion -> dcom -> Assertion -> decorated.
 
 (* INSTRUCTORS: Almost a copy of template dcom *)
-Notation "'skip' {{ P }}"
+Notation "'skip' ⦃ P  ⦄"
       := (DCSkip P)
            (in custom com at level 0, P constr) : dcom_scope.
 Notation "l ':=' a"
       := (DCAsgn l a)
            (in custom com at level 0, l constr at level 0,
                a custom com at level 85, no associativity) : dcom_scope.
-Notation "'while' b 'do' {{ Pbody }} d 'end'"
+Notation "'while' b 'do' ⦃ Pbody ⦄ d 'end'"
       := (DCWhile b Pbody d)
            (in custom com at level 89, b custom com at level 99,
            Pbody constr) : dcom_scope.
@@ -6927,20 +6927,20 @@ Notation "'if' b 'then' d 'else' d' 'end'"
 Notation " d ; d' "
       := (DCSeq d d')
           (in custom com at level 90, right associativity) : dcom_scope.
-Notation "{{{ P }}} d {{{ Q }}}"
+Notation "⦃⦃ P ⦄⦄ d ⦃⦃ Q ⦄⦄"
       := (Decorated P d Q)
           (at level 0, d custom com at level 99, P constr, Q constr) : dcom_scope.
 
 (** Here's how our decorated programs look now: *)
 
 Example dec_while :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   while ~(X = 0)
   do
-    {{ True }}
+    ⦃ True ⦄
     X := (X - 1)
   end
-  {{{ X = 0 }}}.
+  ⦃⦃ X = 0 ⦄⦄.
 
 
 (** It is easy to go from a [dcom] to a [com] by erasing all
@@ -6963,7 +6963,7 @@ Fixpoint extract (d : dcom) : com :=
 
 Definition dec_correct (dec : decorated) :=
   match dec with
-  | Decorated P d Q => {{P}} extract d {{Q}}
+  | Decorated P d Q => ⦃ P ⦄ extract d ⦃ Q⦄
   end
 .
 
@@ -6993,7 +6993,7 @@ Fixpoint vc (P : Assertion) (d : dcom) : Prop :=
   end.
 
 Theorem vc_correct: forall d P,
-  vc P d -> {{awp P d}} extract d {{P}}.
+  vc P d -> ⦃ awp P d ⦄ extract d ⦃ P ⦄.
 Proof.
  induction d; intros P H; simpl in *.
   - (* Skip *)
@@ -7059,52 +7059,52 @@ Proof.
 Qed.
 
 Definition swap_dec (m n:nat) : decorated :=
-   {{{ X = m /\ Y = n}}}
+   ⦃⦃ X = m /\ Y = n⦄⦄
   X := (X + Y);
   Y := (X - Y);
   X := (X - Y)
-   {{{ X = n /\ Y = m}}}.
+   ⦃⦃ X = n /\ Y = m⦄⦄.
 
 Theorem swap_correct : forall m n,
   dec_correct (swap_dec m n).
 Proof. verify.   Qed.
 
 Definition if_minus_dec :=
-  {{{True}}}
+  ⦃⦃True⦄⦄
   if X <= Y then
     Z := (Y - X)
   else
     Z := (X - Y)
   end
-  {{{Z + X = Y \/ Z + Y = X}}}.
+  ⦃⦃Z + X = Y \/ Z + Y = X⦄⦄.
 
 Theorem if_minus_correct :
   dec_correct if_minus_dec.
 Proof. verify. Qed.
 
 Definition if_minus_plus_dec :=
-  {{{True}}}
+  ⦃⦃True⦄⦄
   if X <= Y then
     Z := (Y - X)
   else
     Y := (X + Z)
   end
-  {{{ Y = X + Z }}}.
+  ⦃⦃ Y = X + Z ⦄⦄.
 
 Theorem if_minus_plus_correct :
   dec_correct if_minus_plus_dec.
 Proof. verify. Qed.
 
 Definition div_mod_dec (a b : nat) : decorated :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   X := a;
   Y := 0;
   while b <= X do
-    {{ b * Y + X = a }}
+    ⦃ b * Y + X = a ⦄
     X := (X - b);
     Y := (Y + 1)
   end
-  {{{ b * Y + X = a /\ (X < b) }}}.
+  ⦃⦃ b * Y + X = a /\ (X < b) ⦄⦄.
 
 Theorem div_mod_dec_correct : forall a b,
   dec_correct (div_mod_dec a b).
@@ -7113,12 +7113,12 @@ Proof.
 Qed.
 
 Definition parity_dec (m:nat) : decorated :=
-{{{ X = m }}}
+⦃⦃ X = m ⦄⦄
  while 2 <= X do
-    {{ ap parity X = parity m }}
+    ⦃ ap parity X = parity m ⦄
     X := (X - 2)
  end
- {{{ X = parity m }}}.
+ ⦃⦃ X = parity m ⦄⦄.
 
 Theorem parity_dec_correct :
   forall m, dec_correct (parity_dec m).
@@ -7134,13 +7134,13 @@ verify;
 Qed.
 
 Definition sqrt_dec (m:nat) : decorated :=
-    {{{ X = m }}}
+    ⦃⦃ X = m ⦄⦄
   Z := 0;
   while (Z+1)*(Z+1) <= X do
-      {{ (X = m /\ Z*Z<=m) }}
+      ⦃ (X = m /\ Z*Z<=m) ⦄
     Z := (Z + 1)
   end
-    {{{ Z*Z<=m /\ m<(Z+1)*(Z+1) }}}.
+    ⦃⦃ Z*Z<=m /\ m<(Z+1)*(Z+1) ⦄⦄.
 
 Theorem sqrt_correct : forall m,
   dec_correct (sqrt_dec m).
@@ -7154,15 +7154,15 @@ Proof. verify. Qed.
     last. *)
 
 Definition square_dec (m : nat) : decorated :=
-  {{{ X = m }}}
+  ⦃⦃ X = m ⦄⦄
   Y := X;
   Z := 0;
   while ~ (Y = 0) do
-    {{ Z + X * Y = m * m }}
+    ⦃ Z + X * Y = m * m ⦄
     Z := (Z + X);
     Y := (Y - 1)
   end
-  {{{ Z = m * m }}}.
+  ⦃⦃ Z = m * m ⦄⦄.
 
 Theorem square_dec_correct : forall m,
   dec_correct (square_dec m).
@@ -7179,17 +7179,17 @@ Proof.
 Qed.
 
 Definition square_dec' (n : nat) : decorated :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   X := n;
   Y := X;
   Z := 0;
   while ~(Y = 0) do
-    {{ (Z = X * (X - Y)
-                /\ X = n /\ Y <= X) }}
+    ⦃ (Z = X * (X - Y)
+                /\ X = n /\ Y <= X) ⦄
     Z := (Z + X);
     Y := (Y - 1)
   end
-  {{{ Z = n * n }}}.
+  ⦃⦃ Z = n * n ⦄⦄.
 
 Theorem square_dec'_correct : forall (n:nat),
   dec_correct (square_dec' n).
@@ -7210,15 +7210,15 @@ Proof.
 Qed.
 
 Definition square_simpler_dec (m : nat) : decorated :=
-  {{{ X = m }}}
+  ⦃⦃ X = m ⦄⦄
   Y := 0;
   Z := 0;
   while ~(Y = X) do
-    {{ (Z = Y*m /\ X = m) }}
+    ⦃ (Z = Y*m /\ X = m) ⦄
     Z := (Z + X);
     Y := (Y + 1)
   end
-  {{{ Z = m*m }}}.
+  ⦃⦃ Z = m*m ⦄⦄.
 
 Theorem square_simpler_dec_correct : forall m,
   dec_correct (square_simpler_dec m).
@@ -7227,51 +7227,51 @@ Proof.
 Qed.
 
 Definition two_loops_dec (a b c : nat) : decorated :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   X := 0;
   Y := 0;
   Z := c;
   while ~(X = a) do
-    {{ (Z = X + c /\ Y = 0) }}
+    ⦃ (Z = X + c /\ Y = 0) ⦄
     X := (X + 1);
     Z := (Z + 1)
   end;
   while ~(Y = b) do
-    {{ Z = a + Y + c }}
+    ⦃ Z = a + Y + c ⦄
     Y := (Y + 1);
     Z := (Z + 1)
   end
-  {{{ Z = a + b + c }}}.
+  ⦃⦃ Z = a + b + c ⦄⦄.
 
 Theorem two_loops_correct : forall a b c,
   dec_correct (two_loops_dec a b c).
 Proof. verify. Qed.
 
 Example subtract_slowly_dec (m : nat) (p : nat) : decorated :=
-    {{{ X = m /\  Z = p }}}
+    ⦃⦃ X = m /\  Z = p ⦄⦄
   while ~(X = 0)
-  do   {{ Z - X = p - m }}
+  do   ⦃ Z - X = p - m ⦄
      Z := (Z - 1);
      X := (X - 1)
   end
-    {{{ Z = p - m }}}.
+    ⦃⦃ Z = p - m ⦄⦄.
 
 Theorem subract_slowly_dec : forall m p,
   dec_correct (subtract_slowly_dec m p).
 Proof. verify. Qed.
 
 Definition dpow2_down (n : nat) :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   X := 0;
   Y := 1;
   Z := 1;
   while ~(X = n) do
-    {{ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X) }}
+    ⦃ (Y = (ap pow2 (X + 1))-1 /\ Z = ap pow2 X) ⦄
     Z := (2 * Z);
     Y := (Y + Z);
     X := (X + 1)
   end
-  {{{ Y = pow2 (n+1) - 1 }}}.
+  ⦃⦃ Y = pow2 (n+1) - 1 ⦄⦄.
 
 Lemma pow2_plus_1 : forall n,
   pow2 (n+1) = pow2 n + pow2 n.
@@ -7296,14 +7296,14 @@ Proof.
 Qed.
 
 Example factorial_dec (m:nat) : decorated :=
-    {{{ X = m }}}
+    ⦃⦃ X = m ⦄⦄
   Y := 1;
   while ~(X = 0)
-  do   {{ Y * ap real_fact X = real_fact m }}
+  do   ⦃ Y * ap real_fact X = real_fact m ⦄
      Y := (Y * X);
      X := (X - 1)
   end
-  {{{ Y = real_fact m }}}.
+  ⦃⦃ Y = real_fact m ⦄⦄.
 
 Lemma fact_sub1 : forall m,
   m<>0 -> m * real_fact (m-1) = real_fact m.
@@ -7323,20 +7323,20 @@ Qed.
 Definition T : string := "T".
 
 Definition dfib (n : nat) : decorated :=
-  {{{ True }}}
+  ⦃⦃ True ⦄⦄
   X := 1;
   Y := 1;
   Z := 1;
   while ~(X = 1 + n) do
-    {{ Z = ap fib X
+    ⦃ Z = ap fib X
        /\ Y = ap fib (ap pred X)
-       /\ X > 0 }}
+       /\ X > 0 ⦄
     T := Z;
     Z := (Z + Y);
     Y := T;
     X := (1 + X)
   end
-  {{{ Y = fib n }}}.
+  ⦃⦃ Y = fib n ⦄⦄.
 
 Theorem dfib_correct : forall n,
   dec_correct (dfib n).
@@ -7359,6 +7359,24 @@ End SparseAnnotations.
 (* mode: outline-minor *)
 (* outline-heading-end-regexp: "\n" *)
 (* /HIDE *)
+
+
+## Unicode
+
+This section uses the following Unicode symbols:
+
+    ¬  U+00AC  NOT SIGN (\neg)
+    ×  U+00D7  MULTIPLICATION SIGN (\x)
+    η  U+03B7  GREEK SMALL LETTER ETA (\eta)
+    ⊎  U+228E  MULTISET UNION (\u+)
+    ⊤  U+22A4  DOWN TACK (\top)
+    ⊥  U+22A5  UP TACK (\bot)
+    ≢  U+2262  NOT IDENTICAL TO (\==n)
+    ₁  U+2081  SUBSCRIPT ONE (\_1)
+    ₂  U+2082  SUBSCRIPT TWO (\_2)
+    ⇔  U+21D4  LEFT RIGHT DOUBLE ARROW (\<=>)
+    ⦃  U+2983  LEFT WHITE CURLY BRACKET
+    ⦄  U+2984  RIGHT WHITE CURLY BRACKET
 
 
 ---

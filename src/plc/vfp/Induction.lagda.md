@@ -1,7 +1,7 @@
 ---
 title     : "Induction: Proof by Induction"
 layout    : page
-prev      : /Depend/
+prev      : /Proof/
 permalink : /Induction/
 next      : /DataProp/
 ---
@@ -14,24 +14,15 @@ module plc.vfp.Induction where
 > ... but it is one of the greatest ideas of civilization.
 > -- Herbert Wilf
 
-In the last chapter we studied the basics of programming in a language
-like Agda.  Now, our next step is to learn how to use Agda to discuss
-— that is, to prove — properties of Agda programs.  By the end of this
-chapter we will be stating and proving properties about data
-structures like lists and maps.  But for now, we will start with
-properties about a simpler system which we are all know well: natural
-numbers, and the properties that they satisfy.  In this section we
-will consider some of the basic familiar properties of the natural
-numbers.  We will see that Agda's representation of ℕ satisfies these
-properties; we will also see both how we prove these results, and how
-we apply these proofs to other results.
-
-The underlying technique we will use for (most of) our proofs will be
-_proof by induction_.  This approach was already suggested in the last
-chapter, where we defined several _inductive datatypes_.  Inductive
-proofs mirror the recursive structure of these datatypes: one or more
-base cases which are not recursive, and one or more recursive cases
-which rely on strictly smaller uses of an assertion.
+In this section we will look at the underlying technique we will use
+for (most of) our proofs: _proof by induction_.  This approach was
+already suggested in the last chapter, where we defined several
+_inductive datatypes_.  Inductive proofs mirror the recursive
+structure of these datatypes: one or more base cases which are not
+recursive, and one or more recursive cases which rely on strictly
+smaller uses of an assertion.  We will begin with inductive proofs
+about the natural numbers and their operators; in the next section we
+apply these techniques to data structures, in particular lists.
 
 We first review some properties of the natual numbers, and then
 introduce general Agda statements and proofs.
@@ -47,7 +38,6 @@ open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
 ```
-
 
 ## Properties of operators
 
@@ -834,8 +824,9 @@ Use Agda to find the error in this proof:
 Agda is able to identify a much smaller suspected error in this
 case. because a justification cannot fit with the expression before
 it.  What type does a call to `+-assoc' X Y Z` return, assuming that
-`X`, `Y` and `Z` are all of type `ℕ`?  What type does `suc ((m + n) +
-p) ≡ X` have?  Why do they not match, no matter what `X` is?
+`X`, `Y` and `Z` are all of type `ℕ`?  What type does
+`suc ((m + n) + p) ≡ X` have?
+Why do they not match, no matter what `X` is?
 
 #### Exercise `ProofErr2` (starting) {#proofErr2}
 
@@ -1344,49 +1335,6 @@ For each law: if it holds, prove; if not, give a counterexample.
 ```
 -- Your code goes here
 ```
-
-### Rewriting with premises
-
-The following theorem does not require induction, but does require us
-to use its premises as we show two values as equal
-
-```
-plusIdExample : ∀ (n m : ℕ) → n ≡ m → n + n ≡ m + m
-```
-
-Instead of making a universal claim about all numbers `n` and `m`, it
-talks about a more specialized property that only holds when `n ≡ m`.
-In this case we pronounce the second arrow "implies."
-
-We start the proof in a way consistent with what we have before: both
-quantified values and the premise of the implication correspond to
-arguments.
-
-```
-plusIdExample n m n≡m = 
-```
-
-Remember that in Agda, almost all characters can be part of a name,
-including symbols like `≡`.  So when we write `n ≡ m` in the
-signature, Agda sees three distinct items.  But when we write `n≡m` in
-this clause, it is a single name with three characters.  The value
-which we expect for this parameter is evidence that `n ≡ m`, and we
-will use this evidence in our proof.
-
-```
-  begin
-    n + n
-  ≡⟨ cong (λ x → x + n) n≡m ⟩
-    m + n
-  ≡⟨ cong (λ x → m + x) n≡m ⟩
-    m + m
-  ∎
-```
-
-We use the evidence that `n ≡ m` as the justification to rewrite `n`
-as `m`.  Since `n` does not occur at the top-level of our proof, we
-must give the context via `cong` so that Agda can find the exact spot
-where we wish to rewrite.
 
 #### Exercise `plusIdExercise` (starting) {#plusIdExercise}
 

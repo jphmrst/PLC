@@ -662,7 +662,7 @@ Is 6 an even number?  Of course we know it is, but we can write a
 recursive function so that Agda can know it as well.
 
 ```
-even : ℕ → Bool
+isEven : ℕ → Bool
 ```
 
 Functions such as `even` which return a `Bool` are sometimes called
@@ -672,7 +672,7 @@ As usual, we need a base case, and the base case of our function
 corresponds to the base case of the natural numbers.
 
 ```
-even zero = true
+isEven zero = true
 ```
 
 But here we have not just one, but two base cases.  The second base
@@ -680,7 +680,7 @@ case is the smallest number which is *not* even, the smallest number
 for which `even` should return `false`.
 
 ```
-even (suc zero) = false
+isEven (suc zero) = false
 ```
 
 Our recursive case relies on the facts that:
@@ -689,23 +689,23 @@ Our recursive case relies on the facts that:
  - If `n` is odd, then `2+n` will be odd as well.
 
 ```
-even (suc (suc n)) = even n
+isEven (suc (suc n)) = isEven n
 ```
 
 We can verify that our function works correctly by testing several
 cases.
 
 ```
-_ : even 0 ≡ true
+_ : isEven 0 ≡ true
 _ = refl
 
-_ : even 1 ≡ false
+_ : isEven 1 ≡ false
 _ = refl
 
-_ : even 8 ≡ true
+_ : isEven 8 ≡ true
 _ = refl
 
-_ : even 13 ≡ false
+_ : isEven 13 ≡ false
 _ = refl
 ```
 
