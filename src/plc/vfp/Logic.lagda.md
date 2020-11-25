@@ -3,7 +3,7 @@ title     : "Logic: Connectives and deduction"
 layout    : page
 prev      : /DataRel/
 permalink : /Logic/
-next      : /MapProps/
+next      : /VerifExers/
 ---
 
 ```
@@ -706,7 +706,7 @@ If so, prove; if not, explain why.
 Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
 
 ```
--- You code goes here
+-- Your code goes here
 ```
 
 
@@ -715,7 +715,7 @@ Show that `All P xs` is isomorphic to `∀ {x} → x ∈ xs → P x`.
 Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
 
 ```
--- You code goes here
+-- Your code goes here
 ```
 
 ## More exercises
