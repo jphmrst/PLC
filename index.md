@@ -54,7 +54,7 @@ permalink: /
 ### Objects and classes
   - Material to be posted
 
-## Part III --- Advanced material from _PLCA_
+## Part III --- Advanced material from _PLFA_
 
 ### Advanced logic and computation
   - [Equality]({{ site.baseurl }}/Equality/): Equality and equational reasoning

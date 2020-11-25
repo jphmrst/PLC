@@ -312,9 +312,10 @@ And there is one other important thing to remember:
 ### Leave the configuration directories which you made alone!
 
 Do not put your other projects and exercises code there!  Keep them
-separate, and put them in a different directory for classwork.  You
-not use these configurations for other projects in a way that might
-make it easy for you to tamper with the contents.
+separate, and put them in a different directory than what you use for
+your classwork.  It is important not use these configuration
+directories for other projects in a way that might make it easy for
+you to tamper with the contents.
 
 ## Emacs
 
@@ -484,7 +485,8 @@ when you solve exercises:
 
       M-x quail-show-key
 
-   You'll see the key sequence of the character in mini buffer.
+   You'll see the key sequence of the character in minibuffer, usually
+   at the bottom of your window.
 
 ### Whitespace sensitivity {#whitespace}
 
@@ -645,7 +647,7 @@ Ruby bindings) and the Ruby `html-proofer`.
 
 Some attention is required when installing Agda's libraries on a
 shared file system.  The standard library as shipped contains `.agda`
-files, and not the comppiled `.agdai` images (which of course will
+files, and not the compiled `.agdai` images (which of course will
 vary from system to system).  When a `.agdai` file does not exist for
 a file from a library, Agda will attempt to compile that file _and
 store the resulting `.agdai` file right alongside the `.agda` source_.
