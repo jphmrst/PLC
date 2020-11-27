@@ -3,7 +3,7 @@ title     : "Imp: Simple imperative programs"
 layout    : page
 prev      : /ImpExprs/
 permalink : /Imp/
-next      : /
+next      : /Equiv/
 ---
 
 ```
@@ -319,6 +319,25 @@ _ : emptyState =[
 _ = E, (E:= (# 0) 0 refl) (E, (E:= (# 1) 1 refl) (E:= (# 2) 2 refl))
 ```
 
+We will make use later of a few simple lemmas about these relations.
+If two states are equal, then we can exchange them as the starting
+states of `_=[_]=>_`.
+
+```
+startStatesSame : ∀ {st₀ st₁ st : State} {c : Command}
+                   → st₀ ≡ st₁
+                     → st₀ =[ c ]=> st
+                       → st₁ =[ c ]=> st
+startStatesSame st₀≡st₁ eval0 rewrite st₀≡st₁ = eval0
+```
+
+Here we use the `rewrite` tool which we discussed [when we began
+studying proofs]({{ site.baseurl }}/Proof/#rewriting-with-premises).
+When we apply `rewrite`, it rewrites according to the given evidence
+not only in the result we need to prove, but also in the proof
+function's arguments.  So the `rewrite` transforms the evidence from
+the argument into the evidence we need for the result.  We will also
+use the related result from [Exercise sameEnd](#endStatesSame) below.
 
 #### Exercise `pupToN` (recommended) {#pupToN}
 
@@ -334,6 +353,17 @@ theorem will be somewhat lengthy.
     _ : X ↦ 2 , emptyState =[ pupToN ]=> X ↦ 0 , Y ↦ 3 , X ↦ 1 , Y ↦ 2 , Y ↦ 0 , X ↦ 2 , emptyState
     _ = -- FILL IN YOUR PROOF HERE
 
+#### Exercise `endStatesSame` (recommended) {#endStatesSame}
+
+Prove this companion result to `startStatesSame` above.
+
+```
+postulate endStatesSame : ∀ {st₀ st₁ st : State} {c : Command}
+                   → st₀ ≡ st₁
+                     → st =[ c ]=> st₀
+                       → st =[ c ]=> st₁
+-- Remove the postulate keyword and add your proof here
+```
 
 
 ## Determinism of evaluation

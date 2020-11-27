@@ -454,10 +454,9 @@ and the signatures of the two directions are
     where fwd : (s₁ =[ while b loop c end ]=> s₂)
                   → (s₁ =[ if b then (c , while b loop c end)
                                 else skip end ]=> s₂)
+          bkw : (s₁ =[ if b then (c , while b loop c end) else skip end ]=> s₂)
+                  → (s₁ =[ while b loop c end ]=> s₂)
 ```
-
-    bkw : (s₁ =[ if b then (c , while b loop c end) else skip end ]=> s₂)
-            → (s₁ =[ while b loop c end ]=> s₂)
 
 In each direction we will perform a case analysis of the possible
 forms of evidence for the premise.  In the forward direction the
@@ -491,8 +490,6 @@ will use the evidence of the evaluation of these elements in
 describing the evaluation of the loop of the conclusion.
 
 ```
-          bkw : (s₁ =[ if b then (c , while b loop c end) else skip end ]=> s₂)
-                    → (s₁ =[ while b loop c end ]=> s₂)
           bkw (EIfT bIsTrue (E, e e₁)) = EWhileT bIsTrue e e₁
           bkw (EIfF bIsFalse Eskip) = EWhileF bIsFalse
 ```
@@ -509,38 +506,61 @@ postulate seqAssoc : ∀ c₁ c₂ c₃ → ((c₁ , c₂) , c₃) ≡ᶜ (c₁ 
 ☙ ☙ ❧ ❧
 </div>
 
+{::comment}
+
+REVIEW `rewrite`, and review the startStatesSame/endStatesSame lemmas
+from Imp.
+
+{:/comment}
 
 
 Proving program properties involving assignments is one place where
-the fact that program states are treated extensionally (e.g.,
-`x ↦ m x , m` and `m` are equal maps) comes in handy.
+the fact that program states are treated extensionally (e.g., `x ↦ m x
+, m` and `m` are equal maps) comes in handy.  For example, to show
+that the assignment of a variable to itself does not change the
+program state, we can simply use the equalities between the functions
+used to implement states [which we showed earlier]({{ site.baseurl
+}}/VerifExers/#properties-of-total-maps), specifically `tUpdateSame`.
 
-    identityFwd : ∀ x st → st =[ x := id x ]=> st
-    identityFwd x st = {!!}
-    
-    
-    identityAssignment : ∀ x → (x := id x) ≡ᶜ skip
-    identityAssignment x s₁ s₂ =
-      record { to = fwd; from = bkw }
-        where fwd : (s₁ =[ x := id x ]=> s₂) → (s₁ =[ skip ]=> s₂) 
-              fwd (E:= .(id x) n getX) rewrite sym getX = {!!}
-    
-              bkw : (s₁ =[ skip ]=> s₂) → (s₁ =[ x := id x ]=> s₂)
-              bkw Eskip rewrite sym (tUpdateSame s₁ x) = {!!}
+```
+identityFwd : ∀ x st → st =[ x := id x ]=> st
+identityFwd x st = endStatesSame (tUpdateSame st x)
+                                 (E:= (id x) (⟦ id x ⟧ᴬ st) refl)
+```
 
+Similarly, we can prove that if assigning a value to itself maps from
+some starting state to some ending state, then these two states are
+actually the same.
 
-Proof.
-  intros.
-  split; intro H; inversion H; subst; clear H.
-  - (* -> *)
-    rewrite t_update_same.
-    apply E_Skip.
-  - (* <- *)
-    assert (Hx : s₂ =[ x := x ]=> (x !-> s₂ x ; s₂.).
-    { apply E_Ass. reflexivity. }
-    rewrite t_update_same in Hx.
-    apply Hx.
-Qed.
+```
+selfAssignSameState : ∀ (x : String) (st₁ : State) {st₂ : State}
+                        → st₁ =[ x := id x ]=> st₂
+                          → st₁ ≡ st₂
+```
+
+The only form of evidence for the assignment in the premise requires
+that `st₂` have a specific form as well, and `tUpdateSame` gives us
+exactly the relationship we need between the starting and ending
+states.
+
+```
+selfAssignSameState x st₁ {.(x ↦ n , st₁)} (E:= .(id x) n evalsToN)
+  rewrite sym evalsToN = sym (tUpdateSame st₁ x)
+```
+
+That result leads us directly to this corollary, that assignment of a
+variable to itself is interchangeable with a `skip` statement.
+
+```
+identityAssignment : ∀ x → (x := id x) ≡ᶜ skip
+identityAssignment x s₁ s₂ =
+  record { to = fwd; from = bkw }
+    where fwd : (s₁ =[ x := id x ]=> s₂) → (s₁ =[ skip ]=> s₂) 
+          fwd eval = endStatesSame (selfAssignSameState x s₁ eval) Eskip
+
+          bkw : (s₁ =[ skip ]=> s₂) → (s₁ =[ x := id x ]=> s₂)
+          bkw Eskip = identityFwd x s₁
+```
 
 #### Exercise `:=-≡ᴬ` (recommended) {#assign-aequiv}
 
@@ -679,7 +699,7 @@ larger programs in which they are embedded:
 
 and so on for the other forms of commands.  (Note that we are using
 the inference rule notation here not as part of a definition, but
-simply to write down some valid implications in a readable format. We
+simply to write down some valid implications in a readable format.  We
 prove these implications below.)
 
 The value of these results is that they let us replace a small part of
@@ -723,95 +743,116 @@ expression.
 ```
 
 The congruence property for loops is a little more interesting, since
-it requires induction.
+it requires induction.  The idea that equivalence is a congruence for
+`while` means that if both `b` is equivalent to `b′` and `c` is
+equivalent to `c′`, then `while b loop c end` is equivalent to `while
+b′ loop c′ end`:
 
+```
+while-congruence : ∀ (b b′ : BExp) (c c′ : Command)
+                     → b ≡ᴮ b′ -> c ≡ᶜ c′
+                       → while b loop c end ≡ᶜ while b′ loop c′ end
+```
 
-    while-congruence : ∀ (b b′ : BExp) (c c′ : Command)
-                         → b ≡ᴮ b′ -> c ≡ᶜ c′
-                           → while b loop c end ≡ᶜ while b′ loop c′ end
-    while-congruence b b′ c c′ bEqb′ cEqc′ s₁ s₂ =
-      record { to = fwd; from = bkw }
-        where fwd : s₁ =[ while b loop c end ]=> s₂
-                      → s₁ =[ while b′ loop c′ end ]=> s₂
-              fwd (EWhileF bEvalsF) = EWhileF (trans (sym (bEqb′ s₁)) bEvalsF)
-              fwd (EWhileT {st′} bEvalsT firstPass otherPasses) = {!!}
-    
-              bkw : s₁ =[ while b′ loop c′ end ]=> s₂
-                     → s₁ =[ while b loop c end ]=> s₂
-              bkw e = {!!}
+The two equivalences are premises, so our proof function receives
+evidence that `b` is equivalent to `b′` and `c` is equivalent to `c′`.
+We must show, for every `s₁` and `s₂`, that `s₁ =[ while b loop c end
+]=> s₂` iff `s₁ =[ while b′ loop c′ end ]=> s₂`.  We consider the two
+directions separately.
 
+```
+while-congruence b b′ c c′ bEqb′ cEqc′ s₁ s₂ = record { to = fwd s₁; from = bkw s₁ }
+```
 
-_Theorem_: Equivalence is a congruence for `while` — that is, if
-    `b` is equivalent to `b′` and `c` is equivalent to `c′`, then
-    `while b loop c end` is equivalent to `while b′ loop c′ end`.
+In the forward direction we use induction on the evidence that `s₁ =[
+while b loop c end ]=> s₂`.  The only possible forms of evidence are
+the two related to loops.  For the case of `EWhileF`, the form of the
+rule gives us `⟦ b ⟧ᴮ s₁ ≡ false` and `s₁ ≡ s₂`.  But then, since `b`
+and `b′` are equivalent, we have `⟦ b ⟧ᴮ s₁ ' = false`.  So we
+construct evidence for our conclusion with `EWhileF`, giving us
+`s₁ =[ while b′ loop c′ end ]=> s₂`, as required.
 
-    _Proof_: Suppose `b` is equivalent to `b′` and `c` is
-    equivalent to `c′`.  We must show, for every `st` and `st'`, that
-    `s₁ =[ while b loop c end ]=> s₂` iff `s₁ =[ while b′ loop c′ end ]=> s₂`.  We consider the two directions separately.
+```
+  where fwd : ∀ (s : State)
+                → s =[ while b loop c end ]=> s₂
+                  → s =[ while b′ loop c′ end ]=> s₂
+        fwd s (EWhileF bEvalsF) = EWhileF (trans (sym (bEqb′ s)) bEvalsF)
+```
 
-      - (`→`) We show that `s₁ =[ while b loop c end ]=> s₂` implies
-        `s₁ =[ while b′ loop c′ end ]=> s₂`, by induction on a
-        derivation of `s₁ =[ while b loop c end ]=> s₂`.  The only
-        nontrivial cases are when the final rule in the derivation is
-        `EWhileF` or `EWhileT`.
+The form of the rule now gives us `⟦ b ⟧ᴮ s = true`,
+with `s =[ c ]=> s₂` and `intermedSt =[ while b loop c end ]=> s₂`
+for some intermediate state `intermedSt`.
 
-          - `EWhileF`: In this case, the form of the rule gives us
-            `⟦ b ⟧ᴮ s₁  = false` and `s₁ = s₂`.  But then, since
-            `b` and `b′` are equivalent, we have `⟦ b ⟧ᴮ s₁ ' = false`, and `EWhileF` applies, giving us
-            `s₁ =[ while b′ loop c′ end ]=> s₂`, as required.
+We identify three subsidiary results: first, since `b` and `b′` are
+equivalent, we have `⟦ b ⟧ᴮ s ≡ true`.  Then since `c` and `c′` are
+equivalent, we know that `s =[ c′ ]=> s₂`.  Finally we rely on the
+induction hypothesis to translate the rest of the computation from
+`intermedSt` to `s₂`.  These three subsidiary results correspond to
+the three arguments which `EWhileT` requires for the forward
+direction.
 
-          - `EWhileT`: The form of the rule now gives us `⟦ b ⟧ᴮ s₁  = true`, with `s₁ =[ c ]=> s₂`` and `st'0 =[ while b loop c end ]=> s₂` for some state `st'0`, with the
-            induction hypothesis `st'0 =[ while b′ loop c′ end ]=> s₂`.
+```
+        fwd s (EWhileT {intermedSt} bEvalsT firstPass otherPasses) =
+          EWhileT b′EvalsT firstPass′ otherPasses′
+          where b′EvalsT : (⟦ b′ ⟧ᴮ s) ≡ true
+                b′EvalsT = trans (sym (bEqb′ s)) (bEvalsT)
 
-            Since `c` and `c′` are equivalent, we know that `s₁ =[ c′ ]=> s₂``.  And since `b` and `b′` are equivalent,
-            we have `⟦ b ⟧ᴮ s₁ ' = true`.  Now `EWhileT` applies,
-            giving us `s₁ =[ while b′ loop c′ end ]=> s₂`, as
-            required.
+                firstPass′ : s =[ c′ ]=> intermedSt
+                firstPass′ = to (cEqc′ s intermedSt) firstPass
 
-      - (`←`) Similar. [] *)
+                otherPasses′ : intermedSt =[ while b′ loop c′ end ]=> s₂
+                otherPasses′ = fwd intermedSt otherPasses
+```
 
-Proof.
-  (* WORKINCLASS *)
+The reverse direction is similar, starting with premises involving
+`b′` and `c′`, and converting them to results involving `b` and `c`.
+Notice that we use the `from` rather than `to` direction of the
+bi-implications here.
 
-  (* We will prove one direction in an "assert"
-     in order to reuse it for the converse. *)
-  assert (A: forall (b b′ : bexp) (c c′ : com) (s₁ s₂ : state),
-             bequiv b b′ -> cequiv c c′ ->
-             s₁ =[ while b loop c end ]=> s₂ ->
-             s₁ =[ while b′ loop c′ end ]=> s₂`.
-  { unfold bequiv,cequiv.
-    intros b b′ c c′ s₁ s₂ Hbe Hc1e Hce.
-    remember <{ while b loop c end }> as cwhile
-      eqn:Heqcwhile.
-    induction Hce; inversion Heqcwhile; subst.
-    + (* EWhileF *)
-      apply EWhileF. rewrite <- Hbe. apply H.
-    + (* EWhileT *)
-      apply EWhileT with (s₂ := s₂`.
-      * (* show loop runs *) rewrite <- Hbe. apply H.
-      * (* body execution *)
-        apply (Hc1e s₁ s₂..  apply Hce1.
-      * (* subsequent loop execution *)
-        apply IHHce2. reflexivity. }
+```
+        bkw : ∀ (s : State)
+                → s =[ while b′ loop c′ end ]=> s₂
+                  → s =[ while b loop c end ]=> s₂
+        bkw s (EWhileF b′EvalsF) = EWhileF (trans (bEqb′ s₂) b′EvalsF)
+        bkw s (EWhileT {intermedSt} b′EvalsT firstPass′ otherPasses′) =
+          EWhileT bEvalsT firstPass otherPasses
+          where bEvalsT : (⟦ b ⟧ᴮ s) ≡ true
+                bEvalsT = trans (bEqb′ s) (b′EvalsT)
 
-  intros. split.
-  - apply A; assumption.
-  - apply A.
-    + apply sym_bequiv. assumption.
-    + apply sym_cequiv. assumption.
-Qed.
-(* /WORKINCLASS *)
+                firstPass : s =[ c ]=> intermedSt
+                firstPass = from (cEqc′ s intermedSt) firstPass′
 
-(* FULL: EX3? (CSeq_congruence) *)
-Theorem CSeq_congruence : forall c₁ c1' c₂ c2',
-  cequiv c₁ c1' -> cequiv c₂ c2' ->
-  cequiv <{ c1;c2 }> <{ c1';c2' }>.
+                otherPasses : intermedSt =[ while b loop c end ]=> s₂
+                otherPasses = bkw intermedSt otherPasses′
+```
 
-(* FULL: EX3 (CIf_congruence) *)
-Theorem CIf_congruence : forall b b′ c₁ c1' c₂ c2',
-  bequiv b b′ -> cequiv c₁ c1' -> cequiv c₂ c2' ->
-  cequiv <{ if b then c₁ else c₂ end }>
-         <{ if b′ then c1' else c2' end }>.
+So we have now shown that behavioral equivalence is a congruence in
+the case of assignment; the following exercises ask you to show the
+congruence in the cases of sequencing two commands one after the
+other, and of if-statements.
+
+#### Exercise `seq-congruence` (recommended) {#seq-congruence}
+
+```
+postulate seq-congruence : ∀ (c₁ c₁′ c₂ c₂′ : Command)
+                             → c₁ ≡ᶜ c₁′ → c₂ ≡ᶜ c₂′
+                               → (c₁ , c₂) ≡ᶜ (c₁′ , c₂′)
+-- Remove the postulate keyword and add your proof here
+```
+
+#### Exercise `if-congruence` (recommended) {#if-congruence}
+
+```
+postulate if-congruence : ∀ (b b′ : BExp) (c₁ c₁′ c₂ c₂′ : Command)
+                            → b ≡ᴮ b′ -> c₁ ≡ᶜ c₁′ → c₂ ≡ᶜ c₂′
+                              → if b then c₁ else c₂ end
+                                  ≡ᶜ if b′ then c₁′ else c₂′ end
+-- Remove the postulate keyword and add your proof here
+```
+
+<div align="center">
+☙ ☙ ❧ ❧
+</div>
 
 (** TERSE: *** *)
 
