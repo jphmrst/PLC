@@ -38,9 +38,10 @@ permalink: /
 ## Imperative programming
   - [ImpExprs]({{ site.baseurl }}/ImpExprs/): A small imperative language and its expressions
   - [Imp]({{ site.baseurl }}/Imp/): Commands and their operational semantics
-  - Equiv: What does it mean for two imperative programs to be equivalent?
-  - HoareLogic: A compositional semantics for imperative programs
+  - [Equiv]({{ site.baseurl }}/Equiv/): What does it mean for two imperative programs to be equivalent?
+  - [HoareLogic]({{ site.baseurl }}/HoareLogic/): A compositional semantics for imperative programs
   - Step: An alternative operational semantics
+  - [ImpExers]({{ site.baseurl }}/ImpExers/): Further applications and exercises
 
 ## Part II --- Incomplete/unedited
 
@@ -53,6 +54,8 @@ permalink: /
 
 ### Objects and classes
   - Material to be posted
+
+{::comment}
 
 ## Part III --- Advanced material from _PLFA_
 
@@ -84,3 +87,5 @@ permalink: /
 ### Substitution
 
   - [Substitution]({{ site.baseurl }}/Substitution/): Substitution in untyped lambda calculus
+
+{:/comment}

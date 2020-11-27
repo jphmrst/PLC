@@ -1,9 +1,9 @@
 ---
-title     : "Hoare logic"
+title     : "Hoare: A logic for imperative programs"
 layout    : page
 prev      : /Equiv/
 permalink : /Hoare/
-next      : /
+next      : /Step/
 ---
 
 ```
