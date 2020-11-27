@@ -1,13 +1,13 @@
 ---
-title     : "ImpExers: Further applications and exercises"
+title     : "IPExers: Further applications and exercises"
 layout    : page
 prev      : /Step/
-permalink : /ImpExers/
+permalink : /IPExers/
 next      : /
 ---
 
 ```
-module plc.imp.ImpExers where
+module plc.imp.IPExers where
 open import Function using (case_of_)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym; trans)

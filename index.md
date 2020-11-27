@@ -41,7 +41,7 @@ permalink: /
   - [Equiv]({{ site.baseurl }}/Equiv/): What does it mean for two imperative programs to be equivalent?
   - [HoareLogic]({{ site.baseurl }}/HoareLogic/): A compositional semantics for imperative programs
   - Step: An alternative operational semantics
-  - [ImpExers]({{ site.baseurl }}/ImpExers/): Further applications and exercises
+  - [IPExers]({{ site.baseurl }}/IPExers/): Further applications and exercises
 
 ## Part II --- Incomplete/unedited
 
