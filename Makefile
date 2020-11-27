@@ -29,7 +29,7 @@ DEST_URL=${DEST_MACHINE}:9443
 build-uwl: .build-uwl
 .build-uwl: $(MARKDOWN_FILES)
 	$(JEKYLL) build --verbose \
-		--baseurl https://${DEST_URL}/jmaraist/plc/ \
+		--baseurl https://${DEST_URL}/jmaraist/plc \
 		--destination _uwl
 	touch .build-url
 
