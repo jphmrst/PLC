@@ -854,282 +854,254 @@ postulate if-congruence : ∀ (b b′ : BExp) (c₁ c₁′ c₂ c₂′ : Comma
 ☙ ☙ ❧ ❧
 </div>
 
-(** TERSE: *** *)
+For example, here are two equivalent programs and a proof of their
+equivalence.
 
-(** For example, here are two equivalent programs and a proof of their
-    equivalence... *)
+```
+congruenceExample :
+  (X := # 0 , 
+   if (id X == # 0) then Y := # 0 else Y := # 42 end)
+    ≡ᶜ (X := # 0 , 
+       if (id X == # 0) then Y := id X - id X else Y := # 42 end)
+congruenceExample s₁ s₂ =
+  record { to = fwd; from = bkw }
+```
 
-Example congruence_example:
-  cequiv
-    (* Program 1: *)
-    <{ X := 0;
-       if (X = 0)
-       then
-         Y := 0
-       else
-         Y := 42
-       end }>
-    (* Program 2: *)
-    <{ X := 0;
-       if (X = 0)
-       then
-         Y := X - X   (* <--- Changed here *)
-       else
-         Y := 42
-       end }>.
-Proof.
-  apply CSeq_congruence.
-  - apply refl_cequiv.
-  - apply CIf_congruence.
-    + apply refl_bequiv.
-    + apply :=-congruence. unfold aequiv. simpl.
-      symmetry. apply minus_diag.
-    + apply refl_cequiv.
-Qed.
+As before `≡ᶜ` is a bi-implication, and we prove each direction separately.
 
+```
+   where fwd : (s₁ =[ X := # 0 ,
+                      if id X == # 0 then Y := # 0 else Y := # 42 end
+                        ]=> s₂)
+              → (s₁ =[ X := # 0 ,
+                       if id X == # 0 then Y := id X - id X else Y := # 42 end
+                         ]=> s₂)
+         bkw : (s₁ =[ X := # 0 ,
+                      if id X == # 0 then Y := id X - id X else Y := # 42 end
+                        ]=> s₂)
+               → (s₁ =[ X := # 0 ,
+                        if id X == # 0 then Y := # 0 else Y := # 42 end
+                          ]=> s₂)
+```
+
+Since we have specific programs which we are showing equivalent, must
+of the evidence of the premises has a specific and detailed form:
+starting from
+
+    fwd e = ?
+
+we can refine to just one possible case, since the result of the first
+command predicts the evaluation of the conditional of the second
+command.
+
+    fwd (E, (E:= .(# 0) zero refl) (EIfT refl (E:= .(# 0) zero x₃))) = ?
+    fwd (E, (E:= .(# 0) zero refl) (EIfF () (E:= .(# 42) n x₃)))
+
+Then the evaluation of the command in the conclusion reflects the
+structure of the command.
+
+```
+         fwd (E, (E:= .(# 0) zero refl) (EIfT refl (E:= .(# 0) zero refl))) =
+           E, (E:= (# 0) 0 refl) (EIfT refl (E:= (id X - id X) 0 refl))
+```
+
+The reverse direction works the same way: we refine the evidence for
+the premise until we have narrowed down to the one possible evaluation
+for the command we are given in the conclusion.
+
+```
+         bkw (E, (E:= .(# 0) zero refl)
+                 (EIfT refl (E:= .(id "X" - id "X") zero refl))) =
+           E, (E:= (# 0) 0 refl) (EIfT refl (E:= (# 0) 0 refl))
+```
 
 #### Exercise `notCongruence` (practice) {#not-congruence}
 
-(* EX3A? (not_congr) *)
-(** We've shown that the `cequiv` relation is both an equivalence and
-    a congruence on commands.  Can you think of a relation on commands
-    that is an equivalence but _not_ a congruence? *)
-
-(* SOLUTION *)
-
-(** Here's one: *)
-
-Reserved Notation "c1 ~~~ c2" (at level 80).
-
-Inductive weirdrel : com -> com -> Prop :=
-| w_refl : forall c1, c₁ ~~~ c1
-| w_symm : forall c₁ c2, c₁ ~~~ c₂ -> c₂ ~~~ c1
-| w_trans : forall c₁ c₂ c3, c₁ ~~~ c₂ -> c₂ ~~~ c3 -> c₁ ~~~ c3
-| w_weird : <{ skip }> ~~~ <{ X := X }>
-
-where "c1 ~~~ c2" := (weirdrel c₁ c2).
-
-(* /SOLUTION *)
-
-(* LATER: Ori: perhaps another (more meaningful?) solution:
-  c₁ ~ c₂ iff (both terminate) or (both do not terminate) ?
-*)
-
-
+We've shown that the `cequiv` relation is both an equivalence and a
+congruence on commands.  Can you think of a relation on commands that
+is an equivalence but _not_ a congruence?
 
 ## Program transformations 
 
-(** A _program transformation_ is a function that takes a program as
-    input and produces some variant of the program as output.
-    Compiler optimizations such as constant folding are a canonical
-    example, but there are many others. *)
+A _program transformation_ is a function that takes a program as input
+and produces some variant of the program as output.  Compiler
+optimizations such as constant folding are a canonical example, but
+there are many others.
 
-(** A program transformation is _sound_ if it preserves the
-    behavior of the original program. *)
+A program transformation `f` is _sound_ if it preserves the behavior
+of the original program.
 
-Definition atrans_sound (atrans : aexp -> aexp) : Prop :=
-  forall (a : aexp),
-    aequiv a (atrans a).
+```
+soundᴬ : (AExp -> AExp) → Set
+soundᴬ f = ∀ (a : AExp) → a ≡ᴬ (f a)
 
-Definition btrans_sound (btrans : bexp -> bexp) : Prop :=
-  forall (b : bexp),
-    bequiv b (btrans b).
+soundᴮ : (BExp -> BExp) → Set
+soundᴮ f = ∀ (b : BExp) → b ≡ᴮ (f b)
 
-Definition ctrans_sound (ctrans : com -> com) : Prop :=
-  forall (c : com),
-    cequiv c (ctrans c).
+soundᶜ : (Command -> Command) → Set
+soundᶜ f = ∀ (c : Command) → c ≡ᶜ (f c)
+```
 
 ### The constant-folding transformation
 
-(** An expression is _constant_ when it contains no variable
-    references.
+An expression is _constant_ when it contains no variable references.
+_Constant folding_ is an optimization that finds constant expressions
+and replaces them by their values.  Essentially, it converts run-time
+work (which might be repeated inside a loop) to compile-time work.
 
-    Constant folding is an optimization that finds constant
-    expressions and replaces them by their values. *)
+```
+foldConstantsᴬ : AExp → AExp
+foldConstantsᴬ a@(# x) = a
+foldConstantsᴬ a@(id x) = a
+foldConstantsᴬ a@(a₁ + a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
+... | (# n₁) | (# n₂) = # (n₁ Data.Nat.+ n₂)
+... | a₁′    | a₂'     = a₁′ + a₂'
+foldConstantsᴬ a@(a₁ - a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
+... | (# n₁) | (# n₂) = # (n₁ Data.Nat.∸ n₂)
+... | a₁′    | a₂'     = a₁′ - a₂'
+foldConstantsᴬ a@(a₁ * a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
+... | (# n₁) | (# n₂) = # (n₁ Data.Nat.* n₂)
+... | a₁′    | a₂'     = a₁′ * a₂'
+```
 
-Fixpoint fold_constants_aexp (a : aexp) : aexp :=
-  match a with
-  | ANum n       => ANum n
-  | AId x        => AId x
-  | <{ a1 + a2 }>  =>
-    match (fold_constants_aexp a1,
-           fold_constants_aexp a2)
-    with
-    | (ANum n1, ANum n2) => ANum (n1 + n2)
-    | (a1', a2') => <{ a1' + a2' }>
-    end
-  | <{ a1 - a2 }> =>
-    match (fold_constants_aexp a1,
-           fold_constants_aexp a2)
-    with
-    | (ANum n1, ANum n2) => ANum (n1 - n2)
-    | (a1', a2') => <{ a1' - a2' }>
-    end
-  | <{ a1 * a2 }>  =>
-    match (fold_constants_aexp a1,
-           fold_constants_aexp a2)
-    with
-    | (ANum n1, ANum n2) => ANum (n1 * n2)
-    | (a1', a2') => <{ a1' * a2' }>
-    end
-  end.
+For example,
 
-(** TERSE: *** *)
+```
+_ : foldConstantsᴬ ((# 1 + # 2) * id "X") ≡ (# 3) * id "X"
+_ = refl
+```
 
-Example fold_aexp_ex1 :
-    fold_constants_aexp <{ (1 + 2) * X }>
-  = <{ 3 * X }>.
+Note that this version of constant folding doesn't eliminate trivial
+additions of zero, multiplications by 0 or 1, etc.  We are focusing
+attention on a single optimization for the sake of simplicity.  It is
+not hard to incorporate other ways of simplifying expressions, but
+then the definitions and proofs just get longer.
 
-(** Note that this version of constant folding doesn't eliminate
-    trivial additions, etc. — we are focusing attention on a single
-    optimization for the sake of simplicity.  It is not hard to
-    incorporate other ways of simplifying expressions; the definitions
-    and proofs just get longer. *)
+```
+_ : foldConstantsᴬ (id "X" - ((# 0 * # 6) + id "Y")) ≡ id "X" - (# 0 + id "Y")
+_ = refl
+```
 
-Example fold_aexp_ex2 :
-  fold_constants_aexp <{ X - ((0 * 6) + Y) }> = <{ X - (0 + Y) }>.
+We can write a similar function to look for constant _boolean_
+expressions and evaluate them in-place.  Moreover, this function can
+also use `foldConstantsᴬ` to find simplifications to comparison
+operators.
 
-(** TERSE: *** *)
-(** Not only can we lift `fold_constants_aexp` to `bexp`s (in the
-    `BEq` and `BLe` cases); we can also look for constant _boolean_
-    expressions and evaluate them in-place. *)
+```
+foldConstantsᴮ : BExp → BExp
+foldConstantsᴮ T = T
+foldConstantsᴮ F = F
+foldConstantsᴮ (a₁ == a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
+... | (# n₁) | (# n₂) = if (n₁ ≡ᵇ n₂) then T else F
+... | a₁′    | a₂'    = a₁′ == a₂'
+foldConstantsᴮ (a₁ <= a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
+... | (# n₁) | (# n₂) = if (n₁ ≡ᵇ n₂) ∨ (n₁ <ᵇ n₂) then T else F
+... | a₁′    | a₂'    = a₁′ <= a₂'
+foldConstantsᴮ (! b) with foldConstantsᴮ b
+... | T  = F
+... | F  = T
+... | b′ = ! b′
+foldConstantsᴮ (b₁ && b₂) with foldConstantsᴮ b₁ | foldConstantsᴮ b₂
+... | T | T = T
+... | _ | F = F
+... | F | _ = F
+... | b₁′ | b₂′ = b₁′ && b₂′
+foldConstantsᴮ (b₁ || b₂) with foldConstantsᴮ b₁ | foldConstantsᴮ b₂
+... | F | F = F
+... | b₁′ | T = b₁′
+... | T | b₂′ = b₂′
+... | b₁′ | b₂′ = b₁′ || b₂′
 
-Fixpoint fold_constants_bexp (b : bexp) : bexp :=
-  match b with
-  | <{true}>        => <{true}>
-  | <{false}>       => <{false}>
-  | <{ a1 = a2 }>  =>
-      match (fold_constants_aexp a1,
-             fold_constants_aexp a2) with
-      | (ANum n1, ANum n2) =>
-          if n1 =? n2 then <{true}> else <{false}>
-      | (a1', a2') =>
-          <{ a1' = a2' }>
-      end
-  | <{ a1 <= a2 }>  =>
-      match (fold_constants_aexp a1,
-             fold_constants_aexp a2) with
-      | (ANum n1, ANum n2) =>
-          if n1 <=? n2 then <{true}> else <{false}>
-      | (a1', a2') =>
-          <{ a1' <= a2' }>
-      end
-  | <{ ~ b1 }>  =>
-      match (fold_constants_bexp b1) with
-      | <{true}> => <{false}>
-      | <{false}> => <{true}>
-      | b1' => <{ ~ b1' }>
-      end
-  | <{ b1 && b2 }>  =>
-      match (fold_constants_bexp b1,
-             fold_constants_bexp b2) with
-      | (<{true}>, <{true}>) => <{true}>
-      | (<{true}>, <{false}>) => <{false}>
-      | (<{false}>, <{true}>) => <{false}>
-      | (<{false}>, <{false}>) => <{false}>
-      | (b1', b2') => <{ b1' && b2' }>
-      end
-  end.
+_ : foldConstantsᴮ (T && ! (F && T)) ≡ T
+_ = refl
 
-(** TERSE: *** *)
+_ : foldConstantsᴮ ((id X == id Y) && (# 0 == (# 2 - (# 1 + # 1))))
+     ≡ (id X == id Y) && T
+_ = refl
+```
 
-Example fold_bexp_ex1 :
-  fold_constants_bexp <{ true && ~(false && true) }>
-  = <{ true }>.
+To fold constants in a command, we apply the appropriate folding
+functions on all embedded expressions.
 
-Example fold_bexp_ex2 :
-  fold_constants_bexp <{ (X = Y) && (0 = (2 - (1 + 1))) }>
-  = <{ (X = Y) && true }>.
+```
+foldConstantsᶜ : Command → Command
+foldConstantsᶜ skip = skip
+foldConstantsᶜ (x := a) = x := (foldConstantsᴬ a)
+foldConstantsᶜ (c₁ , c₂) = foldConstantsᶜ c₁ , foldConstantsᶜ c₂
+foldConstantsᶜ (if b then c₁ else c₂ end) with foldConstantsᴮ b
+... | T = foldConstantsᶜ c₁
+... | F = foldConstantsᶜ c₂
+... | b′ = if foldConstantsᴮ b′ then foldConstantsᶜ c₁ else foldConstantsᶜ c₂ end
+foldConstantsᶜ (while b loop c end) =
+  while foldConstantsᴮ b loop foldConstantsᶜ c end
 
-(** TERSE: *** *)
-(** To fold constants in a command, we apply the appropriate folding
-    functions on all embedded expressions. *)
+cmd1 : Command
+cmd1 = (X := # 4 + # 5 ,
+        Y := id X - # 3 ,
+        if ((id X - id Y) == (# 2 + # 4))
+          then skip
+          else Y := # 0
+          end ,
+        if (# 0 <= (# 4 - (# 2 + # 1)))
+          then Y := # 0
+          else skip
+          end ,
+        while (id Y == # 0) loop
+          X := id X + # 1
+          end)
 
-Fixpoint fold_constants_com (c : com) : com :=
-  match c with
-  | <{ skip }> =>
-      <{ skip }>
-  | <{ x := a }> =>
-      <{ x := (fold_constants_aexp a) }>
-  | <{ c₁ ; c₂ }>  =>
-      <{ fold_constants_com c₁ ; fold_constants_com c₂ }>
-  | <{ if b then c₁ else c₂ end }> =>
-      match fold_constants_bexp b with
-      | <{true}>  => fold_constants_com c1
-      | <{false}> => fold_constants_com c2
-      | b′ => <{ if b′ then fold_constants_com c1
-                       else fold_constants_com c₂ end}>
-      end
-  | <{ while b loop c₁ end }> =>
-      match fold_constants_bexp b with
-      | <{true}> => <{ while true loop skip end }>
-      | <{false}> => <{ skip }>
-      | b′ => <{ while b′ loop (fold_constants_com c1) end }>
-      end
-  end.
+cmd2 : Command
+cmd2 = (X := # 9 ,
+        Y := id X - # 3 ,
+        if ((id X - id Y) == # 6)
+          then skip
+          else Y := # 0
+          end ,
+        Y := # 0 ,
+        while (id Y == # 0) loop
+          X := id X + # 1
+          end)
 
-(** TERSE: *** *)
-Example fold_com_ex1 :
-  fold_constants_com
-    (* Original program: *)
-    <{ X := 4 + 5;
-       Y := X - 3;
-       if ((X - Y) = (2 + 4)) then skip
-       else Y := 0 end;
-       if (0 <= (4 - (2 + 1))) then Y := 0
-       else skip end;
-       while (Y = 0) do
-         X := X + 1
-       end }>
-  = (* After constant folding: *)
-    <{ X := 9;
-       Y := X - 3;
-       if ((X - Y) = 6) then skip
-       else Y := 0 end;
-       Y := 0;
-       while (Y = 0) do
-         X := X + 1
-       end }>.
+_ : foldConstantsᶜ cmd1 ≡ cmd2
+_ = refl
+```
 
 ### Soundness of constant folding
 
-(** Now we need to show that what we've done is correct. *)
+Now we need to show that what we've done is correct.
+Here's the proof for arithmetic expressions:
 
-(** FULL: Here's the proof for arithmetic expressions: *)
-
-Theorem fold_constants_aexp_sound :
-  atrans_sound fold_constants_aexp.
-
+```
+foldConstantsᴬ_sound : soundᴬ foldConstantsᴬ
+```
 
 #### Exercise `foldBexpEqInformal` (practice) {#foldBexpEqInformal}
 
-(* EX3? (fold_bexp_Eq_informal) *)
-(** Here is an informal proof of the `BEq` case of the soundness
-    argument for boolean expression constant folding.  Read it
-    carefully and compare it to the formal proof that follows.  Then
-    fill in the `BLe` case of the formal proof (without looking at the
-    `BEq` case, if possible).
+Here is an informal proof of the `BEq` case of the argument for
+boolean expression constant folding.  Read it carefully and compare it
+to the formal proof that follows.  Then fill in the `BLe` case of the
+formal proof (without looking at the `BEq` case, if possible).
 
    _Theorem_: The constant folding function for booleans,
-   `fold_constants_bexp`, is sound.
+   `foldConstantsᴮ`, is sound.
 
-   _Proof_: We must show that `b` is equivalent to `fold_constants_bexp b`,
+   _Proof_: We must show that `b` is equivalent to `foldConstantsᴮ b`,
    for all boolean expressions `b`.  Proceed by induction on `b`.  We
    show just the case where `b` has the form `a1 = a2`.
 
    In this case, we must show
 {[
        ⟦ <{ a1 = a2 }> ⟧ᴮ st
-     = ⟦ (fold_constants_bexp <{ a1 = a2 }>) ⟧ᴮ st.
+     = ⟦ (foldConstantsᴮ <{ a1 = a2 }>) ⟧ᴮ st.
 ]]
    There are two cases to consider:
 
-     - First, suppose `fold_constants_aexp a1 = ANum n1` and
-       `fold_constants_aexp a2 = ANum n2` for some `n1` and `n2`.
+     - First, suppose `foldConstantsᴬ a1 = ANum n1` and
+       `foldConstantsᴬ a2 = ANum n2` for some `n1` and `n2`.
 
        In this case, we have
 [[
-           fold_constants_bexp [[ a1 = a2 ]]
+           foldConstantsᴮ [[ a1 = a2 ]]
          = if n1 =? n2 then <{true}> else <{false}>
 ]]
        and
@@ -1138,17 +1110,17 @@ Theorem fold_constants_aexp_sound :
          = (aeval s₁ a1) =? (aeval s₁ a2).
 ]]
        By the soundness of constant folding for arithmetic
-       expressions (Lemma `fold_constants_aexp_sound`), we know
+       expressions (Lemma `foldConstantsᴬ_sound`), we know
 [[
            aeval s₁ a1
-         = aeval s₁ (fold_constants_aexp a1)
+         = aeval s₁ (foldConstantsᴬ a1)
          = aeval s₁ (ANum n1)
          = n1
 ]]
        and
 [[
            aeval s₁ a2
-         = aeval s₁ (fold_constants_aexp a2)
+         = aeval s₁ (foldConstantsᴬ a2)
          = aeval s₁ (ANum n2)
          = n2,
 ]]
@@ -1174,31 +1146,31 @@ Theorem fold_constants_aexp_sound :
 ]]
        as required.
 
-     - Otherwise, one of `fold_constants_aexp a1` and
-       `fold_constants_aexp a2` is not a constant.  In this case, we
+     - Otherwise, one of `foldConstantsᴬ a1` and
+       `foldConstantsᴬ a2` is not a constant.  In this case, we
        must show
 [[
            ⟦ <{a1 = a2}> ⟧ᴮ st
-         = ⟦ fold_constants_aexp a1 ⟧ᴮ s₁ =
-                         ⟦ fold_constants_aexp a2 ⟧ᴮ st,
+         = ⟦ foldConstantsᴬ a1 ⟧ᴮ s₁ =
+                         ⟦ foldConstantsᴬ a2 ⟧ᴮ st,
 ]]
        which, by the definition of `⟦_⟧ᴮ_` is the same as showing
 [[
            (aeval s₁ a1) =? (aeval s₁ a2)
-         = (aeval s₁ (fold_constants_aexp a1)) =?
-                   (aeval s₁ (fold_constants_aexp a2)).
+         = (aeval s₁ (foldConstantsᴬ a1)) =?
+                   (aeval s₁ (foldConstantsᴬ a2)).
 ]]
        But the soundness of constant folding for arithmetic
-       expressions (`fold_constants_aexp_sound`) gives us
+       expressions (`foldConstantsᴬ_sound`) gives us
 [[
-         aeval s₁ a1 = aeval s₁ (fold_constants_aexp a1)
-         aeval s₁ a2 = aeval s₁ (fold_constants_aexp a2),
+         aeval s₁ a1 = aeval s₁ (foldConstantsᴬ a1)
+         aeval s₁ a2 = aeval s₁ (foldConstantsᴬ a2),
 ]]
        completing the case.  [] *)
 
 
-Theorem fold_constants_bexp_sound:
-  btrans_sound fold_constants_bexp.
+Theorem foldConstantsᴮ_sound:
+  btrans_sound foldConstantsᴮ.
 
 
 (* HIDE: compressed version of above [is this useful? -BCP]
@@ -1208,28 +1180,28 @@ Theorem fold_constants_bexp_sound:
     try reflexivity;
     try
       (simpl;
-       remember (fold_constants_aexp a) as a′;
-       remember (fold_constants_aexp a0) as a0';
+       remember (foldConstantsᴬ a) as a′;
+       remember (foldConstantsᴬ a0) as a0';
        assert (aeval s₁ a = aeval s₁ a′) as Ha;
        assert (aeval s₁ a0 = aeval s₁ a0') as Ha0;
-         try (subst; apply fold_constants_aexp_sound);
+         try (subst; apply foldConstantsᴬ_sound);
        destruct a′; destruct a0'; rewrite Ha; rewrite Ha0;
        simpl; (try destruct (n =? n0)); (try destruct (n <=? n0));
        reflexivity);
-    try (simpl; destruct (fold_constants_bexp b); rewrite IHb; reflexivity);
-    try (simpl; destruct (fold_constants_bexp b1);
-         destruct (fold_constants_bexp b2);
+    try (simpl; destruct (foldConstantsᴮ b); rewrite IHb; reflexivity);
+    try (simpl; destruct (foldConstantsᴮ b1);
+         destruct (foldConstantsᴮ b2);
          rewrite IHb1; rewrite IHb2; reflexivity). *)
 
 
 #### Exercise `foldConstantsCmdSound` (practice) {#foldConstantsCmdSound}
 
-(* EX3 (fold_constants_com_sound) *)
+(* EX3 (foldConstantsᶜ_sound) *)
 (** Complete the `while` case of the following proof. *)
 
 
-Theorem fold_constants_com_sound :
-  ctrans_sound fold_constants_com.
+Theorem foldConstantsᶜ_sound :
+  ctrans_sound foldConstantsᶜ.
 
 
 
@@ -1271,7 +1243,7 @@ Theorem fold_constants_com_sound :
    the proof of `optimize0plus_com` — otherwise it will be _long_!
 
    Then define an optimizer on commands that first folds
-   constants (using `fold_constants_com`) and then eliminates `0 + n`
+   constants (using `foldConstantsᶜ`) and then eliminates `0 + n`
    terms (using `optimize0plus_com`).
 
    - Give a meaningful example of this optimizer's output.
@@ -1378,15 +1350,15 @@ Proof.
     apply optimize0plus_bexp_sound.
     apply IHc.  Qed.
 
-Definition optimizer (c : com) := optimize0plus_com (fold_constants_com c).
+Definition optimizer (c : com) := optimize0plus_com (foldConstantsᶜ c).
 
 Theorem optimizer_sound :
   ctrans_sound optimizer.
 Proof.
   unfold ctrans_sound. unfold optimizer.
   intros c.
-  apply trans_cequiv with (fold_constants_com c).
-  apply fold_constants_com_sound.
+  apply trans_cequiv with (foldConstantsᶜ c).
+  apply foldConstantsᶜ_sound.
   apply optimize0plus_com_sound.  Qed.
 (* /SOLUTION *)
 

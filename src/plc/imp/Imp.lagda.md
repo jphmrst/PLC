@@ -211,7 +211,7 @@ We'll use the notation `st =[ c ]=> st'` for the `ceval` relation:
 takes state `st` to `st'`".  Here is an informal definition of
 evaluation, presented as inference rules for readability:
 
-                           -----------------                            (E_Skip)
+                           -----------------                           (E_Skip)
                            st =[ skip ]=> st
 
                            aeval st a = n
@@ -220,8 +220,8 @@ evaluation, presented as inference rules for readability:
 
                            st  =[ c1 ]=> st'
                            st' =[ c2 ]=> st′'
-                         ---------------------                           (E_Seq)
-                         st =[ c1;c2 ]=> st′'
+                        -----------------------                         (E_Seq)
+                         st =[ c1 , c2 ]=> st′'
 
                           beval st b = true
                            st =[ c1 ]=> st'
@@ -234,14 +234,14 @@ evaluation, presented as inference rules for readability:
                 st =[ if b then c1 else c2 end ]=> st'
 
                          beval st b = false
-                    -----------------------------                 (E_WhileFalse)
-                    st =[ while b do c end ]=> st
+                 ---------------------------------               (E_WhileFalse)
+                  st =[ while b loop c end ]=> st
 
                           beval st b = true
                            st =[ c ]=> st'
-                  st' =[ while b do c end ]=> st′'
-                  --------------------------------                 (E_WhileTrue)
-                  st  =[ while b do c end ]=> st′'
+                  st' =[ while b loop c end ]=> st′'
+                ------------------------------------              (E_WhileTrue)
+                  st  =[ while b loop c end ]=> st′'
 
 Here is the formal definition.  Make sure you understand how it
 corresponds to the inference rules.
