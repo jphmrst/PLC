@@ -1069,11 +1069,11 @@ _ = refl
 ### Soundness of constant folding
 
 Now we need to show that what we've done is correct.
+
+    foldConstantsᴬ_sound : soundᴬ foldConstantsᴬ
+
 Here's the proof for arithmetic expressions:
 
-```
-foldConstantsᴬ_sound : soundᴬ foldConstantsᴬ
-```
 
 #### Exercise `foldBexpEqInformal` (practice) {#foldBexpEqInformal}
 
@@ -1082,91 +1082,88 @@ boolean expression constant folding.  Read it carefully and compare it
 to the formal proof that follows.  Then fill in the `BLe` case of the
 formal proof (without looking at the `BEq` case, if possible).
 
-   _Theorem_: The constant folding function for booleans,
-   `foldConstantsᴮ`, is sound.
+_Theorem_: The constant folding function for booleans,
+`foldConstantsᴮ`, is sound.
 
-   _Proof_: We must show that `b` is equivalent to `foldConstantsᴮ b`,
-   for all boolean expressions `b`.  Proceed by induction on `b`.  We
-   show just the case where `b` has the form `a1 = a2`.
+_Proof_: We must show that `b` is equivalent to `foldConstantsᴮ b`,
+for all boolean expressions `b`.  Proceed by induction on `b`.  We
+show just the case where `b` has the form `a1 = a2`.
 
-   In this case, we must show
-{[
-       ⟦ <{ a1 = a2 }> ⟧ᴮ st
-     = ⟦ (foldConstantsᴮ <{ a1 = a2 }>) ⟧ᴮ st.
-]]
-   There are two cases to consider:
+In this case, we must show
 
-     - First, suppose `foldConstantsᴬ a1 = ANum n1` and
-       `foldConstantsᴬ a2 = ANum n2` for some `n1` and `n2`.
+    ⟦ `a1 = a2` ⟧ᴮ st
+     ≡ ⟦ foldConstantsᴮ `a1 = a2` ⟧ᴮ st .
 
-       In this case, we have
-[[
-           foldConstantsᴮ [[ a1 = a2 ]]
-         = if n1 =? n2 then <{true}> else <{false}>
-]]
-       and
-[[
-           ⟦ <{a1 = a2}> ⟧ᴮ st
-         = (aeval s₁ a1) =? (aeval s₁ a2).
-]]
-       By the soundness of constant folding for arithmetic
-       expressions (Lemma `foldConstantsᴬ_sound`), we know
-[[
-           aeval s₁ a1
-         = aeval s₁ (foldConstantsᴬ a1)
-         = aeval s₁ (ANum n1)
-         = n1
-]]
-       and
-[[
-           aeval s₁ a2
-         = aeval s₁ (foldConstantsᴬ a2)
-         = aeval s₁ (ANum n2)
-         = n2,
-]]
-       so
-[[
-           ⟦ <{a1 = a2}> ⟧ᴮ st
-         = (aeval a1) =? (aeval a2)
-         = n1 =? n2.
-]]
-       Also, it is easy to see (by considering the cases `n1 = n2` and
-       `n1 <> n2` separately) that
-[[
-           ⟦ if n1 =? n2 then T else F ⟧ᴮ st
-         = if n1 =? n2 then beval s₁ <{true}> else ⟦ <{false}> ⟧ᴮ st
-         = if n1 =? n2 then true else false
-         = n1 =? n2.
-]]
-       So
-[[
-           beval s₁ (<{ a1 = a2 }>)
-         = n1 =? n2.
-         = ⟦ if n1 =? n2 then T else F ⟧ᴮ st,
-]]
-       as required.
+There are two cases to consider:
 
-     - Otherwise, one of `foldConstantsᴬ a1` and
-       `foldConstantsᴬ a2` is not a constant.  In this case, we
-       must show
-[[
-           ⟦ <{a1 = a2}> ⟧ᴮ st
-         = ⟦ foldConstantsᴬ a1 ⟧ᴮ s₁ =
-                         ⟦ foldConstantsᴬ a2 ⟧ᴮ st,
-]]
-       which, by the definition of `⟦_⟧ᴮ_` is the same as showing
-[[
-           (aeval s₁ a1) =? (aeval s₁ a2)
-         = (aeval s₁ (foldConstantsᴬ a1)) =?
-                   (aeval s₁ (foldConstantsᴬ a2)).
-]]
-       But the soundness of constant folding for arithmetic
-       expressions (`foldConstantsᴬ_sound`) gives us
-[[
-         aeval s₁ a1 = aeval s₁ (foldConstantsᴬ a1)
-         aeval s₁ a2 = aeval s₁ (foldConstantsᴬ a2),
-]]
-       completing the case.  [] *)
+ - First, suppose `foldConstantsᴬ a1 ≡ ANum n1` and
+   `foldConstantsᴬ a2 ≡ ANum n2` for some `n1` and `n2`.
+
+   In this case, we have
+
+       foldConstantsᴮ [[ a1 = a2 ]]
+        ≡ if n1 =? n2 then <{true}> else <{false}>
+
+   and
+
+       ⟦ a1 == a2 ⟧ᴮ s₁
+        ≡ (aeval s₁ a1) ≡ᵇ (aeval s₁ a2)
+
+   By the soundness of constant folding for arithmetic expressions
+   (Lemma `foldConstantsᴬ_sound`), we know
+
+       aeval s₁ a1
+        ≡ aeval s₁ (foldConstantsᴬ a1)
+        ≡ aeval s₁ (ANum n1)
+        ≡ n1
+
+   and
+
+       aeval s₁ a2
+        ≡ aeval s₁ (foldConstantsᴬ a2)
+        ≡ aeval s₁ (ANum n2)
+        ≡ n2
+
+   so
+
+       ⟦ a1 == a2 ⟧ᴮ st
+        ≡ (aeval a1) =? (aeval a2)
+        ≡ n1 =? n2.
+
+   Also, it is easy to see (by considering the cases `n1 == n2` and
+   `n1 <> n2` separately) that
+
+       ⟦ if n1 =? n2 then T else F ⟧ᴮ st
+        ≡ if n1 =? n2 then beval s₁ <{true}> else ⟦ <{false}> ⟧ᴮ st
+        ≡ if n1 =? n2 then true else false
+        ≡ n1 =? n2.
+
+   So
+
+       ⟦ (a1 == a2) ⟧ᴮ st₁
+        ≡ n1 =? n2.
+        ≡ ⟦ if n1 =? n2 then T else F ⟧ᴮ st,
+
+   as required.
+
+ - Otherwise, one of `foldConstantsᴬ a1` and `foldConstantsᴬ a2` is
+   not a constant.  In this case, we must show
+
+       ⟦ a1 == a2 ⟧ᴮ st
+        ≡ ⟦ foldConstantsᴬ a1 ⟧ᴮ s₁ = ⟦ foldConstantsᴬ a2 ⟧ᴮ st ,
+
+   which, by the definition of `⟦_⟧ᴮ_` is the same as showing
+
+       (aeval s₁ a1) =? (aeval s₁ a2)
+        ≡ (aeval s₁ (foldConstantsᴬ a1)) == (aeval s₁ (foldConstantsᴬ a2)) .
+
+   But the soundness of constant folding for arithmetic expressions
+   (`foldConstantsᴬ_sound`) gives us
+
+       aeval s₁ a1 ≡ aeval s₁ (foldConstantsᴬ a1)
+       aeval s₁ a2 ≡ aeval s₁ (foldConstantsᴬ a2),
+
+   completing the case.
 
 
 Theorem foldConstantsᴮ_sound:
@@ -1213,7 +1210,7 @@ Theorem foldConstantsᶜ_sound :
 (* EX4A? (optimize0plus) *)
 (** Recall the definition `optimize0plus` from the \CHAPV1{Imp} chapter
     of _Logical Foundations_:
-[[
+
     Fixpoint optimize0plus (a:aexp) : aexp :=
       match a with
       | ANum n =>
@@ -1227,17 +1224,17 @@ Theorem foldConstantsᶜ_sound :
       | <{ a1 * a2 }> =>
           <{ (optimize0plus a1) * (optimize0plus a2) }>
       end.
-]]
+
    Note that this function is defined over the old `aexp`s,
    without states.
 
    Write a new version of this function that accounts for variables,
    plus analogous ones for `bexp`s and commands:
-[[
+
      optimize0plus_aexp
      optimize0plus_bexp
      optimize0plus_com
-]]
+
    Prove that these three functions are sound, as we did for
    `fold_constants_*`.  Make sure you use the congruence lemmas in
    the proof of `optimize0plus_com` — otherwise it will be _long_!
@@ -1251,130 +1248,18 @@ Theorem foldConstantsᶜ_sound :
    - Prove that the optimizer is sound.  (This part should be _very_
      easy.)  *)
 
-(* SOLUTION *)
-
-Fixpoint optimize0plus_aexp (a : aexp) : aexp :=
-  match a with
-  | ANum n => ANum n
-  | AId x => AId x
-  | <{ 0 + a2 }> => optimize0plus_aexp a2
-  | <{ a1 + a2 }> => <{ (optimize0plus_aexp a1) + (optimize0plus_aexp a2) }>
-  | <{ a1 - a2 }> => <{ (optimize0plus_aexp a1) - (optimize0plus_aexp a2) }>
-  | <{ a1 * a2 }> => <{ (optimize0plus_aexp a1) * (optimize0plus_aexp a2) }>
-  end.
-
-Fixpoint optimize0plus_bexp (b : bexp) : bexp :=
-  match b with
-  | <{true}>       => <{true}>
-  | <{false}>      => <{false}>
-  | <{ a1 = a2 }>  => <{ (optimize0plus_aexp a1) = (optimize0plus_aexp a2) }>
-  | <{ a1 <= a2 }> => <{ (optimize0plus_aexp a1) <= (optimize0plus_aexp a2) }>
-  | <{ ~ b1 }>     => <{ ~ (optimize0plus_bexp b1) }>
-  | <{ b1 && b2 }> => <{ (optimize0plus_bexp b1) && (optimize0plus_bexp b2) }>
-  end.
-
-Fixpoint optimize0plus_com (c : com) : com :=
-  match c with
-  | <{ skip }>                     => <{ skip }>
-  | <{ x := a }>                   => <{ x := optimize0plus_aexp a }>
-  | <{ c₁ ; c₂ }>                  => <{ optimize0plus_com c₁ ;
-                                         optimize0plus_com c₂ }>
-  | <{ if b then c₁ else c₂ end }> =>
-     <{ if (optimize0plus_bexp b)
-        then (optimize0plus_com c1)
-        else (optimize0plus_com c2)
-        end }>
-  | <{ while b loop c₁ end }>         => <{ while (optimize0plus_bexp b) do
-                                          (optimize0plus_com c1)
-                                         end }>
-  end.
-
-Theorem optimize0plus_aexp_sound:
-  atrans_sound optimize0plus_aexp.
-Proof.
-  unfold atrans_sound, aequiv.
-  intros a st.
-  induction a;
-    (* ANum and AId are immediate by definition *)
-    try (reflexivity);
-    (* AMinus and AMult are immediate by IH *)
-    try (simpl; rewrite IHa1; rewrite IHa2; reflexivity).
-  - (* APlus *)
-    destruct a1;
-    (* everything but ANum and AId follow from the IH *)
-    try (simpl; simpl in IHa1; rewrite IHa1; rewrite IHa2; reflexivity).
-    + (* ANum *)
-      simpl. rewrite IHa2.
-      destruct n as [| n'].
-      * (* n = 0 *)
-        apply plus_0_l.
-      * (* n = S n' *)
-        simpl. reflexivity.
-    + (* AId *)
-      simpl. rewrite IHa2. reflexivity.  Qed.
-
-Theorem optimize0plus_bexp_sound :
-  btrans_sound optimize0plus_bexp.
-Proof.
-  unfold btrans_sound, bequiv.
-  intros b st. induction b; simpl;
-               try reflexivity;
-               try (rewrite IHb1; rewrite IHb2; reflexivity);
-               try (rewrite <- optimize0plus_aexp_sound;
-                    rewrite <- optimize0plus_aexp_sound;
-                    reflexivity).
-  - (* BNot *)
-    rewrite IHb. reflexivity.  Qed.
-
-Theorem optimize0plus_com_sound :
-  ctrans_sound optimize0plus_com.
-Proof.
-  unfold ctrans_sound, cequiv.
-  intros c.
-  induction c;
-  intros s₁ s₂. simpl.
-  - (* skip *)
-    apply refl_cequiv.
-  - (* := *)
-    apply :=-congruence.
-    apply optimize0plus_aexp_sound.
-  - (* ; *)
-    apply CSeq_congruence; unfold cequiv.
-    apply IHc1. apply IHc2.
-  - (* if *)
-    apply CIf_congruence; unfold cequiv.
-    apply optimize0plus_bexp_sound.
-    apply IHc1. apply IHc2.
-  - (* while *)
-    apply CWhile_congruence; unfold cequiv.
-    apply optimize0plus_bexp_sound.
-    apply IHc.  Qed.
-
-Definition optimizer (c : com) := optimize0plus_com (foldConstantsᶜ c).
-
-Theorem optimizer_sound :
-  ctrans_sound optimizer.
-Proof.
-  unfold ctrans_sound. unfold optimizer.
-  intros c.
-  apply trans_cequiv with (foldConstantsᶜ c).
-  apply foldConstantsᶜ_sound.
-  apply optimize0plus_com_sound.  Qed.
-(* /SOLUTION *)
-
-
 ### Proving inequivalence
 
 (** Suppose that `c1` is a command of the form `X := a1; Y := a2`
     and `c2` is the command `X := a1; Y := a2'`, where `a2'` is
     formed by substituting `a1` for all occurrences of `X` in `a2`.
     For example, `c1` and `c2` might be:
-[[
+
        c₁  =  (X := 42 + 53;
                Y := Y + X)
        c₂  =  (X := 42 + 53;
                Y := Y + (42 + 53))
-]]
+
     Clearly, this _particular_ `c1` and `c2` are equivalent.  Is this
     true in general? *)
 
@@ -1420,13 +1305,13 @@ Definition subst_equiv_property := forall x1 x2 a1 a2,
 (** Sadly, the property does _not_ always hold.
 
     We can show the following counterexample:
-[[
+
        X := X + 1; Y := X
-]]
+
     If we perform the substitution, we get
-[[
+
        X := X + 1; Y := X + 1
-]]
+
     which clearly isn't equivalent to the original program. [] *)
 (* HIDE: An earlier, more tedious proof:
 
@@ -1506,50 +1391,6 @@ Lemma aeval_weakening : forall x s₁ a ni,
 (** Using `var_not_used_in_aexp`, formalize and prove a correct version
     of `subst_equiv_property`. *)
 
-(* SOLUTION *)
-Lemma aeval_subst : forall x s₁ a1 a2,
-  var_not_used_in_aexp x a1 ->
-  aeval (x !-> aeval s₁ a1 ; st) a2 =
-  aeval (x !-> aeval s₁ a1 ; st) (subst_aexp x a1 a2).
-Proof.
-  intros x s₁ a1 a2 Hi.
-  generalize dependent st.
-  induction a2 as [| x' | | | ]; intros st;
-    (* operator cases follow from the IH *)
-    try (simpl; rewrite -> IHa2_1; rewrite -> IHa2_2; reflexivity).
-  - (* ANum *)
-    reflexivity.
-  - (* AId *)
-    unfold subst_aexp.
-    destruct (eqb_stringP x x') as [H | H].
-    + (* x = x' *)
-      subst x'.
-      rewrite aeval_weakening with (a := a1); try assumption.
-      simpl. rewrite t_update_eq. reflexivity.
-    + (* x <> x' *)
-      reflexivity.  Qed.
-
-Theorem subst_equiv : forall x1 x2 a1 a2,
-  var_not_used_in_aexp x1 a1 ->
-  cequiv <{ x1 := a1; x2 := a2 }>
-         <{ x1 := a1; x2 := subst_aexp x1 a1 a2 }>.
-Proof.
-  unfold cequiv. intros x1 x2 a1 a2 Hi.
-  split; intros Hce.
-  - (* -> *)
-    inversion Hce; subst.
-    apply E_Seq with s₂.; try assumption.
-    inversion H4; subst. apply E_Ass.
-    inversion H1; subst. symmetry. apply aeval_subst.
-    assumption.
-  - (* <- *)
-    inversion Hce; subst.
-    apply E_Seq with s₂..
-    assumption.
-    inversion H4; subst. apply E_Ass.
-    inversion H1; subst. apply aeval_subst.
-    assumption.  Qed.
-(* /SOLUTION *)
 
 #### Exercise `≢-skip` (practice) {#inequiv-skip}
 
@@ -1576,10 +1417,10 @@ Theorem inequiv_exercise:
     languages (such as C and its relatives), the order in which
     function arguments are evaluated is unspecified.  The program
     fragment
-[[
+
       x = 0;
       f(++x, x)
-]]
+
     might call `f` with arguments `(1, 0)` or `(1, 1)`, depending how
     the compiler chooses to order things.  This can be a little
     confusing for programmers, but it gives the compiler writer useful
@@ -1591,10 +1432,10 @@ Theorem inequiv_exercise:
     where `X` is an identifier. The effect of executing `HAVOC X` is
     to assign an _arbitrary_ number to the variable `X`,
     nondeterministically. For example, after executing the program:
-[[
+
       HAVOC Y;
       Z := Y * 2
-]]
+
     the value of `Y` can be any number, while the value of `Z` is
     twice that of `Y` (so `Z` is always even). Note that we are not
     saying anything about the _probabilities_ of the outcomes — just
@@ -1683,10 +1524,6 @@ Inductive ceval : com -> state -> state -> Prop :=
       s₁  =[ c ]=> s₂ ->
       s₂ =[ while b loop c end ]=> s₂. ->
       s₁  =[ while b loop c end ]=> s₂.
-(* SOLUTION *)
-  | E_Havoc : forall (s₁ : state) (X : string) (n : nat),
-      s₁ =[ havoc X ]=> (X !-> n ; st)
-(* /SOLUTION *)
 
   where "st =[ c ]=> s₂. := (ceval c s₁ s₂..
 
@@ -1721,26 +1558,6 @@ Definition pYX :=
 
 (** If you think they are equivalent, prove it. If you think they are
     not, prove that. *)
-(* QUIETSOLUTION *)
-
-Theorem pXY_approx_pYX :
-  forall X Y s₁ s₂.
-    s₁ =[ havoc X; havoc Y ]=> s₂ ->
-    s₁ =[ havoc Y; havoc X ]=> s₂.
-Proof.
-  intros X Y s₁ s₂ H.
-  destruct (eqb_stringP X Y) as [Hid | Hid].
-  - (* X = Y *)
-    subst.  assumption.
-  - (* X <> Y *)
-    inversion H; subst; clear H.
-    inversion H2; subst; clear H2.
-    inversion H5; subst; clear H5.
-    apply E_Seq with (s₂ := (Y !-> n0 ; st)). constructor.
-    rewrite t_update_permute.
-    constructor. assumption.
-Qed.
-(* /QUIETSOLUTION *)
 
 Theorem pXY_cequiv_pYX :
   cequiv pXY pYX \/ ~cequiv pXY pYX.
@@ -1826,12 +1643,6 @@ Definition p3 : com :=
 Definition p4 : com :=
   <{ X := 0;
      Z := 1 }>.
-(* QUIETSOLUTION *)
-
-(** First, note that the programs `p3` and `p4` are not equivalent:
-    when `p3` terminates, even though `X` definitely has value `0`,
-    `Z` might have any natural number as the value. *)
-(* /QUIETSOLUTION *)
 
 Theorem p3_p4_inequiv : ~ cequiv p3 p4.
 
@@ -1853,46 +1664,6 @@ Definition p5 : com :=
 
 Definition p6 : com :=
   <{ X := 1 }>.
-(* QUIETSOLUTION *)
-
-(** Programs `p5` and `p6` are equivalent although `p5` may diverge,
-    while `p6` always terminates. The definition we took for `cequiv`
-    cannot distinguish between these two scenarios. It accepts the two
-    programs as equivalent on the basis that: if `p5` terminates it
-    produces the same final state as `p6`, and there exists an
-    execution in which `p5` terminates and does exactly as `p6`.
-
-    There are two directions to the proof:
-
-    `→`: Observe that whenever `p5` terminates, it does so with `X`
-    set to `1`, and no other variable changed. But this is exactly the
-    behavior of `p6`. Thus given a pair of states `st` and `st'` and
-    that `s₁ =[ p5 ]=> s₂`, the answer to the question
-    "Does `s₁ =[ p6 ]=> s₂`?"  is "Yes".
-
-    `←` (and more controversially): Given that `s₁ =[ p6 ]=> s₂` for
-    some `st` and `st'`, can we show that `s₁ =[ p5 ]=> s₂`? Observe
-    that we can use the hypothesis to conclude that
-    `st' = (X !-> 1 ; st)`.
-    Is there some execution of `p5` starting from `st` which also
-    ends up in `st'`? Yes!
-
-    Hence their equivalence. *)
-
-Lemma p5_summary : forall s₁ s₂.
-    s₁ =[ p5 ]=> s₂ -> s₂ = (X !-> 1 ; st).
-Proof.
-  intros. remember p5 as p5' eqn:Heqp5'.
-  induction H; inversion Heqp5'; subst.
-  - (* EWhileF *)
-    simpl in H. apply negb_false_iff in H. apply eqb_eq in H.
-    rewrite <- H. rewrite t_update_same. reflexivity.
-  - (* EWhileT *)
-    apply IHceval2 in Heqp5'.
-    inversion H0; subst.
-    apply t_update_shadow.
-Qed.
-(* /QUIETSOLUTION *)
 
 Theorem p5_p6_equiv : cequiv p5 p6.
 
@@ -1914,24 +1685,20 @@ End Himp.
 (** This exercise extends the optional `add_for_loop` exercise from
     the \CHAPV1{Imp} chapter, where you were asked to extend the language
     of commands with C-style `for` loops.  Prove that the command:
-[[
+
       for (c1; b; c2) {
           c3
       }
-]]
+
     is equivalent to:
-[[
+
        c1;
        while b do
          c3;
          c2
        end
-]]
+
 *)
-(* SOLUTION *)
-(* LATER: write a solution! *)
-(* If you write a nice solution to this one, please send it to us! *)
-(* /SOLUTION *)
 
 #### Exercise `` () {#}
 
@@ -1962,11 +1729,11 @@ Definition capprox (c1 c₂ : com) : Prop := forall (s₁ s₂ : state),
   s₁ =[ c₁ ]=> s₂ -> s₁ =[ c₂ ]=> s₂.
 
 (** For example, the program
-[[
+
   c₁ = while ~(X = 1) do
          X ::= X - 1
        end
-]]
+
     approximates `c2 = X ::= 1`, but `c2` does not approximate `c1`
     since `c1` does not terminate when `X = 0` but `c2` does.  If two
     programs approximate each other in both directions, then they are
@@ -1994,12 +1761,7 @@ Theorem cmin_minimal : forall c, capprox cmin c.
 
 Definition zprop (c : com) : Prop
   (* ADMITDEF *) := forall st, exists s₂. s₁ =[ c ]=> s₂. (* /ADMITDEF *)
-(* QUIETSOLUTION *)
 
-(** Intuitively, `zprop` holds of programs that terminate on all
-    inputs. *)
-
-(* /QUIETSOLUTION *)
 Theorem zprop_preserving : forall c c′,
   zprop c -> capprox c c′ -> zprop c′.
 (* HIDE *)
