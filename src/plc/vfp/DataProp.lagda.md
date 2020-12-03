@@ -668,10 +668,10 @@ The technical code behind `inspect` idiom is:
 
 ```
   data Inspection {a} {A : Set a} (x : A) : Set a where
-    resultEvidence : (y : A) → x ≡ y → Inspection x
+    _by_ : (y : A) → x ≡ y → Inspection x
 
   inspect : ∀ {a} {A : Set a} (x : A) → Inspection x
-  inspect x = resultEvidence x refl
+  inspect x = x by refl
   -- End of module Inspect
 ```
 
@@ -687,8 +687,8 @@ If we needed evidence in the body of the first branch that
 to capture that evidence for later use:
 
     find key (entry k v pm) with inspect (key ≡idᵇ k)
-    ...                        | resultEvidence true kkIsT = ...
-    ...                        | resultEvidence false kkIsF = ...
+    ...                        | true by kkIsT = ...
+    ...                        | false by kkIsF = ...
 
 In the first branch, the value of `kkIsT` will be evidence for
 `key ≡idᵇ k ≡ true`; and in the second branch, the value of

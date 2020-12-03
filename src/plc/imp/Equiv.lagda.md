@@ -17,6 +17,8 @@ open import Data.Nat using (ℕ; _∸_; _≡ᵇ_; _<ᵇ_; zero; suc)
 open import Data.Bool using (Bool; true; false; not; _∨_; _∧_; if_then_else_)
 open import plc.fp.Maps using (TotalMap; _↦_,_; ↪)
 open import plc.vfp.Induction
+import plc.vfp.DataProp as DP
+open DP.Inspect using (inspect; _by_)
 import plc.vfp.VerifExers as VE
 open VE.MapProps
 open import plc.vfp.Relations using (_⇔_)
@@ -949,19 +951,74 @@ _Constant folding_ is an optimization that finds constant expressions
 and replaces them by their values.  Essentially, it converts run-time
 work (which might be repeated inside a loop) to compile-time work.
 
+Folding constants in the binary operators is a little complicated: if
+_both_ of the subexpressions fold to a single constant, then the whole
+expression can also fold to a single constant.  But if either of the
+subexpressions folds to something else, then we will keep the original
+Imp binary operator.  For example, all of the following equations
+should hold:
+
+    foldConstantsᴬ (# 1 + # 2) ≡ (# 3)
+    foldConstantsᴬ (id "X" + # 2) ≡ (id "X" + # 2)
+    foldConstantsᴬ (# 1 + id "X") ≡ (# 1 + id "X")
+
+We will use the same reasoning for all three Imp binary operators, and
+so it will simplify our definition of constant folding if we pull out
+that reasoning into a helping function,
+
+```
+helpFCᴬ : (AExp → AExp → AExp) → (ℕ → ℕ → ℕ) → AExp → AExp → AExp
+```
+
+This function takes both an Imp binary operator and the corresponding
+Agda operator.  Then, it takes two Imp subexpressions and assembles
+them into the simplest combination possible: if both of the
+subexpressions are constants, then we can use the Agda operator to
+produce a simple constant, and otherwise we use the Imp operator to
+assemble the Imp representation of applying the binary operator.
+
+```
+helpFCᴬ impOp agdaOp (# n₁) (# n₂) = # (agdaOp n₁ n₂)
+helpFCᴬ impOp agdaOp a₁ a₂ = impOp a₁ a₂
+```
+
+For constants and variable uses, we do not need the helper function.
+
 ```
 foldConstantsᴬ : AExp → AExp
 foldConstantsᴬ a@(# x) = a
 foldConstantsᴬ a@(id x) = a
-foldConstantsᴬ a@(a₁ + a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
-... | (# n₁) | (# n₂) = # (n₁ Data.Nat.+ n₂)
-... | a₁′    | a₂'     = a₁′ + a₂'
-foldConstantsᴬ a@(a₁ - a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
-... | (# n₁) | (# n₂) = # (n₁ Data.Nat.∸ n₂)
-... | a₁′    | a₂'     = a₁′ - a₂'
-foldConstantsᴬ a@(a₁ * a₂) with foldConstantsᴬ a₁ | foldConstantsᴬ a₂
-... | (# n₁) | (# n₂) = # (n₁ Data.Nat.* n₂)
-... | a₁′    | a₂'     = a₁′ * a₂'
+```
+
+To understand how we use the helper function, consider defining the
+clause for addition without it.
+
+    foldConstantsᴬ (a₁ + a₂) with (foldConstantsᴬ a₁) (foldConstantsᴬ a₂)
+    ... | # n₁ | # n₂ = # (n₁ Data.Nat.+ n₂)
+    ... | a₁′  | a₂′  = a₁′ + a₂′
+
+We recursively fond constants in each of the two subexpressions `a₁`
+and `a₂`.  If both of these recursions produce a bare constant then we
+can use `Data.Nat.+`, the underlying Agda operator on `ℕ` values, to
+fold the original expression to their sum.  Otherwise, we build a new
+Imp expression for the representation of the sum.  Instead of
+repeating these `with`-clauses each time, we can just call the helper
+function instead.
+
+```
+foldConstantsᴬ (a₁ + a₂) =
+  helpFCᴬ _+_ Data.Nat._+_ (foldConstantsᴬ a₁) (foldConstantsᴬ a₂)
+```
+
+Note that we call `foldConstantsᴬ` on each subexpression _before_
+passing those results to the helper.  Then we can handle the other
+binary operations in the same way,
+
+```
+foldConstantsᴬ (a₁ - a₂) =
+  helpFCᴬ _-_ Data.Nat._∸_ (foldConstantsᴬ a₁) (foldConstantsᴬ a₂)
+foldConstantsᴬ (a₁ * a₂) =
+  helpFCᴬ _*_ Data.Nat._*_ (foldConstantsᴬ a₁) (foldConstantsᴬ a₂)
 ```
 
 For example,
@@ -1068,12 +1125,81 @@ _ = refl
 
 ### Soundness of constant folding
 
-Now we need to show that what we've done is correct.
+Now we need to show that what we've done is correct.  The `soundᴬ`
+function (and similar functions) convey what we mean by correctness,
+so what we must prove is that this predicate can be applied to
+`foldConstantsᴬ`.
 
-    foldConstantsᴬ_sound : soundᴬ foldConstantsᴬ
+    foldConstantsᴬSound : soundᴬ foldConstantsᴬ
+    foldConstantsᴮSound : soundᴮ foldConstantsᴮ
+    foldConstantsᶜSound : soundᶜ foldConstantsᶜ
 
-Here's the proof for arithmetic expressions:
+Here's the proof for arithmetic expressions: Recall that `soundᴬ` is
+defined as a quantification of a `≡ᴬ`-formula over `AExpr`s, and that
+`≡ᴬ` is defined as a quantification of a `≡`-formula over states:
 
+    soundᴬ f = ∀ (a : AExp) → a ≡ᴬ (f a)
+    a₁ ≡ᴬ a₂ = ∀ (st : State) → ⟦ a₁ ⟧ᴬ st ≡ ⟦ a₂ ⟧ᴬ st
+
+These quantified variables become additional parameters to
+`foldConstantsᶜSound`,
+
+    foldConstantsᴬSound a s = ?
+
+and we consider the possible forms of the expressions `a`,
+
+    foldConstantsᴬSound (# x) s = ?
+    foldConstantsᴬSound (id x) s = ?
+    foldConstantsᴬSound (a + a₁) s = ?
+    foldConstantsᴬSound (a - a₁) s = ?
+    foldConstantsᴬSound (a * a₁) s = ?
+
+The first two clauses are base cases, and Agda can verify the
+equivalence by rewriting.
+
+```
+
+fcForm+ : ∀ (a₁ a₂ : AExp)
+          → (∃[ n ] (foldConstantsᴬ (a₁ + a₂) ≡ # n))
+             ⊎ (∃[ a₁′ ] ∃[ a₂′ ] (foldConstantsᴬ (a₁ + a₂) ≡ a₁′ + a₂′
+                                × foldConstantsᴬ a₁ ≡ a₁′
+                                × foldConstantsᴬ a₂ ≡ a₂′))
+fcForm+ (# n) (# n′) = inj₁ ⟨ n Data.Nat.+ n′ , refl ⟩
+fcForm+ a₁@(# n) a₂@(id x) = inj₂ ⟨ a₁ , ⟨ a₂ , ⟨ refl , ⟨ refl , refl ⟩ ⟩ ⟩ ⟩
+fcForm+ a₁@(# n) a₂@(a₂′ + a₂″) with fcForm+ a₂′ a₂″
+fcForm+ (# n) (a₂′ + a₂″) | inj₁ ⟨ n′ , _ ⟩ = {!inj₁ ⟨ n Data.Nat.+ n′ , refl ⟩!}
+fcForm+ (# n) (a₂′ + a₂″) | inj₂ ⟨ x , x₁ ⟩ = {!!}
+fcForm+ a₁@(# n) a₂@(a₂′ - a₂″) = {!!}
+fcForm+ a₁@(# n) a₂@(a₂′ * a₂″) = {!!}
+fcForm+ (id x) a₂ = {!!}
+fcForm+ (a₁ + a₃) a₂ = {!!}
+fcForm+ (a₁ - a₃) a₂ = {!!}
+fcForm+ (a₁ * a₃) a₂ = {!!}
+
+foldConstantsᴬSound : soundᴬ foldConstantsᴬ
+foldConstantsᴬSound (# x) s = refl
+foldConstantsᴬSound (id x) s = refl
+```
+
+For the remaining cases we use induction, with a recursive call to
+`foldConstantsᴬSound` on each subexpression.
+
+```
+foldConstantsᴬSound (# n + # x₁) s = refl
+foldConstantsᴬSound (# n + id x₁) s = refl
+foldConstantsᴬSound (# n + a₂) s with inspect (foldConstantsᴬ (# n + a₂))
+foldConstantsᴬSound (# n + a₂) s | # x by aa' = {!!}
+foldConstantsᴬSound (# n + a₂) s | id x by aa' = {!!}
+foldConstantsᴬSound (# n + a₂) s | (a₂′ + a₂′₁) by aa' = {!!}
+foldConstantsᴬSound (# n + a₂) s | (a₂′ - a₂′₁) by aa' = {!!}
+foldConstantsᴬSound (# n + a₂) s | (a₂′ * a₂′₁) by aa' = {!!}
+foldConstantsᴬSound (id x + a₂) s = cong (s x Data.Nat.+_) (foldConstantsᴬSound a₂ s)
+foldConstantsᴬSound (a₁ + a₃ + a₂) s = {!!}
+foldConstantsᴬSound (a₁ - a₃ + a₂) s = {!!}
+foldConstantsᴬSound (a₁ * a₃ + a₂) s = {!!}
+foldConstantsᴬSound (a₁ - a₂) s = {!!}
+foldConstantsᴬSound (a₁ * a₂) s = {!!}
+```
 
 #### Exercise `foldBexpEqInformal` (practice) {#foldBexpEqInformal}
 
@@ -1091,8 +1217,8 @@ show just the case where `b` has the form `a1 = a2`.
 
 In this case, we must show
 
-    ⟦ `a1 = a2` ⟧ᴮ st
-     ≡ ⟦ foldConstantsᴮ `a1 = a2` ⟧ᴮ st .
+    ⟦ a1 == a2 ⟧ᴮ st
+     ≡ ⟦ foldConstantsᴮ (a1 == a2) ⟧ᴮ st .
 
 There are two cases to consider:
 
@@ -1101,8 +1227,8 @@ There are two cases to consider:
 
    In this case, we have
 
-       foldConstantsᴮ [[ a1 = a2 ]]
-        ≡ if n1 =? n2 then <{true}> else <{false}>
+       foldConstantsᴮ (a1 == a2)
+        ≡ if n1 == n2 then T else F
 
    and
 
@@ -1401,281 +1527,6 @@ Theorem inequiv_exercise:
   ~ cequiv <{ while true loop skip end }> <{ skip }>.
 
 
-
-#### Extended exercise: nondeterministic Imp
-
-(* HIDE: Mukund: This issue will need repetition when we introduce
-   small-step semantics. There's also a nice exercise for Hoare.v in
-   the midterm. *)
-(* LATER: BCP: The Imp chapter has a exercise on extending AExps with
-   `any`.  Might be nice to reuse that idea here instead of HAVOC. *)
-
-(** As we have seen (in theorem `ceval_deterministic` in the `Imp`
-    chapter), Imp's evaluation relation is deterministic.  However,
-    _non_-determinism is an important part of the definition of many
-    real programming languages. For example, in many imperative
-    languages (such as C and its relatives), the order in which
-    function arguments are evaluated is unspecified.  The program
-    fragment
-
-      x = 0;
-      f(++x, x)
-
-    might call `f` with arguments `(1, 0)` or `(1, 1)`, depending how
-    the compiler chooses to order things.  This can be a little
-    confusing for programmers, but it gives the compiler writer useful
-    freedom.
-
-    In this exercise, we will extend Imp with a simple
-    nondeterministic command and study how this change affects
-    program equivalence.  The new command has the syntax `HAVOC X`,
-    where `X` is an identifier. The effect of executing `HAVOC X` is
-    to assign an _arbitrary_ number to the variable `X`,
-    nondeterministically. For example, after executing the program:
-
-      HAVOC Y;
-      Z := Y * 2
-
-    the value of `Y` can be any number, while the value of `Z` is
-    twice that of `Y` (so `Z` is always even). Note that we are not
-    saying anything about the _probabilities_ of the outcomes — just
-    that there are (infinitely) many different outcomes that can
-    possibly happen after executing this nondeterministic code.
-
-    In a sense, a variable on which we do `HAVOC` roughly corresponds
-    to an uninitialized variable in a low-level language like C.  After
-    the `HAVOC`, the variable holds a fixed but arbitrary number.  Most
-    sources of nondeterminism in language definitions are there
-    precisely because programmers don't care which choice is made (and
-    so it is good to leave it open to the compiler to choose whichever
-    will run faster).
-
-    We call this new language _Himp_ (``Imp extended with `HAVOC`''). *)
-
-Module Himp.
-
-(** To formalize Himp, we first add a clause to the definition of
-    commands. *)
-
-Inductive com : Type :=
-  | CSkip : com
-  | CAss : string -> aexp -> com
-  | CSeq : com -> com -> com
-  | CIf : bexp -> com -> com -> com
-  | CWhile : bexp -> com -> com
-  | CHavoc : string -> com.                (* <--- NEW *)
-
-Notation "'havoc′ l" := (CHavoc l)
-                          (in custom com at level 60, l constr at level 0).
-(* INSTRUCTORS: Copy of template com *)
-Notation "'skip'"  :=
-         CSkip (in custom com at level 0).
-Notation "x := y"  :=
-         (CAss x y)
-            (in custom com at level 0, x constr at level 0,
-             y at level 85, no associativity).
-Notation "x ; y" :=
-         (CSeq x y)
-           (in custom com at level 90, right associativity).
-Notation "'if' x 'then' y 'else' z 'end'" :=
-         (CIf x y z)
-           (in custom com at level 89, x at level 99,
-            y at level 99, z at level 99).
-Notation "'while' x 'do' y 'end'" :=
-         (CWhile x y)
-            (in custom com at level 89, x at level 99, y at level 99).
-
-#### Exercise `himpCevel` (recommended) {#himp-ceval}
-
-(* EX2 (himp_ceval) *)
-(** Now, we must extend the operational semantics. We have provided
-   a template for the `ceval` relation below, specifying the big-step
-   semantics. What rule(s) must be added to the definition of `ceval`
-   to formalize the behavior of the `HAVOC` command? *)
-
-(* INSTRUCTORS: Copy of template eval *)
-Reserved Notation "st '=[' c ']=>' s₂.
-         (at level 40, c custom com at level 99, s₁ constr,
-          s₂ constr at next level).
-
-Inductive ceval : com -> state -> state -> Prop :=
-  | E_Skip : forall st,
-      s₁ =[ skip ]=> st
-  | E_Ass  : forall s₁ a1 n x,
-      aeval s₁ a1 = n ->
-      s₁ =[ x := a1 ]=> (x !-> n ; st)
-  | E_Seq : forall c₁ c₂ s₁ s₂ s₂.,
-      s₁  =[ c₁ ]=> s₂  ->
-      s₂ =[ c₂ ]=> s₂. ->
-      s₁  =[ c₁ ; c₂ ]=> s₂.
-  | EIfT : forall s₁ s₂ b c₁ c2,
-      ⟦ b ⟧ᴮ s₁  = true ->
-      s₁ =[ c₁ ]=> s₂ ->
-      s₁ =[ if b then c₁ else c₂ end ]=> s₂
-  | EIfF : forall s₁ s₂ b c₁ c2,
-      ⟦ b ⟧ᴮ s₁  = false ->
-      s₁ =[ c₂ ]=> s₂ ->
-      s₁ =[ if b then c₁ else c₂ end ]=> s₂
-  | EWhileF : forall b s₁ c,
-      ⟦ b ⟧ᴮ s₁  = false ->
-      s₁ =[ while b loop c end ]=> st
-  | EWhileT : forall s₁ s₂ s₂. b c,
-      ⟦ b ⟧ᴮ s₁  = true ->
-      s₁  =[ c ]=> s₂ ->
-      s₂ =[ while b loop c end ]=> s₂. ->
-      s₁  =[ while b loop c end ]=> s₂.
-
-  where "st =[ c ]=> s₂. := (ceval c s₁ s₂..
-
-(** As a sanity check, the following claims should be provable for
-    your definition: *)
-
-Example havoc_example1 : empty_st =[ havoc X ]=> (X !-> 0).
-
-Example havoc_example2 :
-  empty_st =[ skip; havoc Z ]=> (Z !-> 42).
-
-
-(** Finally, we repeat the definition of command equivalence from above: *)
-
-Definition cequiv (c1 c₂ : com) : Prop := forall s₁ s₂ : state,
-  s₁ =[ c₁ ]=> s₂ <-> s₁ =[ c₂ ]=> s₂.
-
-(** Let's apply this definition to prove some nondeterministic
-    programs equivalent / inequivalent. *)
-
-#### Exercise `havocSwap` (practice) {#havoc-swap}
-
-(* EX3 (havoc_swap) *)
-(** Are the following two programs equivalent? *)
-
-(* KK: The hack we did for variables bites back *)
-Definition pXY :=
-  <{ havoc X ; havoc Y }>.
-
-Definition pYX :=
-  <{ havoc Y; havoc X }>.
-
-(** If you think they are equivalent, prove it. If you think they are
-    not, prove that. *)
-
-Theorem pXY_cequiv_pYX :
-  cequiv pXY pYX \/ ~cequiv pXY pYX.
-
-#### Exercise `havocCopy` (stretch) {#havoc-copy}
-
-(* EX4? (havoc_copy) *)
-(** Are the following two programs equivalent? *)
-
-Definition ptwice :=
-  <{ havoc X; havoc Y }>.
-
-Definition pcopy :=
-  <{ havoc X; Y := X }>.
-
-(** If you think they are equivalent, then prove it. If you think they
-    are not, then prove that.  (Hint: You may find the `assert` tactic
-    useful.) *)
-
-Theorem ptwice_cequiv_pcopy :
-  cequiv ptwice pcopy \/ ~cequiv ptwice pcopy.
-
-(** The definition of program equivalence we are using here has some
-    subtle consequences on programs that may loop forever.  What
-    `cequiv` says is that the set of possible _terminating_ outcomes
-    of two equivalent programs is the same. However, in a language
-    with nondeterminism, like Himp, some programs always terminate,
-    some programs always diverge, and some programs can
-    nondeterministically terminate in some runs and diverge in
-    others. The final part of the following exercise illustrates this
-    phenomenon.
-*)
-
-#### Exercise `p1p2Term` (stretch) {#p1p2Term}
-
-(* EX4A (p1_p2_term) *)
-(** Consider the following commands: *)
-
-Definition p1 : com :=
-  <{ while ~ (X = 0) do
-       havoc Y;
-       X := X + 1
-     end }>.
-
-Definition p2 : com :=
-  <{ while ~ (X = 0) do
-       skip
-     end }>.
-
-(** Intuitively, `p1` and `p2` have the same termination behavior:
-    either they loop forever, or they terminate in the same state they
-    started in.  We can capture the termination behavior of `p1` and
-    `p2` individually with these lemmas: *)
-
-Lemma p1_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
-  ~ s₁ =[ p1 ]=> s₂.
-
-Lemma p2_may_diverge : forall s₁ s₂. s₁ X <> 0 ->
-  ~ s₁ =[ p2 ]=> s₂.
-
-#### Exercise `p1p2Equiv` (stretch) {#p1p2Equiv}
-
-(* EX4A (p1_p2_equiv) *)
-(** Use these two lemmas to prove that `p1` and `p2` are actually
-    equivalent. *)
-
-Theorem p1_p2_equiv : cequiv p1 p2.
-
-#### Exercise `p2p4Inequiv` (stretch) {#p2p4Inequiv}
-
-(* EX4A (p3_p4_inequiv) *)
-(** Prove that the following programs are _not_ equivalent.  (Hint:
-    What should the value of `Z` be when `p3` terminates?  What about
-    `p4`?) *)
-
-Definition p3 : com :=
-  <{ Z := 1;
-     while ~(X = 0) do
-       havoc X;
-       havoc Z
-     end }>.
-
-Definition p4 : com :=
-  <{ X := 0;
-     Z := 1 }>.
-
-Theorem p3_p4_inequiv : ~ cequiv p3 p4.
-
-#### Exercise `p5p6Equiv` (stretch) {#p5p6Equiv}
-
-(* EX5A? (p5_p6_equiv) *)
-(** Prove that the following commands are equivalent.  (Hint: As
-    mentioned above, our definition of `cequiv` for Himp only takes
-    into account the sets of possible terminating configurations: two
-    programs are equivalent if and only if the set of possible terminating
-    states is the same for both programs when given a same starting state
-    `st`.  If `p5` terminates, what should the final state be? Conversely,
-    is it always possible to make `p5` terminate?) *)
-
-Definition p5 : com :=
-  <{ while ~(X = 1) do
-       havoc X
-     end }>.
-
-Definition p6 : com :=
-  <{ X := 1 }>.
-
-Theorem p5_p6_equiv : cequiv p5 p6.
-
-End Himp.
-
-
-(* HIDE *)
-(* HIDE: BCP 2/16: This whole discussion seems like kind of a
-   side-track, especially now that we've built extensionality into the
-   earlier chapters even more deeply.  I'm removing it for now.  If
-   people prefer to keep it, I wonder whether we could move it to an
-   optional chapter by itself... *)
 
 ## Additional exercises
 
