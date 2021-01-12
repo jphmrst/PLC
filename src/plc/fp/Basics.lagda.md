@@ -175,13 +175,13 @@ here and for the definitions we encounter later, take the time to
 experiment with evaluating different expressions to make sure that you
 understand all of the definitions we will encounter.
 
-#### Exercise `explore-nontotal` (starting) {#explore-nontotal}
+#### Exercise `exploreNontotal` (starting) {#exploreNontotal}
 
 What error does Agda give when we define a function which is not
 total?  Delete one of the clauses from `nextDay` to see how the system
 reacts when you reload the file.
 
-#### Exercise `next-weekday` (practice) {#next-weekday}
+#### Exercise `nextWeekday` (recommended) {#nextWeekday}
 
 Write a function `nextWeekday` which takes a day, and returns the next
 weekday after that day (so skipping past Saturday and Sunday to
@@ -201,7 +201,7 @@ backticks before and after the code.  The indented code is simply
 taken as another comment like the rest of this text.  The backticks
 surround actual Agda code.
 
-#### Exercise `monthsAndSeasons` (practice) {#monthsAndSeasons}
+#### Exercise `monthsAndSeasons` (recommended) {#monthsAndSeasons}
 
 Write a data type `Month` with twelve constructors, one for each
 month.  Write a function `monthSeason` which maps a month to its
@@ -215,24 +215,6 @@ season,
 
 {::options parse_block_html="true" /}
 <div style="background-color: #f0fff0; padding: 1em 1.5em 0.5em; margin-bottom: 1em">
-
-### Remember! {#basics-summary}
-
- - In functional programming, we describe computation as a mapping
-   from inputs to outputs.  There are no side-effects, or variables
-   whose values can be rebound within one call to a function.
-
- - Functions consist of a _signature_ followed by one or more
-   _defining clauses_.
-
- - We can give multiple defining clauses to correspond to different
-   cases of possible argument values.
-
- - Agda functions must be _total_, so the defining clauses must
-   address any possible combination of inputs.
-
-</div>
-
 
 ### Booleans
 
@@ -350,7 +332,7 @@ operators in later sections.  Parentheses and semicolons are among the
 few characters that cannot appear in names, so we do not need the
 extra spaces that we have in the `using` list.
 
-#### Exercise `nand` (practice) {#nand}
+#### Exercise `nand` (recommended) {#nand}
 
 Define the following function to represent the `nand` logic operator,
 given by the following truth table:
@@ -495,6 +477,32 @@ is a lower-case letter, and returns `false` otherwise.
 
 Write your own version of `isLower`, without using the one in the
 standard library.
+
+### Remember! {#basics-summary}
+
+ - In functional programming, we describe computation as a mapping
+   from inputs to outputs.  There are no side-effects, or variables
+   whose values can be rebound within one call to a function.
+
+ - We can define our own data types which may have different,
+   alternative forms.  The different forms each have their own
+   _constructors_.  
+
+ - Functions consist of a _signature_ followed by one or more
+   _defining clauses_.
+
+ - We can give multiple defining clauses to correspond to different
+   cases of possible argument values.  One way to distinguish the
+   cases is by the constructors used to create an argument value.
+
+ - Agda functions must be _total_, so the defining clauses must
+   address any possible combination of inputs.
+
+ - Agda's type for boolean values is defined using this `data`
+   declaration.  Its two constructors are `true` and `false`.
+
+</div>
+
 
 ## Unicode
 

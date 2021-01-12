@@ -129,7 +129,7 @@ Hence, the possible natural numbers are:
 We will see in the Pragma section below how we can associate the usual
 base-10 notation with these expressions.
 
-#### Exercise `seven` (practice) {#seven}
+#### Exercise `seven` (starting) {#seven}
 
 Write out `7` in longhand.
 
@@ -137,7 +137,7 @@ Write out `7` in longhand.
 -- Your code goes here
 ```
 
-#### Exercise `try-nat-defs` (practice) {#try-nat-defs}
+#### Exercise `try-nat-defs` (starting) {#try-nat-defs}
 
 This exercise essentially repeats the [`try-days` exercise of the
 previous chapter]({{ site.baseurl }}/Basics/#try-days) for practicing
